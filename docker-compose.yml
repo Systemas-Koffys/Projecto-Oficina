@@ -11,6 +11,33 @@ services:
       - "3306:3306"
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - oficina_net
+
+  api:
+    build: ./backend
+    container_name: api_oficina
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=password
+      - DB_NAME=dboficina
+    depends_on:
+      - db
+    networks:
+      - oficina_net
+
+  frontend:
+    build: .
+    container_name: web_oficina
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    networks:
+      - oficina_net
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
@@ -24,3 +51,9 @@ services:
       - "8081:80"
     depends_on:
       - db
+    networks:
+      - oficina_net
+
+networks:
+  oficina_net:
+    driver: bridge
