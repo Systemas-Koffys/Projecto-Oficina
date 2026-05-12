@@ -11,7 +11,7 @@ export default defineConfig({
     ],
     proxy: {
       '/api': {
-        target: 'http://api:3000',
+        target: 'https://projecto-oficina-production.up.railway.app',
         changeOrigin: true,
       }
     }
