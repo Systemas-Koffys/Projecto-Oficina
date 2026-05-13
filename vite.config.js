@@ -9,6 +9,9 @@ export default defineConfig({
     allowedHosts: [
       'projecto-oficina-production.up.railway.app'
     ],
+    watch: {
+      usePolling: true,
+    },
     proxy: {
       '/api': {
         target: 'https://projecto-oficina-production.up.railway.app',

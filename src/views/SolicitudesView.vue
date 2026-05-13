@@ -32,12 +32,24 @@ const confirmarEliminar = async (sol) => {
 const imprimirReporte = async () => {
     if (solicitudSeleccionada.value) {
         try {
-            await registrarImpresion(solicitudSeleccionada.value.id_solicitud, 'Individual')
+            await registrarImpresion({
+                nombre_reporte: `Reporte Individual - ${solicitudSeleccionada.value.comunicacion_interna || solicitudSeleccionada.value.id_solicitud}`,
+                id_solicitud: solicitudSeleccionada.value.id_solicitud,
+                tipo_reporte: 'Individual'
+            })
         } catch (e) {
             console.error("Error al registrar impresión:", e)
         }
     }
     window.print();
+}
+
+const imprimirDirecto = (sol) => {
+    solicitudSeleccionada.value = sol;
+    // Pequeño delay para asegurar que el modal se renderice antes de disparar el print
+    setTimeout(() => {
+        imprimirReporte();
+    }, 150);
 }
 
 const filtroBusqueda = ref('')
@@ -167,6 +179,20 @@ const formatFecha = (str) => {
     const a = String(fecha.getUTCFullYear()).slice(-2);
     return `${diaSemana} ${d}/${m}/${a}`;
 }
+
+const getDistritoByBarrio = (idBarrio) => {
+    if (!idBarrio) return '—'
+    const b = store.barrios.find(x => x.id == idBarrio)
+    if (!b) return '—'
+    const d = store.distritos.find(x => x.id == b.id_distrito)
+    return d ? d.nombre : '—'
+}
+
+const getTipoInstitucion = (idTipo) => {
+    if (!idTipo) return 'Particular'
+    const t = store.tipos_institucion.find(x => x.id == idTipo)
+    return t ? t.nombre : 'Particular'
+}
 </script>
 
 <template>
@@ -181,12 +207,17 @@ const formatFecha = (str) => {
                         Administra los trámites que se encuentran actualmente en espera de atención
                     </p>
                 </div>
-                <button class="btn-primary" @click="uiState.showModal = true">
-                    <svg class="w-5 h-5 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                            clip-rule="evenodd"></path>
-                    </svg>
+                <!-- Botón Actualizado v2.2 - Color Verde Institucional -->
+                <button 
+                    id="btn-nueva-solicitud"
+                    @click="() => { uiState.editData = null; uiState.showModal = true; }" 
+                    class="group relative flex items-center gap-3 px-8 py-4 bg-[#1a4731] text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-green-900/20 hover:shadow-green-900/40 hover:-translate-y-1 transition-all active:scale-95 border border-white/10"
+                >
+                    <div class="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                    </div>
                     Nueva Solicitud
                 </button>
             </div>
@@ -279,6 +310,9 @@ const formatFecha = (str) => {
                                         <button class="btn-icon btn-ver" @click="abrirDetalle(sol)" title="Ver detalles">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                         </button>
+                                        <button class="btn-icon btn-print" @click="imprimirDirecto(sol)" title="Imprimir reporte">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                                        </button>
                                         <button class="btn-icon btn-edit" @click="abrirEdicion(sol)" title="Editar solicitud">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                         </button>
@@ -323,22 +357,28 @@ const formatFecha = (str) => {
                 <!-- ===== CABECERA FORMAL PARA IMPRESIÓN (A4) ===== -->
                 <div class="hidden print:block print-header">
                     <div class="print-institution flex items-center gap-6 border-b-2 border-black pb-4 mb-4">
-                        <div v-if="uiState.logo_institucional" class="w-32 h-32 flex-shrink-0">
-                            <img :src="uiState.logo_institucional" class="w-full h-full object-contain">
+                        <div class="w-24 h-24 flex-shrink-0 border border-gray-200 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+                            <img v-if="uiState.logo_institucional" :src="uiState.logo_institucional" class="w-full h-full object-contain">
+                            <div v-else class="text-[8px] font-black text-center text-gray-400 p-1 uppercase">
+                                Logo <br> Municipal
+                            </div>
                         </div>
-                        <div class="print-institution-text flex-1">
+                        <div class="print-institution-text flex-1 text-center">
                             <p class="print-gov font-black text-lg">Gobierno Autónomo Municipal de Tarija</p>
                             <p class="print-sec font-bold text-sm">Secretaría Municipal de Infraestructura y Servicios</p>
                             <p class="print-unit text-sm font-medium">Unidad de Arboricultura y Espacios Verdes</p>
                         </div>
                     </div>
-                    <div class="print-doc-title">
-                        <h1>REPORTE TÉCNICO DE SOLICITUD</h1>
-                        <div class="print-doc-meta">
-                            <span>Cod. Interno: <strong>{{ solicitudSeleccionada.comunicacion_interna || `#${solicitudSeleccionada.id_solicitud}` }}</strong></span>
+                    <div class="print-doc-title text-center">
+                        <h1 class="mb-2">REPORTE TÉCNICO DE SOLICITUD</h1>
+                        <div class="print-doc-meta flex justify-center items-center gap-3 text-[10px] font-medium text-gray-700">
+                            <span>Cod: <strong>{{ solicitudSeleccionada.comunicacion_interna || `#${solicitudSeleccionada.id_solicitud}` }}</strong></span>
+                            <span class="text-gray-300">|</span>
                             <span>Estado: <strong>{{ solicitudSeleccionada.estado_tramite || 'En espera' }}</strong></span>
-                            <span>Urgencia: <strong>{{ solicitudSeleccionada.es_emergencia ? 'EMERGENCIA' : solicitudSeleccionada.nivel_urgencia }}</strong></span>
-                            <span>Fecha de emisión: <strong>{{ new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'long', year:'numeric' }) }}</strong></span>
+                            <span class="text-gray-300">|</span>
+                            <span>Urgencia: <strong>{{ solicitudSeleccionada.es_emergencia ? 'EMERGENCIA' : (solicitudSeleccionada.nivel_urgencia || 'Normal') }}</strong></span>
+                            <span class="text-gray-300">|</span>
+                            <span>Emisión: <strong>{{ new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }) }} ({{ new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) }})</strong></span>
                         </div>
                     </div>
                 </div>
@@ -353,183 +393,214 @@ const formatFecha = (str) => {
                                 :class="solicitudSeleccionada.estado_tramite === 'Terminado' ? 'bg-emerald-400 text-emerald-900' : 'bg-yellow-300 text-yellow-900'">
                                 {{ solicitudSeleccionada.estado_tramite || 'En espera' }}
                             </span>
-                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
-                                :class="solicitudSeleccionada.es_emergencia || solicitudSeleccionada.nivel_urgencia === 'Alta' ? 'bg-red-400 text-red-900' : 'bg-green-200 text-green-900'">
-                                {{ solicitudSeleccionada.es_emergencia ? '🚨 EMERGENCIA' : solicitudSeleccionada.nivel_urgencia }}
-                            </span>
                         </div>
-
-                        <!-- Fila de insignias de requerimientos -->
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            <span v-if="solicitudSeleccionada.es_emergencia"
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white shadow">
-                                🚨 Emergencia
+                        <!-- Fila de insignias de requerimientos (CENTRALIZADA) -->
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <!-- 1. BADGE DE PRIORIDAD CONSOLIDADO -->
+                            <span v-if="solicitudSeleccionada.es_emergencia || solicitudSeleccionada.nivel_urgencia === 'Alta' || solicitudSeleccionada.es_urgencia"
+                                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black bg-red-600 text-white shadow-lg shadow-red-900/20 border border-white/20 animate-pulse">
+                                🚨 PRIORIDAD CRÍTICA / EMERGENCIA
                             </span>
+                            <span v-else-if="solicitudSeleccionada.nivel_urgencia === 'Intermedia'"
+                                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black bg-amber-500 text-white shadow-lg shadow-amber-900/20 border border-white/20">
+                                ⚠️ PRIORIDAD MEDIA
+                            </span>
+                            <span v-else
+                                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 border border-white/20">
+                                ✅ PRIORIDAD NORMAL
+                            </span>
+
+                            <!-- 2. OTROS REQUERIMIENTOS LOGÍSTICOS -->
                             <span v-if="solicitudSeleccionada.procede"
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white shadow">
-                                ✅ Procede trabajo
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                🌲 PROCEDE TRABAJO
                             </span>
                             <span v-if="solicitudSeleccionada.requiere_plataforma"
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-yellow-400 text-yellow-900 shadow">
-                                🏗️ Plataforma
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-blue-100 text-blue-700 border border-blue-200">
+                                🏗️ GRÚA/PLATAFORMA
                             </span>
                             <span v-if="solicitudSeleccionada.requiere_setar"
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-orange-500 text-white shadow">
-                                ⚡ Req. SETAR
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-orange-100 text-orange-700 border border-orange-200">
+                                ⚡ CORTE SETAR
                             </span>
                             <span v-if="solicitudSeleccionada.requiere_ficha_tecnica"
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-400 text-white shadow">
-                                📋 Ficha Técnica
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-indigo-100 text-indigo-700 border border-indigo-200">
+                                📋 FICHA TÉCNICA
                             </span>
                             <span v-if="solicitudSeleccionada.arbol_seco"
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-600 text-white shadow">
-                                🌵 Árbol Seco
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-amber-100 text-amber-700 border border-amber-200">
+                                🌵 ÁRBOL SECO
+                            </span>
+                            <span v-if="solicitudSeleccionada.segunda_nota"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-purple-100 text-purple-700 border border-purple-200">
+                                ✉️ SEGUNDA NOTA
                             </span>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <button @click="imprimirReporte" class="bg-white/15 hover:bg-white/25 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        <button @click="imprimirReporte" class="bg-white/15 hover:bg-white/25 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all border border-white/10">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                             Imprimir
                         </button>
-                        <button @click="solicitudSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-8 h-8 rounded-full flex items-center justify-center text-xl leading-none transition-all">&times;</button>
+                        <button @click="solicitudSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-xl flex items-center justify-center text-2xl leading-none transition-all border border-white/10">&times;</button>
                     </div>
                 </div>
 
-                <!-- Cuerpo de la tarjeta -->
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Cuerpo de la tarjeta (5 SECCIONES FORMALES) -->
+                <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-white overflow-y-auto max-h-[70vh] custom-scrollbar">
 
-                    <!-- BLOQUE 1: Ingreso -->
-                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                        <h4 class="flex items-center gap-2 text-sm font-bold text-amber-800 uppercase tracking-wide mb-3">
-                            <span class="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                            Datos de Ingreso
+                    <!-- SECCIÓN 01: Información de Ingreso (AZUL) -->
+                    <div class="md:col-span-2 bg-blue-50/60 border border-blue-100 rounded-2xl p-6 shadow-sm">
+                        <h4 class="flex items-center gap-2 text-[11px] font-black text-blue-800 uppercase tracking-[0.2em] mb-4 border-b border-blue-200 pb-2">
+                            <span class="w-2 h-2 bg-blue-500 rounded-full"></span> 01. Información de Ingreso
                         </h4>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between py-1.5 border-b border-amber-100">
-                                <span class="text-amber-700 font-medium">Fecha</span>
-                                <span class="font-semibold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_ingreso) }}</span>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-y-5 gap-x-10 text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Fecha de Ingreso</span>
+                                <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_ingreso) }}</span>
                             </div>
-                            <div class="flex justify-between py-1.5 border-b border-amber-100">
-                                <span class="text-amber-700 font-medium">Solicitante</span>
-                                <span class="font-semibold text-gray-800">{{ solicitudSeleccionada.solicitante_nombre }}</span>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Comunicación Interna</span>
+                                <span class="font-black text-blue-900 bg-white/80 px-2 py-0.5 rounded border border-blue-100 w-fit">{{ solicitudSeleccionada.comunicacion_interna || 'S/N' }}</span>
                             </div>
-                            <div class="flex justify-between py-1.5">
-                                <span class="text-amber-700 font-medium">Teléfono</span>
-                                <span class="font-semibold text-gray-800">{{ solicitudSeleccionada.solicitante_telefono || '—' }}</span>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Acción Solicitada</span>
+                                <span class="font-bold text-gray-800">{{ getAccion(solicitudSeleccionada.id_accion_solicitada) }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Nombre del Solicitante</span>
+                                <span class="font-bold text-gray-800">{{ solicitudSeleccionada.solicitante_nombre }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Teléfono</span>
+                                <span class="font-bold text-gray-800">{{ solicitudSeleccionada.solicitante_telefono || '—' }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Tipo de Institución</span>
+                                <span class="font-bold text-gray-800">{{ getTipoInstitucion(solicitudSeleccionada.id_tipo_institucion) }}</span>
+                            </div>
+                            <div class="md:col-span-3 flex flex-col border-t border-blue-100/50 pt-2">
+                                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Nombre de Institución</span>
+                                <span class="font-bold text-gray-800 uppercase text-xs">{{ getInstitucion(solicitudSeleccionada.id_nombre_institucional) }}</span>
+                            </div>
+                            <div class="md:col-span-3 bg-white/80 p-4 rounded-xl border border-blue-100">
+                                <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-2 block">Nota de Solicitud / Descripción</span>
+                                <p class="text-gray-700 italic leading-relaxed font-medium">"{{ solicitudSeleccionada.solicitante_descripcion || 'Sin descripción adicional.' }}"</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- BLOQUE 2: Ubicación -->
-                    <div class="bg-teal-50 border border-teal-200 rounded-xl p-4">
-                        <h4 class="flex items-center gap-2 text-sm font-bold text-teal-800 uppercase tracking-wide mb-3">
-                            <span class="w-6 h-6 bg-teal-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                            Ubicación del Árbol
+                    <!-- SECCIÓN 02: Localización (VERDE) -->
+                    <div class="bg-emerald-50/60 border border-emerald-100 rounded-2xl p-6 shadow-sm">
+                        <h4 class="flex items-center gap-2 text-[11px] font-black text-emerald-800 uppercase tracking-[0.2em] mb-4 border-b border-emerald-200 pb-2">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 02. Localización y Referencia
                         </h4>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between py-1.5 border-b border-teal-100">
-                                <span class="text-teal-700 font-medium">Barrio</span>
-                                <span class="font-semibold text-gray-800">{{ getBarrio(solicitudSeleccionada.id_barrio) }}</span>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                                <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Distrito Municipal</span>
+                                <span class="font-bold text-gray-800">{{ getDistritoByBarrio(solicitudSeleccionada.id_barrio) }}</span>
                             </div>
-                            <div class="flex justify-between py-1.5 border-b border-teal-100">
-                                <span class="text-teal-700 font-medium">Calle</span>
-                                <span class="font-semibold text-gray-800">{{ solicitudSeleccionada.calle }} Nº {{ solicitudSeleccionada.numero_casa || 'S/N' }}</span>
+                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                                <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Barrio / Zona</span>
+                                <span class="font-bold text-gray-800 text-right">{{ getBarrio(solicitudSeleccionada.id_barrio) }}</span>
                             </div>
-                            <div class="flex justify-between py-1.5 border-b border-teal-100">
-                                <span class="text-teal-700 font-medium">Referencia</span>
-                                <span class="font-semibold text-gray-800 text-right max-w-[55%]">{{ solicitudSeleccionada.referencia || '—' }}</span>
+                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                                <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Calle / Avenida</span>
+                                <span class="font-bold text-gray-800 text-right">{{ solicitudSeleccionada.calle }} {{ solicitudSeleccionada.numero_casa ? 'Nº '+solicitudSeleccionada.numero_casa : '' }}</span>
                             </div>
-                            <div v-if="solicitudSeleccionada.id_nombre_institucional" class="flex justify-between py-1.5">
-                                <span class="text-teal-700 font-medium">Institución</span>
-                                <span class="font-semibold text-gray-800">{{ getInstitucion(solicitudSeleccionada.id_nombre_institucional) }}</span>
+                            <div class="flex flex-col pt-1">
+                                <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">Punto de Referencia Exacto</span>
+                                <span class="font-bold text-gray-700 bg-white/80 p-3 rounded-lg border border-emerald-100">{{ solicitudSeleccionada.referencia || '—' }}</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- BLOQUE 3: Lo Solicitado (ancho completo) -->
-                    <div class="md:col-span-2 bg-purple-50 border border-purple-200 rounded-xl p-4">
-                        <h4 class="flex items-center gap-2 text-sm font-bold text-purple-800 uppercase tracking-wide mb-3">
-                            <span class="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                            Lo Solicitado por el Vecino
+                    <!-- SECCIÓN 03: Diagnóstico (GRIS) -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
+                        <h4 class="flex items-center gap-2 text-[11px] font-black text-slate-800 uppercase tracking-[0.2em] mb-4 border-b border-slate-200 pb-2">
+                            <span class="w-2 h-2 bg-slate-600 rounded-full"></span> 03. Diagnóstico Técnico
                         </h4>
-                        <blockquote class="text-sm text-gray-700 italic bg-white border-l-4 border-purple-400 rounded-r-lg px-4 py-3 mb-3">
-                            "{{ solicitudSeleccionada.lo_solicitado || 'Sin descripción.' }}"
-                        </blockquote>
-                        <p class="text-sm">
-                            <span class="text-purple-700 font-medium">Categoría pedida: </span>
-                            <span class="font-semibold text-gray-800 bg-purple-100 px-2 py-0.5 rounded">{{ getAccion(solicitudSeleccionada.id_accion_solicitada) }}</span>
-                        </p>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Acción Determinada</span>
+                                <span class="font-black text-emerald-700 uppercase">{{ getAccion(solicitudSeleccionada.id_accion) }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Técnico Evaluador</span>
+                                <span class="font-bold text-gray-800">{{ getTecnico(solicitudSeleccionada.id_tecnico_verificacion) }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fecha Verificación</span>
+                                <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_verificacion) }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Especie Identificada</span>
+                                <span class="font-bold text-gray-800">{{ getEspecie(solicitudSeleccionada.id_especie) }}</span>
+                            </div>
+                            <div class="flex flex-col pt-1">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Informe de Verificación</span>
+                                <span class="font-medium text-gray-700 italic bg-white/80 p-3 rounded-lg border border-slate-200">"{{ solicitudSeleccionada.observacion_verificacion || 'Sin observaciones técnicas registradas.' }}"</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- BLOQUE 4: Verificación Técnica -->
-                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                        <h4 class="flex items-center gap-2 text-sm font-bold text-blue-800 uppercase tracking-wide mb-3">
-                            <span class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">4</span>
-                            Verificación Técnica
+                    <!-- SECCIÓN 04: Logística y Requerimientos (ÁMBAR) -->
+                    <div class="md:col-span-2 bg-amber-50/60 border border-amber-200 rounded-2xl p-6 shadow-sm">
+                        <h4 class="flex items-center gap-2 text-[11px] font-black text-amber-800 uppercase tracking-[0.2em] mb-4 border-b border-amber-200 pb-2">
+                            <span class="w-2 h-2 bg-amber-500 rounded-full"></span> 04. Apoyo Logístico y Alertas
                         </h4>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between py-1.5 border-b border-blue-100">
-                                <span class="text-blue-700 font-medium">Técnico</span>
-                                <span class="font-semibold text-gray-800">{{ getTecnico(solicitudSeleccionada.id_tecnico_verificacion) }}</span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[11px]">
+                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🏗️ ¿Requiere Grúa / Plataforma?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.requiere_plataforma ? 'text-blue-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_plataforma ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between py-1.5 border-b border-blue-100">
-                                <span class="text-blue-700 font-medium">Fecha verificación</span>
-                                <span class="font-semibold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_verificacion) }}</span>
+                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">⚡ ¿Requiere Corte SETAR?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.requiere_setar ? 'text-orange-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_setar ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between py-1.5 border-b border-blue-100">
-                                <span class="text-blue-700 font-medium">Acción determinada</span>
-                                <span class="font-semibold text-gray-800 text-right max-w-[55%]">{{ getAccion(solicitudSeleccionada.id_accion) }}</span>
+                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">📄 ¿Requiere Ficha Técnica?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.requiere_ficha_tecnica ? 'text-indigo-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_ficha_tecnica ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between py-1.5 border-b border-blue-100">
-                                <span class="text-blue-700 font-medium">Especie</span>
-                                <span class="font-semibold text-gray-800">{{ getEspecie(solicitudSeleccionada.id_especie) }}</span>
+                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🌵 ¿Es Árbol Seco?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.arbol_seco ? 'text-amber-700' : 'text-gray-400'">{{ solicitudSeleccionada.arbol_seco ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between py-1.5 border-b border-blue-100">
-                                <span class="text-blue-700 font-medium">¿Procede?</span>
-                                <span :class="solicitudSeleccionada.procede ? 'text-green-700 font-bold' : 'text-red-700 font-bold'">
-                                    {{ solicitudSeleccionada.procede ? '✓ Sí procede' : '✗ No procede' }}
+                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🚨 ¿Es Emergencia / Urgencia?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia ? 'text-red-600' : 'text-gray-400'">{{ (solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia) ? 'SÍ' : 'NO' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">✅ ¿Procede Trabajo?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.procede ? 'text-emerald-600' : 'text-gray-400'">{{ solicitudSeleccionada.procede ? 'SÍ' : 'NO' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 05: Cierre de Trámite (PÚRPURA) -->
+                    <div id="print-seccion-5" class="md:col-span-2 bg-purple-50/60 border border-purple-200 rounded-2xl p-6 shadow-sm print:break-before-page">
+                        <h4 class="flex items-center gap-2 text-[11px] font-black text-purple-900 uppercase tracking-[0.2em] mb-4 border-b border-purple-200 pb-2">
+                            <span class="w-2 h-2 bg-purple-500 rounded-full"></span> 05. Ejecución y Cierre Final
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Estado Administrativo</span>
+                                <span class="font-black uppercase text-xl" :class="solicitudSeleccionada.estado_tramite === 'Terminado' ? 'text-emerald-600' : 'text-purple-600'">
+                                    {{ solicitudSeleccionada.estado_tramite }}
                                 </span>
                             </div>
-                            <!-- Requerimientos como pills -->
-                            <div class="pt-2 flex flex-wrap gap-2">
-                                <span v-if="solicitudSeleccionada.arbol_seco" class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-semibold">🌵 Árbol Seco</span>
-                                <span v-if="solicitudSeleccionada.requiere_plataforma" class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">🏗️ Plataforma</span>
-                                <span v-if="solicitudSeleccionada.requiere_setar" class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-semibold">⚡ SETAR</span>
-                                <span v-if="solicitudSeleccionada.requiere_ficha_tecnica" class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">📋 Ficha Técnica</span>
-                                <span v-if="!solicitudSeleccionada.requiere_plataforma && !solicitudSeleccionada.requiere_setar && !solicitudSeleccionada.requiere_ficha_tecnica && !solicitudSeleccionada.arbol_seco" class="text-gray-400 text-xs italic">Sin requerimientos especiales</span>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Encargado de Ejecución</span>
+                                <span class="font-bold text-gray-800 uppercase text-xs">{{ getTecnico(solicitudSeleccionada.id_tecnico_ejecucion) }}</span>
                             </div>
-                        </div>
-                        <!-- Observación del técnico -->
-                        <div v-if="solicitudSeleccionada.observacion_verificacion" class="mt-3 bg-white rounded-lg border border-blue-100 px-3 py-2 text-sm text-gray-700 italic">
-                            "{{ solicitudSeleccionada.observacion_verificacion }}"
-                        </div>
-                    </div>
-
-                    <!-- BLOQUE 5: Ejecución -->
-                    <div class="bg-green-50 border border-green-200 rounded-xl p-4">
-                        <h4 class="flex items-center gap-2 text-sm font-bold text-green-800 uppercase tracking-wide mb-3">
-                            <span class="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">5</span>
-                            Ejecución y Cierre
-                        </h4>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between py-1.5 border-b border-green-100">
-                                <span class="text-green-700 font-medium">Estado</span>
-                                <span class="badge" :class="solicitudSeleccionada.estado_tramite === 'Terminado' ? 'badge-completed' : 'badge-pending'">
-                                    {{ solicitudSeleccionada.estado_tramite || 'En espera' }}
-                                </span>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Fecha de Finalización</span>
+                                <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_ejecucion) }}</span>
                             </div>
-                            <div class="flex justify-between py-1.5 border-b border-green-100">
-                                <span class="text-green-700 font-medium">Técnico Ejecución</span>
-                                <span class="font-semibold text-gray-800">{{ getTecnico(solicitudSeleccionada.id_tecnico_ejecucion) }}</span>
+                            <div class="md:col-span-3 bg-white/80 p-4 rounded-xl border border-purple-100">
+                                <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-2 block">Reporte Final de Obra</span>
+                                <p class="text-gray-700 font-semibold leading-relaxed">"{{ solicitudSeleccionada.observaciones_finales || 'Expediente sin reporte de cierre final.' }}"</p>
                             </div>
-                            <div class="flex justify-between py-1.5">
-                                <span class="text-green-700 font-medium">Fecha Ejecución</span>
-                                <span class="font-semibold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_ejecucion) }}</span>
-                            </div>
-                        </div>
-                        <div class="mt-3 bg-white rounded-lg border border-green-100 px-3 py-2 text-sm text-gray-700">
-                            {{ solicitudSeleccionada.observaciones_finales || 'Sin reporte de cierre.' }}
                         </div>
                     </div>
 
@@ -537,18 +608,14 @@ const formatFecha = (str) => {
 
                 <!-- Firmas para Impresión -->
                 <div class="hidden print:block print-firmas">
-                    <!-- Requerimientos especiales en texto formal -->
-                    <div class="print-req-box">
-                        <p class="print-req-title">REQUERIMIENTOS ESPECIALES</p>
-                        <div class="print-req-list">
-                            <span class="print-req-item" :class="solicitudSeleccionada.requiere_plataforma ? 'req-si' : 'req-no'">Grua/Plataforma: {{ solicitudSeleccionada.requiere_plataforma ? 'SI' : 'NO' }}</span>
-                            <span class="print-req-item" :class="solicitudSeleccionada.requiere_setar ? 'req-si' : 'req-no'">Corte SETAR: {{ solicitudSeleccionada.requiere_setar ? 'SI' : 'NO' }}</span>
-                            <span class="print-req-item" :class="solicitudSeleccionada.requiere_ficha_tecnica ? 'req-si' : 'req-no'">Ficha Tecnica: {{ solicitudSeleccionada.requiere_ficha_tecnica ? 'SI' : 'NO' }}</span>
-                            <span class="print-req-item" :class="solicitudSeleccionada.arbol_seco ? 'req-si' : 'req-no'">Arbol Seco: {{ solicitudSeleccionada.arbol_seco ? 'SI' : 'NO' }}</span>
-                            <span class="print-req-item" :class="solicitudSeleccionada.procede ? 'req-si' : 'req-no'">Procede: {{ solicitudSeleccionada.procede ? 'SI' : 'NO' }}</span>
-                            <span class="print-req-item" :class="solicitudSeleccionada.es_emergencia ? 'req-emergencia' : 'req-no'">Emergencia: {{ solicitudSeleccionada.es_emergencia ? 'SI' : 'NO' }}</span>
-                        </div>
+                    <!-- Nota de Descargo Formal -->
+                    <div class="border-t border-b border-gray-300 py-3 mb-6">
+                        <p class="text-[9px] text-gray-600 italic text-center leading-tight">
+                            "<strong>IMPORTANTE:</strong> Este documento es un reporte técnico formal con respaldo íntegro en la base de datos municipal del Sistema de Arboricultura. 
+                            Se ruega verificar la exactitud de todos los datos y referencias técnicas antes de proceder con la firma de conformidad correspondiente."
+                        </p>
                     </div>
+
                     <!-- Linea de firmas -->
                     <div class="print-firmas-row">
                         <div class="print-firma">
@@ -567,6 +634,12 @@ const formatFecha = (str) => {
                             <p class="print-firma-cargo">Jefe de Unidad</p>
                         </div>
                     </div>
+
+                    <!-- Pie de Página (Contador de Hojas) -->
+                    <div class="mt-8 pt-4 border-t border-gray-100 flex justify-between items-center text-[8px] text-gray-400 font-bold uppercase tracking-widest">
+                        <span>Sistema de Gestión de Arboricultura y Espacios Verdes - G.A.M.T.</span>
+                        <div class="print-counter">Página <span class="pageNumber"></span></div>
+                    </div>
                 </div>
 
                 <div class="no-print px-6 py-4 border-t border-gray-200 flex justify-end">
@@ -577,201 +650,178 @@ const formatFecha = (str) => {
     </div>
 </template>
 
-<style scoped>
+<style>
 @media print {
-    @page {
-        size: A4 portrait;
-        margin: 1cm 1.2cm;
+    /* REGLA MAESTRA: Solo el contenido del reporte es visible */
+    html, body { 
+        height: auto !important; 
+        overflow: visible !important; 
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 8.5pt !important; /* Fuente más pequeña global */
+    }
+    
+    #app, .app-container, .flex-1, main, main > div, .solicitudes-view, #solicitudes-parent { 
+        display: block !important; 
+        overflow: visible !important; 
+        height: auto !important; 
+        min-height: 0 !important;
+        max-height: none !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    #solicitudes, .sidebar, .header-bar, .no-print, .bg-black\/50, button, .custom-scrollbar::-webkit-scrollbar {
+        display: none !important;
     }
 
-    /* Ocultar toda la UI, mostrar solo el print-area */
-    body > * { display: none !important; }
-    .print-area { display: block !important; margin: 0 auto !important; }
+    @page {
+        size: A4 portrait;
+        margin: 0.6cm 0.8cm; /* Márgenes más estrechos */
+    }
 
-    /* Reset del contenedor modal para impresión */
+    /* RESET DEL MODAL PARA QUE FLUYA EN EL PDF */
+    .fixed.inset-0 {
+        position: static !important;
+        display: block !important;
+        background: white !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
     .print-area {
+        display: block !important;
+        width: 100% !important;
+        max-width: none !important;
         background: white !important;
         box-shadow: none !important;
         border-radius: 0 !important;
-        max-height: none !important;
         overflow: visible !important;
-        font-family: 'Inter', Arial, sans-serif;
-        font-size: 9.5pt;
-        color: #000;
-        width: 100% !important;
-        max-width: 19cm !important; /* Centrado dentro de A4 */
+        max-height: none !important;
     }
 
-    /* Ocultar elementos interactivos */
-    .no-print { display: none !important; }
+    /* FORZAR QUE EL CUERPO DEL REPORTE SE VEA COMPLETO */
+    .print-area .p-8,
+    .print-area .overflow-y-auto {
+        display: block !important;
+        overflow: visible !important;
+        max-height: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
 
-    /* ===== CABECERA INSTITUCIONAL ===== */
-    .print-header {
-        border-bottom: 2.5pt solid #1a4731;
-        margin-bottom: 12pt;
-        padding-bottom: 8pt;
-    }
-    .print-institution {
-        display: flex;
-        align-items: center;
-        gap: 12pt;
-    }
-    .print-gov {
-        font-size: 12pt;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.5pt;
-        color: #1a4731;
-        margin: 0;
-    }
-    .print-sec {
-        font-size: 10pt;
-        font-weight: 600;
-        color: #2d6a4f;
-        margin: 2pt 0 0;
-    }
-    .print-unit {
-        font-size: 9pt;
-        color: #444;
-        margin: 2pt 0 0;
-    }
-    .print-doc-title h1 {
-        font-size: 13pt;
-        font-weight: 900;
-        text-align: center;
-        text-transform: uppercase;
-        letter-spacing: 1.5pt;
-        border-top: 1.2pt solid #bbb;
-        border-bottom: 1.2pt solid #bbb;
-        padding: 6pt 0;
-        margin: 10pt 0 6pt;
-        color: #1a4731;
-    }
-    .print-doc-meta {
-        display: flex;
-        justify-content: space-between;
-        font-size: 9pt;
-        color: #000;
-        padding: 4pt 0;
-    }
-    .print-doc-meta strong { font-weight: 800; }
-
-    /* ===== CUERPO: GRID 2 COLUMNAS COMPACTO ===== */
-    .p-6 {
-        padding: 8pt !important;
+    /* Permitir grid de 2 columnas en print para ahorrar espacio vertical */
+    .print-area .grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
         gap: 10pt !important;
+        overflow: visible !important;
     }
-    /* Bloques de colores se simplifican en print */
-    .bg-amber-50, .bg-teal-50, .bg-purple-50, .bg-blue-50, .bg-green-50 {
-        background: #fff !important;
-        border: 0.8pt solid #ccc !important;
-        border-radius: 6pt !important;
-        padding: 8pt 10pt !important;
+    
+    .md\:col-span-2 {
+        grid-column: span 2 / span 2 !important;
+    }
+
+    /* CABECERA MÁS COMPACTA */
+    .print-header {
+        display: block !important;
+        border-bottom: 2pt solid #1a4731;
+        margin-bottom: 8pt;
+        padding-bottom: 5pt;
+    }
+    .print-institution img { height: 60pt !important; width: 60pt !important; }
+    .print-gov { font-size: 11pt !important; }
+    .print-sec, .print-unit { font-size: 8pt !important; }
+
+    /* ESTILO DE LAS 5 SECCIONES MÁS COMPACTO */
+    .bg-blue-50\/60, .bg-emerald-50\/60, .bg-amber-50\/60, .bg-purple-50\/60, .bg-slate-50 {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 8pt !important; /* Menos espacio entre secciones */
+        padding: 8pt !important; /* Menos padding interno */
+        border: 0.5pt solid #aaa !important;
+        background-color: #fff !important;
+        page-break-inside: avoid;
         break-inside: avoid;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 
-    /* Titulos de sección */
-    h4 {
-        font-size: 9pt !important;
-        font-weight: 800 !important;
-        text-transform: uppercase;
-        letter-spacing: 0.6pt;
-        margin-bottom: 6pt !important;
-        padding-bottom: 3pt !important;
-        border-bottom: 1pt solid #1a4731 !important;
-        color: #1a4731 !important;
-    }
+    /* Forzar legibilidad */
+    .text-gray-800, .text-gray-700, span, p { color: #000 !important; font-size: 8.5pt !important; }
+    h4 { border-bottom: 0.5pt solid #1a4731 !important; color: #1a4731 !important; margin-bottom: 5pt !important; font-size: 9pt !important; padding-bottom: 2pt !important; }
 
-    /* Numeritos de sección */
-    .w-6.h-6 { display: none !important; }
+    /* Requerimientos y Firmas */
+    .print-firmas { display: block !important; margin-top: 15pt; }
+    .print-firmas-row { display: flex; justify-content: space-around; margin-top: 15pt; }
 
-    /* Filas de datos */
-    .py-1\.5 { padding: 2.5pt 0 !important; }
-    .border-b { border-bottom: 0.5pt solid #eee !important; }
-    .text-sm, td, li { font-size: 9pt !important; }
-
-    /* Bloque cita vecino */
-    blockquote {
-        font-size: 9pt !important;
-        padding: 6pt 10pt !important;
-        border-left: 3pt solid #1a4731 !important;
-        background: #f9f9f9 !important;
-        margin: 5pt 0 !important;
-    }
-
-    /* ===== REQUERIMIENTOS ===== */
-    .print-req-box {
-        border: 1.2pt solid #1a4731;
-        border-radius: 5pt;
-        padding: 6pt 12pt;
-        margin: 12pt 0;
-    }
-    .print-req-title {
-        font-size: 9pt;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.8pt;
-        color: #1a4731;
-        margin: 0 0 5pt;
-    }
-    .print-req-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8pt;
-    }
-    .print-req-item {
-        font-size: 8.5pt;
-        font-weight: 700;
-        padding: 2pt 10pt;
-        border: 0.8pt solid #aaa;
-        border-radius: 20pt;
-    }
-    .req-si  { border-color: #1a4731; color: #1a4731; background: #f0fdf4 !important; }
-    .req-no  { color: #bbb; border-style: dashed; }
-    .req-emergencia { border-color: #dc2626; color: #dc2626; background: #fef2f2 !important; }
-
-    /* ===== FIRMAS CON MÁS ESPACIO ===== */
-    .print-firmas { margin-top: 30pt; }
-    .print-firmas-row {
-        display: flex;
-        justify-content: space-around;
-        margin-top: 20pt;
-        padding-top: 10pt;
-    }
     .print-firma { 
         text-align: center; 
-        width: 160pt; 
+        width: 150pt; 
     }
     .print-firma-linea {
         width: 100%;
-        border-bottom: 1pt solid #000;
-        margin: 0 auto 8pt;
-        height: 60pt; /* Espacio para el sello/firma */
+        border-bottom: 0.8pt solid #000;
+        margin: 0 auto 5pt;
+        height: 45pt; /* Menos espacio para firmas */
     }
     .print-firma-nombre {
-        font-size: 8.5pt;
+        font-size: 8pt;
         font-weight: 800;
         margin: 0;
     }
     .print-firma-cargo {
-        font-size: 8pt;
+        font-size: 7.5pt;
         color: #333;
-        margin: 2pt 0 0;
+        margin: 1pt 0 0;
         text-transform: uppercase;
     }
-}
 
+    /* Salto de página para Sección 5 */
+    #print-seccion-5 {
+        break-before: page !important;
+        margin-top: 15pt !important;
+    }
+
+    /* Contador de Páginas */
+    .print-counter {
+        display: block !important;
+    }
+    .pageNumber::after {
+        content: counter(page);
+    }
+}
+</style>
+
+<style scoped>
 /* ===== BOTONES ACCION TABLA ===== */
-.btn-ver, .btn-edit, .btn-delete {
+.btn-ver, .btn-print, .btn-edit, .btn-delete {
     display: inline-flex; align-items: center; justify-content: center;
     width: 30px; height: 30px; border-radius: 7px;
     border: none; cursor: pointer; transition: all 0.18s ease; padding: 0;
 }
-.btn-ver svg, .btn-edit svg, .btn-delete svg { width: 15px; height: 15px; }
+.btn-ver svg, .btn-print svg, .btn-edit svg, .btn-delete svg { width: 15px; height: 15px; }
 .btn-ver    { background: #d8f3dc; color: #1a4731; }
 .btn-ver:hover    { background: #74c69d; color: #0f2e1e; transform: translateY(-1px); }
+.btn-print   { background: #e0f2fe; color: #0369a1; }
+.btn-print:hover   { background: #bae6fd; color: #075985; transform: translateY(-1px); }
 .btn-edit   { background: #fef3c7; color: #92400e; }
 .btn-edit:hover   { background: #fde68a; color: #78350f; transform: translateY(-1px); }
 .btn-delete { background: #fee2e2; color: #991b1b; }
 .btn-delete:hover { background: #fca5a5; color: #7f1d1d; transform: translateY(-1px); }
+
+#btn-nueva-solicitud {
+    background-color: #1a4731 !important;
+    color: white !important;
+}
+
+#btn-nueva-solicitud:hover {
+    background-color: #2d6a4f !important;
+}
 </style>

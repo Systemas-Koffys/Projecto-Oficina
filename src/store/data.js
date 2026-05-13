@@ -1,5 +1,23 @@
 import { reactive } from 'vue';
 
+// URL del backend (ahora manejada por el proxy de Vite en el puerto 5173)
+const API_URL = '/api';
+
+// Estado global para los catálogos y solicitudes
+export const store = reactive({
+  tecnicos: [],
+  acciones: [],
+  especies: [],
+  tipos_institucion: [],
+  instituciones: [],
+  distritos: [],
+  barrios: [],
+  solicitudes: [],
+  usuarios: [],
+  impresiones: [],
+  config: {}
+});
+
 export const uiState = reactive({
   showModal: false,
   editData: null,
@@ -58,26 +76,6 @@ export function logout() {
   localStorage.removeItem('loginTime');
 }
 
-// -----------------------------------------
-
-// Estado global para los catálogos y solicitudes
-export const store = reactive({
-  tecnicos: [],
-  acciones: [],
-  especies: [],
-  tipos_institucion: [],
-  instituciones: [],
-  distritos: [],
-  barrios: [],
-  solicitudes: [],
-  usuarios: [],
-  impresiones: [],
-  config: {}
-});
-
-// URL del backend (ahora manejada por el proxy de Vite en el puerto 5173)
-const API_URL = '/api';
-
 
 // Función para descargar los catálogos de MySQL
 export async function fetchCatalogos() {
@@ -85,7 +83,7 @@ export async function fetchCatalogos() {
     const response = await fetch(`${API_URL}/catalogos`);
     const data = await response.json();
     
-    // Poblar el store
+    // Poblar el store con los catálogos principales
     store.tecnicos = data.tecnicos || [];
     store.acciones = data.acciones || [];
     store.especies = data.especies || [];
@@ -94,12 +92,16 @@ export async function fetchCatalogos() {
     store.distritos = data.distritos || [];
     store.barrios = data.barrios || [];
     
-    // También descargamos usuarios, impresiones y configuración
-    try { await fetchUsuarios(); } catch(e) { console.error(e); }
-    try { await fetchImpresiones(); } catch(e) { console.error(e); }
-    try { await fetchConfig(); } catch(e) { console.error(e); }
+    // Descargar datos complementarios en PARALELO para no bloquear el inicio
+    Promise.allSettled([
+        fetchUsuarios(),
+        fetchImpresiones(),
+        fetchConfig()
+    ]).then(() => {
+        console.log("Carga de datos secundarios completada.");
+    });
     
-    console.log("Catálogos cargados desde MySQL con éxito.");
+    console.log("Catálogos base cargados desde MySQL.");
   } catch (error) {
     console.error("Error al cargar los catálogos:", error);
   }
@@ -143,17 +145,16 @@ export async function fetchImpresiones() {
   }
 }
 
-// Función para registrar una impresión
-export async function registrarImpresion(id_solicitud, tipo_reporte, detalles = null) {
+// Función para registrar una impresión (Individual o Hoja de Ruta)
+export async function registrarImpresion(datos) {
+  // datos: { nombre_reporte, id_solicitud, tipo_reporte, filtros_aplicados, detalles }
   try {
     const response = await fetch(`${API_URL}/impresiones`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        id_solicitud,
-        tipo_reporte,
-        usuario: uiState.user?.nombre || 'Desconocido',
-        detalles
+        ...datos,
+        usuario: uiState.user?.nombre || 'Desconocido'
       })
     });
     if (response.ok) {
@@ -163,6 +164,40 @@ export async function registrarImpresion(id_solicitud, tipo_reporte, detalles = 
     return false;
   } catch (error) {
     console.error("Error al registrar impresión:", error);
+    return false;
+  }
+}
+
+export async function deleteImpresion(id) {
+  try {
+    const response = await fetch(`${API_URL}/impresiones/${id}`, {
+      method: 'DELETE'
+    });
+    if (response.ok) {
+      await fetchImpresiones();
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error al eliminar impresión:", error);
+    return false;
+  }
+}
+
+export async function updateImpresionName(id, nuevoNombre) {
+  try {
+    const response = await fetch(`${API_URL}/impresiones/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre_reporte: nuevoNombre })
+    });
+    if (response.ok) {
+      await fetchImpresiones();
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error al actualizar nombre:", error);
     return false;
   }
 }
@@ -272,26 +307,20 @@ export async function addSolicitud(solicitud) {
   try {
     const response = await fetch(`${API_URL}/solicitudes`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(solicitud)
     });
     
     const data = await response.json();
-    
     if (response.ok) {
-      // Le agregamos el ID que nos devolvió MySQL y la metemos al store local para actualizar la tabla visual
       solicitud.id_solicitud = data.id_solicitud;
-      store.solicitudes.push(solicitud);
-      return true;
+      store.solicitudes.unshift(solicitud); // Usar unshift para que aparezca arriba
+      return { success: true };
     } else {
-      console.error("Error del servidor:", data.error);
-      return false;
+      return { success: false, error: data.error || 'Error desconocido en el servidor' };
     }
   } catch (error) {
-    console.error("Error de red al guardar la solicitud:", error);
-    return false;
+    return { success: false, error: 'Error de conexión: El servidor no responde' };
   }
 }
 
@@ -312,7 +341,7 @@ export async function deleteSolicitud(id) {
   }
 }
 
-// Función para ACTUALIZAR una solicitud en MySQL
+// Función para actualizar una solicitud en MySQL
 export async function updateSolicitud(id, datos) {
   try {
     const response = await fetch(`${API_URL}/solicitudes/${id}`, {
@@ -320,15 +349,17 @@ export async function updateSolicitud(id, datos) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(datos)
     });
+    
+    const data = await response.json();
     if (response.ok) {
       const idx = store.solicitudes.findIndex(s => s.id_solicitud == id);
       if (idx !== -1) store.solicitudes[idx] = { ...store.solicitudes[idx], ...datos, id_solicitud: id };
-      return true;
+      return { success: true };
+    } else {
+      return { success: false, error: data.error || 'Error al actualizar' };
     }
-    return false;
   } catch (error) {
-    console.error('Error al actualizar:', error);
-    return false;
+    return { success: false, error: 'Error de conexión al actualizar' };
   }
 }
 // --- GESTIÓN DE CATÁLOGOS (DINÁMICO) ---

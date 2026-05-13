@@ -6,67 +6,69 @@
    ============================================================ */
 
 :root {
-    /* DEFAULT / THEME WHITE (INSTITUCIONAL) */
-    --bg-app: #f8fafc;
+    /* MODO DÍA (LIMPIO) - ENTORNO ACOGEDOR Y SOFISTICADO */
+    --bg-app: #fdfdfb; /* Blanco Cálido */
     --bg-card: #ffffff;
-    --bg-sidebar: #064e3b; /* Verde Bosque muy oscuro */
-    --bg-header: #ffffff;
+    --bg-sidebar: #2d3436; /* Charcoal Profundo */
+    --bg-header: #fdfdfb;
     
-    --text-main: #0f172a; /* Slate 900 */
-    --text-muted: #64748b; /* Slate 500 */
+    --text-main: #2d3436; /* Charcoal */
+    --text-muted: #636e72; 
     --text-on-accent: #ffffff;
     
-    --accent: #6A8E40; /* Verde Oliva Institucional */
-    --accent-hover: #557233;
-    --accent-soft: rgba(106, 142, 64, 0.1);
+    --accent: #2e7d32; /* Verde Bosque Refinado */
+    --accent-hover: #1b5e20;
+    --accent-soft: rgba(46, 125, 50, 0.08);
     
-    --border: #e2e8f0;
-    --input-bg: #f8fafc;
-    --table-stripe: #f8fafc;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-    --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.04);
+    --border: #dfe6e9;
+    --input-bg: #fdfdfb;
+    --table-stripe: #f9f9f7;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
+    --shadow-md: 0 12px 24px -6px rgba(45, 52, 54, 0.08);
 }
 
 .theme-black {
-    --bg-app: #000000;
-    --bg-card: #121212;
-    --bg-sidebar: #080808;
+    /* MODO NOCHE (OSCURO) - CHARCOAL & LIME GREEN */
+    --bg-app: #121212; /* Charcoal Puro */
+    --bg-card: #1e1e1e;
+    --bg-sidebar: #0a0a0a;
     --bg-header: #121212;
     
-    --text-main: #f1f5f9; /* Slate 100 */
-    --text-muted: #94a3b8; /* Slate 400 */
+    --text-main: #fdfdfb; /* Off-White */
+    --text-muted: #b2bec3;
     --text-on-accent: #000000;
     
-    --accent: #90BE53; /* Verde Neón Profesional */
-    --accent-hover: #a3d164;
-    --accent-soft: rgba(144, 190, 83, 0.15);
+    --accent: #c6ff00; /* Verde Lima Luminoso */
+    --accent-hover: #d4ff00;
+    --accent-soft: rgba(198, 255, 0, 0.12);
     
-    --border: #262626;
-    --input-bg: #1a1a1a;
-    --table-stripe: #181818;
+    --border: #2d2d2d;
+    --input-bg: #181818;
+    --table-stripe: #161616;
     --shadow-sm: 0 0 0 1px rgba(255,255,255,0.05);
-    --shadow-md: 0 20px 25px -5px rgba(0,0,0,0.5);
+    --shadow-md: 0 20px 40px rgba(0,0,0,0.4);
 }
 
 .theme-colors {
-    --bg-app: #f1f5f9;
+    /* MODO PROFESIONAL (DATOS) - PRIORIZACIÓN VISUAL */
+    --bg-app: #f1f2f6; /* Gris Pizarra Suave */
     --bg-card: #ffffff;
-    --bg-sidebar: #2e1065; /* Deep Purple */
+    --bg-sidebar: #2f3542;
     --bg-header: #ffffff;
     
-    --text-main: #1e1b4b; /* Indigo 950 */
-    --text-muted: #6366f1; /* Indigo 500 */
+    --text-main: #2f3542;
+    --text-muted: #57606f;
     --text-on-accent: #ffffff;
     
-    --accent: #9C27B0; /* Púrpura Vibrante */
-    --accent-hover: #7b1fa2;
-    --accent-soft: rgba(156, 39, 176, 0.1);
+    --accent: #1e90ff; /* Azul Data-Driven */
+    --accent-hover: #3742fa;
+    --accent-soft: rgba(30, 144, 255, 0.1);
     
-    --border: #e0e7ff;
-    --input-bg: #fcfdff;
-    --table-stripe: #f5f7ff;
-    --shadow-sm: 0 2px 4px rgba(156, 39, 176, 0.05);
-    --shadow-md: 0 20px 25px -5px rgba(156, 39, 176, 0.1);
+    --border: #ced6e0;
+    --input-bg: #ffffff;
+    --table-stripe: #f1f2f6;
+    --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
+    --shadow-md: 0 15px 30px rgba(47, 53, 66, 0.1);
 }
 
 /* ============================================================

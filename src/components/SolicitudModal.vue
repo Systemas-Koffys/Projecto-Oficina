@@ -1,253 +1,333 @@
 <template>
-    <div id="solicitudModal" class="modal active" @click.self="cerrar">
-        <div class="modal-content w-full max-w-4xl mx-auto my-auto" @click.stop>
-            <div class="bg-gray-50 px-8 py-6 border-b border-gray-200 flex items-center justify-between sticky top-0 z-10">
+    <div class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
+        <div class="bg-white rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-4xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
+            
+            <!-- Header Institucional -->
+            <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-800">
-                        {{ uiState.editData ? 'Editar Solicitud' : 'Formulario de Solicitud (Completo)' }}
-                    </h2>
-                    <p class="text-gray-600 text-sm mt-1">
-                        {{ uiState.editData ? `Editando registro: ${uiState.editData.comunicacion_interna || uiState.editData.id_solicitud}` : 'Llene los campos requeridos. Mantenga el formato simple tipo Excel.' }}
-                    </p>
+                    <h3 class="font-black text-xl tracking-tight leading-none">{{ uiState.editData ? 'Editar Expediente Técnico' : 'Nueva Solicitud de Servicio' }}</h3>
+                    <!-- Lógica de Sincronización v2.1 Activa -->
+                    <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Gestión de Arboricultura Municipal</p>
                 </div>
-                <button @click="cerrar" class="text-gray-500 hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clip-rule="evenodd"></path>
-                    </svg>
+                <button type="button" @click="cerrar" class="hover:bg-white/20 p-2 rounded-xl transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
 
-            <div class="p-8 bg-white overflow-y-auto max-h-[70vh]">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    <!-- Col 1: Datos de Ingreso -->
-                    <div class="space-y-4">
-                        <h3 class="font-black text-xs text-accent uppercase tracking-[0.2em] border-b pb-2">1. Información de Ingreso</h3>
-                        
-                        <div class="form-group">
-                            <label>Comunicación Interna (Cod)</label>
-                            <input type="text" v-model="form.comunicacion_interna" placeholder="Ej: 125/2026" class="form-input">
+            <!-- Cuerpo del Formulario -->
+            <form @submit.prevent="handleGuardar" id="solicitudForm" class="p-8 space-y-8 overflow-y-auto max-h-[75vh] custom-scrollbar bg-slate-50/50">
+                
+                <!-- SECCIÓN 01: IDENTIFICACIÓN -->
+                <div class="p-6 bg-blue-50 border border-blue-100 border-l-[6px] border-l-blue-500 rounded-xl shadow-sm">
+                    <h4 class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full"></span> 01. Información de Ingreso
+                    </h4>
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="col-span-1 flex flex-col">
+                            <label class="label-prime">Fecha de Ingreso <span class="text-red-500 font-black">*</span></label>
+                            <input v-model="form.fecha_ingreso" type="date" class="form-input-prime">
                         </div>
-
-                        <div class="form-group">
-                            <label>Fecha de Ingreso</label>
-                            <input type="date" v-model="form.fecha_ingreso" class="form-input">
+                        <div class="col-span-1 flex flex-col">
+                            <label class="label-prime">Cód. Comunicación <span class="text-red-500 font-black">*</span></label>
+                            <input v-model="form.comunicacion_interna" type="text" class="form-input-prime text-center" placeholder="00/26">
                         </div>
-
-                        <div class="form-group">
-                            <label>Nombre del Solicitante</label>
-                            <input type="text" v-model="form.solicitante_nombre" @input="cap($event, 'solicitante_nombre')" placeholder="Nombre completo" class="form-input">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Teléfono Solicitante</label>
-                            <input type="text" v-model="form.solicitante_telefono" placeholder="Celular o Fijo" class="form-input">
-                        </div>
-                    </div>
-
-                    <!-- Col 2: Ubicación y Detalle -->
-                    <div class="space-y-4">
-                        <h3 class="font-black text-xs text-accent uppercase tracking-[0.2em] border-b pb-2">2. Ubicación del Árbol</h3>
-                        
-                        <div class="form-group">
-                            <label>Distrito (Opcional)</label>
-                            <select v-model="distritoSeleccionado" class="form-input">
-                                <option :value="null">-- Seleccione Distrito --</option>
-                                <option v-for="d in [1,2,3,4,5,6,7,8,9,10,11,12,13]" :key="d" :value="d">Distrito {{ d }}</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Barrio *</label>
-                            <select v-model="form.id_barrio" class="form-input" required>
-                                <option :value="null" disabled>-- Seleccione Barrio --</option>
-                                <option v-for="b in barriosFiltrados" :key="b.id" :value="b.id">{{ b.nombre }}</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Calle / Avenida</label>
-                            <input type="text" v-model="form.calle" @input="cap($event, 'calle')" placeholder="Nombre de calle" class="form-input">
-                        </div>
-
-                        <div class="flex gap-4">
-                            <div class="form-group flex-1">
-                                <label>Nº Casa</label>
-                                <input type="text" v-model="form.numero_casa" placeholder="123" class="form-input">
-                            </div>
-                            <div class="form-group flex-[2]">
-                                <label>Referencia</label>
-                                <input type="text" v-model="form.referencia" @input="cap($event, 'referencia')" placeholder="Ej: Frente a la plaza" class="form-input">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Col 3: Lo Solicitado -->
-                    <div class="space-y-4">
-                        <h3 class="font-black text-xs text-accent uppercase tracking-[0.2em] border-b pb-2">3. Requerimiento</h3>
-
-                        <div class="form-group">
-                            <label>Acción Solicitada (Vecino)</label>
-                            <select v-model="form.id_accion_solicitada" class="form-input">
+                        <div class="col-span-1 flex flex-col">
+                            <label class="label-prime">Acción Solicitada <span class="text-red-500 font-black">*</span></label>
+                            <select v-model="form.id_accion_solicitada" class="form-input-prime">
                                 <option :value="null">-- Seleccione --</option>
                                 <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
                             </select>
                         </div>
-
-                        <div class="form-group">
-                            <label>Descripción de lo Solicitado</label>
-                            <textarea v-model="form.lo_solicitado" rows="3" class="form-input text-xs" placeholder="Lo que el vecino pide específicamente..."></textarea>
+                        <div class="col-span-2 flex flex-col">
+                            <label class="label-prime">Nombre del Solicitante <span class="text-red-500 font-black">*</span></label>
+                            <input v-model="form.solicitante_nombre" @input="cap($event, 'solicitante_nombre')" type="text" class="form-input-prime" placeholder="Nombre y Apellidos">
                         </div>
-
-                        <div class="form-group">
-                            <label>Nivel de Urgencia</label>
-                            <div class="flex gap-2">
-                                <button type="button" v-for="n in ['Baja', 'Intermedia', 'Alta']" :key="n"
-                                    @click="form.nivel_urgencia = n"
-                                    :class="['flex-1 py-2 rounded-xl text-[10px] font-black uppercase transition-all border', 
-                                             form.nivel_urgencia === n ? 'bg-accent text-white border-accent' : 'bg-gray-100 text-gray-400 border-transparent']">
-                                    {{ n }}
-                                </button>
-                            </div>
+                        <div class="col-span-1 flex flex-col">
+                            <label class="label-prime">Teléfono</label>
+                            <input v-model="form.solicitante_telefono" type="text" class="form-input-prime" placeholder="Ej: 77000000">
                         </div>
-
-                        <div class="flex items-center gap-3 p-3 bg-red-50 rounded-xl border border-red-100">
-                            <input type="checkbox" v-model="form.es_emergencia" id="chkEmerg" class="w-5 h-5 accent-red-600">
-                            <label for="chkEmerg" class="text-xs font-black text-red-700 uppercase cursor-pointer">¿Es Emergencia?</label>
-                        </div>
-                    </div>
-
-                    <!-- SECCIÓN TÉCNICA (SEGUNDA FILA) -->
-                    <div class="md:col-span-2 lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-dashed border-gray-200">
                         
-                        <!-- Col 4: Verificación -->
-                        <div class="space-y-4">
-                            <h3 class="font-black text-xs text-blue-600 uppercase tracking-[0.2em] border-b pb-2">4. Informe Técnico</h3>
-                            
-                            <div class="form-group">
-                                <label>Técnico que Verificó</label>
-                                <select v-model="form.id_tecnico_verificacion" class="form-input">
-                                    <option :value="null">-- Seleccione Técnico --</option>
-                                    <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Fecha Verificación</label>
-                                <input type="date" v-model="form.fecha_verificacion" class="form-input">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Acción Determinada (Oficina)</label>
-                                <select v-model="form.id_accion" class="form-input">
-                                    <option :value="null">-- Seleccione Acción Final --</option>
-                                    <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Especie Forestal</label>
-                                <select v-model="form.id_especie" class="form-input">
-                                    <option :value="null">-- Seleccione Especie --</option>
-                                    <option v-for="e in store.especies" :key="e.id" :value="e.id">{{ e.nombre }}</option>
-                                </select>
-                            </div>
+                        <!-- Lógica de Instituciones -->
+                        <div class="col-span-1 flex flex-col">
+                            <label class="label-prime">Tipo de Institución</label>
+                            <select v-model="form.id_tipo_institucion" class="form-input-prime">
+                                <option :value="null">-- Particular --</option>
+                                <option v-for="t in store.tipos_institucion" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2 flex flex-col">
+                            <label class="label-prime">Nombre Institución</label>
+                            <select v-model="form.id_nombre_institucional" class="form-input-prime">
+                                <option :value="null">-- Seleccione --</option>
+                                <option v-for="i in institucionesFiltradas" :key="i.id" :value="i.id">{{ i.nombre }}</option>
+                            </select>
                         </div>
 
-                        <!-- Col 5: Requerimientos Logísticos -->
-                        <div class="space-y-4">
-                            <h3 class="font-black text-xs text-amber-600 uppercase tracking-[0.2em] border-b pb-2">5. Logística y Decisión</h3>
-                            
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                                    <input type="checkbox" v-model="form.procede" id="chkProcede" class="accent-green-600">
-                                    <label for="chkProcede" class="text-[10px] font-bold uppercase">¿Procede?</label>
-                                </div>
-                                <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                                    <input type="checkbox" v-model="form.arbol_seco" id="chkSeco" class="accent-amber-600">
-                                    <label for="chkSeco" class="text-[10px] font-bold uppercase">Arbol Seco</label>
-                                </div>
-                                <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                                    <input type="checkbox" v-model="form.requiere_plataforma" id="chkPlat" class="accent-blue-600">
-                                    <label for="chkPlat" class="text-[10px] font-bold uppercase">Grúa/Plat</label>
-                                </div>
-                                <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                                    <input type="checkbox" v-model="form.requiere_setar" id="chkSetar" class="accent-orange-600">
-                                    <label for="chkSetar" class="text-[10px] font-bold uppercase">SETAR</label>
-                                </div>
-                                <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                                    <input type="checkbox" v-model="form.requiere_ficha_tecnica" id="chkFicha" class="accent-purple-600">
-                                    <label for="chkFicha" class="text-[10px] font-bold uppercase">Ficha Téc.</label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="text-[9px]">Cant Notas</label>
-                                    <input type="number" v-model="form.cantidad_notas" class="form-input py-1.5">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Observación de Verificación</label>
-                                <textarea v-model="form.observacion_verificacion" rows="2" class="form-input text-xs" placeholder="Notas adicionales del técnico..."></textarea>
-                            </div>
+                        <div class="col-span-3 flex flex-col">
+                            <label class="label-prime">Notas de Solicitud / Descripción Extra</label>
+                            <textarea v-model="form.solicitante_descripcion" rows="2" class="form-input-prime text-xs resize-none" placeholder="Ej: Atender solo por la mañana o esta dañando mi pared..."></textarea>
                         </div>
-
-                        <!-- Col 6: Ejecución y Cierre -->
-                        <div class="space-y-4">
-                            <h3 class="font-black text-xs text-green-600 uppercase tracking-[0.2em] border-b pb-2">6. Ejecución y Cierre</h3>
-                            
-                            <div class="form-group">
-                                <label>Estado del Trámite</label>
-                                <select v-model="form.estado_tramite" class="form-input font-black uppercase text-accent">
-                                    <option value="En espera">🟡 En espera</option>
-                                    <option value="En proceso">🔵 En proceso</option>
-                                    <option value="Terminado">🟢 Terminado</option>
-                                    <option value="Anulado">🔴 Anulado</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Técnico que Ejecutó</label>
-                                <select v-model="form.id_tecnico_ejecucion" class="form-input">
-                                    <option :value="null">-- Seleccione Técnico --</option>
-                                    <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Fecha de Ejecución</label>
-                                <input type="date" v-model="form.fecha_ejecucion" class="form-input">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Observaciones de Cierre</label>
-                                <textarea v-model="form.observaciones_finales" rows="2" class="form-input text-xs" placeholder="Resumen del trabajo realizado..."></textarea>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-gray-50 px-8 py-6 border-t border-gray-200 flex justify-end gap-3 rounded-b-3xl">
-                <button @click="cerrar" class="px-6 py-3 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-2xl transition-all">
-                    Cancelar
-                </button>
-                <button @click="guardarSolicitud" class="px-10 py-3 bg-accent text-white font-black rounded-2xl shadow-lg shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                    {{ uiState.editData ? 'GUARDAR CAMBIOS' : 'REGISTRAR SOLICITUD' }}
-                </button>
-            </div>
+                <!-- SECCIÓN 02: LOCALIZACIÓN -->
+                <div class="p-6 bg-emerald-50 border border-emerald-100 border-l-[6px] border-l-emerald-500 rounded-xl shadow-sm">
+                    <h4 class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 02. Localización y Referencia
+                    </h4>
+                    <div class="grid grid-cols-4 gap-6">
+                        <div class="col-span-1 flex flex-col">
+                            <label class="label-prime">Distrito <span class="text-red-500 font-black">*</span></label>
+                            <select v-model="distritoSeleccionado" class="form-input-prime font-bold">
+                                <option :value="null">-- Dist --</option>
+                                <option v-for="d in store.distritos" :key="d.id" :value="d.id">{{ d.nombre }}</option>
+                            </select>
+                        </div>
+                        <div class="col-span-3 flex flex-col">
+                            <label class="label-prime">Barrio / Zona <span class="text-red-500 font-black">*</span></label>
+                            <select v-model="form.id_barrio" class="form-input-prime font-bold">
+                                <option :value="null">-- Seleccione Barrio --</option>
+                                <option v-for="b in barriosFiltrados" :key="b.id" :value="b.id">{{ b.nombre }}</option>
+                            </select>
+                        </div>
+                        <div class="col-span-3 flex flex-col">
+                            <label class="label-prime">Calle / Avenida <span class="text-red-500 font-black">*</span></label>
+                            <input v-model="form.calle" @input="cap($event, 'calle')" type="text" class="form-input-prime">
+                        </div>
+                        <div class="col-span-1 flex flex-col">
+                            <label class="label-prime">Nº Casa</label>
+                            <input v-model="form.numero_casa" type="text" class="form-input-prime text-center">
+                        </div>
+                        <div class="col-span-4 flex flex-col">
+                            <label class="label-prime">Punto de Referencia Exacto</label>
+                            <input v-model="form.referencia" @input="cap($event, 'referencia')" type="text" class="form-input-prime">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 03: EVALUACIÓN TÉCNICA -->
+                <div class="p-6 bg-amber-50 border border-amber-100 border-l-[6px] border-l-amber-500 rounded-xl shadow-sm">
+                    <h4 class="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-amber-500 rounded-full"></span> 03. Diagnóstico Técnico
+                    </h4>
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="flex flex-col">
+                            <label class="label-prime">Acción Determinada</label>
+                            <select v-model="form.id_accion" class="form-input-prime">
+                                <option :value="null">-- Seleccione --</option>
+                                <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="label-prime">Técnico Evaluador</label>
+                            <select v-model="form.id_tecnico_verificacion" class="form-input-prime">
+                                <option :value="null">-- Seleccione --</option>
+                                <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="label-prime">Fecha Verificación</label>
+                            <input v-model="form.fecha_verificacion" type="date" class="form-input-prime">
+                        </div>
+                        <div class="col-span-3 flex flex-col">
+                            <label class="label-prime">Detalles de la Verificación Técnica</label>
+                            <textarea v-model="form.observacion_verificacion" rows="2" class="form-input-prime text-xs resize-none"></textarea>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="label-prime">Especie</label>
+                            <select v-model="form.id_especie" class="form-input-prime">
+                                <option :value="null">-- Seleccione --</option>
+                                <option v-for="e in store.especies" :key="e.id" :value="e.id">{{ e.nombre }}</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2 flex flex-col">
+                            <label class="label-prime">Nivel de Prioridad <span class="text-red-500 font-black">*</span></label>
+                            <select v-model="form.nivel_urgencia" class="form-input-prime font-black uppercase text-amber-700">
+                                <option value="Baja">🟢 Baja</option>
+                                <option value="Intermedia">🟡 Intermedia</option>
+                                <option value="Alta">🔴 Alta</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 04: LOGÍSTICA -->
+                <div class="p-6 bg-slate-50 border border-slate-100 border-l-[6px] border-l-slate-400 rounded-xl shadow-sm">
+                    <h4 class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-slate-400 rounded-full"></span> 04. Apoyo Logístico
+                    </h4>
+                    <div class="grid grid-cols-4 gap-4">
+                        <label v-for="l in [
+                            { k: 'procede', lbl: 'Procede', color: 'emerald' },
+                            { k: 'arbol_seco', lbl: 'Arbol Seco', color: 'amber' },
+                            { k: 'requiere_plataforma', lbl: 'Grúa', color: 'blue' },
+                            { k: 'requiere_setar', lbl: 'SETAR', color: 'orange' },
+                            { k: 'requiere_ficha_tecnica', lbl: 'Ficha Tec', color: 'indigo' },
+                            { k: 'es_emergencia', lbl: 'Emergencia', color: 'red' },
+                            { k: 'segunda_nota', lbl: '2da Nota', color: 'purple' },
+                            { k: 'es_urgencia', lbl: 'Urgencia', color: 'rose' }
+                        ]" :key="l.k" 
+                            class="relative flex flex-col items-center justify-center p-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 select-none group"
+                            :class="form[l.k] 
+                                ? `border-${l.color}-500 bg-${l.color}-500 text-white scale-[1.08] shadow-lg z-10` 
+                                : `border-white bg-white text-slate-400 hover:border-${l.color}-200 shadow-sm`">
+                            
+                            <span class="text-[10px] font-black uppercase mb-2">{{ l.lbl }}</span>
+                            <div class="w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all"
+                                :class="form[l.k] ? 'bg-white border-white' : 'bg-slate-50 border-slate-100'">
+                                <svg v-if="form[l.k]" class="w-4 h-4 font-black" :class="`text-${l.color}-600`" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                                <input type="checkbox" v-model="form[l.k]" class="hidden">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 05: CIERRE -->
+                <div class="p-6 bg-purple-50 border border-purple-100 border-l-[6px] border-l-purple-500 rounded-xl shadow-sm">
+                    <h4 class="text-[10px] font-black text-purple-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-purple-500 rounded-full"></span> 05. Ejecución y Cierre
+                    </h4>
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="col-span-1 flex flex-col">
+                            <label class="label-prime">Estado de Solicitud <span class="text-red-500 font-black">*</span></label>
+                            <select v-model="form.estado_tramite" class="form-input-prime font-black uppercase text-emerald-600">
+                                <option value="En espera">🟡 En espera</option>
+                                <option value="Terminado">🟢 Terminado</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1 flex flex-col">
+                            <label class="label-prime">Personal Responsable</label>
+                            <select v-model="form.id_tecnico_ejecucion" class="form-input-prime">
+                                <option :value="null">-- Seleccione --</option>
+                                <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1 flex flex-col">
+                            <label class="label-prime">Fecha de Cierre</label>
+                            <input v-model="form.fecha_ejecucion" type="date" class="form-input-prime">
+                        </div>
+                        <div class="col-span-3 flex flex-col">
+                            <label class="label-prime">Notas Finales de Ejecución</label>
+                            <textarea v-model="form.observaciones_finales" rows="2" class="form-input-prime text-xs resize-none" placeholder="Reporte de cierre..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex gap-4 pt-4 pb-2">
+                    <button type="button" @click="cerrar" class="flex-1 px-4 py-4 rounded-2xl border-2 border-gray-100 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:bg-gray-50 transition-all">Cancelar</button>
+                    <button type="submit" class="flex-[2] px-8 py-4 rounded-2xl bg-emerald-600 text-white font-black uppercase text-[10px] tracking-widest hover:bg-emerald-700 shadow-xl shadow-emerald-200 transition-all active:scale-95">
+                        {{ uiState.editData ? 'Actualizar Expediente' : 'Registrar Solicitud' }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { store, uiState, addSolicitud, updateSolicitud, showToast } from '../store/data.js'
 
 const emit = defineEmits(['close'])
 
+// --- ESTADO Y REFERENCIAS ---
+const distritoSeleccionado = ref(null)
+const isUpdating = ref(false) // Bloqueo para evitar bucles infinitos
+
+const form = ref({
+    comunicacion_interna: '',
+    fecha_ingreso: new Date().toISOString().split('T')[0],
+    fecha_verificacion: '',
+    id_barrio: null,
+    id_tipo_institucion: null,
+    id_nombre_institucional: null,
+    calle: '',
+    numero_casa: '',
+    referencia: '',
+    solicitante_nombre: '',
+    solicitante_telefono: '',
+    solicitante_descripcion: '',
+    lo_solicitado: '',
+    id_accion_solicitada: null,
+    id_accion: null,
+    id_tecnico_verificacion: null,
+    requiere_plataforma: false,
+    requiere_setar: false,
+    requiere_ficha_tecnica: false,
+    procede: false,
+    arbol_seco: false,
+    es_emergencia: false,
+    segunda_nota: false,
+    es_urgencia: false,
+    nivel_urgencia: 'Baja',
+    id_especie: null,
+    observacion_verificacion: '',
+    id_tecnico_ejecucion: null,
+    fecha_ejecucion: '',
+    observaciones_finales: '',
+    estado_tramite: 'En espera'
+})
+
+// --- LÓGICA DE FILTRADO (COMPUTED) ---
+const barriosFiltrados = computed(() => {
+    if (!distritoSeleccionado.value) return store.barrios;
+    return store.barrios.filter(b => b.id_distrito == distritoSeleccionado.value);
+})
+
+const institucionesFiltradas = computed(() => {
+    if (!form.value.id_tipo_institucion) return store.instituciones;
+    return store.instituciones.filter(i => i.id_tipo == form.value.id_tipo_institucion);
+})
+
+// --- SINCRONIZACIÓN (WATCHERS) ---
+
+// 1. DISTRITO -> BARRIOS (Si cambio distrito, limpio barrio si no pertenece)
+watch(distritoSeleccionado, (newDist) => {
+    if (isUpdating.value) return;
+    if (newDist && form.value.id_barrio) {
+        const barrioActual = store.barrios.find(b => b.id == form.value.id_barrio);
+        if (barrioActual && barrioActual.id_distrito != newDist) {
+            form.value.id_barrio = null;
+        }
+    }
+})
+
+// 2. BARRIO -> DISTRITO (Si selecciono barrio, se pone el distrito solo)
+watch(() => form.value.id_barrio, (newBarrio) => {
+    if (isUpdating.value) return;
+    if (newBarrio) {
+        const b = store.barrios.find(x => x.id == newBarrio);
+        if (b) {
+            isUpdating.value = true;
+            distritoSeleccionado.value = b.id_distrito;
+            nextTick(() => isUpdating.value = false);
+        }
+    }
+})
+
+// 3. INSTITUCIÓN -> TIPO (Sincronización automática)
+watch(() => form.value.id_nombre_institucional, (newInst) => {
+    if (isUpdating.value) return;
+    if (newInst) {
+        const i = store.instituciones.find(x => x.id == newInst);
+        if (i) {
+            isUpdating.value = true;
+            form.value.id_tipo_institucion = i.id_tipo;
+            nextTick(() => isUpdating.value = false);
+        }
+    }
+})
+
+// 4. TIPO -> INSTITUCIÓN (Si cambio tipo, limpio nombre)
+watch(() => form.value.id_tipo_institucion, (newTipo, oldTipo) => {
+    if (isUpdating.value) return;
+    if (oldTipo !== undefined && newTipo !== oldTipo) {
+        form.value.id_nombre_institucional = null;
+    }
+})
+
+// --- FUNCIONES AUXILIARES ---
 const cap = (e, field) => {
     const v = e.target.value
     if (v && v[0] !== v[0].toUpperCase()) {
@@ -257,54 +337,11 @@ const cap = (e, field) => {
     }
 }
 
-const distritoSeleccionado = ref(null)
-const tipoInstitucionSeleccionado = ref(null)
-
-const barriosFiltrados = computed(() => {
-    if (!distritoSeleccionado.value) return store.barrios;
-    return store.barrios.filter(b => b.id_distrito === distritoSeleccionado.value);
-})
-
-const hoy = new Date().toISOString().split('T')[0]
-
-const form = ref({
-    comunicacion_interna: '',
-    fecha_ingreso: hoy,
-    fecha_verificacion: '',
-    id_barrio: null,
-    id_nombre_institucional: null,
-    id_accion: null,
-    id_especie: null,
-    calle: '',
-    numero_casa: '',
-    referencia: '',
-    solicitante_nombre: '',
-    solicitante_telefono: '',
-    lo_solicitado: '',
-    id_accion_solicitada: null,
-    id_tecnico_verificacion: null,
-    requiere_plataforma: false,
-    requiere_setar: false,
-    requiere_ficha_tecnica: false,
-    procede: false,
-    cantidad_notas: 1,
-    arbol_seco: false,
-    es_emergencia: false,
-    nivel_urgencia: 'Baja',
-    observacion_verificacion: '',
-    id_tecnico_ejecucion: null,
-    fecha_ejecucion: '',
-    observaciones_finales: '',
-    estado_tramite: 'En espera'
-})
-
-// Cargar datos si es edición
 onMounted(() => {
     if (uiState.editData) {
-        // Clonar datos para evitar modificar el store directamente por referencia reactiva
+        isUpdating.value = true;
         Object.keys(form.value).forEach(key => {
             if (uiState.editData[key] !== undefined) {
-                // Formatear fechas para los inputs type="date" (YYYY-MM-DD)
                 if (key.startsWith('fecha_') && uiState.editData[key]) {
                     form.value[key] = new Date(uiState.editData[key]).toISOString().split('T')[0]
                 } else {
@@ -312,54 +349,107 @@ onMounted(() => {
                 }
             }
         })
+        // Cargar distrito inicial en edición
+        if (form.value.id_barrio) {
+            const b = store.barrios.find(x => x.id == form.value.id_barrio);
+            if (b) distritoSeleccionado.value = b.id_distrito;
+        }
+        nextTick(() => isUpdating.value = false);
     }
 })
 
-const cerrar = () => {
-    uiState.editData = null
-    emit('close')
-}
+const cerrar = () => { uiState.editData = null; emit('close') }
 
-const guardarSolicitud = async () => {
-    let exito = false
-    if (uiState.editData) {
-        exito = await updateSolicitud(uiState.editData.id_solicitud, { ...form.value })
-        if (exito) showToast('Registro actualizado correctamente.', 'success')
-    } else {
-        exito = await addSolicitud({ ...form.value })
-        if (exito) showToast('Nueva solicitud registrada correctamente.', 'success')
+const handleGuardar = async () => {
+    const faltantes = [];
+    if (!form.value.fecha_ingreso) faltantes.push("Fecha de Ingreso");
+    if (!form.value.comunicacion_interna) faltantes.push("Cód. Comunicación");
+    if (!form.value.id_accion_solicitada) faltantes.push("Acción Solicitada");
+    if (!form.value.solicitante_nombre) faltantes.push("Nombre del Solicitante");
+    if (!distritoSeleccionado.value) faltantes.push("Distrito");
+    if (!form.value.id_barrio) faltantes.push("Barrio");
+    if (!form.value.calle) faltantes.push("Calle");
+    if (!form.value.nivel_urgencia) faltantes.push("Nivel de Prioridad");
+    if (!form.value.estado_tramite) faltantes.push("Estado");
+
+    if (faltantes.length > 0) {
+        showToast(`🛑 ATENCIÓN: Faltan campos obligatorios:\n• ${faltantes.join('\n• ')}`, 'error', 6000);
+        return;
     }
 
-    if (exito) cerrar()
-    else showToast('No se pudo guardar. Revisa la conexión.', 'error')
-}
-
-watch(() => form.value.id_barrio, (newVal) => {
-    if (newVal) {
-        const barrio = store.barrios.find(b => b.id === newVal);
-        if (barrio && barrio.id_distrito) distritoSeleccionado.value = barrio.id_distrito;
+    try {
+        let res;
+        if (uiState.editData) {
+            res = await updateSolicitud(uiState.editData.id_solicitud, { ...form.value })
+            if (res.success) {
+                showToast('Expediente actualizado correctamente', 'success')
+                cerrar()
+            } else {
+                showToast(`❌ Error al actualizar: ${res.error}`, 'error', 5000)
+            }
+        } else {
+            res = await addSolicitud({ ...form.value })
+            if (res.success) {
+                showToast('¡Solicitud registrada con éxito!', 'success')
+                cerrar()
+            } else {
+                showToast(`❌ Error de Registro: ${res.error}`, 'error', 7000)
+            }
+        }
+    } catch (e) {
+        showToast('Fallo crítico en la comunicación con el servidor', 'error');
     }
-})
+}
 </script>
 
 <style scoped>
-.modal {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.6); display: flex;
-    justify-content: center; align-items: center; z-index: 100;
-    backdrop-filter: blur(4px);
+.label-prime { @apply text-sm font-semibold text-slate-700 mb-1.5 ml-1 flex items-center gap-1; }
+.form-input-prime {
+    @apply w-full px-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 
+           outline-none transition-all focus:ring-4 focus:ring-opacity-10 shadow-sm;
 }
-.modal-content {
-    background: white; border-radius: 2.5rem;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-    overflow: hidden; animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+.animate-prime-in {
+    animation: primePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
-@keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes primePop {
+    from { opacity: 0; transform: scale(0.98) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
 
-.form-group { @apply flex flex-col gap-1; }
-.form-group label { @apply text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1; }
-.form-input { 
-    @apply px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl text-sm font-bold text-gray-800 outline-none transition-all;
-    @apply focus:border-accent focus:bg-white focus:ring-4 focus:ring-accent/5;
-}
+/* Colores Logística con Efecto Glow */
+.border-emerald-500 { border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); } 
+.bg-emerald-500 { background: linear-gradient(135deg, #10b981, #059669); } 
+.text-emerald-600 { color: #059669; }
+
+.border-amber-500 { border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); } 
+.bg-amber-500 { background: linear-gradient(135deg, #f59e0b, #d97706); } 
+.text-amber-600 { color: #d97706; }
+
+.border-blue-500 { border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); } 
+.bg-blue-500 { background: linear-gradient(135deg, #3b82f6, #2563eb); } 
+.text-blue-600 { color: #2563eb; }
+
+.border-orange-500 { border-color: #f97316; box-shadow: 0 0 20px rgba(249, 115, 22, 0.3); } 
+.bg-orange-500 { background: linear-gradient(135deg, #f97316, #ea580c); } 
+.text-orange-600 { color: #ea580c; }
+
+.border-indigo-500 { border-color: #6366f1; box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); } 
+.bg-indigo-500 { background: linear-gradient(135deg, #6366f1, #4f46e5); } 
+.text-indigo-600 { color: #4f46e5; }
+
+.border-red-500 { border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); } 
+.bg-red-500 { background: linear-gradient(135deg, #ef4444, #dc2626); } 
+.text-red-600 { color: #dc2626; }
+
+.border-purple-500 { border-color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); } 
+.bg-purple-500 { background: linear-gradient(135deg, #a855f7, #9333ea); } 
+.text-purple-600 { color: #9333ea; }
+
+.border-rose-500 { border-color: #f43f5e; box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); } 
+.bg-rose-500 { background: linear-gradient(135deg, #f43f5e, #e11d48); } 
+.text-rose-600 { color: #e11d48; }
+
+.custom-scrollbar::-webkit-scrollbar { width: 5px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
 </style>

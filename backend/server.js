@@ -6,9 +6,13 @@ import { exec } from 'child_process';
 const app = express();
 const port = 3000;
 
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-User-Role']
+}));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Configuración de conexión flexible (Docker o Local)
 const pool = mysql.createPool({
@@ -36,16 +40,13 @@ app.get('/api/usuarios/publico', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT nombre, username, role FROM usuarios');
     const processed = rows.map(u => ({
-      nombre: u.nombre || u.username, // Si no hay nombre, usa el username
+      nombre: u.nombre || u.username,
       role: u.role
     }));
     res.json(processed);
   } catch (error) {
     console.error('Error:', error);
-    res.json([
-      { nombre: 'Ing. Cimar Farfan', role: 'ADMIN' },
-      { nombre: 'Tec. Kevin Flores', role: 'ROOT' }
-    ]);
+    res.status(500).json({ error: 'Error al cargar personal' });
   }
 });
 
@@ -84,19 +85,124 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// El resto de rutas de solicitudes (Mantenidas igual)
+// --- GESTIÓN DE SOLICITUDES ---
+
 app.get('/api/solicitudes', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM solicitudes');
+    const [rows] = await pool.query('SELECT * FROM solicitudes ORDER BY fecha_ingreso DESC');
     res.json(rows);
   } catch (error) {
-    res.status(500).json({ error: 'Error solicitudes' });
+    console.error('Error al obtener solicitudes:', error);
+    res.status(500).json({ error: 'Error al obtener solicitudes' });
+  }
+});
+
+app.post('/api/solicitudes', async (req, res) => {
+  try {
+    const data = req.body;
+    
+    // Lista de columnas permitidas en la tabla 'solicitudes'
+    const allowedColumns = [
+      'fecha_ingreso', 'fecha_verificacion', 'comunicacion_interna', 'id_barrio',
+      'id_nombre_institucional', 'id_accion', 'id_especie', 'calle', 'numero_casa',
+      'referencia', 'solicitante_nombre', 'solicitante_telefono', 'solicitante_descripcion',
+      'lo_solicitado', 'id_accion_solicitada', 'id_tecnico_verificacion', 'requiere_plataforma',
+      'requiere_setar', 'requiere_ficha_tecnica', 'procede', 'cantidad_notas',
+      'arbol_seco', 'es_emergencia', 'segunda_nota', 'es_urgencia', 'nivel_urgencia',
+      'observacion_verificacion', 'id_tecnico_ejecucion', 'fecha_ejecucion',
+      'observaciones_finales', 'estado_tramite', 'id_tipo_institucion'
+    ];
+
+    const filteredData = {};
+    const dateColumns = ['fecha_ingreso', 'fecha_verificacion', 'fecha_ejecucion'];
+    
+    allowedColumns.forEach(col => {
+      if (data[col] !== undefined) {
+        // Si es una columna de fecha y viene vacía, enviamos NULL para evitar errores de MySQL
+        if (dateColumns.includes(col) && data[col] === '') {
+          filteredData[col] = null;
+        } else {
+          filteredData[col] = data[col];
+        }
+      }
+    });
+
+    console.log('Insertando nueva solicitud:', filteredData.comunicacion_interna);
+    
+    const fields = Object.keys(filteredData).join(', ');
+    const placeholders = Object.keys(filteredData).map(() => '?').join(', ');
+    const values = Object.values(filteredData);
+    
+    const query = `INSERT INTO solicitudes (${fields}) VALUES (${placeholders})`;
+    const [result] = await pool.query(query, values);
+    
+    res.json({ success: true, id_solicitud: result.insertId });
+  } catch (error) {
+    console.error('Error al insertar solicitud:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/solicitudes/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const data = req.body;
+    const allowedColumns = [
+      'fecha_ingreso', 'fecha_verificacion', 'comunicacion_interna', 'id_barrio',
+      'id_nombre_institucional', 'id_accion', 'id_especie', 'calle', 'numero_casa',
+      'referencia', 'solicitante_nombre', 'solicitante_telefono', 'solicitante_descripcion',
+      'lo_solicitado', 'id_accion_solicitada', 'id_tecnico_verificacion', 'requiere_plataforma',
+      'requiere_setar', 'requiere_ficha_tecnica', 'procede', 'cantidad_notas',
+      'arbol_seco', 'es_emergencia', 'segunda_nota', 'es_urgencia', 'nivel_urgencia',
+      'observacion_verificacion', 'id_tecnico_ejecucion', 'fecha_ejecucion',
+      'observaciones_finales', 'estado_tramite', 'id_tipo_institucion'
+    ];
+
+    const filteredData = {};
+    const dateColumns = ['fecha_ingreso', 'fecha_verificacion', 'fecha_ejecucion'];
+
+    allowedColumns.forEach(col => {
+      if (data[col] !== undefined) {
+        // Si es una columna de fecha y viene vacía, enviamos NULL para evitar errores de MySQL
+        if (dateColumns.includes(col) && data[col] === '') {
+          filteredData[col] = null;
+        } else {
+          filteredData[col] = data[col];
+        }
+      }
+    });
+
+    if (Object.keys(filteredData).length === 0) {
+      return res.json({ success: true, message: 'Nada que actualizar' });
+    }
+
+    const sets = Object.keys(filteredData).map(key => `${key} = ?`).join(', ');
+    const values = [...Object.values(filteredData), id];
+    
+    const query = `UPDATE solicitudes SET ${sets} WHERE id_solicitud = ?`;
+    await pool.query(query, values);
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error al actualizar solicitud:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.delete('/api/solicitudes/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM solicitudes WHERE id_solicitud = ?', [id]);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error al eliminar solicitud:', error);
+    res.status(500).json({ error: 'Error al eliminar solicitud' });
   }
 });
 
 // --- GESTIÓN DE USUARIOS (CRUD) ---
 
-// Obtener todos los usuarios
+// Obtener todos los usuarios (sin la foto para no saturar)
 app.get('/api/usuarios', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM usuarios');
@@ -104,6 +210,17 @@ app.get('/api/usuarios', async (req, res) => {
   } catch (error) {
     console.error('Error al obtener usuarios:', error);
     res.status(500).json({ error: 'Error al obtener usuarios' });
+  }
+});
+
+// Obtener la foto de un usuario específico (bajo demanda)
+app.get('/api/usuarios/:id/foto', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT foto FROM usuarios WHERE id = ?', [req.params.id]);
+    if (rows.length > 0) res.json({ foto: rows[0].foto });
+    else res.status(404).json({ error: 'No encontrado' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -165,9 +282,9 @@ app.delete('/api/usuarios/:id', async (req, res) => {
   }
 });
 
-// --- HISTORIAL DE IMPRESIONES ---
+// --- HISTORIAL DE IMPRESIONES (Reportes Inmutables) ---
 
-// Obtener historial
+// Obtener historial completo
 app.get('/api/impresiones', async (req, res) => {
   try {
     const [rows] = await pool.query(`
@@ -183,18 +300,47 @@ app.get('/api/impresiones', async (req, res) => {
   }
 });
 
-// Registrar impresión
+// Registrar nueva impresión (Generación de Reporte)
 app.post('/api/impresiones', async (req, res) => {
   try {
-    const { id_solicitud, tipo_reporte, usuario, detalles } = req.body;
-    await pool.query(
-      'INSERT INTO historial_impresiones (id_solicitud, tipo_reporte, usuario, detalles) VALUES (?, ?, ?, ?)',
-      [id_solicitud || null, tipo_reporte, usuario, detalles || null]
+    const { nombre_reporte, id_solicitud, tipo_reporte, usuario, filtros_aplicados, detalles } = req.body;
+    
+    // Si no viene nombre, generamos uno por defecto
+    const finalName = nombre_reporte || `${tipo_reporte} - ${new Date().toLocaleDateString()}`;
+
+    const [result] = await pool.query(
+      'INSERT INTO historial_impresiones (nombre_reporte, id_solicitud, tipo_reporte, usuario, filtros_aplicados, detalles) VALUES (?, ?, ?, ?, ?, ?)',
+      [finalName, id_solicitud || null, tipo_reporte, usuario, filtros_aplicados || null, detalles || null]
     );
-    res.json({ success: true });
+    res.json({ success: true, id: result.insertId });
   } catch (error) {
     console.error('Error al registrar impresión:', error);
     res.status(500).json({ error: 'Error al registrar impresión' });
+  }
+});
+
+// Actualizar solo el nombre del reporte (Única edición permitida)
+app.put('/api/impresiones/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nombre_reporte } = req.body;
+  try {
+    await pool.query('UPDATE historial_impresiones SET nombre_reporte = ? WHERE id = ?', [nombre_reporte, id]);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error al actualizar nombre del reporte:', error);
+    res.status(500).json({ error: 'Error al actualizar nombre del reporte' });
+  }
+});
+
+// Eliminar registro del historial
+app.delete('/api/impresiones/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM historial_impresiones WHERE id = ?', [id]);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error al eliminar registro de historial:', error);
+    res.status(500).json({ error: 'Error al eliminar registro de historial' });
   }
 });
 
@@ -304,6 +450,6 @@ app.get('/api/backup', (req, res) => {
   });
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`🚀 Servidor listo en puerto ${port}`);
 });

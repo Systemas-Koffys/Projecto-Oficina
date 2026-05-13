@@ -14,17 +14,36 @@
             <p class="page-subtitle">{{ routeSubtitle }}</p>
           </div>
           
-          <!-- Selector de Temas Minimalista -->
-          <div class="flex bg-card p-1 rounded-xl border border-border">
+          <!-- Selector de Temas Premium v2.0 -->
+          <div class="relative flex bg-card p-1.5 rounded-2xl border border-border/60 shadow-inner overflow-hidden group">
+            <!-- Fondo deslizante dinámico -->
+            <div 
+              class="absolute top-1.5 bottom-1.5 left-1.5 rounded-xl bg-accent shadow-lg shadow-accent/20 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+              :style="{
+                width: '40px',
+                transform: `translateX(${uiState.theme === 'white' ? 0 : uiState.theme === 'black' ? 44 : 88}px)`
+              }"
+            ></div>
+
             <button 
-              v-for="t in ['white', 'black', 'colors']" 
-              :key="t"
-              @click="setTheme(t)"
-              :class="['w-8 h-8 rounded-lg flex items-center justify-center transition-all', 
-                       uiState.theme === t ? 'bg-accent text-white shadow-lg' : 'hover:bg-accent/10 text-muted']"
+              v-for="t in [
+                { id: 'white', icon: Sun }, 
+                { id: 'black', icon: Moon }, 
+                { id: 'colors', icon: Palette }
+              ]" 
+              :key="t.id"
+              @click="setTheme(t.id)"
+              class="relative z-10 w-10 h-10 flex items-center justify-center transition-all duration-300"
+              :title="`Modo ${t.id}`"
             >
-              <div :class="['w-4 h-4 rounded-full border border-white/20', 
-                           t === 'white' ? 'bg-white' : t === 'black' ? 'bg-black' : 'bg-purple-500']"></div>
+              <component 
+                :is="t.icon" 
+                size="18" 
+                :class="[
+                  'transition-all duration-300',
+                  uiState.theme === t.id ? 'text-white scale-110' : 'text-muted group-hover:text-accent opacity-60'
+                ]"
+              />
             </button>
           </div>
         </div>
@@ -45,16 +64,40 @@
     <!-- Modales y Notificaciones -->
     <SolicitudModal v-if="uiState.showModal" @close="uiState.showModal = false" />
     
+    <!-- Notificaciones Premium v4.0 (FORZADO) -->
     <Transition name="toast">
-      <div v-if="toast.visible" class="toast-wrapper" :class="`toast-${toast.type}`">
-        <div class="toast-icon">
-          <component :is="toast.type === 'success' ? CheckCircle : AlertCircle" size="20" />
+      <div v-if="toast.visible" 
+        class="toast-wrapper" 
+        :style="{
+          position: 'fixed', top: '30px', right: '30px', zIndex: 9999,
+          display: 'flex', alignItems: 'center', gap: '20px',
+          minWidth: '450px', maxWidth: '600px', padding: '24px 30px', borderRadius: '28px',
+          boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.4)', overflow: 'hidden',
+          backdropFilter: 'blur(25px)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          background: toast.type === 'success' 
+            ? 'linear-gradient(135deg, #064e3b, #022c22)' 
+            : 'linear-gradient(135deg, #7f1d1d, #450a0a)',
+          color: 'white'
+        }"
+      >
+        <div class="toast-icon" :style="{
+          width: '56px', height: '56px', borderRadius: '18px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0, boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+          background: toast.type === 'success' ? '#10b981' : '#ef4444'
+        }">
+          <component :is="toast.type === 'success' ? CheckCircle : AlertCircle" size="24" color="white" />
         </div>
         <div>
-          <p class="toast-title">{{ toast.type === 'success' ? 'Éxito' : 'Error' }}</p>
-          <p class="toast-msg">{{ toast.message }}</p>
+          <p class="toast-title" :style="{ fontSize: '14px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.9 }">
+            {{ toast.type === 'success' ? 'Éxito' : 'Atención' }}
+          </p>
+          <p class="toast-msg" :style="{ fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500', lineHeight: '1.4', marginTop: '4px', whiteSpace: 'pre-line' }">
+            {{ toast.message }}
+          </p>
         </div>
-        <div class="toast-bar"></div>
+        <div class="toast-bar" :style="{ position: 'absolute', bottom: 0, left: 0, height: '5px', width: '100%', background: '#10b981', opacity: 1, boxShadow: '0 0 15px rgba(16, 185, 129, 0.6)' }"></div>
       </div>
     </Transition>
   </div>
@@ -64,7 +107,7 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { CheckCircle, AlertCircle } from 'lucide-vue-next'
+import { CheckCircle, AlertCircle, Sun, Moon, Palette } from 'lucide-vue-next'
 import Sidebar from './components/Sidebar.vue'
 import LoginView from './views/LoginView.vue'
 import SolicitudModal from './components/SolicitudModal.vue'
@@ -75,8 +118,14 @@ const route = useRoute()
 onMounted(async () => {
     const savedTheme = localStorage.getItem('theme') || 'white'
     uiState.theme = savedTheme
-    await fetchCatalogos()
-    await fetchSolicitudes()
+    
+    // Carga inicial en paralelo para máxima velocidad
+    Promise.allSettled([
+        fetchCatalogos(),
+        fetchSolicitudes()
+    ]).then(() => {
+        console.log("Carga inicial completa");
+    })
 })
 
 const setTheme = (t) => {
@@ -126,26 +175,44 @@ const routeSubtitle = computed(() => {
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
 .toast-wrapper {
-  position: fixed; bottom: 30px; right: 30px; z-index: 9999;
-  display: flex; align-items: center; gap: 12px;
-  min-width: 300px; padding: 16px 20px; border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  position: fixed; top: 30px; right: 30px; z-index: 9999;
+  display: flex; align-items: center; gap: 20px;
+  min-width: 450px; max-width: 600px; padding: 24px 30px; border-radius: 28px;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4); overflow: hidden;
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
 }
-.toast-success { border-left: 4px solid #10b981; }
-.toast-error { border-left: 4px solid #ef4444; }
 
-.toast-success .toast-icon { color: #10b981; }
-.toast-error .toast-icon { color: #ef4444; }
+.toast-success { 
+  background: linear-gradient(135deg, #064e3b, #022c22) !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
+  color: white !important;
+}
 
-.toast-title { font-size: 14px; font-weight: 900; color: var(--text-main); text-transform: uppercase; }
-.toast-msg { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-.toast-bar { position: absolute; bottom: 0; left: 0; height: 3px; width: 100%; background: var(--accent); opacity: 0.3; animation: shrink 3.5s linear forwards; }
+.toast-error { 
+  background: linear-gradient(135deg, #7f1d1d, #450a0a) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: white !important;
+}
+
+.toast-icon {
+  width: 56px; height: 56px; border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.toast-success .toast-icon { background: #10b981; color: white; }
+.toast-error .toast-icon { background: #ef4444; color: white; }
+
+.toast-title { font-size: 14px; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.9; }
+.toast-msg { font-size: 15px; color: rgba(255, 255, 255, 0.9); font-weight: 500; line-height: 1.4; margin-top: 4px; }
+.toast-bar { position: absolute; bottom: 0; left: 0; height: 5px; width: 100%; background: white; opacity: 0.3; animation: shrink 3.5s linear forwards; }
 
 @keyframes shrink { from { width: 100%; } to { width: 0%; } }
-.toast-enter-active { animation: slideIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-.toast-leave-active { animation: slideOut 0.2s ease-in forwards; }
-@keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
-@keyframes slideOut { from { transform: translateX(0); } to { transform: translateX(120%); } }
+.toast-enter-active { animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.toast-leave-active { animation: slideOut 0.3s ease-in forwards; }
+@keyframes slideIn { from { transform: translateX(120%) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+@keyframes slideOut { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(120%) scale(0.9); opacity: 0; } }
 </style>
