@@ -1,7 +1,7 @@
 import { reactive } from 'vue';
 
-// URL del backend (ahora manejada por el proxy de Vite en el puerto 5173)
-const API_URL = '/api';
+// URL del backend (Configurable para producción o proxy local)
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Estado global para los catálogos y solicitudes
 export const store = reactive({
