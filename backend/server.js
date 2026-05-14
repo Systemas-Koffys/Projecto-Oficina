@@ -451,6 +451,7 @@ app.get('/api/backup', (req, res) => {
   });
 });
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 Servidor listo en puerto ${port}`);
+const finalPort = process.env.PORT || port;
+app.listen(finalPort, '0.0.0.0', () => {
+  console.log(`🚀 Servidor listo en puerto ${finalPort}`);
 });
