@@ -2,6 +2,7 @@ import { reactive } from 'vue';
 
 // URL del backend (Configurable para producción o proxy local)
 const API_URL = import.meta.env.VITE_API_URL || '/api';
+console.log("DEBUG: La URL de la API es:", API_URL);
 
 // Estado global para los catálogos y solicitudes
 export const store = reactive({
