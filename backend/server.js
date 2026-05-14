@@ -39,18 +39,22 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// RUTA CRITICA: Usuarios para el selector de login (Nombres completos con respaldo)
+// RUTA CRITICA: Usuarios para el selector de login
 app.get('/api/usuarios/publico', async (req, res) => {
+  console.log('--- Nueva petición a /api/usuarios/publico ---');
   try {
+    console.log('Ejecutando query en la base de datos...');
     const [rows] = await pool.query('SELECT nombre, username, role FROM usuarios');
+    console.log(`Query exitosa. Se encontraron ${rows.length} usuarios.`);
+    
     const processed = rows.map(u => ({
       nombre: u.nombre || u.username,
       role: u.role
     }));
     res.json(processed);
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Error al cargar personal' });
+    console.error('❌ ERROR DETALLADO EN /api/usuarios/publico:', error);
+    res.status(500).json({ error: 'Error al cargar personal', detail: error.message });
   }
 });
 
