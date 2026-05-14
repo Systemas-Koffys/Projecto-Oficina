@@ -6,17 +6,26 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     host: '0.0.0.0',
-    allowedHosts: [
-      'projecto-oficina-production.up.railway.app'
-    ],
+    strictPort: false,
+    allowedHosts: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 5173,
+    },
     watch: {
       usePolling: true,
+      interval: 1000,
+      ignored: ['**/node_modules/**', '**/.git/**'],
     },
     proxy: {
       '/api': {
-        target: 'https://projecto-oficina-production.up.railway.app',
+        target: process.env.VITE_API_URL || 'http://api:3000',
         changeOrigin: true,
       }
+    },
+    fs: {
+      strict: false,
     }
   }
 })
