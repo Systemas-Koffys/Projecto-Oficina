@@ -7,6 +7,7 @@ const router = createRouter({
     { path: '/', name: 'dashboard', component: DashboardView },
     { path: '/solicitudes', name: 'solicitudes', component: () => import('../views/SolicitudesView.vue') },
     { path: '/historial', name: 'historial', component: () => import('../views/HistorialView.vue') },
+    { path: '/calendario', name: 'calendario', component: () => import('../views/CalendarioView.vue') },
     { path: '/usuarios', name: 'usuarios', component: () => import('../views/UsuariosView.vue') },
     { path: '/reportes', name: 'reportes', component: () => import('../views/ReportesView.vue') },
     { path: '/personal', name: 'personal', component: () => import('../views/PersonalView.vue') },

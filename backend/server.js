@@ -374,8 +374,6 @@ app.post('/api/catalogos/:tabla', async (req, res) => {
 
 app.put('/api/catalogos/:tabla/:id', async (req, res) => {
   const { tabla, id } = req.params;
-  const id_field = (tabla === 'barrios' || tabla === 'distritos') ? 'id' : 'id'; // Ajustar si alguna tabla usa otro nombre de ID
-  
   if (!TABLAS_PERMITIDAS.includes(tabla)) return res.status(400).json({ error: 'Tabla no permitida' });
 
   try {
@@ -456,6 +454,59 @@ app.get('/api/backup', (req, res) => {
     res.setHeader('Content-type', 'application/sql');
     res.send(stdout);
   });
+});
+// --- RUTAS CALENDARIO FESTIVO ---
+app.get('/api/calendario', async (req, res) => {
+  try {
+    const query = `
+      SELECT c.*,
+             (SELECT COUNT(*) FROM solicitudes s 
+              JOIN barrios b ON s.id_barrio = b.id 
+              WHERE b.nombre = c.nombre_barrio) AS solicitudes_count
+      FROM calendario_barrios c
+    `;
+    const [rows] = await pool.query(query);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener calendario:', error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+app.post('/api/calendario', async (req, res) => {
+  try {
+    const { fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta } = req.body;
+    const [result] = await pool.query(
+      'INSERT INTO calendario_barrios (fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta) VALUES (?, ?, ?, ?, ?)',
+      [fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta]
+    );
+    res.status(201).json({ id: result.insertId, ...req.body });
+  } catch (error) {
+    console.error('Error al guardar evento de calendario:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.put('/api/calendario/:id', async (req, res) => {
+  try {
+    const { fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta } = req.body;
+    await pool.query(
+      'UPDATE calendario_barrios SET fecha_aniversario=?, nombre_barrio=?, presidente_barrio=?, telefono_presidente=?, color_etiqueta=? WHERE id=?',
+      [fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta, req.params.id]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+app.delete('/api/calendario/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM calendario_barrios WHERE id=?', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
 
 const finalPort = process.env.PORT || port;

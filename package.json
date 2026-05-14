@@ -11,6 +11,10 @@
     "docker:down": "docker compose down"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
+    "@fullcalendar/vue3": "^6.1.20",
     "@tailwindcss/vite": "^4.2.4",
     "lucide-vue-next": "^1.0.0",
     "tailwindcss": "^4.2.4",

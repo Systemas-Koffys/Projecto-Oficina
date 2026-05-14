@@ -207,8 +207,6 @@ export async function updateImpresionName(id, nuevoNombre) {
 export async function fetchPublicUsuarios() {
   try {
     const response = await fetch(`${API_URL}/usuarios/publico`);
-
-
     return await response.json();
   } catch (error) {
     console.error("Error al cargar usuarios públicos:", error);
@@ -218,7 +216,6 @@ export async function fetchPublicUsuarios() {
 
 // Función para descargar los usuarios de MySQL
 export async function fetchUsuarios() {
-
   try {
     const response = await fetch(`${API_URL}/usuarios`);
     store.usuarios = await response.json();
@@ -412,6 +409,57 @@ export async function deleteCatalogo(tabla, id) {
     return false;
   } catch (error) {
     console.error(`Error al eliminar de ${tabla}:`, error);
+    return false;
+  }
+}
+
+// --- CALENDARIO FESTIVO ---
+export async function fetchCalendario() {
+  try {
+    const response = await fetch(`${API_URL}/calendario`);
+    return await response.json();
+  } catch (error) {
+    console.error('Error al cargar calendario:', error);
+    return [];
+  }
+}
+
+export async function addCalendarioEvento(evento) {
+  try {
+    const response = await fetch(`${API_URL}/calendario`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(evento)
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error al agregar evento:', error);
+    return false;
+  }
+}
+
+export async function updateCalendarioEvento(id, evento) {
+  try {
+    const response = await fetch(`${API_URL}/calendario/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(evento)
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error al actualizar evento:', error);
+    return false;
+  }
+}
+
+export async function deleteCalendarioEvento(id) {
+  try {
+    const response = await fetch(`${API_URL}/calendario/${id}`, {
+      method: 'DELETE'
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error al eliminar evento:', error);
     return false;
   }
 }

@@ -76,7 +76,8 @@ import {
     Settings, 
     Info,
     Truck,
-    History
+    History,
+    Calendar
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -117,6 +118,7 @@ const menuItems = [
     { path: '/solicitudes', label: 'Trámites Pendientes', icon: ClipboardList },
     { path: '/historial', label: 'Historial de Trámites', icon: History },
     { path: '/reportes', label: 'Centro de Reportes', icon: BarChart3 },
+    { path: '/calendario', label: 'Calendario', icon: Calendar },
     { path: '/personal', label: 'Personal', icon: Users2 },
     { path: '/equipos', label: 'Equipos de Trabajo', icon: Truck },
     { path: '/usuarios', label: 'Usuarios', icon: ShieldCheck },
