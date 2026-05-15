@@ -1,5 +1,11 @@
 <template>
-  <div v-if="uiState.user" :class="['flex flex-col md:flex-row h-screen overflow-hidden app-container', `theme-${uiState.theme}`]">
+  <!-- Rutas Públicas (Sin Sidebar) -->
+  <div v-if="$route.meta.public" :class="['min-h-screen app-container', `theme-${uiState.theme}`]">
+    <router-view />
+  </div>
+
+  <!-- Sistema Privado (Con Sidebar) -->
+  <div v-else-if="uiState.user" :class="['flex flex-col md:flex-row h-screen overflow-hidden app-container', `theme-${uiState.theme}`]">
     <Sidebar class="print:hidden" />
     
     <div class="flex-1 flex flex-col min-w-0 bg-main overflow-hidden">
@@ -170,6 +176,7 @@ const routeName = computed(() => {
     const map = {
         dashboard: "Dashboard",
         solicitudes: "Gestión",
+        mapa: "Georeferenciación",
         personal: "Personal",
         usuarios: "Usuarios",
         configuraciones: "Configuración",
@@ -182,6 +189,7 @@ const routeTitle = computed(() => {
     const map = {
         dashboard: "Panel de Control",
         solicitudes: "Gestión de Solicitudes",
+        mapa: "Mapa de Solicitudes",
         personal: "Directorio de Personal",
         usuarios: "Administración de Usuarios",
         configuraciones: "Ajustes del Sistema",
@@ -194,6 +202,7 @@ const routeSubtitle = computed(() => {
     const map = {
         dashboard: "Resumen operativo del sistema y solicitudes en tiempo real",
         solicitudes: "Listado completo y administración de órdenes de trabajo",
+        mapa: "Ubicación geográfica de las solicitudes de poda y tala",
         personal: "Gestión de fichas técnicas, cargos y contratos",
         usuarios: "Control de acceso y perfiles de usuario",
         configuraciones: "Parámetros globales y personalización",

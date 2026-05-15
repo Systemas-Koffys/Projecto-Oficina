@@ -39,6 +39,57 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// SEMBRADO DE DATOS (PARA PRUEBAS)
+app.get('/api/dev/seed', async (req, res) => {
+  try {
+    const barrios = [1, 2, 3, 4, 5, 6, 7, 8];
+    const acciones = [1, 2, 3, 4, 5];
+    const tecnicos = [1, 2, 3, 4];
+    const estados = ['Ejecutado', 'En espera', 'En proceso'];
+    const urgencias = ['Baja', 'Media', 'Alta'];
+    const solicitantes = ['Maria Delgado', 'Jose Luis Choque', 'Ana Maria Vaca', 'Carlos Mendez', 'Lucia Sirpa', 'Roberto Zenteno', 'Elena Flores', 'Pedro Armella'];
+    
+    console.log("Sembrando 100 registros...");
+    
+    for (let i = 0; i < 100; i++) {
+        const id_barrio = barrios[Math.floor(Math.random() * barrios.length)];
+        const id_accion = acciones[Math.floor(Math.random() * acciones.length)];
+        const id_tec = tecnicos[Math.floor(Math.random() * tecnicos.length)];
+        const estado = estados[Math.floor(Math.random() * estados.length)];
+        const urgencia = (Math.random() > 0.8) ? 'Alta' : urgencias[Math.floor(Math.random() * urgencias.length)];
+        const es_emergencia = (urgencia === 'Alta' && Math.random() > 0.5) ? 1 : 0;
+        const fecha = new Date();
+        fecha.setDate(fecha.getDate() - Math.floor(Math.random() * 120));
+        const fecha_ingreso = fecha.toISOString().split('T')[0];
+        let fecha_ejecucion = null;
+        if (estado === 'Ejecutado') {
+            const fechaE = new Date(fecha);
+            fechaE.setDate(fechaE.getDate() + Math.floor(Math.random() * 15));
+            fecha_ejecucion = fechaE.toISOString().split('T')[0];
+        }
+        const lat = -21.535 + (Math.random() - 0.5) * 0.05;
+        const lng = -64.732 + (Math.random() - 0.5) * 0.05;
+
+        const sql = `INSERT INTO solicitudes 
+            (comunicacion_interna, fecha_ingreso, solicitante_nombre, solicitante_telefono, calle, id_barrio, id_accion_solicitada, nivel_urgencia, es_emergencia, estado_tramite, id_tecnico_ejecucion, fecha_ejecucion, lat, lng, solicitante_descripcion) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        
+        await pool.query(sql, [
+            `CI-${200 + i}`, fecha_ingreso,
+            solicitantes[Math.floor(Math.random() * solicitantes.length)],
+            '7' + Math.floor(1000000 + Math.random() * 9000000),
+            'Calle ' + (Math.floor(Math.random() * 100) + 1),
+            id_barrio, id_accion, urgencia, es_emergencia, estado,
+            estado === 'Ejecutado' ? id_tec : null, fecha_ejecucion,
+            lat, lng, 'Carga de prueba masiva para Dashboard'
+        ]);
+    }
+    res.json({ success: true, message: '100 registros sembrados correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // RUTA CRITICA: Usuarios para el selector de login
 app.get('/api/usuarios/publico', async (req, res) => {
   console.log('--- Nueva petición a /api/usuarios/publico ---');
@@ -118,7 +169,7 @@ app.post('/api/solicitudes', async (req, res) => {
       'requiere_setar', 'requiere_ficha_tecnica', 'procede', 'cantidad_notas',
       'arbol_seco', 'es_emergencia', 'segunda_nota', 'es_urgencia', 'nivel_urgencia',
       'observacion_verificacion', 'id_tecnico_ejecucion', 'fecha_ejecucion',
-      'observaciones_finales', 'estado_tramite', 'id_tipo_institucion'
+      'observaciones_finales', 'estado_tramite', 'id_tipo_institucion', 'lat', 'lng'
     ];
 
     const filteredData = {};
@@ -163,7 +214,7 @@ app.put('/api/solicitudes/:id', async (req, res) => {
       'requiere_setar', 'requiere_ficha_tecnica', 'procede', 'cantidad_notas',
       'arbol_seco', 'es_emergencia', 'segunda_nota', 'es_urgencia', 'nivel_urgencia',
       'observacion_verificacion', 'id_tecnico_ejecucion', 'fecha_ejecucion',
-      'observaciones_finales', 'estado_tramite', 'id_tipo_institucion'
+      'observaciones_finales', 'estado_tramite', 'id_tipo_institucion', 'lat', 'lng'
     ];
 
     const filteredData = {};

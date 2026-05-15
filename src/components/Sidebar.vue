@@ -77,7 +77,8 @@ import {
     Info,
     Truck,
     History,
-    Calendar
+    Calendar,
+    Map
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -116,6 +117,7 @@ onUnmounted(() => {
 const menuItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/solicitudes', label: 'Trámites Pendientes', icon: ClipboardList },
+    { path: '/mapa', label: 'Mapa de Solicitudes', icon: Map },
     { path: '/historial', label: 'Historial de Trámites', icon: History },
     { path: '/reportes', label: 'Centro de Reportes', icon: BarChart3 },
     { path: '/calendario', label: 'Calendario', icon: Calendar },
