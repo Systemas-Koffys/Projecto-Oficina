@@ -26,7 +26,8 @@ export const uiState = reactive({
   user: JSON.parse(localStorage.getItem('user')) || null,
   loginTime: localStorage.getItem('loginTime') || null,
   logo_app: localStorage.getItem('logo_app') || null,
-  logo_institucional: localStorage.getItem('logo_institucional') || null
+  logo_institucional: localStorage.getItem('logo_institucional') || null,
+  isLoading: false
 });
 
 // --- Sistema de Notificaciones (Toast) ---
@@ -80,6 +81,7 @@ export function logout() {
 
 // Función para descargar los catálogos de MySQL
 export async function fetchCatalogos() {
+  uiState.isLoading = true;
   try {
     const response = await fetch(`${API_URL}/catalogos`);
     const data = await response.json();
@@ -97,14 +99,17 @@ export async function fetchCatalogos() {
     Promise.allSettled([
         fetchUsuarios(),
         fetchImpresiones(),
-        fetchConfig()
+        fetchConfig(),
+        fetchSolicitudes()
     ]).then(() => {
         console.log("Carga de datos secundarios completada.");
+        uiState.isLoading = false;
     });
     
     console.log("Catálogos base cargados desde MySQL.");
   } catch (error) {
     console.error("Error al cargar los catálogos:", error);
+    uiState.isLoading = false;
   }
 }
 

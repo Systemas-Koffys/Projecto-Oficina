@@ -100,32 +100,50 @@
         <div class="toast-bar" :style="{ position: 'absolute', bottom: 0, left: 0, height: '5px', width: '100%', background: '#10b981', opacity: 1, boxShadow: '0 0 15px rgba(16, 185, 129, 0.6)' }"></div>
       </div>
     </Transition>
+    <!-- Pantalla de Carga Premium (Para el "Despertar" de Render) -->
+    <Transition name="fade">
+      <div v-if="uiState.isLoading" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#064e3b]/95 backdrop-blur-xl text-white">
+        <div class="relative w-24 h-24 mb-8">
+          <div class="absolute inset-0 border-4 border-white/10 rounded-full"></div>
+          <div class="absolute inset-0 border-4 border-accent rounded-full border-t-transparent animate-spin"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="font-black text-xl text-accent">G</span>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black mb-2 tracking-tight">Sincronizando Sistema</h2>
+        <p class="text-white/60 font-medium animate-pulse flex items-center gap-2">
+          <span class="w-2 h-2 bg-accent rounded-full"></span>
+          {{ loadingMessage }}
+        </p>
+      </div>
+    </Transition>
   </div>
   <LoginView v-else />
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { CheckCircle, AlertCircle, Sun, Moon, Palette } from 'lucide-vue-next'
 import Sidebar from './components/Sidebar.vue'
 import LoginView from './views/LoginView.vue'
 import SolicitudModal from './components/SolicitudModal.vue'
-import { uiState, toast, fetchCatalogos, fetchSolicitudes } from './store/data.js'
+import { uiState, toast, fetchCatalogos } from './store/data.js'
 
 const route = useRoute()
+const loadingMessage = ref('Cargando datos...')
 
 onMounted(async () => {
     const savedTheme = localStorage.getItem('theme') || 'white'
     uiState.theme = savedTheme
     
-    // Carga inicial en paralelo para máxima velocidad
-    Promise.allSettled([
-        fetchCatalogos(),
-        fetchSolicitudes()
-    ]).then(() => {
-        console.log("Carga inicial completa");
-    })
+    // Temporizador para el mensaje de Render
+    const timer = setTimeout(() => {
+        if (uiState.isLoading) loadingMessage.value = 'El servidor se está despertando (esto puede tardar 30s)...'
+    }, 4000)
+
+    await fetchCatalogos()
+    clearTimeout(timer)
 })
 
 const setTheme = (t) => {
