@@ -42,6 +42,14 @@ app.get('/api/health', async (req, res) => {
 // SEMBRADO DE DATOS (PARA PRUEBAS)
 app.get('/api/dev/seed', async (req, res) => {
   try {
+    // ASEGURAR QUE LAS COLUMNAS EXISTAN (Por si la migración no se corrió)
+    try {
+      await pool.query('ALTER TABLE solicitudes ADD COLUMN lat DECIMAL(10,8)');
+      await pool.query('ALTER TABLE solicitudes ADD COLUMN lng DECIMAL(11,8)');
+      console.log("Columnas lat/lng añadidas.");
+    } catch (e) {
+      console.log("Las columnas ya existen o hubo un error menor.");
+    }
     const barrios = [1, 2, 3, 4, 5, 6, 7, 8];
     const acciones = [1, 2, 3, 4, 5];
     const tecnicos = [1, 2, 3, 4];
