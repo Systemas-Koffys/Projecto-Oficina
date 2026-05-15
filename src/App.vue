@@ -1,5 +1,5 @@
 <template>
-  <div v-if="uiState.user" :class="['flex h-screen overflow-hidden app-container', `theme-${uiState.theme}`]">
+  <div v-if="uiState.user" :class="['flex flex-col md:flex-row h-screen overflow-hidden app-container', `theme-${uiState.theme}`]">
     <Sidebar class="print:hidden" />
     
     <div class="flex-1 flex flex-col min-w-0 bg-main overflow-hidden">
@@ -8,7 +8,7 @@
         <div class="breadcrumb">
           Admin Portal > <span class="text-accent">{{ routeName }}</span>
         </div>
-        <div class="flex justify-between items-end mt-1">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-end mt-1 gap-4 md:gap-0">
           <div>
             <h1 class="page-title">{{ routeTitle }}</h1>
             <p class="page-subtitle">{{ routeSubtitle }}</p>

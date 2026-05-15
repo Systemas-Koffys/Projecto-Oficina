@@ -1,7 +1,7 @@
 <template>
-    <div class="sidebar w-72 h-screen flex flex-col relative z-50">
+    <div class="sidebar w-full md:w-72 h-auto md:h-screen flex flex-col relative z-50 shrink-0">
         <!-- Logo / Brand -->
-        <div class="p-8 mb-4">
+        <div class="p-4 md:p-8 mb-0 md:mb-4 hidden md:block">
             <div class="flex items-center gap-3">
                 <div class="w-12 h-12 bg-accent text-on-accent rounded-2xl flex items-center justify-center shadow-lg overflow-hidden border border-white/20">
                     <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-2">
@@ -15,9 +15,9 @@
         </div>
 
         <!-- Navigation Menu -->
-        <div class="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+        <div class="flex-none md:flex-1 p-2 md:px-4 md:space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto custom-scrollbar gap-2 md:gap-0">
             <div v-for="item in menuItems" :key="item.path" 
-                class="nav-item group p-4 rounded-2xl cursor-pointer flex items-center gap-4 transition-all"
+                class="nav-item group p-3 md:p-4 rounded-2xl cursor-pointer flex items-center gap-2 md:gap-4 transition-all shrink-0"
                 :class="{ 'active': $route.path === item.path }"
                 @click="$router.push(item.path)">
                 <div class="nav-icon opacity-70 group-hover:opacity-100 transition-all">
@@ -28,7 +28,7 @@
         </div>
 
         <!-- User Panel (Rediseñado) -->
-        <div class="p-6 mt-auto border-t border-white/10 bg-black/20">
+        <div class="p-4 md:p-6 mt-auto border-t border-white/10 bg-black/20 hidden md:block">
             <div class="mb-4">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="relative">
