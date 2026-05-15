@@ -102,19 +102,34 @@
     </Transition>
     <!-- Pantalla de Carga Premium (Para el "Despertar" de Render) -->
     <Transition name="fade">
-      <div v-if="uiState.isLoading" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#064e3b]/95 backdrop-blur-xl text-white">
-        <div class="relative w-24 h-24 mb-8">
-          <div class="absolute inset-0 border-4 border-white/10 rounded-full"></div>
-          <div class="absolute inset-0 border-4 border-accent rounded-full border-t-transparent animate-spin"></div>
-          <div class="absolute inset-0 flex items-center justify-center">
-            <span class="font-black text-xl text-accent">G</span>
+      <div v-if="uiState.isLoading" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#022c22] text-white">
+        <!-- Fondo de Iluminación Radial -->
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.15)_0%,transparent_70%)]"></div>
+
+        <div class="relative z-10 flex flex-col items-center">
+          <!-- Logo con Iluminación -->
+          <div class="relative w-40 h-40 mb-12 group">
+            <div class="absolute inset-0 bg-accent/30 rounded-full blur-3xl animate-pulse"></div>
+            <div class="relative w-full h-full bg-white/5 backdrop-blur-sm rounded-[3rem] border border-white/20 flex items-center justify-center shadow-2xl overflow-hidden p-6">
+              <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain">
+              <span v-else class="text-7xl font-black text-accent drop-shadow-lg">A</span>
+            </div>
           </div>
+
+          <h2 class="text-4xl font-black mb-4 tracking-tighter text-center">
+            Iniciando <span class="text-accent">Arboricultura</span>
+          </h2>
+          
+          <!-- Barra de Carga -->
+          <div class="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden mb-6 border border-white/5">
+            <div class="h-full bg-accent shadow-[0_0_15px_#10b981] animate-[loading-bar_2s_infinite_ease-in-out]"></div>
+          </div>
+
+          <p class="text-white/50 font-bold text-xs uppercase tracking-[0.3em] flex items-center gap-3">
+            <span class="inline-block w-1.5 h-1.5 bg-accent rounded-full animate-ping"></span>
+            {{ loadingMessage }}
+          </p>
         </div>
-        <h2 class="text-3xl font-black mb-2 tracking-tight">Sincronizando Sistema</h2>
-        <p class="text-white/60 font-medium animate-pulse flex items-center gap-2">
-          <span class="w-2 h-2 bg-accent rounded-full"></span>
-          {{ loadingMessage }}
-        </p>
       </div>
     </Transition>
   </div>
@@ -229,6 +244,11 @@ const routeSubtitle = computed(() => {
 .toast-bar { position: absolute; bottom: 0; left: 0; height: 5px; width: 100%; background: white; opacity: 0.3; animation: shrink 3.5s linear forwards; }
 
 @keyframes shrink { from { width: 100%; } to { width: 0%; } }
+@keyframes loading-bar {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
 .toast-enter-active { animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .toast-leave-active { animation: slideOut 0.3s ease-in forwards; }
 @keyframes slideIn { from { transform: translateX(120%) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
