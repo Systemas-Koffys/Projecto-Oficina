@@ -28,7 +28,9 @@
 
 <script setup>
 import { CheckCircle, AlertCircle } from 'lucide-vue-next'
-import { toast } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { toast } = mainStore
 </script>
 
 <style scoped>

@@ -2,9 +2,26 @@ import express from 'express';
 import cors from 'cors';
 import mysql from 'mysql2/promise';
 import { exec } from 'child_process';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const app = express();
 const port = 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_oficina_2026';
+
+// Middleware de Autenticación
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) return res.status(401).json({ error: 'Acceso denegado: Token requerido' });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Acceso denegado: Token inválido o expirado' });
+    req.user = user;
+    next();
+  });
+};
 
 app.use(cors({
   origin: '*',
@@ -13,6 +30,15 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Aplicar middleware de autenticación a todas las rutas de /api excepto públicas
+app.use('/api', (req, res, next) => {
+  const publicRoutes = ['/login', '/usuarios/publico', '/health'];
+  if (publicRoutes.includes(req.path)) {
+    return next();
+  }
+  return authenticateToken(req, res, next);
+});
 
 // Configuración de conexión flexible (Docker o Local)
 const pool = mysql.createPool({
@@ -135,14 +161,37 @@ app.get('/api/catalogos', async (req, res) => {
 
 // Login
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body; // 'username' ahora puede ser el nombre completo
+  const { username, password } = req.body; 
   try {
-    const [rows] = await pool.query('SELECT * FROM usuarios WHERE (username = ? OR nombre = ?) AND password = ?', [username, username, password]);
+    const [rows] = await pool.query('SELECT * FROM usuarios WHERE username = ? OR nombre = ?', [username, username]);
     
     if (rows.length > 0) {
       const user = rows[0];
-      delete user.password; // Por seguridad, no enviamos el password de vuelta
-      res.json({ success: true, user });
+      let passwordMatch = false;
+
+      // Migración silenciosa de Bcrypt: Si no está encriptada, la verificamos y la encriptamos
+      if (user.password && !user.password.startsWith('$2b$')) {
+        if (user.password === password) {
+            passwordMatch = true;
+            // Encriptamos la contraseña para futuros logins
+            const hashed = await bcrypt.hash(password, 10);
+            await pool.query('UPDATE usuarios SET password = ? WHERE id = ?', [hashed, user.id]);
+        }
+      } else {
+        // Validación normal con Bcrypt
+        passwordMatch = await bcrypt.compare(password, user.password);
+      }
+      
+      if (passwordMatch) {
+          delete user.password;
+          
+          // Generar Token JWT
+          const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '8h' });
+          
+          res.json({ success: true, user, token });
+      } else {
+          res.status(401).json({ success: false, error: 'Credenciales incorrectas' });
+      }
     } else {
       res.status(401).json({ success: false, error: 'Credenciales incorrectas' });
     }
@@ -297,9 +346,13 @@ app.post('/api/usuarios', async (req, res) => {
   console.log(`Creando nuevo usuario: ${username}`);
   
   try {
+    let finalPassword = password;
+    if (password) {
+        finalPassword = await bcrypt.hash(password, 10);
+    }
     const [result] = await pool.query(
       'INSERT INTO usuarios (username, password, role, nombre, cargo, email, estado, foto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [username, password, role, nombre, cargo, email, estado || 'Activo', foto || null]
+      [username, finalPassword, role, nombre, cargo, email, estado || 'Activo', foto || null]
     );
     console.log(`✅ Usuario creado con ID: ${result.insertId}`);
     res.json({ success: true, id: result.insertId });
@@ -321,8 +374,9 @@ app.put('/api/usuarios/:id', async (req, res) => {
     const params = [username, role, nombre, cargo, email, estado, foto || null];
 
     if (password && password.trim() !== '') {
+      const hashed = await bcrypt.hash(password, 10);
       fields.push('password=?');
-      params.push(password);
+      params.push(hashed);
     }
     
     params.push(id);

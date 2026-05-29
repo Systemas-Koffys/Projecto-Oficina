@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { store, uiState, addCatalogo, updateCatalogo, deleteCatalogo, showToast } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store, uiState, addCatalogo, updateCatalogo, deleteCatalogo, showToast } = mainStore
 
 // Categorías disponibles
 const categorias = [

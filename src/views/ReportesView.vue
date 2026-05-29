@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { store, uiState, registrarImpresion, deleteImpresion, updateImpresionName, showToast, fetchImpresiones } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store, uiState, registrarImpresion, deleteImpresion, updateImpresionName, showToast, fetchImpresiones } = mainStore
 import { Printer, History, Trash2, Edit3, Eye, FileText, Filter, ChevronRight, Search, Download } from 'lucide-vue-next'
 
 const activeTab = ref('generador')

@@ -88,7 +88,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { store, updateCatalogo, showToast } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store, updateCatalogo, showToast } = mainStore
 
 const teamColors = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6']
 const roles = ['Chofer', 'Técnico', 'Podador', 'Cargador']

@@ -194,7 +194,9 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { Leaf, Info, User, Phone, MapPin, Send, CheckCircle, Clock, ShieldCheck, ClipboardList } from 'lucide-vue-next'
-import { store, addSolicitud, uiState } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store, addSolicitud, uiState } = mainStore
 
 // El resto de la lógica (script) se mantiene igual...
 const submitted = ref(false)

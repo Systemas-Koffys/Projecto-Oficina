@@ -123,7 +123,9 @@
 </template>
 
 <script setup>
-import { uiState, store } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { uiState, store } = mainStore
 
 const temas = [
     { id: 'colors', nombre: 'Institucional', icono: '🎨' },

@@ -79,7 +79,9 @@
 
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
-import { store, fetchCalendario, addCalendarioEvento, updateCalendarioEvento, deleteCalendarioEvento, showToast } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store, fetchCalendario, addCalendarioEvento, updateCalendarioEvento, deleteCalendarioEvento, showToast } = mainStore
 import { Calendar as CalendarIcon, Plus } from 'lucide-vue-next'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'

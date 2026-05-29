@@ -227,7 +227,9 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
-import { store, uiState, addSolicitud, updateSolicitud, showToast } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store, uiState, addSolicitud, updateSolicitud, showToast } = mainStore
 
 const emit = defineEmits(['close'])
 

@@ -1,24 +1,17 @@
 -- Inicialización de Base de Datos para dboficina
--- Codificación: UTF-8 (utf8mb4) para español: ñ, acentos, etc.
 
-SET NAMES utf8mb4;
-SET CHARACTER SET utf8mb4;
-
-CREATE DATABASE IF NOT EXISTS dboficina CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS dboficina;
 USE dboficina;
 
--- 1. Tablas de Catálogos
 CREATE TABLE tipos_institucion (
     id INT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL
 );
-INSERT INTO tipos_institucion (id, nombre) VALUES (1, "Área Rural"), (2, "Salud y Hospitales"), (3, "Educación"), (4, "Organización Social"), (5, "Entidad Municipal"), (6, "Institución u Organización");
 
 CREATE TABLE distritos (
     id INT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL
 );
-INSERT INTO distritos (id, nombre) VALUES (1, "Distrito 1"), (2, "Distrito 2"), (3, "Distrito 3"), (4, "Distrito 4"), (5, "Distrito 5"), (6, "Distrito 6"), (7, "Distrito 7"), (8, "Distrito 8"), (9, "Distrito 9"), (10, "Distrito 10"), (11, "Distrito 11"), (12, "Distrito 12"), (13, "Distrito 13");
 
 CREATE TABLE barrios (
     id INT PRIMARY KEY,
@@ -26,8 +19,6 @@ CREATE TABLE barrios (
     id_distrito INT,
     FOREIGN KEY (id_distrito) REFERENCES distritos(id)
 );
--- (Se asume que los barrios se cargan aquí)
-INSERT INTO barrios (id, nombre, id_distrito) VALUES (1, "EL MOLINO", 1), (2, "SAN ROQUE", 2), (3, "LAS PANOSAS", 3), (4, "LA PAMPA", 4), (5, "VIRGEN DE FATIMA", 5), (6, "LA LOMA", 6), (7, "EL CARMEN", 6), (8, "GUADALQUIVIR", 6), (9, "57 VIVIENDAS", 6), (10, "LUIS PIZARRO", 6), (11, "15 DE NOVIEMBRE", 6), (12, "JUAN PABLO II", 6), (13, "VIRGEN DE CHAGUAYA", 6), (14, "LIBERTAD", 6), (15, "PANAMERICANO", 6), (16, "15 DE AGOSTO", 6), (17, "LA TORRE", 6), (18, "LA UNION", 6), (19, "CARLOS WAGNNER", 6), (20, "PARAISO", 6), (21, "LOS ALAMOS", 6), (22, "LOS OLIVOS", 6), (23, "4 DE JULIO", 7), (24, "12 DE OCTUBRE", 7), (25, "IV CENTENARIO", 7), (26, "DEFENSORES DEL CHACO", 7), (27, "LAS PASCUAS", 7), (28, "3 DE MAYO", 7), (29, "LOS CHAPACOS", 7), (30, "MARIA DE LOS ANGELES", 7), (31, "15 DE JUNIO", 7), (32, "MUNICIPAL", 7), (33, "19 DE MARZO", 7), (34, "20 DE ENERO", 7), (35, "101 FAMILIAS", 7), (36, "NUEVA ESPERANZA", 7), (37, "EDUARDO AVAROA", 8), (38, "OSCAR ALFARO", 8), (39, "SAN JOSE", 8), (40, "SAN MARCOS", 8), (41, "LOURDES", 8), (42, "LA FLORIDA", 8), (43, "PASCUAS", 8), (44, "LOS LAURELES", 8), (45, "LA HUERTA", 8), (46, "6 DE AGOSTO", 9), (47, "SALAMANCA", 9), (48, "SAN BERNARDO", 9), (49, "ANDALUZ", 9), (50, "02 DE MAYO", 9), (51, "PEDRO ANTONIO FLORES", 9), (52, "CONSTRUCTOR", 9), (53, "24 DE JUNIO", 9), (54, "ANICETO ARCE", 9), (55, "NARCISO CAMPERO", 9), (56, "LUIS ESPINAL", 9), (57, "7 DE SEPTIMBRE", 9), (58, "BARTOLOME ATARD", 9), (59, "MOTO MENDEZ", 9), (60, "JUAN XXIII", 10), (61, "ROSEDAL", 10), (62, "JUAN NICOLAY", 10), (63, "15 DE ABRIL", 10), (64, "AEROPUERTO", 10), (65, "MORROS BLANCOS", 10), (66, "SAN PEDRO", 10), (67, "SAN JORGE 1", 10), (68, "SAN SALVADOR", 10), (69, "SAN JORGE 2", 10), (70, "ARTESANAL", 10), (71, "LINDO SAN GERONIMO", 11), (72, "SAN GERONIMO CENTRO", 11), (73, "SAN GERONIMO SUD", 11), (74, "SAN LUIS", 11), (75, "LA TERMINAL", 11), (76, "PETROLERO", 11), (77, "EL TEJAR", 11), (78, "MIRAFLORES", 12), (79, "GERMAN BUSCH", 12), (80, "ARANJUEZ SUD", 12), (81, "SAN MARTIN", 12), (82, "LUIS DE FUENTES", 13), (83, "CATEDRAL", 13), (84, "SAN ANTONIO", 13), (85, "SAN BLAS", 13), (86, "ALTO SENAC", 13), (87, "SENAC", 13), (88, "TABLADITA I", 13), (89, "TABLADITA II", 13), (90, "MENDEZ ARCOS", 13);
 
 CREATE TABLE instituciones (
     id INT PRIMARY KEY,
@@ -37,36 +28,22 @@ CREATE TABLE instituciones (
     FOREIGN KEY (id_tipo) REFERENCES tipos_institucion(id),
     FOREIGN KEY (id_distrito) REFERENCES distritos(id)
 );
-INSERT INTO instituciones (id, nombre, id_tipo, id_distrito) VALUES (1, "BELLA VISTA", 1, NULL), (19, "C.S. 15 DE NOVIEMBRE", 2, NULL), (39, "U.E. ALBERTO BALDIVIESO", 3, NULL), (51, "Junta Vecinal", 4, NULL), (58, "Despacho Municipal", 5, NULL), (67, "SETAR", 6, NULL);
 
 CREATE TABLE tecnicos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    cargo VARCHAR(100),
-    tipo_contrato VARCHAR(100),
-    fecha_ingreso DATE,
-    celular VARCHAR(50),
-    fecha_nacimiento DATE,
-    tipo_sangre VARCHAR(10),
-    contacto_emergencia VARCHAR(100),
-    celular_emergencia VARCHAR(50),
-    foto LONGTEXT
+    id INT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL
 );
-INSERT INTO tecnicos (id, nombre) VALUES (1, "Ing. Cimar Farfan"), (2, "Ing. Karina Castro"), (3, "Ing. Cesar Vega"), (4, "Ing. Edwin Lopez"), (5, "Ing. Jorge Candia"), (6, "Ing. Pablo Bonilla"), (7, "Tec. Kevin Flores");
 
 CREATE TABLE especies (
     id INT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL
 );
-INSERT INTO especies (id, nombre) VALUES (1, "Acacia (Aromo)"), (14, "Eucalipto (eucalyptus spp.)"), (31, "Molle (schinus molle)"), (43, "Pino (pinus spp.)"), (65, "No Determinado");
 
 CREATE TABLE acciones (
     id INT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL
 );
-INSERT INTO acciones (id, nombre) VALUES (1, "Poda de Formación"), (2, "Despunte"), (3, "Derribe Controlado"), (4, "Emergencia"), (5, "Poda de Raíces"), (6, "Extracción de Tocón"), (7, "Poda General"), (8, "No Determinado");
 
--- 2. Tablas Principales
 CREATE TABLE solicitudes (
     id_solicitud INT AUTO_INCREMENT PRIMARY KEY,
     fecha_ingreso DATE,
@@ -81,26 +58,22 @@ CREATE TABLE solicitudes (
     referencia VARCHAR(255),
     solicitante_nombre VARCHAR(100),
     solicitante_telefono VARCHAR(50),
-    solicitante_descripcion TEXT,
     lo_solicitado TEXT,
     id_accion_solicitada INT,
     id_tecnico_verificacion INT,
-    requiere_plataforma BOOLEAN DEFAULT FALSE,
-    requiere_setar BOOLEAN DEFAULT FALSE,
-    requiere_ficha_tecnica BOOLEAN DEFAULT FALSE,
-    procede BOOLEAN DEFAULT FALSE,
-    cantidad_notas INT DEFAULT 1,
-    arbol_seco BOOLEAN DEFAULT FALSE,
-    es_emergencia BOOLEAN DEFAULT FALSE,
-    segunda_nota BOOLEAN DEFAULT FALSE,
-    es_urgencia BOOLEAN DEFAULT FALSE,
-    nivel_urgencia VARCHAR(50) DEFAULT 'Baja',
+    requiere_plataforma BOOLEAN,
+    requiere_setar BOOLEAN,
+    requiere_ficha_tecnica BOOLEAN,
+    procede BOOLEAN,
+    cantidad_notas INT,
+    arbol_seco BOOLEAN,
+    es_emergencia BOOLEAN,
+    nivel_urgencia VARCHAR(50),
     observacion_verificacion TEXT,
     id_tecnico_ejecucion INT,
     fecha_ejecucion DATE,
     observaciones_finales TEXT,
-    estado_tramite VARCHAR(50) DEFAULT 'En espera',
-    id_tipo_institucion INT,
+    estado_tramite VARCHAR(50),
     FOREIGN KEY (id_barrio) REFERENCES barrios(id),
     FOREIGN KEY (id_nombre_institucional) REFERENCES instituciones(id),
     FOREIGN KEY (id_accion) REFERENCES acciones(id),
@@ -109,8 +82,7 @@ CREATE TABLE solicitudes (
     FOREIGN KEY (id_tecnico_verificacion) REFERENCES tecnicos(id),
     FOREIGN KEY (id_tecnico_ejecucion) REFERENCES tecnicos(id)
 );
-
-CREATE TABLE usuarios (
+CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -118,38 +90,95 @@ CREATE TABLE usuarios (
     nombre VARCHAR(100) NOT NULL,
     cargo VARCHAR(100),
     email VARCHAR(100),
-    estado VARCHAR(20) DEFAULT 'Activo',
-    foto LONGTEXT
+    estado VARCHAR(20) DEFAULT 'Activo'
 );
+INSERT IGNORE INTO usuarios (id, username, password, role, nombre, cargo, email, estado) VALUES 
+(1, 'admin', 'admin', 'ADMIN', 'Ing. Cimar Farfan', 'Ingeniero', 'cfarfan@alcaldiatarija.gob.bo', 'Activo'),
+(2, 'root', 'password', 'ROOT', 'Tec. Kevin Flores', 'Técnico', 'sistemas.koffys@gmail.com', 'Activo');
 
-CREATE TABLE historial_impresiones (
+CREATE TABLE IF NOT EXISTS historial_impresiones (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_reporte VARCHAR(255),
-    id_solicitud INT,
-    tipo_reporte VARCHAR(50), -- 'Individual' | 'Hoja de Ruta'
-    fecha_impresion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    nombre_reporte VARCHAR(255) NOT NULL,
+    id_solicitud INT NULL,
+    tipo_reporte VARCHAR(100),
     usuario VARCHAR(100),
-    filtros_aplicados TEXT, -- Resumen de filtros si es Hoja de Ruta
-    detalles JSON, -- Lista de IDs si es consolidado
+    fecha_impresion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    filtros_aplicados TEXT NULL,
+    detalles TEXT NULL,
     FOREIGN KEY (id_solicitud) REFERENCES solicitudes(id_solicitud) ON DELETE SET NULL
 );
 
-CREATE TABLE config_sistema (
+CREATE TABLE IF NOT EXISTS config_sistema (
     clave VARCHAR(100) PRIMARY KEY,
     valor TEXT
 );
-
--- 3. Carga de Datos Iniciales
-INSERT INTO usuarios (username, password, role, nombre, cargo, email, estado) VALUES 
-('admin', 'admin', 'ADMIN', 'Ing. Cimar Farfan', 'Ingeniero', 'cfarfan@alcaldiatarija.gob.bo', 'Activo'),
-('root', 'password', 'ROOT', 'Tec. Kevin Flores', 'Técnico', 'sistemas.koffys@gmail.com', 'Activo');
-
-INSERT INTO config_sistema (clave, valor) VALUES 
+INSERT IGNORE INTO config_sistema (clave, valor) VALUES 
 ('nombre_entidad', 'Gobierno Autónomo Municipal de Tarija'),
 ('sigla_entidad', 'GAMT'),
 ('color_primario', '#1a4731');
 
--- Solicitudes de Prueba (Asegurando todas las columnas)
-INSERT INTO solicitudes (fecha_ingreso, fecha_verificacion, comunicacion_interna, id_barrio, id_nombre_institucional, id_accion, id_especie, calle, numero_casa, referencia, solicitante_nombre, solicitante_telefono, solicitante_descripcion, id_accion_solicitada, id_tecnico_verificacion, requiere_plataforma, requiere_setar, requiere_ficha_tecnica, procede, cantidad_notas, arbol_seco, es_emergencia, nivel_urgencia, estado_tramite) VALUES 
-('2024-05-01', '2024-05-03', 'Cod 0001/24', 1, NULL, 1, 31, 'Av. Las Américas', 'S/N', 'Frente al parque', 'Juan Pérez', '76543210', 'Árbol choca con cables.', 1, 1, 1, 1, 0, 1, 1, 0, 0, 'Intermedia', 'En espera'),
-('2024-05-02', '2024-05-04', 'Cod 0002/24', 10, 39, 3, 14, 'Calle Colón', '123', 'Colegio', 'Prof. Martha Llanos', '71122334', 'Árbol seco.', 4, 2, 0, 0, 1, 1, 1, 1, 1, 'Alta', 'En espera');
+CREATE TABLE IF NOT EXISTS calendario_barrios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha_aniversario DATE NOT NULL,
+    nombre_barrio VARCHAR(255) NOT NULL,
+    presidente_barrio VARCHAR(255),
+    telefono_presidente VARCHAR(50),
+    color_etiqueta VARCHAR(50) DEFAULT '#4caf50'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO calendario_barrios (fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta) VALUES
+('2026-05-02', 'San Roque', 'Juan Pérez', '71234567', '#e11d48'),
+('2026-05-10', 'Fátima', 'María López', '78901234', '#2563eb'),
+('2026-05-15', 'Senac', 'Carlos García', '76543210', '#16a34a'),
+('2026-05-20', 'Juan XXIII', 'Ana Martínez', '75432109', '#d97706'),
+('2026-05-25', 'Los Chapacos', 'Luis Rodríguez', '71122334', '#9333ea'),
+('2026-05-30', 'El Carmen', 'Elena Gómez', '72233445', '#0891b2'),
+
+('2026-06-03', 'Las Panosas', 'Roberto Díaz', '73344556', '#4f46e5'),
+('2026-06-08', 'La Loma', 'Sofía Romero', '74455667', '#ea580c'),
+('2026-06-12', 'Abaroa', 'Miguel Sánchez', '75566778', '#65a30d'),
+('2026-06-18', 'Tabladita', 'Laura Torres', '76677889', '#0d9488'),
+('2026-06-22', 'Lourdes', 'Pedro Flores', '77788990', '#c026d3'),
+('2026-06-28', 'Morros Blancos', 'Carmen Ruiz', '78899001', '#be123c'),
+
+('2026-07-04', 'Villa Avaroa', 'Jorge Vargas', '79900112', '#1d4ed8'),
+('2026-07-09', 'Defensores del Chaco', 'Teresa Castro', '71011223', '#b45309'),
+('2026-07-14', 'Palmarcito', 'Raúl Ortiz', '72122334', '#15803d'),
+('2026-07-20', 'Luis Pizarro', 'Patricia Silva', '73233445', '#a21caf'),
+('2026-07-25', 'El Constructor', 'Mario Reyes', '74344556', '#be185d'),
+('2026-07-31', 'Simón Bolívar', 'Rosa Méndez', '75455667', '#0369a1'),
+
+('2026-08-05', 'San José', 'Hugo Navarro', '76566778', '#4338ca'),
+('2026-08-10', 'Central', 'Silvia Ríos', '77677889', '#c2410c'),
+('2026-08-16', 'Guadalquivir', 'Andrés Mendoza', '78788990', '#4d7c0f'),
+('2026-08-21', 'Aranjuez', 'Gloria Morales', '79899001', '#0f766e'),
+('2026-08-26', 'Méndez Arcos', 'Ricardo Vega', '71900112', '#a21caf'),
+('2026-08-30', 'San Bernardo', 'Lucía Herrera', '72011223', '#9f1239'),
+
+('2026-09-02', 'Los Olivos', 'Esteban Aguilar', '73122334', '#1e40af'),
+('2026-09-07', 'San Martín', 'Victoria Peña', '74233445', '#b45309'),
+('2026-09-13', 'San Jerónimo', 'Fernando Cruz', '75344556', '#166534'),
+('2026-09-18', 'San Luis', 'Isabel Delgado', '76455667', '#86198f'),
+('2026-09-24', 'Aeropuerto', 'Gabriel Cárdenas', '77566778', '#9d174d'),
+('2026-09-29', 'Miraflores', 'Mónica Salazar', '78677889', '#075985'),
+
+('2026-10-04', 'San Mateo', 'Héctor Cabrera', '79788990', '#3730a3'),
+('2026-10-09', 'La Florida', 'Alicia Valdés', '71899001', '#9a3412'),
+('2026-10-15', 'San Blas', 'Francisco Medina', '72900112', '#3f6212'),
+('2026-10-20', 'Eulogio Ruiz', 'Daniela Ríos', '73011223', '#115e59'),
+('2026-10-25', 'Mendietas', 'Arturo Gil', '74122334', '#701a75'),
+('2026-10-31', 'Pedro Antonio Flores', 'Sonia León', '75233445', '#881337'),
+
+('2026-11-05', 'Villa Fátima', 'Víctor Ponce', '76344556', '#1e3a8a'),
+('2026-11-10', '15 de Abril', 'Natalia Moya', '77455667', '#7c2d12'),
+('2026-11-16', 'Barrio Nuevo', 'Rodrigo Blanco', '78566778', '#14532d'),
+('2026-11-21', 'Luis Espinal', 'Valeria Soto', '79677889', '#581c87'),
+('2026-11-26', 'Rosedal', 'Guillermo Pacheco', '71788990', '#831843'),
+('2026-11-30', 'Moyatas', 'Carolina Paz', '72899001', '#0c4a6e'),
+
+('2026-12-04', 'Villa Busch', 'Julio Paredes', '73900112', '#312e81'),
+('2026-12-09', 'El Trigal', 'Teresa Rojas', '74011223', '#78350f'),
+('2026-12-14', 'Las Rosas', 'Martín Suárez', '75122334', '#064e3b'),
+('2026-12-20', 'La Pampa', 'Diana Muñoz', '76233445', '#4c1d95'),
+('2026-12-25', 'El Molino', 'Felipe Ortiz', '77344556', '#9f1239'),
+('2026-12-30', '1 de Mayo', 'Renata Domínguez', '78455667', '#082f49');
+

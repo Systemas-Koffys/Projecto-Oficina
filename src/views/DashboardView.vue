@@ -150,7 +150,9 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { store } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store } = mainStore
 import { 
     ClipboardList, CheckCircle2, Clock3, AlertTriangle, 
     TrendingUp, UserCheck, MapPin 

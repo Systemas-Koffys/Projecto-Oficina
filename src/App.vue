@@ -85,7 +85,9 @@ import LoginView from './views/LoginView.vue'
 import SolicitudModal from './components/SolicitudModal.vue'
 import ToastNotification from './components/ToastNotification.vue'
 import LoadingScreen from './components/LoadingScreen.vue'
-import { uiState, fetchCatalogos } from './store/data.js'
+import { useMainStore } from './store/mainStore.js'
+const mainStore = useMainStore()
+const { uiState, fetchCatalogos } = mainStore
 
 const route = useRoute()
 

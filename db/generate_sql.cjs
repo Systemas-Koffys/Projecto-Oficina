@@ -1,12 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-const dataFile = path.join(__dirname, '../src/store/data.js');
+const dataFile = path.join(__dirname, '../src/store/mainStore.js');
 let dataContent = fs.readFileSync(dataFile, 'utf-8');
 
-// Extract the object inside reactive({...})
-const startIndex = dataContent.indexOf('reactive({') + 9;
-const endIndex = dataContent.lastIndexOf('});');
+// Extract the store string
+const startIndex = dataContent.indexOf('store = reactive({') + 17;
+const endIndex = dataContent.indexOf('  });', startIndex) + 3;
 const objStr = dataContent.substring(startIndex, endIndex);
 
 // We evaluate the object string to get a real JS object

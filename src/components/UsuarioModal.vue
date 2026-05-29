@@ -122,7 +122,9 @@
 
 <script setup>
 import { reactive, onMounted } from 'vue'
-import { addUsuario, updateUsuario, showToast, store } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { addUsuario, updateUsuario, showToast, store } = mainStore
 
 const props = defineProps({
     userData: { type: Object, default: null }

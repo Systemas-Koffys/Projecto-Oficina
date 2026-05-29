@@ -55,7 +55,9 @@
 <script setup>
 import { onMounted, onUnmounted, reactive, computed, ref } from 'vue'
 import { MapPin } from 'lucide-vue-next'
-import { store } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store } = mainStore
 
 const stats = computed(() => {
   return {

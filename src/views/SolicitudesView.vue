@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { store, uiState, deleteSolicitud, showToast, registrarImpresion } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store, uiState, deleteSolicitud, showToast, registrarImpresion } = mainStore
 
 const solicitudSeleccionada = ref(null)
 

@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { store, uiState, deleteUsuario, showToast } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store, uiState, deleteUsuario, showToast } = mainStore
 import UsuarioModal from '../components/UsuarioModal.vue'
 
 const showModal = ref(false)

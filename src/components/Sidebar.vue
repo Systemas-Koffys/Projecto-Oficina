@@ -65,7 +65,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { uiState } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { uiState } = mainStore
 import { useRouter } from 'vue-router'
 import { 
     LayoutDashboard, 

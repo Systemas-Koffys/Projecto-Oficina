@@ -311,7 +311,9 @@
 
 <script setup>
 import { ref, computed, reactive } from 'vue'
-import { store, uiState, updateCatalogo, deleteCatalogo, addCatalogo, showToast } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { store, uiState, updateCatalogo, deleteCatalogo, addCatalogo, showToast } = mainStore
 
 const search = ref('')
 const showModal = ref(false)

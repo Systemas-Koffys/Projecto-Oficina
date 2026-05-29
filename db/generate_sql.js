@@ -3,16 +3,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dataFile = path.join(__dirname, '../src/store/data.js');
+const dataFile = path.join(__dirname, '../src/store/mainStore.js');
 
 let dataContent = fs.readFileSync(dataFile, 'utf-8');
 
-// remove 'export const uiState = reactive({...});'
-dataContent = dataContent.replace(/export const uiState = reactive\(\{[\s\S]*?\}\);/g, '');
-
 // Extract the store string
-const startIdx = dataContent.indexOf('export const store = reactive({') + 30;
-const endIdx = dataContent.indexOf('});', startIdx) + 1;
+const startIdx = dataContent.indexOf('store = reactive({') + 17;
+const endIdx = dataContent.indexOf('  });', startIdx) + 3;
 const storeStr = dataContent.substring(startIdx, endIdx);
 
 // Evaluate it safely
@@ -173,6 +170,62 @@ store.solicitudes.forEach(s => {
     ];
     sql += `INSERT INTO solicitudes VALUES (${vals.join(', ')});\n`;
 });
+
+// 9. Usuarios
+sql += `CREATE TABLE IF NOT EXISTS usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    cargo VARCHAR(100),
+    email VARCHAR(100),
+    estado VARCHAR(20) DEFAULT 'Activo'
+);\n`;
+sql += `INSERT IGNORE INTO usuarios (id, username, password, role, nombre, cargo, email, estado) VALUES 
+(1, 'admin', 'admin', 'ADMIN', 'Ing. Cimar Farfan', 'Ingeniero', 'cfarfan@alcaldiatarija.gob.bo', 'Activo'),
+(2, 'root', 'password', 'ROOT', 'Tec. Kevin Flores', 'Técnico', 'sistemas.koffys@gmail.com', 'Activo');\n\n`;
+
+// 10. Historial Impresiones
+sql += `CREATE TABLE IF NOT EXISTS historial_impresiones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_reporte VARCHAR(255) NOT NULL,
+    id_solicitud INT NULL,
+    tipo_reporte VARCHAR(100),
+    usuario VARCHAR(100),
+    fecha_impresion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    filtros_aplicados TEXT NULL,
+    detalles TEXT NULL,
+    FOREIGN KEY (id_solicitud) REFERENCES solicitudes(id_solicitud) ON DELETE SET NULL
+);\n\n`;
+
+// 11. Config Sistema
+sql += `CREATE TABLE IF NOT EXISTS config_sistema (
+    clave VARCHAR(100) PRIMARY KEY,
+    valor TEXT
+);\n`;
+sql += `INSERT IGNORE INTO config_sistema (clave, valor) VALUES 
+('nombre_entidad', 'Gobierno Autónomo Municipal de Tarija'),
+('sigla_entidad', 'GAMT'),
+('color_primario', '#1a4731');\n\n`;
+
+// 12. Calendario Barrios
+sql += `CREATE TABLE IF NOT EXISTS calendario_barrios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha_aniversario DATE NOT NULL,
+    nombre_barrio VARCHAR(255) NOT NULL,
+    presidente_barrio VARCHAR(255),
+    telefono_presidente VARCHAR(50),
+    color_etiqueta VARCHAR(50) DEFAULT '#4caf50'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n`;
+
+try {
+    const calendarSeedFile = path.join(__dirname, '../seed_calendar.sql');
+    const calendarSeed = fs.readFileSync(calendarSeedFile, 'utf-8');
+    sql += calendarSeed + '\n';
+} catch (e) {
+    console.error("Error reading seed_calendar.sql:", e);
+}
 
 fs.writeFileSync(path.join(__dirname, 'init.sql'), sql);
 console.log('SQL generated successfully.');

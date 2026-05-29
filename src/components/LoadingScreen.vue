@@ -34,7 +34,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { uiState } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { uiState } = mainStore
 
 const loadingMessage = ref('Cargando datos...')
 let timer = null

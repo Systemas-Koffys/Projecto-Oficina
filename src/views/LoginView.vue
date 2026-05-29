@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { login, fetchPublicUsuarios, uiState } from '../store/data.js'
+import { useMainStore } from '../store/mainStore.js'
+const mainStore = useMainStore()
+const { login, fetchPublicUsuarios, uiState } = mainStore
 
 const router = useRouter()
 const username = ref('')
