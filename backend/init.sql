@@ -4,6 +4,16 @@ DROP DATABASE IF EXISTS dboficina;
 CREATE DATABASE dboficina CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE dboficina;
 
+-- Desactivar llaves foráneas para poder limpiar tablas
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Eliminar tablas nuevas y antiguas si existen
+DROP TABLE IF EXISTS detalle_arboles, solicitudes_poda, historial_impresiones, calendario_barrios, config_sistema, personal, instituciones, tipos_solicitantes, barrios, distritos, acciones_catalogo, especies_arboles;
+DROP TABLE IF EXISTS solicitudes, usuarios, tecnicos, especies, acciones, tipos_institucion;
+
+-- Reactivar llaves foráneas
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- =============================================================================
 -- 1. CREACIÓN DE TABLAS DE CATÁLOGO (PARAMÉTRICAS)
 -- =============================================================================
