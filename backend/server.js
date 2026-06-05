@@ -33,7 +33,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Aplicar middleware de autenticación a todas las rutas de /api excepto públicas
 app.use('/api', (req, res, next) => {
-  const publicRoutes = ['/login', '/usuarios/publico', '/health'];
+  const publicRoutes = ['/login', '/usuarios/publico', '/health', '/dev/seed'];
   if (publicRoutes.includes(req.path)) {
     return next();
   }
@@ -47,6 +47,7 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_NAME || 'dboficina',
   port: process.env.DB_PORT || 3306,
+  charset: 'utf8mb4',
   ssl: {
     rejectUnauthorized: false
   },
@@ -65,76 +66,19 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// SEMBRADO DE DATOS (PARA PRUEBAS)
-app.get('/api/dev/seed', async (req, res) => {
-  try {
-    // ASEGURAR QUE LAS COLUMNAS EXISTAN (Por si la migración no se corrió)
-    try {
-      await pool.query('ALTER TABLE solicitudes ADD COLUMN lat DECIMAL(10,8)');
-      await pool.query('ALTER TABLE solicitudes ADD COLUMN lng DECIMAL(11,8)');
-      console.log("Columnas lat/lng añadidas.");
-    } catch (e) {
-      console.log("Las columnas ya existen o hubo un error menor.");
-    }
-    const barrios = [1, 2, 3, 4, 5, 6, 7, 8];
-    const acciones = [1, 2, 3, 4, 5];
-    const tecnicos = [1, 2, 3, 4];
-    const estados = ['Ejecutado', 'En espera', 'En proceso'];
-    const urgencias = ['Baja', 'Media', 'Alta'];
-    const solicitantes = ['Maria Delgado', 'Jose Luis Choque', 'Ana Maria Vaca', 'Carlos Mendez', 'Lucia Sirpa', 'Roberto Zenteno', 'Elena Flores', 'Pedro Armella'];
-    
-    console.log("Sembrando 100 registros...");
-    
-    for (let i = 0; i < 100; i++) {
-        const id_barrio = barrios[Math.floor(Math.random() * barrios.length)];
-        const id_accion = acciones[Math.floor(Math.random() * acciones.length)];
-        const id_tec = tecnicos[Math.floor(Math.random() * tecnicos.length)];
-        const estado = estados[Math.floor(Math.random() * estados.length)];
-        const urgencia = (Math.random() > 0.8) ? 'Alta' : urgencias[Math.floor(Math.random() * urgencias.length)];
-        const es_emergencia = (urgencia === 'Alta' && Math.random() > 0.5) ? 1 : 0;
-        const fecha = new Date();
-        fecha.setDate(fecha.getDate() - Math.floor(Math.random() * 120));
-        const fecha_ingreso = fecha.toISOString().split('T')[0];
-        let fecha_ejecucion = null;
-        if (estado === 'Ejecutado') {
-            const fechaE = new Date(fecha);
-            fechaE.setDate(fechaE.getDate() + Math.floor(Math.random() * 15));
-            fecha_ejecucion = fechaE.toISOString().split('T')[0];
-        }
-        const lat = -21.535 + (Math.random() - 0.5) * 0.05;
-        const lng = -64.732 + (Math.random() - 0.5) * 0.05;
-
-        const sql = `INSERT INTO solicitudes 
-            (comunicacion_interna, fecha_ingreso, solicitante_nombre, solicitante_telefono, calle, id_barrio, id_accion_solicitada, nivel_urgencia, es_emergencia, estado_tramite, id_tecnico_ejecucion, fecha_ejecucion, lat, lng, solicitante_descripcion) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        
-        await pool.query(sql, [
-            `CI-${200 + i}`, fecha_ingreso,
-            solicitantes[Math.floor(Math.random() * solicitantes.length)],
-            '7' + Math.floor(1000000 + Math.random() * 9000000),
-            'Calle ' + (Math.floor(Math.random() * 100) + 1),
-            id_barrio, id_accion, urgencia, es_emergencia, estado,
-            estado === 'Ejecutado' ? id_tec : null, fecha_ejecucion,
-            lat, lng, 'Carga de prueba masiva para Dashboard'
-        ]);
-    }
-    res.json({ success: true, message: '100 registros sembrados correctamente' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // RUTA CRITICA: Usuarios para el selector de login
 app.get('/api/usuarios/publico', async (req, res) => {
   console.log('--- Nueva petición a /api/usuarios/publico ---');
   try {
     console.log('Ejecutando query en la base de datos...');
-    const [rows] = await pool.query('SELECT nombre, username, role FROM usuarios');
+    const [rows] = await pool.query('SELECT nombre_completo, usuario, role, cargo FROM personal WHERE usuario IS NOT NULL');
     console.log(`Query exitosa. Se encontraron ${rows.length} usuarios.`);
     
     const processed = rows.map(u => ({
-      nombre: u.nombre || u.username,
-      role: u.role
+      nombre: u.nombre_completo || u.usuario,
+      username: u.usuario,
+      role: u.role,
+      cargo: u.cargo
     }));
     res.json(processed);
   } catch (error) {
@@ -146,16 +90,17 @@ app.get('/api/usuarios/publico', async (req, res) => {
 // Catálogos (Lo que ya funcionaba)
 app.get('/api/catalogos', async (req, res) => {
   try {
-    const [tecnicos] = await pool.query('SELECT * FROM tecnicos');
-    const [acciones] = await pool.query('SELECT * FROM acciones');
-    const [especies] = await pool.query('SELECT * FROM especies');
-    const [tipos_institucion] = await pool.query('SELECT * FROM tipos_institucion');
-    const [instituciones] = await pool.query('SELECT * FROM instituciones');
-    const [distritos] = await pool.query('SELECT * FROM distritos');
-    const [barrios] = await pool.query('SELECT * FROM barrios');
+    const [tecnicos] = await pool.query('SELECT id_personal AS id, nombre_completo AS nombre, cargo, contacto AS celular, contrato AS tipo_contrato, usuario AS username, role FROM personal');
+    const [acciones] = await pool.query('SELECT id_accion AS id, nombre_accion AS nombre, descripcion FROM acciones_catalogo');
+    const [especies] = await pool.query('SELECT id_especie AS id, nombre_comun AS nombre, nombre_cientifico FROM especies_arboles');
+    const [tipos_institucion] = await pool.query('SELECT id_tipo_solicitante AS id, nombre_tipo AS nombre FROM tipos_solicitantes');
+    const [instituciones] = await pool.query('SELECT id_institucion AS id, id_tipo_solicitante AS id_tipo, nombre_institucion AS nombre FROM instituciones');
+    const [distritos] = await pool.query('SELECT id_distrito AS id, numero_distrito AS nombre FROM distritos');
+    const [barrios] = await pool.query('SELECT id_barrio AS id, nombre_barrio AS nombre, id_distrito FROM barrios');
     res.json({ tecnicos, acciones, especies, tipos_institucion, instituciones, distritos, barrios });
   } catch (error) {
-    res.status(500).json({ error: 'Error en catálogos' });
+    console.error('❌ ERROR EN CATÁLOGOS:', error);
+    res.status(500).json({ error: 'Error en catálogos', detail: error.message });
   }
 });
 
@@ -163,30 +108,35 @@ app.get('/api/catalogos', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body; 
   try {
-    const [rows] = await pool.query('SELECT * FROM usuarios WHERE username = ? OR nombre = ?', [username, username]);
+    const [rows] = await pool.query('SELECT * FROM personal WHERE usuario = ? OR nombre_completo = ?', [username, username]);
     
     if (rows.length > 0) {
       const user = rows[0];
       let passwordMatch = false;
 
       // Migración silenciosa de Bcrypt: Si no está encriptada, la verificamos y la encriptamos
-      if (user.password && !user.password.startsWith('$2b$')) {
-        if (user.password === password) {
+      if (user.contrasena && !user.contrasena.startsWith('$2b$')) {
+        if (user.contrasena === password) {
             passwordMatch = true;
             // Encriptamos la contraseña para futuros logins
             const hashed = await bcrypt.hash(password, 10);
-            await pool.query('UPDATE usuarios SET password = ? WHERE id = ?', [hashed, user.id]);
+            await pool.query('UPDATE personal SET contrasena = ? WHERE id_personal = ?', [hashed, user.id_personal]);
         }
       } else {
         // Validación normal con Bcrypt
-        passwordMatch = await bcrypt.compare(password, user.password);
+        passwordMatch = await bcrypt.compare(password, user.contrasena);
       }
       
       if (passwordMatch) {
-          delete user.password;
+          // Mapear campos para compatibilidad con el frontend
+          user.id = user.id_personal;
+          user.nombre = user.nombre_completo;
+          user.username = user.usuario;
+          
+          delete user.contrasena;
           
           // Generar Token JWT
-          const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '8h' });
+          const token = jwt.sign({ id: user.id_personal, username: user.usuario, role: user.role }, JWT_SECRET, { expiresIn: '8h' });
           
           res.json({ success: true, user, token });
       } else {
@@ -201,12 +151,95 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// --- GESTIÓN DE SOLICITUDES ---
+// --- GESTIÓN DE SOLICITUDES (NORMALIZADA EN 3 TABLAS) ---
+
+// --- GESTIÓN DE SOLICITUDES (NORMALIZADA EN MAESTRO-DETALLE v3) ---
 
 app.get('/api/solicitudes', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM solicitudes ORDER BY fecha_ingreso DESC');
-    res.json(rows);
+    const query = `
+      SELECT 
+        id_solicitud,
+        codigo_anual,
+        fecha_ingreso,
+        comunicacion_interna,
+        id_tipo_solicitante AS id_tipo_institucion,
+        id_institucion AS id_nombre_institucional,
+        nombre_solicitante AS solicitante_nombre,
+        telefono_solicitante AS solicitante_telefono,
+        nota_solicitud_sucia AS solicitante_descripcion,
+        id_distrito,
+        id_barrio,
+        calle,
+        numero_casa,
+        referencia_casa AS referencia,
+        ubicacion_gps,
+        fecha_inspeccion AS fecha_verificacion,
+        id_tecnico_verificador AS id_tecnico_verificacion,
+        esta_verificado,
+        requiere_plataforma,
+        requiere_ficha_tecnica,
+        procede_solicitud AS procede,
+        es_arbol_seco AS arbol_seco,
+        es_emergencia,
+        urgencia AS nivel_urgencia,
+        estado_general AS estado_tramite,
+        fecha_execution AS fecha_ejecucion,
+        id_tecnico_ejecucion,
+        observacion_ejecucion AS observaciones_finales,
+        observacion_verificacion,
+        trabajos_extra
+      FROM solicitudes_poda
+      ORDER BY fecha_ingreso DESC
+    `;
+    const [rows] = await pool.query(query);
+    
+    // Obtener detalles de árboles para todas las solicitudes
+    const [trees] = await pool.query('SELECT * FROM detalle_arboles');
+    
+    const treesBySol = {};
+    trees.forEach(t => {
+      if (!treesBySol[t.id_solicitud]) {
+        treesBySol[t.id_solicitud] = [];
+      }
+      treesBySol[t.id_solicitud].push({
+        id_arbol: t.id_arbol,
+        id_especie: t.id_especie,
+        id_accion_solicitada: t.id_accion_solicitada,
+        id_accion_realizar: t.id_accion_realizar,
+        observaciones_arbol: t.observaciones_arbol,
+        url_foto: t.url_foto
+      });
+    });
+    
+    // Mapear campos para compatibilidad y parsear booleanos
+    const processed = rows.map(r => {
+      r.requiere_plataforma = !!r.requiere_plataforma;
+      r.requiere_ficha_tecnica = !!r.requiere_ficha_tecnica;
+      r.procede = !!r.procede;
+      r.arbol_seco = !!r.arbol_seco;
+      r.es_emergencia = !!r.es_emergencia;
+      
+      // Para compatibilidad hacia atrás en la vista (mostrar primera especie y acción si existe)
+      const list = treesBySol[r.id_solicitud] || [];
+      r.arboles = list;
+      
+      if (list.length > 0) {
+        r.id_especie = list[0].id_especie;
+        r.id_accion_solicitada = list[0].id_accion_solicitada;
+        r.id_accion = list[0].id_accion_realizar;
+        r.observacion_verificacion = r.observacion_verificacion || list[0].observaciones_arbol;
+      } else {
+        r.id_especie = null;
+        r.id_accion_solicitada = null;
+        r.id_accion = null;
+        r.observacion_verificacion = r.observacion_verificacion || null;
+      }
+      
+      return r;
+    });
+    
+    res.json(processed);
   } catch (error) {
     console.error('Error al obtener solicitudes:', error);
     res.status(500).json({ error: 'Error al obtener solicitudes' });
@@ -214,101 +247,179 @@ app.get('/api/solicitudes', async (req, res) => {
 });
 
 app.post('/api/solicitudes', async (req, res) => {
+  const connection = await pool.getConnection();
   try {
+    await connection.beginTransaction();
     const data = req.body;
     
-    // Lista de columnas permitidas en la tabla 'solicitudes'
-    const allowedColumns = [
-      'fecha_ingreso', 'fecha_verificacion', 'comunicacion_interna', 'id_barrio',
-      'id_nombre_institucional', 'id_accion', 'id_especie', 'calle', 'numero_casa',
-      'referencia', 'solicitante_nombre', 'solicitante_telefono', 'solicitante_descripcion',
-      'lo_solicitado', 'id_accion_solicitada', 'id_tecnico_verificacion', 'requiere_plataforma',
-      'requiere_setar', 'requiere_ficha_tecnica', 'procede', 'cantidad_notas',
-      'arbol_seco', 'es_emergencia', 'segunda_nota', 'es_urgencia', 'nivel_urgencia',
-      'observacion_verificacion', 'id_tecnico_ejecucion', 'fecha_ejecucion',
-      'observaciones_finales', 'estado_tramite', 'id_tipo_institucion', 'lat', 'lng'
-    ];
-
-    const filteredData = {};
-    const dateColumns = ['fecha_ingreso', 'fecha_verificacion', 'fecha_ejecucion'];
-    
-    allowedColumns.forEach(col => {
-      if (data[col] !== undefined) {
-        // Si es una columna de fecha y viene vacía, enviamos NULL para evitar errores de MySQL
-        if (dateColumns.includes(col) && data[col] === '') {
-          filteredData[col] = null;
-        } else {
-          filteredData[col] = data[col];
-        }
+    // Autocompletar distrito si falta
+    let id_distrito = data.id_distrito;
+    if (!id_distrito && data.id_barrio) {
+      const [barrioRow] = await connection.query('SELECT id_distrito FROM barrios WHERE id_barrio = ?', [data.id_barrio]);
+      if (barrioRow.length > 0) {
+        id_distrito = barrioRow[0].id_distrito;
       }
-    });
+    }
+    
+    // Generar código anual secuencial (formato: 001/26)
+    const currentYear = new Date().getFullYear();
+    const yearSuffix = String(currentYear).slice(-2);
+    const [countResult] = await connection.query('SELECT COUNT(*) AS total FROM solicitudes_poda WHERE YEAR(fecha_ingreso) = ?', [currentYear]);
+    const nextNum = (countResult[0]?.total || 0) + 1;
+    const codigo_anual = `${String(nextNum).padStart(3, '0')}/${yearSuffix}`;
 
-    console.log('Insertando nueva solicitud:', filteredData.comunicacion_interna);
-    
-    const fields = Object.keys(filteredData).join(', ');
-    const placeholders = Object.keys(filteredData).map(() => '?').join(', ');
-    const values = Object.values(filteredData);
-    
-    const query = `INSERT INTO solicitudes (${fields}) VALUES (${placeholders})`;
-    const [result] = await pool.query(query, values);
-    
-    res.json({ success: true, id_solicitud: result.insertId });
+    const gps = (data.lat && data.lng) ? `${data.lat}, ${data.lng}` : null;
+
+    const solData = {
+      codigo_anual,
+      fecha_ingreso: data.fecha_ingreso || new Date().toISOString().split('T')[0],
+      comunicacion_interna: data.comunicacion_interna || null,
+      id_tipo_solicitante: data.id_tipo_institucion || null,
+      id_institucion: data.id_nombre_institucional || null,
+      nombre_solicitante: data.solicitante_nombre || '',
+      telefono_solicitante: data.solicitante_telefono || null,
+      nota_solicitud_sucia: data.solicitante_descripcion || null,
+      id_distrito: id_distrito || null,
+      id_barrio: data.id_barrio || null,
+      calle: data.calle || null,
+      numero_casa: data.numero_casa || null,
+      referencia_casa: data.referencia || null,
+      ubicacion_gps: gps,
+      fecha_inspeccion: data.fecha_verificacion || null,
+      id_tecnico_verificador: data.id_tecnico_verificacion || null,
+      esta_verificado: data.fecha_verificacion ? 'Sí' : 'No',
+      observacion_verificacion: data.observacion_verificacion || null,
+      requiere_plataforma: data.requiere_plataforma ? 1 : 0,
+      requiere_ficha_tecnica: data.requiere_ficha_tecnica ? 1 : 0,
+      procede_solicitud: data.procede ? 1 : 0,
+      es_arbol_seco: data.arbol_seco ? 1 : 0,
+      es_emergencia: data.es_emergencia ? 1 : 0,
+      urgencia: data.nivel_urgencia || 'Media',
+      estado_general: data.estado_tramite || 'En espera',
+      fecha_execution: data.fecha_ejecucion || null,
+      id_tecnico_ejecucion: data.id_tecnico_ejecucion || null,
+      observacion_ejecucion: data.observaciones_finales || null,
+      trabajos_extra: data.trabajos_extra || 'Ninguno'
+    };
+
+    const [resultSol] = await connection.query('INSERT INTO solicitudes_poda SET ?', solData);
+    const id_solicitud = resultSol.insertId;
+
+    // Procesar array de árboles
+    let arbolesList = data.arboles || [];
+    if (arbolesList.length === 0 && (data.id_especie || data.id_accion_solicitada)) {
+      arbolesList.push({
+        id_especie: data.id_especie || null,
+        id_accion_solicitada: data.id_accion_solicitada || null,
+        id_accion_realizar: data.id_accion || null,
+        observaciones_arbol: data.observacion_verificacion || '',
+        url_foto: data.url_foto || ''
+      });
+    }
+
+    for (let arb of arbolesList) {
+      await connection.query('INSERT INTO detalle_arboles SET ?', {
+        id_solicitud,
+        id_especie: arb.id_especie || null,
+        id_accion_solicitada: arb.id_accion_solicitada || null,
+        id_accion_realizar: arb.id_accion_realizar || null,
+        observaciones_arbol: arb.observaciones_arbol || null,
+        url_foto: arb.url_foto || null
+      });
+    }
+
+    await connection.commit();
+    res.json({ success: true, id_solicitud });
   } catch (error) {
+    await connection.rollback();
     console.error('Error al insertar solicitud:', error);
     res.status(500).json({ success: false, error: error.message });
+  } finally {
+    connection.release();
   }
 });
 
 app.put('/api/solicitudes/:id', async (req, res) => {
   const { id } = req.params;
+  const connection = await pool.getConnection();
   try {
+    await connection.beginTransaction();
     const data = req.body;
-    const allowedColumns = [
-      'fecha_ingreso', 'fecha_verificacion', 'comunicacion_interna', 'id_barrio',
-      'id_nombre_institucional', 'id_accion', 'id_especie', 'calle', 'numero_casa',
-      'referencia', 'solicitante_nombre', 'solicitante_telefono', 'solicitante_descripcion',
-      'lo_solicitado', 'id_accion_solicitada', 'id_tecnico_verificacion', 'requiere_plataforma',
-      'requiere_setar', 'requiere_ficha_tecnica', 'procede', 'cantidad_notas',
-      'arbol_seco', 'es_emergencia', 'segunda_nota', 'es_urgencia', 'nivel_urgencia',
-      'observacion_verificacion', 'id_tecnico_ejecucion', 'fecha_ejecucion',
-      'observaciones_finales', 'estado_tramite', 'id_tipo_institucion', 'lat', 'lng'
-    ];
 
-    const filteredData = {};
-    const dateColumns = ['fecha_ingreso', 'fecha_verificacion', 'fecha_ejecucion'];
-
-    allowedColumns.forEach(col => {
-      if (data[col] !== undefined) {
-        // Si es una columna de fecha y viene vacía, enviamos NULL para evitar errores de MySQL
-        if (dateColumns.includes(col) && data[col] === '') {
-          filteredData[col] = null;
-        } else {
-          filteredData[col] = data[col];
-        }
+    let id_distrito = data.id_distrito;
+    if (!id_distrito && data.id_barrio) {
+      const [barrioRow] = await connection.query('SELECT id_distrito FROM barrios WHERE id_barrio = ?', [data.id_barrio]);
+      if (barrioRow.length > 0) {
+        id_distrito = barrioRow[0].id_distrito;
       }
-    });
-
-    if (Object.keys(filteredData).length === 0) {
-      return res.json({ success: true, message: 'Nada que actualizar' });
     }
 
-    const sets = Object.keys(filteredData).map(key => `${key} = ?`).join(', ');
-    const values = [...Object.values(filteredData), id];
-    
-    const query = `UPDATE solicitudes SET ${sets} WHERE id_solicitud = ?`;
-    await pool.query(query, values);
-    
+    const solData = {
+      fecha_ingreso: data.fecha_ingreso,
+      comunicacion_interna: data.comunicacion_interna || null,
+      id_tipo_solicitante: data.id_tipo_institucion || null,
+      id_institucion: data.id_nombre_institucional || null,
+      nombre_solicitante: data.solicitante_nombre,
+      telefono_solicitante: data.solicitante_telefono || null,
+      nota_solicitud_sucia: data.solicitante_descripcion || null,
+      id_distrito: id_distrito || null,
+      id_barrio: data.id_barrio || null,
+      calle: data.calle || null,
+      numero_casa: data.numero_casa || null,
+      referencia_casa: data.referencia || null,
+      fecha_inspeccion: data.fecha_verificacion || null,
+      id_tecnico_verificador: data.id_tecnico_verificacion || null,
+      esta_verificado: data.fecha_verificacion ? 'Sí' : 'No',
+      observacion_verificacion: data.observacion_verificacion || null,
+      requiere_plataforma: data.requiere_plataforma ? 1 : 0,
+      requiere_ficha_tecnica: data.requiere_ficha_tecnica ? 1 : 0,
+      procede_solicitud: data.procede ? 1 : 0,
+      es_arbol_seco: data.arbol_seco ? 1 : 0,
+      es_emergencia: data.es_emergencia ? 1 : 0,
+      urgencia: data.nivel_urgencia || 'Media',
+      estado_general: data.estado_tramite || 'En espera',
+      fecha_execution: data.fecha_ejecucion || null,
+      id_tecnico_ejecucion: data.id_tecnico_ejecucion || null,
+      observacion_ejecucion: data.observaciones_finales || null,
+      trabajos_extra: data.trabajos_extra || 'Ninguno'
+    };
+
+    if (data.lat && data.lng) {
+      solData.ubicacion_gps = `${data.lat}, ${data.lng}`;
+    }
+
+    await connection.query('UPDATE solicitudes_poda SET ? WHERE id_solicitud = ?', [solData, id]);
+
+    // Actualizar lista de árboles (eliminar viejos e insertar los nuevos)
+    if (data.arboles) {
+      await connection.query('DELETE FROM detalle_arboles WHERE id_solicitud = ?', [id]);
+      for (let arb of data.arboles) {
+        await connection.query('INSERT INTO detalle_arboles SET ?', {
+          id_solicitud: id,
+          id_especie: arb.id_especie || null,
+          id_accion_solicitada: arb.id_accion_solicitada || null,
+          id_accion_realizar: arb.id_accion_realizar || null,
+          observaciones_arbol: arb.observaciones_arbol || null,
+          url_foto: arb.url_foto || null
+        });
+      }
+    }
+
+    await connection.commit();
     res.json({ success: true });
   } catch (error) {
+    await connection.rollback();
     console.error('Error al actualizar solicitud:', error);
     res.status(500).json({ success: false, error: error.message });
+  } finally {
+    connection.release();
   }
 });
 
 app.delete('/api/solicitudes/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await pool.query('DELETE FROM solicitudes WHERE id_solicitud = ?', [id]);
+    await pool.query('DELETE FROM solicitudes_poda WHERE id_solicitud = ?', [id]);
     res.json({ success: true });
   } catch (error) {
     console.error('Error al eliminar solicitud:', error);
@@ -321,7 +432,7 @@ app.delete('/api/solicitudes/:id', async (req, res) => {
 // Obtener todos los usuarios (sin la foto para no saturar)
 app.get('/api/usuarios', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM usuarios');
+    const [rows] = await pool.query('SELECT id_personal AS id, nombre_completo AS nombre, usuario AS username, role, cargo, email, estado, foto FROM personal');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener usuarios:', error);
@@ -332,7 +443,7 @@ app.get('/api/usuarios', async (req, res) => {
 // Obtener la foto de un usuario específico (bajo demanda)
 app.get('/api/usuarios/:id/foto', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT foto FROM usuarios WHERE id = ?', [req.params.id]);
+    const [rows] = await pool.query('SELECT foto FROM personal WHERE id_personal = ?', [req.params.id]);
     if (rows.length > 0) res.json({ foto: rows[0].foto });
     else res.status(404).json({ error: 'No encontrado' });
   } catch (error) {
@@ -350,9 +461,10 @@ app.post('/api/usuarios', async (req, res) => {
     if (password) {
         finalPassword = await bcrypt.hash(password, 10);
     }
+    const uniqueCedula = username ? `${username} Tja.` : `GEN_${Date.now()}`;
     const [result] = await pool.query(
-      'INSERT INTO usuarios (username, password, role, nombre, cargo, email, estado, foto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [username, finalPassword, role, nombre, cargo, email, estado || 'Activo', foto || null]
+      'INSERT INTO personal (usuario, contrasena, role, nombre_completo, cargo, email, estado, foto, cedula_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [username, finalPassword, role, nombre, cargo, email, estado || 'Activo', foto || null, uniqueCedula]
     );
     console.log(`✅ Usuario creado con ID: ${result.insertId}`);
     res.json({ success: true, id: result.insertId });
@@ -370,17 +482,17 @@ app.put('/api/usuarios/:id', async (req, res) => {
   console.log(`Intentando actualizar usuario ID: ${id} (${username})`);
   
   try {
-    const fields = ['username=?', 'role=?', 'nombre=?', 'cargo=?', 'email=?', 'estado=?', 'foto=?'];
+    const fields = ['usuario=?', 'role=?', 'nombre_completo=?', 'cargo=?', 'email=?', 'estado=?', 'foto=?'];
     const params = [username, role, nombre, cargo, email, estado, foto || null];
 
     if (password && password.trim() !== '') {
       const hashed = await bcrypt.hash(password, 10);
-      fields.push('password=?');
+      fields.push('contrasena=?');
       params.push(hashed);
     }
     
     params.push(id);
-    const query = `UPDATE usuarios SET ${fields.join(', ')} WHERE id=?`;
+    const query = `UPDATE personal SET ${fields.join(', ')} WHERE id_personal=?`;
 
     await pool.query(query, params);
     console.log(`✅ Usuario ${id} actualizado con éxito`);
@@ -395,7 +507,7 @@ app.put('/api/usuarios/:id', async (req, res) => {
 app.delete('/api/usuarios/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await pool.query('DELETE FROM usuarios WHERE id = ?', [id]);
+    await pool.query('DELETE FROM personal WHERE id_personal = ?', [id]);
     res.json({ success: true });
   } catch (error) {
     console.error('Error al eliminar usuario:', error);
@@ -411,7 +523,7 @@ app.get('/api/impresiones', async (req, res) => {
     const [rows] = await pool.query(`
       SELECT h.*, s.comunicacion_interna 
       FROM historial_impresiones h
-      LEFT JOIN solicitudes s ON h.id_solicitud = s.id_solicitud
+      LEFT JOIN solicitudes_poda s ON h.id_solicitud = s.id_solicitud
       ORDER BY h.fecha_impresion DESC
     `);
     res.json(rows);
@@ -466,18 +578,79 @@ app.delete('/api/impresiones/:id', async (req, res) => {
 });
 
 // --- GESTIÓN DE CATÁLOGOS (DINÁMICO) ---
-const TABLAS_PERMITIDAS = ['tecnicos', 'acciones', 'especies', 'tipos_institucion', 'instituciones', 'distritos', 'barrios'];
+const TABLAS_PERMITIDAS = ['acciones', 'especies', 'tipos_institucion', 'instituciones', 'distritos', 'barrios', 'personal', 'tecnicos'];
+
+const getPkColumn = (tabla) => {
+  switch (tabla) {
+    case 'personal':
+    case 'tecnicos':
+      return 'id_personal';
+    case 'barrios':
+      return 'id_barrio';
+    case 'especies':
+    case 'especies_arboles':
+      return 'id_especie';
+    case 'acciones':
+    case 'acciones_catalogo':
+      return 'id_accion';
+    case 'tipos_institucion':
+    case 'tipos_solicitantes':
+      return 'id_tipo_solicitante';
+    case 'instituciones':
+      return 'id_institucion';
+    case 'distritos':
+      return 'id_distrito';
+    default:
+      return 'id';
+  }
+};
+
+const mapIncomingFields = (tabla, body) => {
+  const data = { ...body };
+  if (tabla === 'tecnicos' || tabla === 'personal') {
+    if (data.nombre !== undefined) {
+      data.nombre_completo = data.nombre;
+      delete data.nombre;
+    }
+    if (data.celular !== undefined) {
+      data.contacto = data.celular;
+      delete data.celular;
+    }
+    if (data.tipo_contrato !== undefined) {
+      data.contrato = data.tipo_contrato;
+      delete data.tipo_contrato;
+    }
+    if (data.username !== undefined) {
+      data.usuario = data.username;
+      delete data.username;
+    }
+    if (data.password !== undefined) {
+      data.contrasena = data.password;
+      delete data.password;
+    }
+    if (!data.cedula_id) {
+      data.cedula_id = data.usuario ? `${data.usuario} Tja.` : `GEN_${Date.now()}`;
+    }
+  }
+  return data;
+};
 
 app.post('/api/catalogos/:tabla', async (req, res) => {
   const { tabla } = req.params;
   if (!TABLAS_PERMITIDAS.includes(tabla)) return res.status(400).json({ error: 'Tabla no permitida' });
   
   try {
-    const fields = Object.keys(req.body).join(', ');
-    const placeholders = Object.keys(req.body).map(() => '?').join(', ');
-    const values = Object.values(req.body);
+    const actualTable = tabla === 'tecnicos' ? 'personal' : 
+                        tabla === 'especies' ? 'especies_arboles' :
+                        tabla === 'acciones' ? 'acciones_catalogo' :
+                        tabla === 'tipos_institucion' ? 'tipos_solicitantes' : tabla;
+
+    const mappedBody = mapIncomingFields(tabla, req.body);
+    const fields = Object.keys(mappedBody).join(', ');
+    const placeholders = Object.keys(mappedBody).map(() => '?').join(', ');
+    const values = Object.values(mappedBody);
     
-    const [result] = await pool.query(`INSERT INTO ${tabla} (${fields}) VALUES (${placeholders})`, values);
+    const [result] = await pool.query(`INSERT INTO ${actualTable} (${fields}) VALUES (${placeholders})`, values);
     res.json({ success: true, id: result.insertId });
   } catch (error) {
     console.error(`Error al insertar en ${tabla}:`, error);
@@ -490,13 +663,19 @@ app.put('/api/catalogos/:tabla/:id', async (req, res) => {
   if (!TABLAS_PERMITIDAS.includes(tabla)) return res.status(400).json({ error: 'Tabla no permitida' });
 
   try {
-    const data = { ...req.body };
-    delete data.id; // No permitimos actualizar el ID primario
+    const actualTable = tabla === 'tecnicos' ? 'personal' : 
+                        tabla === 'especies' ? 'especies_arboles' :
+                        tabla === 'acciones' ? 'acciones_catalogo' :
+                        tabla === 'tipos_institucion' ? 'tipos_solicitantes' : tabla;
+
+    const mappedBody = mapIncomingFields(tabla, req.body);
+    delete mappedBody.id;
     
-    const sets = Object.keys(data).map(key => `${key} = ?`).join(', ');
-    const values = [...Object.values(data), id];
+    const pk = getPkColumn(tabla);
+    const sets = Object.keys(mappedBody).map(key => `${key} = ?`).join(', ');
+    const values = [...Object.values(mappedBody), id];
     
-    await pool.query(`UPDATE ${tabla} SET ${sets} WHERE id = ?`, values);
+    await pool.query(`UPDATE ${actualTable} SET ${sets} WHERE ${pk} = ?`, values);
     res.json({ success: true });
   } catch (error) {
     console.error(`Error al actualizar ${tabla}:`, error);
@@ -509,7 +688,13 @@ app.delete('/api/catalogos/:tabla/:id', async (req, res) => {
   if (!TABLAS_PERMITIDAS.includes(tabla)) return res.status(400).json({ error: 'Tabla no permitida' });
 
   try {
-    await pool.query(`DELETE FROM ${tabla} WHERE id = ?`, [id]);
+    const actualTable = tabla === 'tecnicos' ? 'personal' : 
+                        tabla === 'especies' ? 'especies_arboles' :
+                        tabla === 'acciones' ? 'acciones_catalogo' :
+                        tabla === 'tipos_institucion' ? 'tipos_solicitantes' : tabla;
+
+    const pk = getPkColumn(tabla);
+    await pool.query(`DELETE FROM ${actualTable} WHERE ${pk} = ?`, [id]);
     res.json({ success: true });
   } catch (error) {
     console.error(`Error al eliminar de ${tabla}:`, error);
@@ -573,9 +758,9 @@ app.get('/api/calendario', async (req, res) => {
   try {
     const query = `
       SELECT c.*,
-             (SELECT COUNT(*) FROM solicitudes s 
-              JOIN barrios b ON s.id_barrio = b.id 
-              WHERE b.nombre = c.nombre_barrio) AS solicitudes_count
+             (SELECT COUNT(*) FROM solicitudes_poda s 
+              JOIN barrios b ON s.id_barrio = b.id_barrio 
+              WHERE b.nombre_barrio = c.nombre_barrio) AS solicitudes_count
       FROM calendario_barrios c
     `;
     const [rows] = await pool.query(query);

@@ -195,6 +195,40 @@ const getTipoInstitucion = (idTipo) => {
     const t = store.tipos_institucion.find(x => x.id == idTipo)
     return t ? t.nombre : 'Particular'
 }
+
+const formatLoSolicitado = (sol) => {
+    if (!sol.arboles || sol.arboles.length === 0) {
+        const esp = getEspecie(sol.id_especie)
+        const acc = getAccion(sol.id_accion_solicitada)
+        if (esp === 'No verificada') return acc
+        return `${esp} (${acc})`
+    }
+    const total = sol.arboles.length
+    if (total === 1) {
+        const esp = getEspecie(sol.arboles[0].id_especie)
+        const acc = getAccion(sol.arboles[0].id_accion_solicitada)
+        return `${esp} (${acc})`
+    }
+    const especies = sol.arboles.map(a => getEspecie(a.id_especie)).filter(n => n !== 'No verificada')
+    const uniqueEsp = [...new Set(especies)]
+    const espStr = uniqueEsp.length > 0 ? uniqueEsp.join(', ') : 'Desconocido'
+    return `${espStr} (${total} árboles)`
+}
+
+const formatLoDeterminado = (sol) => {
+    if (!sol.arboles || sol.arboles.length === 0) {
+        const acc = getAccion(sol.id_accion)
+        return acc
+    }
+    const total = sol.arboles.length
+    if (total === 1) {
+        const acc = getAccion(sol.arboles[0].id_accion_realizar)
+        return acc
+    }
+    const acciones = sol.arboles.map(a => getAccion(a.id_accion_realizar)).filter(n => n !== 'Pendiente')
+    const uniqueAcc = [...new Set(acciones)]
+    return uniqueAcc.length > 0 ? uniqueAcc.join(', ') : 'Pendiente'
+}
 </script>
 
 <template>
@@ -292,8 +326,8 @@ const getTipoInstitucion = (idTipo) => {
                                 <td>{{ formatFecha(sol.fecha_ingreso) }}</td>
                                 <td>{{ sol.solicitante_nombre }}</td>
                                 <td>{{ getBarrio(sol.id_barrio) }}</td>
-                                <td class="truncate max-w-xs" :title="getAccion(sol.id_accion_solicitada)">{{ getAccion(sol.id_accion_solicitada) }}</td>
-                                <td>{{ getAccion(sol.id_accion) }}</td>
+                                <td class="truncate max-w-xs" :title="formatLoSolicitado(sol)">{{ formatLoSolicitado(sol) }}</td>
+                                <td class="truncate max-w-xs" :title="formatLoDeterminado(sol)">{{ formatLoDeterminado(sol) }}</td>
                                 <td>
                                     <span class="badge" :class="sol.estado_tramite === 'Terminado' ? 'badge-completed' : 'badge-pending'">
                                         {{ sol.estado_tramite }}
@@ -517,16 +551,13 @@ const getTipoInstitucion = (idTipo) => {
                         </div>
                     </div>
 
-                    <!-- SECCIÓN 03: Diagnóstico (GRIS) -->
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
+                    <!-- SECCIÓN 03: Diagnóstico y Lista de Árboles (GRIS) -->
+                    <div class="md:col-span-2 bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
                         <h4 class="flex items-center gap-2 text-[11px] font-black text-slate-800 uppercase tracking-[0.2em] mb-4 border-b border-slate-200 pb-2">
-                            <span class="w-2 h-2 bg-slate-600 rounded-full"></span> 03. Diagnóstico Técnico
+                            <span class="w-2 h-2 bg-slate-600 rounded-full"></span> 03. Diagnóstico Técnico y Detalle de Árboles
                         </h4>
-                        <div class="space-y-4 text-sm">
-                            <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Acción Determinada</span>
-                                <span class="font-black text-emerald-700 uppercase">{{ getAccion(solicitudSeleccionada.id_accion) }}</span>
-                            </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm mb-4">
                             <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
                                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Técnico Evaluador</span>
                                 <span class="font-bold text-gray-800">{{ getTecnico(solicitudSeleccionada.id_tecnico_verificacion) }}</span>
@@ -535,14 +566,38 @@ const getTipoInstitucion = (idTipo) => {
                                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fecha Verificación</span>
                                 <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_verificacion) }}</span>
                             </div>
-                            <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Especie Identificada</span>
-                                <span class="font-bold text-gray-800">{{ getEspecie(solicitudSeleccionada.id_especie) }}</span>
-                            </div>
-                            <div class="flex flex-col pt-1">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Informe de Verificación</span>
-                                <span class="font-medium text-gray-700 italic bg-white/80 p-3 rounded-lg border border-slate-200">"{{ solicitudSeleccionada.observacion_verificacion || 'Sin observaciones técnicas registradas.' }}"</span>
-                            </div>
+                        </div>
+
+                        <!-- Tabla de Árboles Relacionados -->
+                        <div class="overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-4">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-200 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
+                                        <th class="py-2 px-3">#</th>
+                                        <th class="py-2 px-3">Especie</th>
+                                        <th class="py-2 px-3">Acción Solicitada</th>
+                                        <th class="py-2 px-3">Acción a Realizar (Inspección)</th>
+                                        <th class="py-2 px-3">Observaciones del Árbol</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(arb, idx) in solicitudSeleccionada.arboles" :key="idx" class="border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
+                                        <td class="py-2.5 px-3 font-bold text-slate-500">{{ idx + 1 }}</td>
+                                        <td class="py-2.5 px-3 font-black text-emerald-800">{{ getEspecie(arb.id_especie) }}</td>
+                                        <td class="py-2.5 px-3 text-slate-700">{{ getAccion(arb.id_accion_solicitada) }}</td>
+                                        <td class="py-2.5 px-3 font-bold text-slate-800">{{ getAccion(arb.id_accion_realizar) }}</td>
+                                        <td class="py-2.5 px-3 text-slate-500 italic">{{ arb.observaciones_arbol || 'Sin observaciones.' }}</td>
+                                    </tr>
+                                    <tr v-if="!solicitudSeleccionada.arboles || solicitudSeleccionada.arboles.length === 0">
+                                        <td colspan="5" class="py-3 text-center text-slate-400 font-medium">Ningún árbol registrado.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="flex flex-col pt-1">
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Informe de Verificación General</span>
+                            <span class="font-medium text-gray-700 italic bg-white/80 p-3 rounded-lg border border-slate-200">"{{ solicitudSeleccionada.observacion_verificacion || 'Sin observaciones técnicas generales registradas.' }}"</span>
                         </div>
                     </div>
 

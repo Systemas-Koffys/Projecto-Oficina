@@ -29,22 +29,15 @@
                         </div>
                         <div class="col-span-1 flex flex-col">
                             <label class="label-prime">Cód. Comunicación <span class="text-red-500 font-black">*</span></label>
-                            <input v-model="form.comunicacion_interna" type="text" class="form-input-prime text-center" placeholder="00/26">
-                        </div>
-                        <div class="col-span-1 flex flex-col">
-                            <label class="label-prime">Acción Solicitada <span class="text-red-500 font-black">*</span></label>
-                            <select v-model="form.id_accion_solicitada" class="form-input-prime">
-                                <option :value="null">-- Seleccione --</option>
-                                <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
-                            </select>
-                        </div>
-                        <div class="col-span-2 flex flex-col">
-                            <label class="label-prime">Nombre del Solicitante <span class="text-red-500 font-black">*</span></label>
-                            <input v-model="form.solicitante_nombre" @input="cap($event, 'solicitante_nombre')" type="text" class="form-input-prime" placeholder="Nombre y Apellidos">
+                            <input v-model="form.comunicacion_interna" @input="formatComunicacionInterna" type="text" class="form-input-prime text-center" placeholder="00/26">
                         </div>
                         <div class="col-span-1 flex flex-col">
                             <label class="label-prime">Teléfono</label>
                             <input v-model="form.solicitante_telefono" type="text" class="form-input-prime" placeholder="Ej: 77000000">
+                        </div>
+                        <div class="col-span-3 flex flex-col">
+                            <label class="label-prime">Nombre del Solicitante <span class="text-red-500 font-black">*</span></label>
+                            <input v-model="form.solicitante_nombre" @input="cap($event, 'solicitante_nombre')" type="text" class="form-input-prime" placeholder="Nombre y Apellidos">
                         </div>
                         
                         <!-- Lógica de Instituciones -->
@@ -105,42 +98,26 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 03: EVALUACIÓN TÉCNICA -->
-                <div class="p-6 bg-amber-50 border border-amber-100 border-l-[6px] border-l-amber-500 rounded-xl shadow-sm">
-                    <h4 class="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                        <span class="w-2 h-2 bg-amber-500 rounded-full"></span> 03. Diagnóstico Técnico
+                <!-- SECCIÓN 03: DIAGNÓSTICO TÉCNICO Y ÁRBOLES -->
+                <div class="p-6 bg-amber-50 border border-amber-100 border-l-[6px] border-l-amber-500 rounded-xl shadow-sm space-y-6">
+                    <h4 class="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <span class="w-2 h-2 bg-amber-500 rounded-full"></span> 03. Diagnóstico Técnico y Detalle de Árboles
                     </h4>
-                    <div class="grid grid-cols-3 gap-6">
-                        <div class="flex flex-col">
-                            <label class="label-prime">Acción Determinada</label>
-                            <select v-model="form.id_accion" class="form-input-prime">
-                                <option :value="null">-- Seleccione --</option>
-                                <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
-                            </select>
-                        </div>
+                    
+                    <!-- Metadata de Verificación General -->
+                    <div class="grid grid-cols-3 gap-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                         <div class="flex flex-col">
                             <label class="label-prime">Técnico Evaluador</label>
                             <select v-model="form.id_tecnico_verificacion" class="form-input-prime">
                                 <option :value="null">-- Seleccione --</option>
-                                <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                                <option v-for="t in tecnicosFiltrados" :key="t.id" :value="t.id">{{ t.nombre }}</option>
                             </select>
                         </div>
                         <div class="flex flex-col">
                             <label class="label-prime">Fecha Verificación</label>
                             <input v-model="form.fecha_verificacion" type="date" class="form-input-prime">
                         </div>
-                        <div class="col-span-3 flex flex-col">
-                            <label class="label-prime">Detalles de la Verificación Técnica</label>
-                            <textarea v-model="form.observacion_verificacion" rows="2" class="form-input-prime text-xs resize-none"></textarea>
-                        </div>
                         <div class="flex flex-col">
-                            <label class="label-prime">Especie</label>
-                            <select v-model="form.id_especie" class="form-input-prime">
-                                <option :value="null">-- Seleccione --</option>
-                                <option v-for="e in store.especies" :key="e.id" :value="e.id">{{ e.nombre }}</option>
-                            </select>
-                        </div>
-                        <div class="col-span-2 flex flex-col">
                             <label class="label-prime">Nivel de Prioridad <span class="text-red-500 font-black">*</span></label>
                             <select v-model="form.nivel_urgencia" class="form-input-prime font-black uppercase text-amber-700">
                                 <option value="Baja">🟢 Baja</option>
@@ -148,6 +125,69 @@
                                 <option value="Alta">🔴 Alta</option>
                             </select>
                         </div>
+                    </div>
+
+                    <!-- Listado Dinámico de Árboles -->
+                    <div class="space-y-4">
+                        <h5 class="text-[9px] font-black text-slate-500 uppercase tracking-wider ml-1">Árboles Registrados</h5>
+                        
+                        <div v-for="(arb, index) in form.arboles" :key="index" 
+                            class="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm space-y-4 hover:border-amber-200 transition-all relative">
+                            
+                            <!-- Cabecera de la Tarjeta del Árbol -->
+                            <div class="flex justify-between items-center border-b border-slate-50 pb-2">
+                                <span class="text-[11px] font-black text-emerald-800 uppercase tracking-widest">
+                                    🌲 Árbol #{{ index + 1 }} {{ index === 0 ? '(Principal)' : '' }}
+                                </span>
+                                <button v-if="index > 0" type="button" @click="removeArbol(index)" 
+                                    class="px-2.5 py-1 text-[9px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-all uppercase tracking-wider">
+                                    Eliminar
+                                </button>
+                            </div>
+
+                            <!-- Campos del Árbol -->
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="flex flex-col">
+                                    <label class="label-prime">Especie <span class="text-red-500 font-black">*</span></label>
+                                    <select v-model="arb.id_especie" class="form-input-prime">
+                                        <option :value="null">-- Seleccione --</option>
+                                        <option v-for="e in store.especies" :key="e.id" :value="e.id">{{ e.nombre }}</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="label-prime">Acción Solicitada <span class="text-red-500 font-black">*</span></label>
+                                    <select v-model="arb.id_accion_solicitada" class="form-input-prime">
+                                        <option :value="null">-- Seleccione --</option>
+                                        <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="label-prime">Acción Determinada (Técnica)</label>
+                                    <select v-model="arb.id_accion_realizar" class="form-input-prime">
+                                        <option :value="null">-- Seleccione --</option>
+                                        <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-3 flex flex-col">
+                                    <label class="label-prime">Observaciones Específicas del Árbol</label>
+                                    <input v-model="arb.observaciones_arbol" type="text" class="form-input-prime" 
+                                        placeholder="Ej: Ramas secas colgando, dañado por hongos, etc.">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón para añadir árbol -->
+                        <button type="button" @click="addArbol" 
+                            class="w-full py-3 bg-amber-50 hover:bg-amber-100/75 border-2 border-dashed border-amber-300 hover:border-amber-400 text-amber-800 font-black rounded-2xl text-[10px] tracking-widest uppercase transition-all flex items-center justify-center gap-2">
+                            <span>➕ Añadir otro árbol</span>
+                        </button>
+                    </div>
+
+                    <!-- Detalles de la Verificación Técnica General -->
+                    <div class="flex flex-col bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <label class="label-prime">Detalles de la Verificación Técnica General</label>
+                        <textarea v-model="form.observacion_verificacion" rows="2" class="form-input-prime text-xs resize-none" 
+                            placeholder="Notas generales del diagnóstico técnico en campo..."></textarea>
                     </div>
                 </div>
 
@@ -160,7 +200,7 @@
                         <label v-for="l in [
                             { k: 'procede', lbl: 'Procede', color: 'emerald' },
                             { k: 'arbol_seco', lbl: 'Arbol Seco', color: 'amber' },
-                            { k: 'requiere_plataforma', lbl: 'Grúa', color: 'blue' },
+                            { k: 'requiere_plataforma', lbl: 'Plataforma', color: 'blue' },
                             { k: 'requiere_setar', lbl: 'SETAR', color: 'orange' },
                             { k: 'requiere_ficha_tecnica', lbl: 'Ficha Tec', color: 'indigo' },
                             { k: 'es_emergencia', lbl: 'Emergencia', color: 'red' },
@@ -199,7 +239,7 @@
                             <label class="label-prime">Personal Responsable</label>
                             <select v-model="form.id_tecnico_ejecucion" class="form-input-prime">
                                 <option :value="null">-- Seleccione --</option>
-                                <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                                <option v-for="t in tecnicosFiltrados" :key="t.id" :value="t.id">{{ t.nombre }}</option>
                             </select>
                         </div>
                         <div class="col-span-1 flex flex-col">
@@ -268,7 +308,16 @@ const form = ref({
     id_tecnico_ejecucion: null,
     fecha_ejecucion: '',
     observaciones_finales: '',
-    estado_tramite: 'En espera'
+    estado_tramite: 'En espera',
+    arboles: [
+        {
+            id_especie: null,
+            id_accion_solicitada: null,
+            id_accion_realizar: null,
+            observaciones_arbol: '',
+            url_foto: null
+        }
+    ]
 })
 
 // --- LÓGICA DE FILTRADO (COMPUTED) ---
@@ -280,6 +329,19 @@ const barriosFiltrados = computed(() => {
 const institucionesFiltradas = computed(() => {
     if (!form.value.id_tipo_institucion) return store.instituciones;
     return store.instituciones.filter(i => i.id_tipo == form.value.id_tipo_institucion);
+})
+
+const tecnicosFiltrados = computed(() => {
+    return store.tecnicos.filter(t => {
+        if (!t.cargo) return false;
+        const cargoNormalizado = t.cargo.toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, ""); // remove accents
+        
+        return cargoNormalizado === 'tecnico' || 
+               cargoNormalizado === 'sistemas' || 
+               cargoNormalizado === 'responsable de area';
+    });
 })
 
 // --- SINCRONIZACIÓN (WATCHERS) ---
@@ -339,10 +401,51 @@ const cap = (e, field) => {
     }
 }
 
+const addArbol = () => {
+    form.value.arboles.push({
+        id_especie: null,
+        id_accion_solicitada: null,
+        id_accion_realizar: null,
+        observaciones_arbol: '',
+        url_foto: null
+    })
+}
+
+const removeArbol = (index) => {
+    if (index > 0) {
+        form.value.arboles.splice(index, 1)
+    }
+}
+
+const formatComunicacionInterna = (e) => {
+    let value = e.target.value;
+    if (!value) {
+        form.value.comunicacion_interna = '';
+        return;
+    }
+    let clean = value.trim();
+    if (clean === '') {
+        form.value.comunicacion_interna = '';
+        return;
+    }
+    
+    if (/^COD\./i.test(clean)) {
+        let rest = clean.slice(4).trim();
+        if (rest === '') {
+            form.value.comunicacion_interna = '';
+        } else {
+            form.value.comunicacion_interna = `COD. ${rest}`;
+        }
+    } else {
+        form.value.comunicacion_interna = `COD. ${clean}`;
+    }
+}
+
 onMounted(() => {
     if (uiState.editData) {
         isUpdating.value = true;
         Object.keys(form.value).forEach(key => {
+            if (key === 'arboles') return; // Se maneja por separado
             if (uiState.editData[key] !== undefined) {
                 if (key.startsWith('fecha_') && uiState.editData[key]) {
                     form.value[key] = new Date(uiState.editData[key]).toISOString().split('T')[0]
@@ -356,6 +459,27 @@ onMounted(() => {
             const b = store.barrios.find(x => x.id == form.value.id_barrio);
             if (b) distritoSeleccionado.value = b.id_distrito;
         }
+        
+        // Cargar árboles con fallback para registros antiguos
+        if (uiState.editData.arboles && uiState.editData.arboles.length > 0) {
+            form.value.arboles = uiState.editData.arboles.map(a => ({
+                id_especie: a.id_especie,
+                id_accion_solicitada: a.id_accion_solicitada,
+                id_accion_realizar: a.id_accion_realizar,
+                observaciones_arbol: a.observaciones_arbol || '',
+                url_foto: a.url_foto || null
+            }));
+        } else {
+            form.value.arboles = [
+                {
+                    id_especie: uiState.editData.id_especie || null,
+                    id_accion_solicitada: uiState.editData.id_accion_solicitada || null,
+                    id_accion_realizar: uiState.editData.id_accion || null,
+                    observaciones_arbol: '',
+                    url_foto: uiState.editData.url_foto || null
+                }
+            ];
+        }
         nextTick(() => isUpdating.value = false);
     }
 })
@@ -366,7 +490,6 @@ const handleGuardar = async () => {
     const faltantes = [];
     if (!form.value.fecha_ingreso) faltantes.push("Fecha de Ingreso");
     if (!form.value.comunicacion_interna) faltantes.push("Cód. Comunicación");
-    if (!form.value.id_accion_solicitada) faltantes.push("Acción Solicitada");
     if (!form.value.solicitante_nombre) faltantes.push("Nombre del Solicitante");
     if (!distritoSeleccionado.value) faltantes.push("Distrito");
     if (!form.value.id_barrio) faltantes.push("Barrio");
@@ -377,6 +500,25 @@ const handleGuardar = async () => {
     if (faltantes.length > 0) {
         showToast(`🛑 ATENCIÓN: Faltan campos obligatorios:\n• ${faltantes.join('\n• ')}`, 'error', 6000);
         return;
+    }
+
+    // Validación de árboles
+    let invalidArbol = false;
+    form.value.arboles.forEach((arb) => {
+        if (!arb.id_especie || !arb.id_accion_solicitada) {
+            invalidArbol = true;
+        }
+    });
+    if (invalidArbol) {
+        showToast("🛑 ATENCIÓN: Todos los árboles deben tener Especie y Acción Solicitada obligatoriamente.", "error", 6000);
+        return;
+    }
+
+    // Sincronizar primer árbol con campos planos para compatibilidad con el resto de la aplicación
+    if (form.value.arboles.length > 0) {
+        form.value.id_especie = form.value.arboles[0].id_especie;
+        form.value.id_accion_solicitada = form.value.arboles[0].id_accion_solicitada;
+        form.value.id_accion = form.value.arboles[0].id_accion_realizar;
     }
 
     try {

@@ -25,6 +25,15 @@
                 </div>
                 <span class="font-bold text-sm">{{ item.label }}</span>
             </div>
+
+            <!-- Botón de Cerrar Sesión (Solo Mobile) -->
+            <div @click="logout" 
+                class="nav-item group p-3 rounded-2xl cursor-pointer flex items-center gap-2 transition-all shrink-0 md:hidden bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20">
+                <div class="nav-icon opacity-70 group-hover:opacity-100 transition-all">
+                    <component :is="LogOut" class="w-6 h-6" />
+                </div>
+                <span class="font-bold text-sm">Salir</span>
+            </div>
         </div>
 
         <!-- User Panel (Rediseñado) -->
@@ -80,7 +89,8 @@ import {
     Truck,
     History,
     Calendar,
-    Map
+    Map,
+    LogOut
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -131,12 +141,9 @@ const menuItems = [
 ]
 
 const logout = () => {
-    uiState.user = null
-    uiState.loginTime = null
-    localStorage.removeItem('user')
-    localStorage.removeItem('loginTime')
+    mainStore.logout()
     localStorage.removeItem('loginTimeFull')
-    router.push('/login')
+    router.push('/')
 }
 </script>
 

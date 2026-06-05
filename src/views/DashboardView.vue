@@ -1,21 +1,26 @@
 <template>
-<div class="dashboard p-4 space-y-8 animate-fade-in">
+<div class="dashboard p-4 space-y-8 animate-fade-in" id="dashboard-content">
     <!-- Header de Bienvenida -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-[#064e3b] to-emerald-800 p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
         <div class="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
         <div class="relative z-10">
-            <h2 class="text-3xl font-black tracking-tighter">Resumen Operativo</h2>
-            <p class="text-emerald-200/70 font-medium text-sm mt-1 uppercase tracking-widest">Gobierno Autónomo Municipal de Tarija</p>
+            <h2 class="text-3xl font-black tracking-tighter">{{ saludo }}</h2>
+            <p class="text-emerald-200/70 font-medium text-sm mt-1 uppercase tracking-widest">Resumen Operativo • Gestión de Solicitudes</p>
         </div>
-        <div class="relative z-10 flex gap-4">
-            <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 text-center">
-                <p class="text-[10px] font-black uppercase opacity-60">Tiempo Promedio</p>
-                <p class="text-2xl font-black tabular-nums">{{ stats.tiempoPromedio }} <span class="text-xs opacity-50">días</span></p>
+        <div class="relative z-10 flex gap-4 flex-wrap">
+            <!-- Filtros Temporales -->
+            <div class="bg-black/20 backdrop-blur-md p-1 rounded-2xl flex gap-1 border border-white/10 html2pdf__ignore">
+                <button v-for="f in filtros" :key="f.id" @click="filtroActual = f.id"
+                    :class="['px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all', 
+                    filtroActual === f.id ? 'bg-white text-emerald-900 shadow-lg scale-105' : 'text-emerald-100/70 hover:text-white hover:bg-white/10']">
+                    {{ f.label }}
+                </button>
             </div>
-            <div class="bg-accent text-white px-6 py-3 rounded-2xl shadow-xl text-center">
-                <p class="text-[10px] font-black uppercase opacity-80">Efectividad</p>
-                <p class="text-2xl font-black tabular-nums">{{ stats.porcentaje_completadas }}%</p>
-            </div>
+            <!-- Exportar -->
+            <button @click="exportToPDF" class="bg-accent hover:bg-emerald-400 text-white px-4 py-2 rounded-xl shadow-xl flex items-center gap-2 transition-all html2pdf__ignore">
+                <Download class="w-4 h-4" />
+                <span class="text-xs font-black uppercase tracking-widest">PDF</span>
+            </button>
         </div>
     </div>
 
@@ -29,7 +34,7 @@
                     <component :is="card.icon" class="w-6 h-6" :class="card.iconColor" />
                 </div>
                 <div class="text-right">
-                    <p class="text-3xl font-black tabular-nums">{{ card.value }}</p>
+                    <p class="text-3xl font-black tabular-nums">{{ animValues[card.id] }}<span v-if="card.id === 'efectividad'">%</span></p>
                     <p class="text-[10px] font-black uppercase tracking-widest opacity-50">{{ card.label }}</p>
                 </div>
             </div>
@@ -41,13 +46,12 @@
 
     <!-- Main Charts Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
         <!-- Evolución y Tendencias -->
         <div class="lg:col-span-8 card p-8 border-none shadow-2xl">
             <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-6">
                 <div>
                     <h3 class="font-black text-xl tracking-tighter">Evolución de Solicitudes</h3>
-                    <p class="text-xs text-muted font-bold uppercase tracking-widest">Tendencia de ingresos mensuales</p>
+                    <p class="text-xs text-muted font-bold uppercase tracking-widest">Tendencia de ingresos</p>
                 </div>
                 <TrendingUp class="text-blue-500" />
             </div>
@@ -70,13 +74,13 @@
                     </div>
                     <span class="font-black">{{ d.value }}</span>
                 </div>
+                <div v-if="distritosResumen.length === 0" class="text-center text-gray-400 text-xs font-bold py-4">No hay datos en este periodo</div>
             </div>
         </div>
     </div>
 
     <!-- Segunda Fila de Gráficos: Productividad -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
         <!-- Acciones más pedidas -->
         <div class="lg:col-span-5 card p-8 border-none shadow-2xl">
             <h3 class="font-black text-xl tracking-tighter mb-8 border-b border-gray-100 pb-6">Demanda por Acción</h3>
@@ -100,17 +104,17 @@
         </div>
     </div>
 
-    <!-- Tabla de Pendientes con Nuevo Diseño -->
+    <!-- Tabla de Pendientes -->
     <div class="card p-8 border-none shadow-2xl overflow-hidden bg-white">
         <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-6">
             <h3 class="font-black text-xl tracking-tighter flex items-center gap-3">
                 <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
                 Cola de Trabajo Inmediata
             </h3>
-            <button @click="$router.push('/solicitudes')" class="text-[10px] font-black uppercase tracking-widest text-accent hover:underline">Ver todo</button>
+            <button @click="$router.push('/solicitudes')" class="text-[10px] font-black uppercase tracking-widest text-accent hover:underline html2pdf__ignore">Ver todo</button>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full" v-if="ultimasSolicitudes.length > 0">
                 <thead>
                     <tr class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">
                         <th class="py-4 px-4 text-left">Código</th>
@@ -143,62 +147,133 @@
                     </tr>
                 </tbody>
             </table>
+            <div v-else class="text-center py-12">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 mb-4">
+                    <CheckCircle2 class="w-8 h-8 text-emerald-400" />
+                </div>
+                <h4 class="text-lg font-black text-gray-800">¡Todo al día!</h4>
+                <p class="text-sm font-medium text-gray-500 mt-1">No hay solicitudes pendientes en este periodo.</p>
+            </div>
         </div>
     </div>
 </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, reactive } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
+import html2pdf from 'html2pdf.js'
 const mainStore = useMainStore()
-const { store } = mainStore
+const { store, uiState } = mainStore
 import { 
     ClipboardList, CheckCircle2, Clock3, AlertTriangle, 
-    TrendingUp, UserCheck, MapPin 
+    TrendingUp, UserCheck, Download 
 } from 'lucide-vue-next'
+
+// --- SALUDO DINÁMICO ---
+const saludo = computed(() => {
+    const hora = new Date().getHours()
+    let mensaje = 'Buenas noches'
+    if (hora >= 5 && hora < 12) mensaje = 'Buenos días'
+    else if (hora >= 12 && hora < 19) mensaje = 'Buenas tardes'
+    
+    const nombreUsuario = uiState.user?.nombre?.split(' ')[0] || 'Administrador'
+    return `${mensaje}, ${nombreUsuario}`
+})
+
+// --- FILTROS TEMPORALES ---
+const filtros = [
+    { id: 'hoy', label: 'Hoy' },
+    { id: 'semana', label: 'Semana' },
+    { id: 'mes', label: 'Mes' },
+    { id: 'todo', label: 'Histórico' }
+]
+const filtroActual = ref('todo')
+
+const solicitudesFiltradas = computed(() => {
+    if (filtroActual.value === 'todo') return store.solicitudes
+    
+    const hoy = new Date()
+    hoy.setHours(0,0,0,0)
+    
+    return store.solicitudes.filter(s => {
+        if (!s.fecha_ingreso) return false
+        const fecha = new Date(s.fecha_ingreso)
+        
+        if (filtroActual.value === 'hoy') {
+            return fecha >= hoy
+        } else if (filtroActual.value === 'semana') {
+            const haceUnaSemana = new Date(hoy)
+            haceUnaSemana.setDate(haceUnaSemana.getDate() - 7)
+            return fecha >= haceUnaSemana
+        } else if (filtroActual.value === 'mes') {
+            return fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear()
+        }
+        return true
+    })
+})
 
 // --- CÁLCULO DE ESTADÍSTICAS ---
 const stats = computed(() => {
-    const total = store.solicitudes.length;
-    const completadas = store.solicitudes.filter(s => s.estado_tramite === 'Ejecutado').length;
-    const enProceso = store.solicitudes.filter(s => s.estado_tramite === 'En espera').length;
-    const urgentes = store.solicitudes.filter(s => s.nivel_urgencia === 'Alta' || s.es_emergencia).length;
-    
-    // Cálculo de Tiempo Promedio
-    let totalDias = 0;
-    let countCompletados = 0;
-    store.solicitudes.forEach(s => {
-        if (s.fecha_ingreso && s.fecha_ejecucion && s.estado_tramite === 'Ejecutado') {
-            const inicio = new Date(s.fecha_ingreso);
-            const fin = new Date(s.fecha_ejecucion);
-            const diff = (fin - inicio) / (1000 * 60 * 60 * 24);
-            if (diff >= 0) {
-                totalDias += diff;
-                countCompletados++;
-            }
-        }
-    });
+    const data = solicitudesFiltradas.value;
+    const total = data.length;
+    const completadas = data.filter(s => s.estado_tramite === 'Ejecutado').length;
+    const enProceso = data.filter(s => s.estado_tramite === 'En espera').length;
+    const urgentes = data.filter(s => s.nivel_urgencia === 'Alta' || s.es_emergencia).length;
+    const efectividad = total > 0 ? Math.round((completadas / total) * 100) : 0;
     
     return {
         total,
         completadas,
         enProceso,
         urgentes,
-        tiempoPromedio: countCompletados > 0 ? (totalDias / countCompletados).toFixed(1) : '---',
-        porcentaje_completadas: total > 0 ? ((completadas / total) * 100).toFixed(0) : 0
+        efectividad
     }
 })
 
+// --- ANIMACIÓN DE NÚMEROS (CountUp) ---
+const animValues = reactive({
+    total: 0,
+    completadas: 0,
+    enProceso: 0,
+    urgentes: 0,
+    efectividad: 0
+})
+
+const animarNumeros = () => {
+    const duration = 1000;
+    const steps = 30;
+    const stepTime = duration / steps;
+
+    ['total', 'completadas', 'enProceso', 'urgentes', 'efectividad'].forEach(key => {
+        const target = stats.value[key];
+        let current = 0;
+        const increment = target / steps;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                animValues[key] = target;
+                clearInterval(timer);
+            } else {
+                animValues[key] = Math.floor(current);
+            }
+        }, stepTime);
+    });
+}
+
+// Observar cambios en stats para re-animar
+watch(() => stats.value.total, animarNumeros, { immediate: true })
+
 const statCards = computed(() => [
-    { label: 'Total Solicitudes', value: stats.value.total, icon: ClipboardList, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: 100 },
-    { label: 'Obras Ejecutadas', value: stats.value.completadas, icon: CheckCircle2, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: stats.value.porcentaje_completadas },
-    { label: 'Trámites en Cola', value: stats.value.enProceso, icon: Clock3, color: '#f59e0b', bg: 'bg-white', iconBg: 'bg-amber-50', iconColor: 'text-amber-600', percent: (stats.value.enProceso/stats.value.total)*100 },
-    { label: 'Alertas Críticas', value: stats.value.urgentes, icon: AlertTriangle, color: '#ef4444', bg: 'bg-white', iconBg: 'bg-red-50', iconColor: 'text-red-600', percent: (stats.value.urgentes/stats.value.total)*100 }
+    { id: 'total', label: 'Total Solicitudes', value: stats.value.total, icon: ClipboardList, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: 100 },
+    { id: 'completadas', label: 'Obras Ejecutadas', value: stats.value.completadas, icon: CheckCircle2, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: stats.value.efectividad },
+    { id: 'enProceso', label: 'Trámites en Cola', value: stats.value.enProceso, icon: Clock3, color: '#f59e0b', bg: 'bg-white', iconBg: 'bg-amber-50', iconColor: 'text-amber-600', percent: stats.value.total ? (stats.value.enProceso/stats.value.total)*100 : 0 },
+    { id: 'urgentes', label: 'Alertas Críticas', value: stats.value.urgentes, icon: AlertTriangle, color: '#ef4444', bg: 'bg-white', iconBg: 'bg-red-50', iconColor: 'text-red-600', percent: stats.value.total ? (stats.value.urgentes/stats.value.total)*100 : 0 }
 ])
 
 const ultimasSolicitudes = computed(() => {
-    return store.solicitudes
+    return solicitudesFiltradas.value
         .filter(s => s.estado_tramite === 'En espera')
         .slice(-6)
         .reverse()
@@ -207,7 +282,11 @@ const ultimasSolicitudes = computed(() => {
 const distritosResumen = ref([])
 
 const getBarrioNombre = (id) => store.barrios.find(x => x.id == id)?.nombre || '---'
-const getAccionNombre = (id) => store.acciones.find(x => x.id == id)?.nombre.split('–')[0].trim() || '---'
+const getAccionNombre = (id) => {
+    const acc = store.acciones.find(x => x.id == id);
+    if (!acc || !acc.nombre) return '---';
+    return acc.nombre.split('–')[0].trim();
+}
 
 // --- GRÁFICOS ---
 let charts = { pie: null, bar: null, tecs: null, evol: null };
@@ -216,7 +295,7 @@ const generarDatosGraficos = () => {
     const data = { distritos: {}, acciones: {}, tecnicos: {}, evolucion: {} };
     const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
-    store.solicitudes.forEach(s => {
+    solicitudesFiltradas.value.forEach(s => {
         // Distritos
         const barrio = store.barrios.find(b => b.id === s.id_barrio);
         if (barrio) {
@@ -237,7 +316,12 @@ const generarDatosGraficos = () => {
         // Evolución
         if (s.fecha_ingreso) {
             const date = new Date(s.fecha_ingreso);
-            const m = `${meses[date.getMonth()]} ${date.getFullYear()}`;
+            let m;
+            if (filtroActual.value === 'semana' || filtroActual.value === 'hoy' || filtroActual.value === 'mes') {
+                m = `${date.getDate()} ${meses[date.getMonth()]}`;
+            } else {
+                m = `${meses[date.getMonth()]} ${date.getFullYear()}`;
+            }
             data.evolucion[m] = (data.evolucion[m] || 0) + 1;
         }
     });
@@ -295,8 +379,26 @@ const renderCharts = () => {
     });
 }
 
-onMounted(renderCharts)
-watch(() => store.solicitudes.length, renderCharts)
+onMounted(() => {
+    // Re-render chart on data or filter change
+    watch([() => store.solicitudes.length, filtroActual], () => {
+        setTimeout(renderCharts, 100);
+    }, { immediate: true })
+})
+
+// --- EXPORTAR A PDF ---
+const exportToPDF = () => {
+    const element = document.getElementById('dashboard-content');
+    const opt = {
+      margin:       0.2,
+      filename:     `Dashboard_Operativo_${new Date().toISOString().split('T')[0]}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    mainStore.showToast('Generando PDF, por favor espere...', 'success', 3000);
+    html2pdf().set(opt).from(element).save();
+}
 </script>
 
 <style scoped>
@@ -304,4 +406,9 @@ watch(() => store.solicitudes.length, renderCharts)
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .stat-card { @apply bg-white; }
 canvas { filter: drop-shadow(0 10px 10px rgba(0,0,0,0.02)); }
+
+/* Clases para ocultar botones al imprimir a PDF */
+@media print {
+    .html2pdf__ignore { display: none !important; }
+}
 </style>

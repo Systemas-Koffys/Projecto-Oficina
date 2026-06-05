@@ -70,10 +70,12 @@
     <!-- Modales y Notificaciones -->
     <SolicitudModal v-if="uiState.showModal" @close="uiState.showModal = false" />
     
-    <ToastNotification />
     <LoadingScreen />
   </div>
   <LoginView v-else />
+
+  <!-- Notificaciones Globales (Permite mostrar popups en la pantalla de Login) -->
+  <ToastNotification />
 </template>
 
 <script setup>
