@@ -37,6 +37,10 @@ app.use('/api', (req, res, next) => {
   if (publicRoutes.includes(req.path)) {
     return next();
   }
+  // Permitir GET /config públicamente para mostrar logotipos en el login
+  if (req.path === '/config' && req.method === 'GET') {
+    return next();
+  }
   return authenticateToken(req, res, next);
 });
 
