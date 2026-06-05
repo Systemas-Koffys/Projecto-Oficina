@@ -5,7 +5,7 @@
         <div class="bg-white dark-card p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
             <div>
                 <h1 class="text-3xl font-black text-gray-800 dark-text">Sistema de Arboricultura</h1>
-                <p class="text-gray-500 font-medium dark-text-muted">Versión 2.5.0 - Edición Profesional</p>
+                <p class="text-gray-500 font-medium dark-text-muted">Versión 3.25 - Edición Profesional</p>
             </div>
             
             <div class="flex bg-gray-100 dark-bg p-1.5 rounded-2xl gap-1 border border-gray-200 dark-border">
