@@ -434,6 +434,7 @@ const formatFecha = (str) => {
 </template>
 
 <style scoped>
+@reference "tailwindcss";
 .label-mini { @apply block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5; }
 .input-modern { @apply w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none text-sm font-bold text-gray-700 transition-all; }
 

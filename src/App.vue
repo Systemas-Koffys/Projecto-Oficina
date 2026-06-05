@@ -20,8 +20,18 @@
             <p class="page-subtitle">{{ routeSubtitle }}</p>
           </div>
           
-          <!-- Selector de Temas Premium v2.0 -->
-          <div class="relative flex bg-card p-1.5 rounded-2xl border border-border/60 shadow-inner overflow-hidden group">
+          <div class="flex items-center gap-3 self-end md:self-auto">
+            <!-- Reloj Digital Premium -->
+            <div class="flex items-center h-[52px] gap-2.5 bg-card px-4 rounded-2xl border border-border/60 shadow-sm text-xs font-semibold text-muted select-none">
+              <Calendar size="16" class="text-accent transition-transform duration-300 hover:scale-110" />
+              <span>{{ fechaActual }}</span>
+              <span class="text-slate-300 dark:text-slate-700">|</span>
+              <Clock size="16" class="text-accent transition-transform duration-300 hover:scale-110" />
+              <span class="font-mono tracking-wider text-main font-bold">{{ horaActual }}</span>
+            </div>
+
+            <!-- Selector de Temas Premium v2.0 -->
+            <div class="relative flex bg-card p-1.5 rounded-2xl border border-border/60 shadow-inner overflow-hidden group">
             <!-- Fondo deslizante dinámico -->
             <div 
               class="absolute top-1.5 bottom-1.5 left-1.5 rounded-xl bg-accent shadow-lg shadow-accent/20 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
@@ -52,6 +62,7 @@
               />
             </button>
           </div>
+          </div>
         </div>
       </header>
 
@@ -79,9 +90,9 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { Sun, Moon, Palette } from 'lucide-vue-next'
+import { Sun, Moon, Palette, Calendar, Clock } from 'lucide-vue-next'
 import Sidebar from './components/Sidebar.vue'
 import LoginView from './views/LoginView.vue'
 import SolicitudModal from './components/SolicitudModal.vue'
@@ -93,11 +104,37 @@ const { uiState, fetchCatalogos } = mainStore
 
 const route = useRoute()
 
+const fechaActual = ref('')
+const horaActual = ref('')
+let intervalId = null
+
+const actualizarReloj = () => {
+    const ahora = new Date()
+    
+    // Fecha formato: "Viernes, 5 de junio"
+    const opcionesFecha = { weekday: 'long', day: 'numeric', month: 'long' }
+    const rawFecha = ahora.toLocaleDateString('es-ES', opcionesFecha)
+    fechaActual.value = rawFecha.charAt(0).toUpperCase() + rawFecha.slice(1)
+    
+    horaActual.value = ahora.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+    })
+}
+
 onMounted(async () => {
     const savedTheme = localStorage.getItem('theme') || 'white'
     uiState.theme = savedTheme
     
+    actualizarReloj()
+    intervalId = setInterval(actualizarReloj, 1000)
+    
     await fetchCatalogos()
+})
+
+onUnmounted(() => {
+    if (intervalId) clearInterval(intervalId)
 })
 
 const setTheme = (t) => {

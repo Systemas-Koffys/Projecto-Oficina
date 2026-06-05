@@ -15,7 +15,7 @@
         </div>
 
         <h2 class="text-4xl font-black mb-4 tracking-tighter text-center">
-          Iniciando <span class="text-accent">Arboricultura</span>
+          Iniciando <span class="text-accent">Gestión de Arboricultura</span>
         </h2>
         
         <!-- Barra de Carga -->

@@ -245,6 +245,7 @@ const formatLoDeterminado = (sol) => {
                 </div>
                 <!-- Botón Actualizado v2.2 - Color Verde Institucional -->
                 <button 
+                    v-if="uiState.user?.role !== 'USER'"
                     id="btn-nueva-solicitud"
                     @click="() => { uiState.editData = null; uiState.showModal = true; }" 
                     class="group relative flex items-center gap-3 px-8 py-4 bg-[#1a4731] text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-green-900/20 hover:shadow-green-900/40 hover:-translate-y-1 transition-all active:scale-95 border border-white/10"
@@ -349,7 +350,7 @@ const formatLoDeterminado = (sol) => {
                                         <button class="btn-icon btn-print" @click="imprimirDirecto(sol)" title="Imprimir reporte">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                                         </button>
-                                        <button class="btn-icon btn-edit" @click="abrirEdicion(sol)" title="Editar solicitud">
+                                        <button v-if="uiState.user?.role !== 'USER'" class="btn-icon btn-edit" @click="abrirEdicion(sol)" title="Editar solicitud">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                         </button>
                                         <button v-if="uiState.user?.role === 'ROOT'" class="btn-icon btn-delete" @click="confirmarEliminar(sol)" title="Eliminar solicitud">
@@ -527,7 +528,7 @@ const formatLoDeterminado = (sol) => {
                     </div>
 
                     <!-- SECCIÓN 02: Localización (VERDE) -->
-                    <div class="bg-emerald-50/60 border border-emerald-100 rounded-2xl p-6 shadow-sm">
+                    <div class="md:col-span-2 bg-emerald-50/60 border border-emerald-100 rounded-2xl p-6 shadow-sm">
                         <h4 class="flex items-center gap-2 text-[11px] font-black text-emerald-800 uppercase tracking-[0.2em] mb-4 border-b border-emerald-200 pb-2">
                             <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 02. Localización y Referencia
                         </h4>
@@ -543,6 +544,18 @@ const formatLoDeterminado = (sol) => {
                             <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Calle / Avenida</span>
                                 <span class="font-bold text-gray-800 text-right">{{ solicitudSeleccionada.calle }} {{ solicitudSeleccionada.numero_casa ? 'Nº '+solicitudSeleccionada.numero_casa : '' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                                <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Coordenadas GPS</span>
+                                <span class="text-right">
+                                    <a v-if="solicitudSeleccionada.lat && solicitudSeleccionada.lng" 
+                                       :href="`https://www.google.com/maps?q=${solicitudSeleccionada.lat},${solicitudSeleccionada.lng}`" 
+                                       target="_blank" 
+                                       class="text-blue-600 underline font-bold hover:text-blue-800 transition-colors">
+                                        {{ solicitudSeleccionada.lat }}, {{ solicitudSeleccionada.lng }}
+                                    </a>
+                                    <span v-else class="text-gray-400 italic font-medium">No registrado</span>
+                                </span>
                             </div>
                             <div class="flex flex-col pt-1">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">Punto de Referencia Exacto</span>
@@ -635,7 +648,7 @@ const formatLoDeterminado = (sol) => {
                     </div>
 
                     <!-- SECCIÓN 05: Cierre de Trámite (PÚRPURA) -->
-                    <div id="print-seccion-5" class="md:col-span-2 bg-purple-50/60 border border-purple-200 rounded-2xl p-6 shadow-sm print:break-before-page">
+                    <div id="print-seccion-5" class="md:col-span-2 bg-purple-50/60 border border-purple-200 rounded-2xl p-6 shadow-sm">
                         <h4 class="flex items-center gap-2 text-[11px] font-black text-purple-900 uppercase tracking-[0.2em] mb-4 border-b border-purple-200 pb-2">
                             <span class="w-2 h-2 bg-purple-500 rounded-full"></span> 05. Ejecución y Cierre Final
                         </h4>
@@ -797,7 +810,7 @@ const formatLoDeterminado = (sol) => {
     .print-sec, .print-unit { font-size: 8pt !important; }
 
     /* ESTILO DE LAS 5 SECCIONES MÁS COMPACTO */
-    .bg-blue-50\/60, .bg-emerald-50\/60, .bg-amber-50\/60, .bg-purple-50\/60, .bg-slate-50 {
+    .bg-blue-50\/60, .bg-emerald-50\/60, .bg-amber-50\/60, .bg-purple-50\/60, div.bg-slate-50 {
         display: block !important;
         width: 100% !important;
         margin-bottom: 8pt !important; /* Menos espacio entre secciones */
@@ -840,10 +853,29 @@ const formatLoDeterminado = (sol) => {
         text-transform: uppercase;
     }
 
+    /* Estilos específicos para la tabla de árboles en impresión */
+    .print-area table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-top: 8pt !important;
+        margin-bottom: 8pt !important;
+    }
+    .print-area th, .print-area td {
+        border: 0.5pt solid #ddd !important;
+        padding: 5pt 6pt !important;
+        font-size: 8pt !important;
+        text-align: left !important;
+    }
+    .print-area th {
+        background-color: #f3f4f6 !important;
+        color: #000 !important;
+        font-weight: bold !important;
+    }
+
     /* Salto de página para Sección 5 */
     #print-seccion-5 {
-        break-before: page !important;
-        margin-top: 15pt !important;
+        break-before: auto !important;
+        margin-top: 8pt !important;
     }
 
     /* Contador de Páginas */

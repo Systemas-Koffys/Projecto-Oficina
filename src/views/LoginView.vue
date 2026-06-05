@@ -14,7 +14,7 @@ const publicUsers = ref([])
 const showPassword = ref(false)
 
 onMounted(async () => {
-    document.title = 'Iniciar Sesión | Sistema de Gestión de Podas'
+    document.title = 'Iniciar Sesión | Sistema de Gestión de Arboricultura'
     publicUsers.value = await fetchPublicUsuarios()
 })
 
@@ -54,7 +54,7 @@ const handleLogin = async () => {
                     <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-4" alt="Logo Institucional">
                     <span v-else class="text-4xl">🌳</span>
                 </div>
-                <h1 class="text-4xl font-black text-white tracking-tighter mb-2">SISTEMA DE ARBORICULTURA</h1>
+                <h1 class="text-4xl font-black text-white tracking-tighter mb-2">SISTEMA DE GESTIÓN DE ARBORICULTURA</h1>
                 <p class="text-emerald-300 font-medium text-sm uppercase tracking-widest opacity-80">OBRAS PUBLICAS MUNICIPALES</p>
             </div>
 
@@ -139,8 +139,8 @@ const handleLogin = async () => {
 
             <!-- Footer -->
             <p class="text-center text-emerald-300/50 text-xs mt-8 font-medium">
-                © 2026 Gobierno Autónomo Municipal de Tarija<br>
-                Desarrollado por Systemas Koffys
+                Uso institucional exclusivo para el Gobierno Autónomo Municipal de Tarija.<br>
+                Todos los derechos reservados. © 2026.
             </p>
         </div>
     </div>

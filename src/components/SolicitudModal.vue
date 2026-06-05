@@ -37,7 +37,7 @@
                         </div>
                         <div class="col-span-3 flex flex-col">
                             <label class="label-prime">Nombre del Solicitante <span class="text-red-500 font-black">*</span></label>
-                            <input v-model="form.solicitante_nombre" @input="cap($event, 'solicitante_nombre')" type="text" class="form-input-prime" placeholder="Nombre y Apellidos">
+                            <input v-model="form.solicitante_nombre" @input="cap($event, 'solicitante_nombre')" type="text" class="form-input-prime" placeholder="Ej: Juan Pérez Ramos">
                         </div>
                         
                         <!-- Lógica de Instituciones -->
@@ -58,7 +58,7 @@
 
                         <div class="col-span-3 flex flex-col">
                             <label class="label-prime">Notas de Solicitud / Descripción Extra</label>
-                            <textarea v-model="form.solicitante_descripcion" rows="2" class="form-input-prime text-xs resize-none" placeholder="Ej: Atender solo por la mañana o esta dañando mi pared..."></textarea>
+                            <textarea v-model="form.solicitante_descripcion" rows="2" class="form-input-prime resize-none" placeholder="Ej: Atender solo por la mañana o esta dañando mi pared..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -85,15 +85,43 @@
                         </div>
                         <div class="col-span-3 flex flex-col">
                             <label class="label-prime">Calle / Avenida <span class="text-red-500 font-black">*</span></label>
-                            <input v-model="form.calle" @input="cap($event, 'calle')" type="text" class="form-input-prime">
+                            <input v-model="form.calle" @input="cap($event, 'calle')" type="text" class="form-input-prime" placeholder="Ej: Av. Las Américas o Calle Colón">
                         </div>
                         <div class="col-span-1 flex flex-col">
                             <label class="label-prime">Nº Casa</label>
-                            <input v-model="form.numero_casa" type="text" class="form-input-prime text-center">
+                            <input v-model="form.numero_casa" type="text" class="form-input-prime text-center" placeholder="Ej: 148 o S/N">
                         </div>
                         <div class="col-span-4 flex flex-col">
                             <label class="label-prime">Punto de Referencia Exacto</label>
-                            <input v-model="form.referencia" @input="cap($event, 'referencia')" type="text" class="form-input-prime">
+                            <input v-model="form.referencia" @input="cap($event, 'referencia')" type="text" class="form-input-prime" placeholder="Ej: Al frente de la iglesia, portón blanco">
+                        </div>
+
+                        <!-- Geolocalización y Mapa Mezclado -->
+                        <div class="col-span-4 border-t border-emerald-100/60 pt-4 flex flex-col gap-4">
+                            <label class="label-prime text-emerald-800 font-black uppercase text-[10px] tracking-wider">
+                                🗺️ Ubicación Geográfica del Árbol (GPS)
+                            </label>
+                            
+                            <!-- Contenedor del Mapa Leaflet -->
+                            <div class="relative w-full h-56 rounded-2xl border-2 border-emerald-100/60 shadow-sm overflow-hidden z-10">
+                                <div id="modal-map" class="absolute inset-0"></div>
+                            </div>
+                            
+                            <!-- Campos de Coordenadas Manuales y Parser de Enlaces -->
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="col-span-1 flex flex-col">
+                                    <label class="label-prime">Latitud</label>
+                                    <input v-model="form.lat" @input="handleManualCoordsChange" type="number" step="any" class="form-input-prime" placeholder="-21.5355">
+                                </div>
+                                <div class="col-span-1 flex flex-col">
+                                    <label class="label-prime">Longitud</label>
+                                    <input v-model="form.lng" @input="handleManualCoordsChange" type="number" step="any" class="form-input-prime" placeholder="-64.7327">
+                                </div>
+                                <div class="col-span-1 flex flex-col">
+                                    <label class="label-prime">Pegar Enlace Google Maps</label>
+                                    <input v-model="gpsLink" @input="handleGpsLinkInput" type="text" class="form-input-prime" placeholder="Ej: https://maps.app.goo.gl/...">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -186,8 +214,8 @@
                     <!-- Detalles de la Verificación Técnica General -->
                     <div class="flex flex-col bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                         <label class="label-prime">Detalles de la Verificación Técnica General</label>
-                        <textarea v-model="form.observacion_verificacion" rows="2" class="form-input-prime text-xs resize-none" 
-                            placeholder="Notas generales del diagnóstico técnico en campo..."></textarea>
+                        <textarea v-model="form.observacion_verificacion" rows="2" class="form-input-prime resize-none" 
+                            placeholder="Ej: Requiere plataforma por altura, coordinar con SETAR..."></textarea>
                     </div>
                 </div>
 
@@ -248,7 +276,7 @@
                         </div>
                         <div class="col-span-3 flex flex-col">
                             <label class="label-prime">Notas Finales de Ejecución</label>
-                            <textarea v-model="form.observaciones_finales" rows="2" class="form-input-prime text-xs resize-none" placeholder="Reporte de cierre..."></textarea>
+                            <textarea v-model="form.observaciones_finales" rows="2" class="form-input-prime resize-none" placeholder="Ej: Poda ejecutada con éxito, ramas secas removidas..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -266,7 +294,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, addSolicitud, updateSolicitud, showToast } = mainStore
@@ -276,6 +304,9 @@ const emit = defineEmits(['close'])
 // --- ESTADO Y REFERENCIAS ---
 const distritoSeleccionado = ref(null)
 const isUpdating = ref(false) // Bloqueo para evitar bucles infinitos
+let modalMap = null
+let modalMarker = null
+const gpsLink = ref('')
 
 const form = ref({
     comunicacion_interna: '',
@@ -287,6 +318,8 @@ const form = ref({
     calle: '',
     numero_casa: '',
     referencia: '',
+    lat: null,
+    lng: null,
     solicitante_nombre: '',
     solicitante_telefono: '',
     solicitante_descripcion: '',
@@ -441,6 +474,118 @@ const formatComunicacionInterna = (e) => {
     }
 }
 
+// --- GEOLOCALIZACIÓN Y MAPA ---
+const initModalMap = () => {
+    if (typeof L === 'undefined') {
+        setTimeout(initModalMap, 200);
+        return;
+    }
+
+    const defaultLat = -21.5355;
+    const defaultLng = -64.7327;
+    const startLat = form.value.lat || defaultLat;
+    const startLng = form.value.lng || defaultLng;
+
+    modalMap = L.map('modal-map', {
+        zoomControl: true,
+        scrollWheelZoom: true
+    }).setView([startLat, startLng], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(modalMap);
+
+    modalMarker = L.marker([startLat, startLng], {
+        draggable: true
+    }).addTo(modalMap);
+
+    // Escuchar cuando se arrastra el marcador
+    modalMarker.on('dragend', () => {
+        const position = modalMarker.getLatLng();
+        form.value.lat = parseFloat(position.lat.toFixed(6));
+        form.value.lng = parseFloat(position.lng.toFixed(6));
+    });
+
+    // Escuchar clics en el mapa para mover el apuntador
+    modalMap.on('click', (e) => {
+        const position = e.latlng;
+        modalMarker.setLatLng(position);
+        form.value.lat = parseFloat(position.lat.toFixed(6));
+        form.value.lng = parseFloat(position.lng.toFixed(6));
+    });
+
+    // Forzar redibujado de Leaflet para evitar problemas de renderizado
+    setTimeout(() => {
+        if (modalMap) {
+            modalMap.invalidateSize();
+        }
+    }, 300);
+}
+
+const handleManualCoordsChange = () => {
+    const lat = parseFloat(form.value.lat);
+    const lng = parseFloat(form.value.lng);
+    if (!isNaN(lat) && !isNaN(lng) && modalMarker && modalMap) {
+        modalMarker.setLatLng([lat, lng]);
+        modalMap.setView([lat, lng]);
+    }
+}
+
+const handleGpsLinkInput = (e) => {
+    const val = e.target.value;
+    if (!val) return;
+    
+    // 1. Intentar buscar formato: lat, lng
+    const coordsRegex = /(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/;
+    const matchCoords = val.match(coordsRegex);
+    if (matchCoords) {
+        const lat = parseFloat(matchCoords[1]);
+        const lng = parseFloat(matchCoords[2]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            form.value.lat = lat;
+            form.value.lng = lng;
+            handleManualCoordsChange();
+            return;
+        }
+    }
+    
+    // 2. Intentar buscar en URL formato @lat,lng
+    const urlRegex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+    const matchUrl = val.match(urlRegex);
+    if (matchUrl) {
+        const lat = parseFloat(matchUrl[1]);
+        const lng = parseFloat(matchUrl[2]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            form.value.lat = lat;
+            form.value.lng = lng;
+            handleManualCoordsChange();
+            return;
+        }
+    }
+
+    // 3. Intentar buscar en URL formato q=lat,lng
+    const queryRegex = /[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/;
+    const matchQuery = val.match(queryRegex);
+    if (matchQuery) {
+        const lat = parseFloat(matchQuery[1]);
+        const lng = parseFloat(matchQuery[2]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            form.value.lat = lat;
+            form.value.lng = lng;
+            handleManualCoordsChange();
+            return;
+        }
+    }
+}
+
+onUnmounted(() => {
+    if (modalMap) {
+        modalMap.remove();
+        modalMap = null;
+        modalMarker = null;
+    }
+})
+
 onMounted(() => {
     if (uiState.editData) {
         isUpdating.value = true;
@@ -482,6 +627,9 @@ onMounted(() => {
         }
         nextTick(() => isUpdating.value = false);
     }
+    
+    // Inicializar mapa de ubicación
+    initModalMap();
 })
 
 const cerrar = () => { uiState.editData = null; emit('close') }
@@ -547,10 +695,11 @@ const handleGuardar = async () => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .label-prime { @apply text-sm font-semibold text-slate-700 mb-1.5 ml-1 flex items-center gap-1; }
 .form-input-prime {
     @apply w-full px-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 
-           outline-none transition-all focus:ring-4 focus:ring-opacity-10 shadow-sm;
+           outline-none transition-all focus:ring-4 focus:ring-emerald-500/10 shadow-sm;
 }
 .animate-prime-in {
     animation: primePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;

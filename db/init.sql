@@ -49,7 +49,9 @@ CREATE TABLE personal (
     tipo_sangre VARCHAR(10) NULL,
     contacto_emergencia VARCHAR(100) NULL,
     celular_emergencia VARCHAR(50) NULL,
-    foto LONGTEXT NULL
+    foto LONGTEXT NULL,
+    id_equipo INT NULL,
+    rol_equipo VARCHAR(100) NULL
 );
 
 CREATE TABLE acciones_catalogo (
@@ -134,7 +136,7 @@ CREATE TABLE IF NOT EXISTS historial_impresiones (
 
 CREATE TABLE IF NOT EXISTS config_sistema (
     clave VARCHAR(100) PRIMARY KEY,
-    valor TEXT
+    valor LONGTEXT
 );
 
 CREATE TABLE IF NOT EXISTS calendario_barrios (

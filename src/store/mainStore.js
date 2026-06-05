@@ -76,6 +76,7 @@ export const useMainStore = defineStore('mainStore', () => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('loginTime', now);
         localStorage.setItem('loginTimeFull', new Date().toISOString());
+        await fetchCatalogos();
         return true;
       }
       return false;
@@ -132,7 +133,25 @@ export const useMainStore = defineStore('mainStore', () => {
   async function fetchConfig() {
     try {
       const response = await fetch(`${API_URL}/config`, { headers: getAuthHeaders() });
-      store.config = await response.json();
+      const config = await response.json();
+      store.config = config;
+      
+      // Sincronizar logos del servidor al uiState y localStorage
+      if (config.logo_app) {
+        uiState.logo_app = config.logo_app;
+        localStorage.setItem('logo_app', config.logo_app);
+      } else if (config.logo_app === null || config.logo_app === '') {
+        uiState.logo_app = null;
+        localStorage.removeItem('logo_app');
+      }
+      
+      if (config.logo_institucional) {
+        uiState.logo_institucional = config.logo_institucional;
+        localStorage.setItem('logo_institucional', config.logo_institucional);
+      } else if (config.logo_institucional === null || config.logo_institucional === '') {
+        uiState.logo_institucional = null;
+        localStorage.removeItem('logo_institucional');
+      }
     } catch (error) {
       console.error("Error al cargar configuración:", error);
     }

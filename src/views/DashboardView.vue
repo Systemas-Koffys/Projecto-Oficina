@@ -402,6 +402,7 @@ const exportToPDF = () => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .animate-fade-in { animation: fadeIn 0.8s ease-out; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .stat-card { @apply bg-white; }

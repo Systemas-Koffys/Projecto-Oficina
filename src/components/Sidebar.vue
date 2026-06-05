@@ -9,14 +9,14 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-black text-white leading-tight">Arboricultura</h1>
-                    <p class="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Municipalidad</p>
+                    <p class="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Gestión</p>
                 </div>
             </div>
         </div>
 
         <!-- Navigation Menu -->
         <div class="flex-none md:flex-1 p-2 md:px-4 md:space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto custom-scrollbar gap-2 md:gap-0">
-            <div v-for="item in menuItems" :key="item.path" 
+            <div v-for="item in filteredMenuItems" :key="item.path" 
                 class="nav-item group p-3 md:p-4 rounded-2xl cursor-pointer flex items-center gap-2 md:gap-4 transition-all shrink-0"
                 :class="{ 'active': $route.path === item.path }"
                 @click="$router.push(item.path)">
@@ -42,14 +42,14 @@
                 <div class="flex items-center gap-3 mb-4">
                     <div class="relative">
                         <div class="w-12 h-12 bg-gradient-to-br from-accent to-emerald-700 text-on-accent rounded-2xl flex items-center justify-center font-black text-lg shadow-xl border border-white/20 overflow-hidden">
-                            <img v-if="uiState.user?.foto" :src="uiState.user?.foto" class="w-full h-full object-cover">
-                            <span v-else>{{ uiState.user?.nombre?.[0] }}</span>
+                            <img v-if="usuarioIdentificado?.foto" :src="usuarioIdentificado?.foto" class="w-full h-full object-cover">
+                            <span v-else>{{ usuarioIdentificado?.nombre?.[0]?.toUpperCase() }}</span>
                         </div>
                         <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[#064e3b] rounded-full"></div>
                     </div>
                     <div class="flex-1 overflow-hidden">
-                        <p class="font-black text-sm text-white truncate">{{ uiState.user?.nombre }}</p>
-                        <p class="text-[10px] text-accent font-black uppercase tracking-widest">{{ uiState.user?.role }}</p>
+                        <p class="font-black text-sm text-white truncate" :title="usuarioIdentificado?.nombre">{{ usuarioIdentificado?.nombre }}</p>
+                        <p class="text-[10px] text-accent font-black uppercase tracking-widest">{{ usuarioIdentificado?.role }}</p>
                     </div>
                 </div>
                 
@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { uiState } = mainStore
@@ -96,6 +96,17 @@ import {
 const router = useRouter()
 const tiempoTranscurrido = ref('00:00:00')
 let timer = null
+
+const usuarioIdentificado = computed(() => {
+    if (!uiState.user) return null
+    const match = mainStore.store.tecnicos.find(t => t.username === uiState.user.username || t.id == uiState.user.id)
+    return {
+        nombre: match?.nombre || uiState.user.nombre,
+        cargo: match?.cargo || uiState.user.cargo,
+        foto: match?.foto || uiState.user.foto,
+        role: uiState.user.role
+    }
+})
 
 const actualizarReloj = () => {
     if (!uiState.loginTime) return
@@ -139,6 +150,21 @@ const menuItems = [
     { path: '/configuraciones', label: 'Configuraciones', icon: Settings },
     { path: '/acerca', label: 'Acerca de', icon: Info },
 ]
+
+const filteredMenuItems = computed(() => {
+    const role = uiState.user?.role
+    return menuItems.filter(item => {
+        if (role === 'USER') {
+            // USER ve: Dashboard, Trámites Pendientes, Mapa, Historial, Reportes, Calendario, Acerca de
+            return ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/acerca'].includes(item.path)
+        } else if (role === 'ADMIN') {
+            // ADMIN ve todo excepto Usuarios y Configuraciones
+            return ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/personal', '/equipos', '/acerca'].includes(item.path)
+        }
+        // ROOT ve todo
+        return true
+    })
+})
 
 const logout = () => {
     mainStore.logout()

@@ -9,7 +9,7 @@
         </h1>
         <p class="text-white/50 text-sm mt-1">Aniversarios de barrios y carga de trabajo asociada.</p>
       </div>
-      <button @click="openModal()" class="bg-accent hover:bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-accent/20">
+      <button v-if="uiState.user?.role !== 'USER'" @click="openModal()" class="bg-accent hover:bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-accent/20">
         <Plus class="w-5 h-5" />
         Nuevo Aniversario
       </button>
@@ -81,7 +81,7 @@
 import { ref, onMounted, reactive } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
-const { store, fetchCalendario, addCalendarioEvento, updateCalendarioEvento, deleteCalendarioEvento, showToast } = mainStore
+const { store, uiState, fetchCalendario, addCalendarioEvento, updateCalendarioEvento, deleteCalendarioEvento, showToast } = mainStore
 import { Calendar as CalendarIcon, Plus } from 'lucide-vue-next'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -127,6 +127,7 @@ const calendarOptions = reactive({
     tooltip.visible = false
   },
   eventClick: (info) => {
+    if (uiState.user?.role === 'USER') return
     const ev = info.event.extendedProps.raw
     currentEvent.id = ev.id
     currentEvent.nombre_barrio = ev.nombre_barrio

@@ -2,11 +2,10 @@
 import { ref, computed } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
-const { store, uiState, addCatalogo, updateCatalogo, deleteCatalogo, showToast } = mainStore
+const { store, uiState, addCatalogo, updateCatalogo, deleteCatalogo, showToast, updateConfig } = mainStore
 
 // Categorías disponibles
 const categorias = [
-    { id: 'tecnicos', nombre: 'Técnicos', icono: '👷', campos: [{ key: 'nombre', label: 'Nombre Completo', type: 'text' }] },
     { id: 'especies', nombre: 'Especies de Árboles', icono: '🌳', campos: [{ key: 'nombre', label: 'Nombre de la Especie', type: 'text' }] },
     { id: 'acciones', nombre: 'Acciones Técnicas', icono: '🪚', campos: [{ key: 'nombre', label: 'Nombre de la Acción', type: 'text' }] },
     { id: 'barrios', nombre: 'Barrios', icono: '🏘️', campos: [
@@ -16,7 +15,7 @@ const categorias = [
     { id: 'distritos', nombre: 'Distritos', icono: '🗺️', campos: [{ key: 'nombre', label: 'Nombre/Número del Distrito', type: 'text' }] },
     { id: 'instituciones', nombre: 'Instituciones', icono: '🏛️', campos: [
         { key: 'nombre', label: 'Nombre de la Institución', type: 'text' },
-        { key: 'id_tipo_institucion', label: 'Tipo de Institución', type: 'select', options: 'tipos_institucion' }
+        { key: 'id_tipo_solicitante', label: 'Tipo de Institución', type: 'select', options: 'tipos_institucion' }
     ]},
     { id: 'tipos_institucion', nombre: 'Tipos de Institución', icono: '🏢', campos: [{ key: 'nombre', label: 'Categoría', type: 'text' }] },
     { id: 'personalizacion', nombre: 'Identidad Visual', icono: '🎨', tipo: 'especial_logos' },
@@ -28,6 +27,26 @@ const showModal = ref(false)
 const editData = ref(null)
 const formData = ref({})
 
+// Modal de confirmación personalizado
+const showConfirmModal = ref(false)
+const confirmTitle = ref('Confirmar Eliminación')
+const confirmMessage = ref('¿Estás seguro de eliminar este registro?')
+let onConfirmCallback = null
+
+const mostrarConfirmacion = (titulo, mensaje, callback) => {
+    confirmTitle.value = titulo
+    confirmMessage.value = mensaje
+    onConfirmCallback = callback
+    showConfirmModal.value = true
+}
+
+const ejecutarConfirmacion = async () => {
+    showConfirmModal.value = false
+    if (onConfirmCallback) {
+        await onConfirmCallback()
+    }
+}
+
 const handleBackup = () => {
     window.location.href = '/api/backup'
     showToast('Iniciando descarga del respaldo...', 'success')
@@ -37,29 +56,33 @@ const handleLogoUpload = (e, type) => {
     const file = e.target.files[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
         const base64 = event.target.result
         if (type === 'app') {
             uiState.logo_app = base64
             localStorage.setItem('logo_app', base64)
+            await updateConfig({ logo_app: base64 })
         } else {
             uiState.logo_institucional = base64
             localStorage.setItem('logo_institucional', base64)
+            await updateConfig({ logo_institucional: base64 })
         }
-        showToast('Logo actualizado correctamente', 'success')
+        showToast('Logo guardado en servidor con éxito', 'success')
     }
     reader.readAsDataURL(file)
 }
 
-const removeLogo = (type) => {
+const removeLogo = async (type) => {
     if (type === 'app') {
         uiState.logo_app = null
         localStorage.removeItem('logo_app')
+        await updateConfig({ logo_app: '' })
     } else {
         uiState.logo_institucional = null
         localStorage.removeItem('logo_institucional')
+        await updateConfig({ logo_institucional: '' })
     }
-    showToast('Logo eliminado', 'success')
+    showToast('Logo eliminado del servidor', 'success')
 }
 
 // Datos de la tabla activa
@@ -102,12 +125,16 @@ const guardar = async () => {
     }
 }
 
-const eliminar = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este registro? Esto podría afectar a las solicitudes existentes.')) return
-    
-    const ok = await deleteCatalogo(categoriaActiva.value.id, id)
-    if (ok) showToast('Eliminado correctamente', 'success')
-    else showToast('Error al eliminar', 'error')
+const eliminar = (id) => {
+    mostrarConfirmacion(
+        'Confirmar Eliminación',
+        '¿Estás seguro de eliminar este registro? Esto podría afectar a las solicitudes existentes y no se puede deshacer.',
+        async () => {
+            const ok = await deleteCatalogo(categoriaActiva.value.id, id)
+            if (ok) showToast('Eliminado correctamente', 'success')
+            else showToast('Error al eliminar', 'error')
+        }
+    )
 }
 
 // Helpers para selects
@@ -123,7 +150,7 @@ const getOptions = (optionKey) => store[optionKey] || []
 
         <div class="flex flex-1 gap-8 overflow-hidden">
             <!-- Sidebar de Categorías -->
-            <div class="w-72 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar">
+            <div class="w-72 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar shrink-0">
                 <button v-for="cat in categorias" :key="cat.id" 
                     @click="cambiarCategoria(cat)"
                     :class="[
@@ -133,8 +160,8 @@ const getOptions = (optionKey) => store[optionKey] || []
                             : 'bg-card text-main border-border hover:border-accent/50 hover:bg-accent/5'
                     ]"
                 >
-                    <span class="text-2xl">{{ cat.icono }}</span>
-                    <span class="text-xs uppercase tracking-widest">{{ cat.nombre }}</span>
+                    <span class="text-2xl select-none">{{ cat.icono }}</span>
+                    <span class="text-xs uppercase tracking-widest text-left">{{ cat.nombre }}</span>
                 </button>
             </div>
 
@@ -152,7 +179,7 @@ const getOptions = (optionKey) => store[optionKey] || []
                         <!-- Logo de la App -->
                         <div class="space-y-4">
                             <h4 class="text-sm font-black text-main uppercase tracking-widest ml-2">Logo de la Aplicación</h4>
-                            <div class="bg-app p-8 rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center gap-6 relative group">
+                            <div class="bg-main/40 p-8 rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center gap-6 relative group">
                                 <div class="w-40 h-40 bg-card rounded-[2rem] shadow-2xl flex items-center justify-center overflow-hidden border border-border">
                                     <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-4">
                                     <span v-else class="text-5xl">🌳</span>
@@ -175,18 +202,18 @@ const getOptions = (optionKey) => store[optionKey] || []
                         <!-- Logo Institucional -->
                         <div class="space-y-4">
                             <h4 class="text-sm font-black text-main uppercase tracking-widest ml-2">Logo para Reportes (PDF)</h4>
-                            <div class="bg-app p-8 rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center gap-6">
+                            <div class="bg-main/40 p-8 rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center gap-6">
                                 <div class="w-full h-40 bg-card rounded-[2rem] shadow-xl flex items-center justify-center overflow-hidden border border-border">
                                     <img v-if="uiState.logo_institucional" :src="uiState.logo_institucional" class="w-full h-full object-contain p-6">
                                     <div v-else class="text-center opacity-30">
                                         <p class="text-4xl mb-2">🏛️</p>
-                                        <p class="text-[10px] font-black uppercase tracking-tighter">Sin Logo Institucional</p>
+                                        <p class="text-[10px] font-black uppercase tracking-tighter text-main">Sin Logo Institucional</p>
                                     </div>
                                 </div>
                                 <div class="text-center">
                                     <p class="text-[10px] font-black text-muted uppercase tracking-widest">Uso: Encabezado de Reportes Técnicos</p>
                                     <div class="flex gap-3 mt-4">
-                                        <label class="px-6 py-2 bg-main/10 text-main rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-accent hover:text-white transition-all">
+                                        <label class="px-6 py-2 bg-accent text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:scale-105 transition-all shadow-lg shadow-accent/20">
                                             Cargar Imagen
                                             <input type="file" @change="e => handleLogoUpload(e, 'institucional')" class="hidden" accept="image/*">
                                         </label>
@@ -222,22 +249,22 @@ const getOptions = (optionKey) => store[optionKey] || []
                         </div>
 
                         <div class="bg-card border border-border p-8 rounded-[2rem] flex flex-col gap-6">
-                            <div class="w-16 h-16 bg-main/5 text-main rounded-2xl flex items-center justify-center text-3xl">
+                            <div class="w-16 h-16 bg-main rounded-2xl flex items-center justify-center text-3xl border border-border text-accent">
                                 🛰️
                             </div>
                             <div>
                                 <h4 class="text-xl font-black text-main">Estado del Servidor</h4>
                                 <div class="mt-4 space-y-2">
                                     <div class="flex justify-between items-center text-sm">
-                                        <span class="text-muted">Versión Frontend</span>
-                                        <span class="font-black text-accent">v3.5.0-LTS</span>
+                                        <span class="text-muted font-medium">Versión Frontend</span>
+                                        <span class="font-black text-accent">v3.25.0</span>
                                     </div>
                                     <div class="flex justify-between items-center text-sm">
-                                        <span class="text-muted">Base de Datos</span>
+                                        <span class="text-muted font-medium">Base de Datos</span>
                                         <span class="text-green-500 font-black flex items-center gap-1">
                                             <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                                             SINCRONIZADO
-                                        </span>
+                                         </span>
                                     </div>
                                 </div>
                             </div>
@@ -255,8 +282,8 @@ const getOptions = (optionKey) => store[optionKey] || []
                                 <p class="text-xs text-muted font-bold uppercase tracking-widest">{{ items.length }} Registros totales</p>
                             </div>
                         </div>
-                        <button @click="abrirNuevo" class="bg-accent hover:bg-accent-hover text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-all shadow-xl shadow-accent/20">
-                            <span class="text-lg">+</span> Nuevo Registro
+                        <button @click="abrirNuevo" class="bg-accent hover:bg-accent-hover text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-all shadow-xl shadow-accent/20 active:scale-95">
+                            <span class="text-lg font-light leading-none">+</span> Nuevo Registro
                         </button>
                     </div>
 
@@ -270,7 +297,7 @@ const getOptions = (optionKey) => store[optionKey] || []
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in items" :key="item.id" class="group bg-app/50 hover:bg-accent/5 transition-all">
+                                <tr v-for="item in items" :key="item.id" class="group bg-main/30 hover:bg-accent/5 transition-all">
                                     <td class="px-6 py-5 text-sm font-black text-accent border-y border-l border-border rounded-l-2xl w-32">
                                         #{{ item.id }}
                                     </td>
@@ -287,12 +314,14 @@ const getOptions = (optionKey) => store[optionKey] || []
                                     <td class="px-6 py-5 text-right border-y border-r border-border rounded-r-2xl">
                                         <div class="flex justify-end gap-3 transition-all">
                                             <button @click="abrirEdicion(item)" 
-                                                class="w-10 h-10 flex items-center justify-center bg-accent/10 text-accent rounded-xl hover:bg-accent hover:text-white transition-all shadow-sm">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                                class="w-10 h-10 flex items-center justify-center bg-accent/10 text-accent rounded-xl hover:bg-accent hover:text-white transition-all shadow-sm cursor-pointer"
+                                                title="Editar Registro">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                                             </button>
                                             <button @click="eliminar(item.id)" 
-                                                class="w-10 h-10 flex items-center justify-center bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                                class="w-10 h-10 flex items-center justify-center bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm cursor-pointer"
+                                                title="Eliminar Registro">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                                             </button>
                                         </div>
                                     </td>
@@ -304,51 +333,130 @@ const getOptions = (optionKey) => store[optionKey] || []
             </div>
         </div>
 
-        <!-- MODAL DE EDICIÓN/NUEVO -->
-        <div v-if="showModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
-            <div class="bg-card rounded-[3rem] shadow-2xl w-full max-w-md overflow-hidden animate-modalIn border border-white/10">
-                <div class="p-10 bg-accent text-white relative">
-                    <div class="relative z-10">
-                        <h4 class="text-3xl font-black tracking-tighter uppercase">{{ editData ? 'Editar' : 'Nuevo' }}</h4>
-                        <p class="text-xs text-white/70 uppercase font-black tracking-[0.2em] mt-1">{{ categoriaActiva.nombre }}</p>
+        <!-- MODAL DE EDICIÓN/NUEVO (TELEPORTADO Y REDISEÑADO PREMIUM) -->
+        <Teleport to="body">
+            <div v-if="showModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
+                <div class="bg-card rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-lg overflow-hidden flex flex-col border border-border animate-prime-in">
+                    
+                    <!-- Cabecera del Modal -->
+                    <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg relative shrink-0">
+                        <div>
+                            <h3 class="font-black text-xl tracking-tight leading-none">
+                                {{ editData ? 'Modificar Registro' : 'Agregar Nuevo Registro' }}
+                            </h3>
+                            <p class="text-[9px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">
+                                Catálogo: {{ categoriaActiva.nombre }}
+                            </p>
+                        </div>
+                        <button type="button" @click="showModal = false" class="hover:bg-white/20 p-2 rounded-xl transition-all cursor-pointer">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                     </div>
-                    <button @click="showModal = false" class="absolute top-8 right-8 text-white/50 hover:text-white transition-colors text-3xl font-light">&times;</button>
-                </div>
-                
-                <div class="p-10 space-y-6">
-                    <div v-for="campo in categoriaActiva.campos" :key="campo.key" class="space-y-2">
-                        <label class="block text-[10px] font-black text-muted uppercase tracking-[0.2em] ml-2">{{ campo.label }}</label>
-                        
-                        <input v-if="campo.type === 'text'" type="text" v-model="formData[campo.key]" 
-                            class="w-full px-6 py-4 rounded-2xl bg-app border-2 border-border focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all font-bold text-main"
-                            placeholder="Ingrese valor...">
+                    
+                    <!-- Formulario -->
+                    <form @submit.prevent="guardar" class="p-8 space-y-6 overflow-y-auto max-h-[60vh] custom-scrollbar bg-slate-50/50 dark:bg-card">
+                        <div v-for="campo in categoriaActiva.campos" :key="campo.key" class="p-5 bg-card border border-border rounded-xl shadow-sm space-y-2">
+                            <label class="label-prime">{{ campo.label }} <span class="text-red-500 font-black">*</span></label>
+                            
+                            <input v-if="campo.type === 'text'" type="text" v-model="formData[campo.key]" required
+                                class="form-input-prime"
+                                :placeholder="`Ingrese el ${campo.label.toLowerCase()}...`">
 
-                        <select v-if="campo.type === 'select'" v-model="formData[campo.key]"
-                            class="w-full px-6 py-4 rounded-2xl bg-app border-2 border-border focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all font-bold text-main">
-                            <option value="">Seleccione una opción</option>
-                            <option v-for="opt in getOptions(campo.options)" :key="opt.id" :value="opt.id">{{ opt.nombre }}</option>
-                        </select>
+                            <select v-if="campo.type === 'select'" v-model="formData[campo.key]" required
+                                class="form-input-prime">
+                                <option value="" disabled>-- Seleccione una opción --</option>
+                                <option v-for="opt in getOptions(campo.options)" :key="opt.id" :value="opt.id">{{ opt.nombre }}</option>
+                            </select>
+                        </div>
+                    </form>
+
+                    <!-- Acciones del Formulario -->
+                    <div class="p-8 bg-app border-t border-border flex gap-4 shrink-0">
+                        <button type="button" @click="showModal = false" 
+                            class="flex-1 px-4 py-3 bg-card border border-border rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-main/10 transition-all active:scale-95 shadow-sm cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="submit" @click="guardar" 
+                            class="flex-[2] bg-accent hover:bg-accent-hover text-on-accent px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 cursor-pointer">
+                            {{ editData ? 'Guardar Cambios' : 'Crear Registro' }}
+                        </button>
                     </div>
-                </div>
-
-                <div class="p-10 bg-app flex gap-4">
-                    <button @click="showModal = false" class="flex-1 px-4 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-main/5 transition-all">Cancelar</button>
-                    <button @click="guardar" class="flex-[2] bg-accent hover:bg-accent-hover text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-accent/20 active:scale-95">
-                        {{ editData ? 'Guardar Cambios' : 'Crear Registro' }}
-                    </button>
                 </div>
             </div>
-        </div>
+        </Teleport>
+
+        <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
+        <Teleport to="body">
+            <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
+                <div class="bg-card rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col border border-border animate-prime-in">
+                    <!-- Icono de Advertencia -->
+                    <div class="p-8 flex flex-col items-center text-center gap-4">
+                        <div class="w-14 h-14 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-2xl select-none">
+                            ⚠️
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-main leading-tight">{{ confirmTitle }}</h4>
+                            <p class="text-xs text-muted font-semibold mt-2 px-2 leading-relaxed">{{ confirmMessage }}</p>
+                        </div>
+                    </div>
+                    <!-- Botones de Acción -->
+                    <div class="p-6 bg-app border-t border-border flex gap-3">
+                        <button @click="showConfirmModal = false" 
+                            class="flex-1 px-4 py-3 bg-card border border-border rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-main/10 transition-all active:scale-95 shadow-sm cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button @click="ejecutarConfirmacion" 
+                            class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 cursor-pointer">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
     </div>
 </template>
 
 <style scoped>
-@keyframes modalIn {
-    from { opacity: 0; transform: scale(0.9) translateY(30px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
+@reference "tailwindcss";
+
+.label-prime { 
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.375rem;
+    margin-left: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
 }
-.animate-modalIn {
-    animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+.form-input-prime {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s ease-in-out;
+    box-shadow: var(--shadow-sm);
+}
+
+.form-input-prime:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.animate-prime-in {
+    animation: primePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes primePop {
+    from { opacity: 0; transform: scale(0.97) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .custom-scrollbar::-webkit-scrollbar {

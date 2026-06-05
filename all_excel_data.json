@@ -1,0 +1,1451 @@
+{
+  "Acciones.xlsx": [
+    {
+      "acciones": "Poda de Formación – Corte de ramas secas, elevacion de copa y despeje de pantalla ."
+    },
+    {
+      "acciones": "Despunte - Poda de reducción de copa, reducción controlada del tamaño del árbol para evitar riesgos."
+    },
+    {
+      "acciones": "Derribe Controlado – Eliminación total del árbol por riesgo, daño estructural, arbol seco, arbol podrido y arbol inclinado."
+    },
+    {
+      "acciones": "Emergencia - Arbol caido o por caer, arbol seco, arbol podrido y arbol muy inclinado."
+    },
+    {
+      "acciones": "Poda de Raíces – Corte de raíces que afectan pavimentos o estructuras cercanas."
+    },
+    {
+      "acciones": "Extracción de Tocón – Remoción del tronco y raíces después de la tala para evitar brotes o plagas."
+    },
+    {
+      "acciones": "Poda General y otros segun criterio tecnico.(levantado de copa, despeje de pantalla, despunte, derribe)"
+    },
+    {
+      "acciones": "No Determinado"
+    }
+  ],
+  "Distritos y Barrios.xlsx": [
+    {
+      "barrios": "EL MOLINO",
+      "distritos": "Distrito 1"
+    },
+    {
+      "barrios": "SAN ROQUE",
+      "distritos": "Distrito 2"
+    },
+    {
+      "barrios": "LAS PANOSAS",
+      "distritos": "Distrito 3"
+    },
+    {
+      "barrios": "LA PAMPA",
+      "distritos": "Distrito 4"
+    },
+    {
+      "barrios": "VIRGEN DE FATIMA",
+      "distritos": "Distrito 5"
+    },
+    {
+      "barrios": "LA LOMA",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "EL CARMEN",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "GUADALQUIVIR",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "57 VIVIENDAS",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "LUIS PIZARRO",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "15 DE NOVIEMBRE",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "JUAN PABLO II",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "VIRGEN DE CHAGUAYA",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "LIBERTAD",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "PANAMERICANO",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "15 DE AGOSTO",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "LA TORRE",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "LA UNION",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "CARLOS WAGNNER",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "PARAISO",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "LOS ALAMOS",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "LOS OLIVOS",
+      "distritos": "Distrito 6"
+    },
+    {
+      "barrios": "4 DE JULIO",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "12 DE OCTUBRE",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "IV CENTENARIO",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "DEFENSORES DEL CHACO",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "LAS PASCUAS",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "3 DE MAYO",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "LOS CHAPACOS",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "MARIA DE LOS ANGELES",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "15 DE JUNIO",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "MUNICIPAL",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "19 DE MARZO",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "20 DE ENERO",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "101 FAMILIAS",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "NUEVA ESPERANZA",
+      "distritos": "Distrito 7"
+    },
+    {
+      "barrios": "EDUARDO AVAROA",
+      "distritos": "Distrito 8"
+    },
+    {
+      "barrios": "OSCAR ALFARO",
+      "distritos": "Distrito 8"
+    },
+    {
+      "barrios": "SAN JOSE",
+      "distritos": "Distrito 8"
+    },
+    {
+      "barrios": "SAN MARCOS",
+      "distritos": "Distrito 8"
+    },
+    {
+      "barrios": "LOURDES",
+      "distritos": "Distrito 8"
+    },
+    {
+      "barrios": "LA FLORIDA",
+      "distritos": "Distrito 8"
+    },
+    {
+      "barrios": "PASCUAS",
+      "distritos": "Distrito 8"
+    },
+    {
+      "barrios": "LOS LAURELES",
+      "distritos": "Distrito 8"
+    },
+    {
+      "barrios": "LA HUERTA",
+      "distritos": "Distrito 8"
+    },
+    {
+      "barrios": "6 DE AGOSTO",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "SALAMANCA",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "SAN BERNARDO",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "ANDALUZ",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "02 DE MAYO",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "PEDRO ANTONIO FLORES",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "CONSTRUCTOR",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "24 DE JUNIO",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "ANICETO ARCE",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "NARCISO CAMPERO",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "LUIS ESPINAL",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "7 DE SEPTIMBRE",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "BARTOLOME ATARD",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "MOTO MENDEZ",
+      "distritos": "Distrito 9"
+    },
+    {
+      "barrios": "JUAN XXIII",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "ROSEDAL",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "JUAN NICOLAY",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "15 DE ABRIL",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "AEROPUERTO",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "MORROS BLANCOS",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "SAN PEDRO",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "SAN JORGE 1",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "SAN SALVADOR",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "SAN JORGE 2",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "ARTESANAL",
+      "distritos": "Distrito 10"
+    },
+    {
+      "barrios": "LINDO SAN GERONIMO",
+      "distritos": "Distrito 11"
+    },
+    {
+      "barrios": "SAN GERONIMO CENTRO",
+      "distritos": "Distrito 11"
+    },
+    {
+      "barrios": "SAN GERONIMO SUD",
+      "distritos": "Distrito 11"
+    },
+    {
+      "barrios": "SAN LUIS",
+      "distritos": "Distrito 11"
+    },
+    {
+      "barrios": "LA TERMINAL",
+      "distritos": "Distrito 11"
+    },
+    {
+      "barrios": "PETROLERO",
+      "distritos": "Distrito 11"
+    },
+    {
+      "barrios": "EL TEJAR",
+      "distritos": "Distrito 11"
+    },
+    {
+      "barrios": "MIRAFLORES",
+      "distritos": "Distrito 12"
+    },
+    {
+      "barrios": "GERMAN BUSCH",
+      "distritos": "Distrito 12"
+    },
+    {
+      "barrios": "ARANJUEZ SUD",
+      "distritos": "Distrito 12"
+    },
+    {
+      "barrios": "SAN MARTIN",
+      "distritos": "Distrito 12"
+    },
+    {
+      "barrios": "LUIS DE FUENTES",
+      "distritos": "Distrito 13"
+    },
+    {
+      "barrios": "CATEDRAL",
+      "distritos": "Distrito 13"
+    },
+    {
+      "barrios": "SAN ANTONIO",
+      "distritos": "Distrito 13"
+    },
+    {
+      "barrios": "SAN BLAS",
+      "distritos": "Distrito 13"
+    },
+    {
+      "barrios": "ALTO SENAC",
+      "distritos": "Distrito 13"
+    },
+    {
+      "barrios": "SENAC",
+      "distritos": "Distrito 13"
+    },
+    {
+      "barrios": "TABLADITA I",
+      "distritos": "Distrito 13"
+    },
+    {
+      "barrios": "TABLADITA II",
+      "distritos": "Distrito 13"
+    },
+    {
+      "barrios": "MENDEZ ARCOS",
+      "distritos": "Distrito 13"
+    }
+  ],
+  "Especies de arboles.xlsx": [
+    {
+      "ESPECIES FORESTALES": "Acacia  de tres espinas (Geditsia tryacantos)"
+    },
+    {
+      "ESPECIES FORESTALES": "Alamos (Populus nigra)"
+    },
+    {
+      "ESPECIES FORESTALES": "Alamo deltoide (Populus deltoides)"
+    },
+    {
+      "ESPECIES FORESTALES": "Alamos plateados (Populus alba)"
+    },
+    {
+      "ESPECIES FORESTALES": "Alamos vela (Populus nigra)"
+    },
+    {
+      "ESPECIES FORESTALES": "Algarrobos (Prosopis nigra)"
+    },
+    {
+      "ESPECIES FORESTALES": "AlvarilloS (Prunus armoniaca)"
+    },
+    {
+      "ESPECIES FORESTALES": "Araucaria briwili (Araucaria didwilli)"
+    },
+    {
+      "ESPECIES FORESTALES": "Arces (Acer campestre)"
+    },
+    {
+      "ESPECIES FORESTALES": "Bingo de Oro (Duranta repens)"
+    },
+    {
+      "ESPECIES FORESTALES": "Brachichitos (Brachychitun populneos)"
+    },
+    {
+      "ESPECIES FORESTALES": "Carnavales (Cassia carnaval), "
+    },
+    {
+      "ESPECIES FORESTALES": "Casuarinas (Casuarina equisetifolia)"
+    },
+    {
+      "ESPECIES FORESTALES": "Ceibos (Erithrina cristagalli)"
+    },
+    {
+      "ESPECIES FORESTALES": "Chamba (Leucaena leucocephala)"
+    },
+    {
+      "ESPECIES FORESTALES": "Chañares (Geoffroea decorticans)"
+    },
+    {
+      "ESPECIES FORESTALES": "Chirimoyas (Annona cherimola)"
+    },
+    {
+      "ESPECIES FORESTALES": "Churquis (Acacia cavens)"
+    },
+    {
+      "ESPECIES FORESTALES": "Cina cinas (Parkinsonia aculeata)"
+    },
+    {
+      "ESPECIES FORESTALES": "Cipres (Cupresus sp.)"
+    },
+    {
+      "ESPECIES FORESTALES": "Coronas de cristo o Coronillo (Gledisia amorphoides)"
+    },
+    {
+      "ESPECIES FORESTALES": "Crespones (Lagerstroemia indica)"
+    },
+    {
+      "ESPECIES FORESTALES": "Cucardas (Hibiscus rosa sinensis)"
+    },
+    {
+      "ESPECIES FORESTALES": "Durantas (Duranta repens)"
+    },
+    {
+      "ESPECIES FORESTALES": "Durasnos (Prunus persica)"
+    },
+    {
+      "ESPECIES FORESTALES": "Estrella Federal (Euphorbia pulcherrima)"
+    },
+    {
+      "ESPECIES FORESTALES": "Eucaliptos (Eucalyptus camaldulencis)"
+    },
+    {
+      "ESPECIES FORESTALES": "Ficus (Ficus benjamina)"
+    },
+    {
+      "ESPECIES FORESTALES": "Floripondio (Erugmansia arborea)"
+    },
+    {
+      "ESPECIES FORESTALES": "Fresnos (Fraxinus exselsior)"
+    },
+    {
+      "ESPECIES FORESTALES": "Gomeros (Ficus elastica)"
+    },
+    {
+      "ESPECIES FORESTALES": "Granadas (Punica granatum)"
+    },
+    {
+      "ESPECIES FORESTALES": "Granadillas (Pasiflora ligularis)"
+    },
+    {
+      "ESPECIES FORESTALES": "Grevillas (Grevillea robusta)"
+    },
+    {
+      "ESPECIES FORESTALES": "Guaranguay (Tecoma stans)"
+    },
+    {
+      "ESPECIES FORESTALES": "Guayabo (Psidium guajava)"
+    },
+    {
+      "ESPECIES FORESTALES": "Guindas (Prunus cerasus)"
+    },
+    {
+      "ESPECIES FORESTALES": "Higueras (Ficus carica)"
+    },
+    {
+      "ESPECIES FORESTALES": "Ibirapita o Run Run (Peltophorum dubium)"
+    },
+    {
+      "ESPECIES FORESTALES": "Jarcas (Acacia visco)"
+    },
+    {
+      "ESPECIES FORESTALES": "Jasmin paraguayo (Brunfelsia calycina)"
+    },
+    {
+      "ESPECIES FORESTALES": "Lapachos (Tabebuia avellanedae), "
+    },
+    {
+      "ESPECIES FORESTALES": "Lapachos amarillos (Handroanthus albus)"
+    },
+    {
+      "ESPECIES FORESTALES": "Lapacho Blanco (Tabebuia heptaphylla)"
+    },
+    {
+      "ESPECIES FORESTALES": "Lapachos rosados (Tabebuia avellanedae)"
+    },
+    {
+      "ESPECIES FORESTALES": "Laurel (Laurus nobilis)"
+    },
+    {
+      "ESPECIES FORESTALES": "Laureles Rosa (Nerium oleander)"
+    },
+    {
+      "ESPECIES FORESTALES": "Lecherones (Thevetia peruviana)"
+    },
+    {
+      "ESPECIES FORESTALES": "Ligustres (Ligustrum lucidum)"
+    },
+    {
+      "ESPECIES FORESTALES": "Ligustrillos (Ligustrum vulgare)"
+    },
+    {
+      "ESPECIES FORESTALES": "Limoneros (Citrus limón)"
+    },
+    {
+      "ESPECIES FORESTALES": "Magnolias (Magnolia grandiflora)"
+    },
+    {
+      "ESPECIES FORESTALES": "Mandarinas (Citrus reticulata)"
+    },
+    {
+      "ESPECIES FORESTALES": "Manzanas (Malus domestica)"
+    },
+    {
+      "ESPECIES FORESTALES": "Membrillos (Cydonia oblonga)"
+    },
+    {
+      "ESPECIES FORESTALES": "Molles (Schinus molle)"
+    },
+    {
+      "ESPECIES FORESTALES": "Molles chilenos (Schinus fasciculatus)"
+    },
+    {
+      "ESPECIES FORESTALES": "Mora (Morus nigra)"
+    },
+    {
+      "ESPECIES FORESTALES": "Naranjos agrios o amargo (Citrus aurantium)"
+    },
+    {
+      "ESPECIES FORESTALES": "Nisperos (Eriobotrya japonica)"
+    },
+    {
+      "ESPECIES FORESTALES": "Nogal (Juglans regia)"
+    },
+    {
+      "ESPECIES FORESTALES": "Olivos (Olea europaea)"
+    },
+    {
+      "ESPECIES FORESTALES": "Olmos (Ulmus pumila)"
+    },
+    {
+      "ESPECIES FORESTALES": "Pajarilla (Caesalpinia japónica)"
+    },
+    {
+      "ESPECIES FORESTALES": "Palmera abanico (Livistonia chinensis)"
+    },
+    {
+      "ESPECIES FORESTALES": "Palmeras datilera (Poenix canariensis)"
+    },
+    {
+      "ESPECIES FORESTALES": "Palta (Persea americana)"
+    },
+    {
+      "ESPECIES FORESTALES": "Papaya (Carica papaya)"
+    },
+    {
+      "ESPECIES FORESTALES": "Paraisos Paraisos (Melia azedarach)"
+    },
+    {
+      "ESPECIES FORESTALES": "Patas de vaca (Bauhinia candicans)"
+    },
+    {
+      "ESPECIES FORESTALES": "Pino de Cerro (Podocarpus parlatorei)"
+    },
+    {
+      "ESPECIES FORESTALES": "Pino patula (Pinus patula)"
+    },
+    {
+      "ESPECIES FORESTALES": "Pino radiata (Pino radiatas)"
+    },
+    {
+      "ESPECIES FORESTALES": "Pino Vela (Cupressus sempervirens)"
+    },
+    {
+      "ESPECIES FORESTALES": "Pomelo (Citrus paradisi)"
+    },
+    {
+      "ESPECIES FORESTALES": "Rosa Laurel (Nerium oleander)"
+    },
+    {
+      "ESPECIES FORESTALES": "Rum Rum (Virapita Rum rum)"
+    },
+    {
+      "ESPECIES FORESTALES": "Santa Rita (Bougainvillea sp.)"
+    },
+    {
+      "ESPECIES FORESTALES": "Sauce criollo (Salix humboldtiana)"
+    },
+    {
+      "ESPECIES FORESTALES": "Sauce lloron (Salix babylonica)"
+    },
+    {
+      "ESPECIES FORESTALES": "Taco (Prosopia alba)"
+    },
+    {
+      "ESPECIES FORESTALES": "Tarcos (Jacaranda mimosifolia)"
+    },
+    {
+      "ESPECIES FORESTALES": "Timboy (Enterolobium contortisiliquium)"
+    },
+    {
+      "ESPECIES FORESTALES": "Tipa (Tipuana tipu)"
+    },
+    {
+      "ESPECIES FORESTALES": "Toborochi (Chorisia speciosa)"
+    },
+    {
+      "ESPECIES FORESTALES": "Tusca (Acacia aroma)"
+    },
+    {
+      "ESPECIES FORESTALES": "Total"
+    }
+  ],
+  "Insituciones.xlsx": [
+    {
+      "listainstituciones": "BELLA VISTA",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "CHURQUIS",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "GUERRAHUAYCO",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "LA PINTADA",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "LA PINTADA",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "LAZARETO",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "MONTE CERCADO",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "PAMPA REDONDA",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "PAMPA REDONDA",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "POLLA",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "SAN AGUSTIN",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "SAN JACINTO",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "SAN MATEO",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "SAN PEDRO DE SOLA",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "SANTA ANA LA NUEVA",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "SELLA CERCADO",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "TOLOMOSA GRANDE",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "TOLOMOSITA",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "TURUMAYO",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "YESERA",
+      "institucion": "Area Rural"
+    },
+    {
+      "listainstituciones": "15 DE NOVIEMBRE",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "3 DE MAYO",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "ARANJUEZ SUD",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "CONSTRUCTOR",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "FABRIL",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "GERMAN BUSCH",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "GUADALQUIVIR",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "IV. CENTENARIO",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "NESTOR PAZ",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "PALMARCITO",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "SAN ANTONIO",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "SAN BLAS",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "SAN JORGE",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "SAN LUIS",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "TABLADITA",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "VILLA AVAROA",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "VIRGEN DE GUADALUPE",
+      "institucion": "Centro De Salud"
+    },
+    {
+      "listainstituciones": "Camara departamental de transporte nacional e internacional",
+      "institucion": "Despacho"
+    },
+    {
+      "listainstituciones": "Presidente de Barrio",
+      "institucion": "Despacho"
+    },
+    {
+      "listainstituciones": "Despacho",
+      "institucion": "Despacho"
+    },
+    {
+      "listainstituciones": "Instituto Tecnologico Agropecuario \"San Andres\"",
+      "institucion": "Despacho"
+    },
+    {
+      "listainstituciones": "Federacion departamental de auto transporte 15 de abril",
+      "institucion": "Despacho"
+    },
+    {
+      "listainstituciones": "No determinado",
+      "institucion": "Despacho"
+    },
+    {
+      "listainstituciones": "Infocal",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "Tercera Division del Ejercito \"TCNL PADILLA\"",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "Hospital Obrero C.N.S",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "Asociacion de Promesantes Chunchos",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "Junta Vecinal",
+      "institucion": "Junta Vecinal"
+    },
+    {
+      "listainstituciones": "No determinado",
+      "institucion": "Mercado Municipal"
+    },
+    {
+      "listainstituciones": "Mercado Lourdes",
+      "institucion": "Mercado Municipal"
+    },
+    {
+      "listainstituciones": "Secretaria municipal de infraestructura y servicios públicos",
+      "institucion": "Secretaria municipal de infraestructura y servicios públicos"
+    },
+    {
+      "listainstituciones": "Vecino",
+      "institucion": "Secretaria municipal de infraestructura y servicios públicos"
+    },
+    {
+      "listainstituciones": "Presidente de Barrio",
+      "institucion": "Secretaria municipal de infraestructura y servicios públicos"
+    },
+    {
+      "listainstituciones": "ALBERTO BALDIVIESO",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "AVELINA RAÑA",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "JOSE MANUEL BELGRANO",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "BERNARDO NAVAJAS TRIGO (B. IV CENTENARIO)",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "BOLIVIA",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "CARMEN MEALLA",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "CASTERFORD CASTELLANOS",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "COLEGIO NACIONAL SAN LUIS",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "EDIFU (B. NARCISO CAMPERO)",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "ESTEBAN MEGLIACI",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "FELIPE PALAZON",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "HERNAN GMEINER",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "HUMBERTO PORTOCARRERO I (B. LA UNION)",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "HUMBERTO PORTOCARRERO II (B. LA LOMA)",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "HUMBERTO PORTOCARRERO III (B. OSCAR ZAMORA)",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "JOSE MANUEL AVILA",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "JUAN XXIII",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "JUANA AZURDUY DE PADILLA",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "JULIO CALVO",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "LA PAZ (B. PEDRO ANTONIO FLORES)",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "LA SALLE",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "LOURDES",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "MIRAFLORES",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "MORROS BLANCOS",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "NUESTRA SEÑORA DEL ROSARIO",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "NUESTRA SEÑORA DEL ROSARIO (INICIAL)",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "OCTAVIO CAMPERO ECHAZU",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "SAN JORGE",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "SAN JORGE 1",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "SAN LUIS (B. SAN LUIS)",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "SANTA ANA",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "TARIJA 1 (B. LOS CHAPACOS)",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "ROSA ARCE",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "HERMANA TERESA DE CALCUTA\"La Salle\"",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "TARIJA 2 - LICEO TARIJA",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "SAN MATEO",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "YESERA NORTE",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "JOSE NAVAL MONZÓN CARDOZO",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "LINDAURA ANZOATEGUI DE CAMPERO 2",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "JOSE MARIA VELAZ 1",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "Entidad De Ordenamiento Territorial De Tarija",
+      "institucion": "Entidad De Ordenamiento Territorial De Tarija"
+    },
+    {
+      "listainstituciones": "No determinado",
+      "institucion": "No determinado"
+    },
+    {
+      "listainstituciones": "Unidad Técnica de Mercados Municipales",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "Tercera Orden Franciscana",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "Policía Bolivia Dirección Departamental Fuerza Especial de Lucha Contra El Crimen",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "Tercera División Del Ejército RI-20 \"TCNL. PADILLA\"",
+      "institucion": "Despacho"
+    },
+    {
+      "listainstituciones": "Prosalud",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "EULOGIO RUIZ",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "Secretaria Municipal De Planificación Integral Para El Desarrollo",
+      "institucion": "Secretaria Municipal De Planificación Integral Para El Desarrollo"
+    },
+    {
+      "listainstituciones": "TABLADA 2",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "Hospital obrero",
+      "institucion": "Secretaria municipal de infraestructura y servicios públicos"
+    },
+    {
+      "listainstituciones": "Universidad Católica Boliviana",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "UAJMS Facultad de Humanidades",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "Asociación Conciencia Ecológica",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "Consejo Municipal",
+      "institucion": "Despacho"
+    },
+    {
+      "listainstituciones": "U.E. Luis de Fuentes / Pampa Redonda",
+      "institucion": "Sub Alcaldía"
+    },
+    {
+      "listainstituciones": "Dirección de ingreso - oficina de parqueos municipales",
+      "institucion": "Secret. Muni. Coordinación, administración y finanzas"
+    },
+    {
+      "listainstituciones": "Monasterio Santa Clara",
+      "institucion": "Entidad De Ordenamiento Territorial De Tarija"
+    },
+    {
+      "listainstituciones": "Secretaria Municipal De Desarrollo Humano Salud y Deportes",
+      "institucion": "Secretaria Municipal de Infraestructura y Servicios Públicos"
+    },
+    {
+      "listainstituciones": "Club Pumas Chapacos",
+      "institucion": "Club Pumas Chapacos"
+    },
+    {
+      "listainstituciones": "Facultad de Ciencias Agrícolas y Forestales",
+      "institucion": "Universidad Autónoma Juan Mishael Saracho"
+    },
+    {
+      "listainstituciones": "Cosaalt",
+      "institucion": "Cossalt"
+    },
+    {
+      "listainstituciones": "Epi Morros Blancos",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "UBEET",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "SETAR",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "SEDES",
+      "institucion": "SEDES"
+    },
+    {
+      "listainstituciones": "Mercado Luis de Fuentes",
+      "institucion": "Unidad Técnica de Mercados Municipales"
+    },
+    {
+      "listainstituciones": "PRODAT",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "Sindicato De Transporte De Pasajeros La Tablada",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "Servicio Eléctrico Industrial EMSEIQQ",
+      "institucion": "Empresa Privada"
+    },
+    {
+      "listainstituciones": "Asociación de comerciantes minorista 20 de Mayo",
+      "institucion": "Institucion"
+    },
+    {
+      "listainstituciones": "BERNARDO NAVAJAS TRIGO",
+      "institucion": "Unidad Educativa"
+    },
+    {
+      "listainstituciones": "Luis de Fuentrs",
+      "institucion": "Unidad Educativa"
+    }
+  ],
+  "Personal.xlsx": [
+    {
+      "Nº": 1,
+      "NOMBRE Y APELLIDOS": "CIMAR LUIS FARFAN FIGUEROA",
+      "CEDULA ID": "4124454 Tja.",
+      "CARGO": "Responsable De Area",
+      "CONTACTO": 73482164,
+      "CONTRATO": "EVENTUAL",
+      "USUARIO": "ADMIN",
+      "CONTRASEÑA": "Cimar01"
+    },
+    {
+      "Nº": 2,
+      "NOMBRE Y APELLIDOS": "LILIAN KARINA CASTRO GARCIA",
+      "CEDULA ID": "1894887 Tja.",
+      "CARGO": "Tecnico",
+      "CONTACTO": 72997453,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": "USER",
+      "CONTRASEÑA": "Carina01"
+    },
+    {
+      "Nº": 3,
+      "NOMBRE Y APELLIDOS": "KEVIN FLORES VALLEJOS ",
+      "CEDULA ID": "7200607 Tja.",
+      "CARGO": "Sistemas",
+      "CONTACTO": 69309970,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": "ROOT",
+      "CONTRASEÑA": "Koffy01"
+    },
+    {
+      "Nº": 4,
+      "NOMBRE Y APELLIDOS": "EDWIN LOPEZ HOYOS",
+      "CEDULA ID": "1833889 Tja.",
+      "CARGO": "Tecnico",
+      "CONTACTO": 72996464,
+      "CONTRATO": "PERMANENTE",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 5,
+      "NOMBRE Y APELLIDOS": "ROBERTO CHAVARRIA QUISPE",
+      "CEDULA ID": "7200577 Tja.",
+      "CARGO": "Trepador",
+      "CONTACTO": 78247901,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 6,
+      "NOMBRE Y APELLIDOS": "ROBERTO NARVAEZ",
+      "CEDULA ID": "00000000 Tja.",
+      "CARGO": "Trepador",
+      "CONTACTO": 75113822,
+      "CONTRATO": "PERMANENTE",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 7,
+      "NOMBRE Y APELLIDOS": "REYNALDO ZENTENO ROJAS",
+      "CEDULA ID": "5057779 Tja.",
+      "CARGO": "Chofer",
+      "CONTACTO": 72907569,
+      "CONTRATO": "EVENTUAL",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 8,
+      "NOMBRE Y APELLIDOS": "BEYMAR GARCIA FLORES",
+      "CEDULA ID": "10716931 Tja. ",
+      "CARGO": "Cargador",
+      "CONTACTO": 63792625,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 9,
+      "NOMBRE Y APELLIDOS": "ARMANDO GARECA ZELAYA",
+      "CEDULA ID": "5003103 Tja.",
+      "CARGO": "Cargador",
+      "CONTACTO": 75115551,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 10,
+      "NOMBRE Y APELLIDOS": "PAULINO GUTIERREZ RODRIGUEZ",
+      "CEDULA ID": "7110213 Tja.",
+      "CARGO": "Cargador",
+      "CONTACTO": 69311682,
+      "CONTRATO": "PERMANENTE",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 11,
+      "NOMBRE Y APELLIDOS": "CESAR VEGA PADILLA",
+      "CEDULA ID": "3054073 Cbb.",
+      "CARGO": "Tecnico",
+      "CONTACTO": 61873799,
+      "CONTRATO": "PERMANENTE",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 12,
+      "NOMBRE Y APELLIDOS": "JOSE ENRIQUE ORTEGA",
+      "CEDULA ID": "7219742 Tja.",
+      "CARGO": "Trepador",
+      "CONTACTO": 75114807,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 13,
+      "NOMBRE Y APELLIDOS": "EDGAR PEREZ CHOQUE",
+      "CEDULA ID": "7143967  Tja.",
+      "CARGO": "Trepador",
+      "CONTACTO": 70236941,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 14,
+      "NOMBRE Y APELLIDOS": "BERNARDO IVAN AGUADO COLQUE",
+      "CEDULA ID": "10674059 Tja.",
+      "CARGO": "Trepador",
+      "CONTACTO": 67965473,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 15,
+      "NOMBRE Y APELLIDOS": "DIEGO ORLANDO CARDOZO SANCHEZ",
+      "CEDULA ID": "10620182 Tja.",
+      "CARGO": "Operador",
+      "CONTACTO": 75148684,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 16,
+      "NOMBRE Y APELLIDOS": "EDWIN CALDERON",
+      "CEDULA ID": "7137080 Tja.",
+      "CARGO": "Chofer",
+      "CONTACTO": 72942425,
+      "CONTRATO": "PERMANENTE",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 17,
+      "NOMBRE Y APELLIDOS": "JUAN PABLO BONILLA",
+      "CEDULA ID": "7238304 Tja.",
+      "CARGO": "Tecnico",
+      "CONTACTO": 73451411,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 18,
+      "NOMBRE Y APELLIDOS": "TONI FRANZ ZURITA ZARSURI",
+      "CEDULA ID": "12796991 Lp",
+      "CARGO": "Trepador",
+      "CONTACTO": 69313378,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 19,
+      "NOMBRE Y APELLIDOS": "ROLANDO NINA CACERES",
+      "CEDULA ID": "7143149 Tja",
+      "CARGO": "Trepador",
+      "CONTACTO": 76185838,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 20,
+      "NOMBRE Y APELLIDOS": "CRISTIAN DAVID ORTEGA ACOSTA",
+      "CEDULA ID": "7104480  Tja.",
+      "CARGO": "Trepador",
+      "CONTACTO": 69257096,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 21,
+      "NOMBRE Y APELLIDOS": "ALEX FERNANDO MARQUEZ ORTEGA",
+      "CEDULA ID": "7216359 Tja.",
+      "CARGO": "Operador",
+      "CONTACTO": 77170353,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 22,
+      "NOMBRE Y APELLIDOS": "LUIS PECA PEÑALOZA",
+      "CEDULA ID": "7208030 Tja.",
+      "CARGO": "Cargador",
+      "CONTACTO": 69324565,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 23,
+      "NOMBRE Y APELLIDOS": "JORGE CANDIA DIAZ",
+      "CEDULA ID": "4143886 Tja.",
+      "CARGO": "Tecnico",
+      "CONTACTO": 68742857,
+      "CONTRATO": "CONSULTOR DE LINEA",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 24,
+      "NOMBRE Y APELLIDOS": "JULIANO ROLANDO RAMIREZ LA FUENTE",
+      "CEDULA ID": "10669151 Tja.",
+      "CARGO": "Toconero",
+      "CONTACTO": 78237004,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 25,
+      "NOMBRE Y APELLIDOS": "JOEL ABRAHAM CAMACHO MAMANI",
+      "CEDULA ID": "7247850 Tja.",
+      "CARGO": "Cargador",
+      "CONTACTO": 70216524,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 26,
+      "NOMBRE Y APELLIDOS": "JAVIER FRANCISCO MEJIA YUCRA",
+      "CEDULA ID": "7231445 Tja.",
+      "CARGO": "Trepador",
+      "CONTACTO": 79255387,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 27,
+      "NOMBRE Y APELLIDOS": "BRAYAN ALBORNOZ",
+      "CEDULA ID": "7199970 Tja.",
+      "CARGO": "Trepador",
+      "CONTACTO": 77174857,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 28,
+      "NOMBRE Y APELLIDOS": "ELVIRO DIAZ ORTIZ",
+      "CEDULA ID": "7116719 Tja.",
+      "CARGO": "Chofer",
+      "CONTACTO": 74524536,
+      "CONTRATO": "CONSULTOR DE LINEA",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    },
+    {
+      "Nº": 29,
+      "NOMBRE Y APELLIDOS": "RICARDO NARVAEZ RAMOS",
+      "CEDULA ID": "12409703 Tja.",
+      "CARGO": "Toconero",
+      "CONTACTO": 67965464,
+      "CONTRATO": "ADMINISTRATIVO",
+      "USUARIO": null,
+      "CONTRASEÑA": null
+    }
+  ]
+}

@@ -90,7 +90,7 @@ app.get('/api/usuarios/publico', async (req, res) => {
 // Catálogos (Lo que ya funcionaba)
 app.get('/api/catalogos', async (req, res) => {
   try {
-    const [tecnicos] = await pool.query('SELECT id_personal AS id, nombre_completo AS nombre, cargo, contacto AS celular, contrato AS tipo_contrato, usuario AS username, role FROM personal');
+    const [tecnicos] = await pool.query('SELECT id_personal AS id, nombre_completo AS nombre, cedula_id, cargo, contacto AS celular, contrato AS tipo_contrato, usuario AS username, role, email, estado, fecha_ingreso, fecha_nacimiento, tipo_sangre, contacto_emergencia, celular_emergencia, foto, id_equipo, rol_equipo FROM personal');
     const [acciones] = await pool.query('SELECT id_accion AS id, nombre_accion AS nombre, descripcion FROM acciones_catalogo');
     const [especies] = await pool.query('SELECT id_especie AS id, nombre_comun AS nombre, nombre_cientifico FROM especies_arboles');
     const [tipos_institucion] = await pool.query('SELECT id_tipo_solicitante AS id, nombre_tipo AS nombre FROM tipos_solicitantes');
@@ -220,6 +220,21 @@ app.get('/api/solicitudes', async (req, res) => {
       r.arbol_seco = !!r.arbol_seco;
       r.es_emergencia = !!r.es_emergencia;
       
+      // Parsear ubicación GPS para lat y lng
+      r.lat = null;
+      r.lng = null;
+      if (r.ubicacion_gps) {
+        const parts = r.ubicacion_gps.split(',');
+        if (parts.length === 2) {
+          const parsedLat = parseFloat(parts[0].trim());
+          const parsedLng = parseFloat(parts[1].trim());
+          if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+            r.lat = parsedLat;
+            r.lng = parsedLng;
+          }
+        }
+      }
+      
       // Para compatibilidad hacia atrás en la vista (mostrar primera especie y acción si existe)
       const list = treesBySol[r.id_solicitud] || [];
       r.arboles = list;
@@ -268,7 +283,9 @@ app.post('/api/solicitudes', async (req, res) => {
     const nextNum = (countResult[0]?.total || 0) + 1;
     const codigo_anual = `${String(nextNum).padStart(3, '0')}/${yearSuffix}`;
 
-    const gps = (data.lat && data.lng) ? `${data.lat}, ${data.lng}` : null;
+    const latVal = (data.lat !== undefined && data.lat !== null && data.lat !== '') ? String(data.lat).trim() : null;
+    const lngVal = (data.lng !== undefined && data.lng !== null && data.lng !== '') ? String(data.lng).trim() : null;
+    const gps = (latVal && lngVal) ? `${latVal}, ${lngVal}` : null;
 
     const solData = {
       codigo_anual,
@@ -384,9 +401,9 @@ app.put('/api/solicitudes/:id', async (req, res) => {
       trabajos_extra: data.trabajos_extra || 'Ninguno'
     };
 
-    if (data.lat && data.lng) {
-      solData.ubicacion_gps = `${data.lat}, ${data.lng}`;
-    }
+    const latVal = (data.lat !== undefined && data.lat !== null && data.lat !== '') ? String(data.lat).trim() : null;
+    const lngVal = (data.lng !== undefined && data.lng !== null && data.lng !== '') ? String(data.lng).trim() : null;
+    solData.ubicacion_gps = (latVal && lngVal) ? `${latVal}, ${lngVal}` : null;
 
     await connection.query('UPDATE solicitudes_poda SET ? WHERE id_solicitud = ?', [solData, id]);
 
@@ -432,7 +449,7 @@ app.delete('/api/solicitudes/:id', async (req, res) => {
 // Obtener todos los usuarios (sin la foto para no saturar)
 app.get('/api/usuarios', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT id_personal AS id, nombre_completo AS nombre, usuario AS username, role, cargo, email, estado, foto FROM personal');
+    const [rows] = await pool.query('SELECT id_personal AS id, nombre_completo AS nombre, usuario AS username, role, cargo, email, estado, foto FROM personal WHERE usuario IS NOT NULL AND usuario != ""');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener usuarios:', error);
@@ -461,13 +478,27 @@ app.post('/api/usuarios', async (req, res) => {
     if (password) {
         finalPassword = await bcrypt.hash(password, 10);
     }
-    const uniqueCedula = username ? `${username} Tja.` : `GEN_${Date.now()}`;
-    const [result] = await pool.query(
-      'INSERT INTO personal (usuario, contrasena, role, nombre_completo, cargo, email, estado, foto, cedula_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [username, finalPassword, role, nombre, cargo, email, estado || 'Activo', foto || null, uniqueCedula]
-    );
-    console.log(`✅ Usuario creado con ID: ${result.insertId}`);
-    res.json({ success: true, id: result.insertId });
+    
+    // Verificar si ya existe este empleado en el personal por su nombre
+    const [existing] = await pool.query('SELECT id_personal FROM personal WHERE nombre_completo = ?', [nombre]);
+    
+    if (existing.length > 0) {
+      const id = existing[0].id_personal;
+      await pool.query(
+        'UPDATE personal SET usuario = ?, contrasena = ?, role = ?, cargo = ?, email = ?, estado = ?, foto = ? WHERE id_personal = ?',
+        [username, finalPassword, role, cargo, email, estado || 'Activo', foto || null, id]
+      );
+      console.log(`✅ Personal existente actualizado a Usuario con ID: ${id}`);
+      res.json({ success: true, id: id });
+    } else {
+      const uniqueCedula = username ? `${username} Tja.` : `GEN_${Date.now()}`;
+      const [result] = await pool.query(
+        'INSERT INTO personal (usuario, contrasena, role, nombre_completo, cargo, email, estado, foto, cedula_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [username, finalPassword, role, nombre, cargo, email, estado || 'Activo', foto || null, uniqueCedula]
+      );
+      console.log(`✅ Usuario nuevo creado con ID: ${result.insertId}`);
+      res.json({ success: true, id: result.insertId });
+    }
   } catch (error) {
     console.error('❌ Error al crear usuario:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -503,15 +534,19 @@ app.put('/api/usuarios/:id', async (req, res) => {
   }
 });
 
-// Eliminar un usuario
+// Eliminar un usuario (Revocar acceso, no eliminar operario)
 app.delete('/api/usuarios/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await pool.query('DELETE FROM personal WHERE id_personal = ?', [id]);
+    await pool.query(
+      'UPDATE personal SET usuario = NULL, contrasena = NULL, role = "TECNICO" WHERE id_personal = ?',
+      [id]
+    );
+    console.log(`✅ Acceso de usuario revocado con éxito para ID: ${id}`);
     res.json({ success: true });
   } catch (error) {
-    console.error('Error al eliminar usuario:', error);
-    res.status(500).json({ error: 'Error al eliminar usuario' });
+    console.error('Error al revocar acceso de usuario:', error);
+    res.status(500).json({ error: 'Error al revocar acceso' });
   }
 });
 
@@ -628,6 +663,17 @@ const mapIncomingFields = (tabla, body) => {
       data.contrasena = data.password;
       delete data.password;
     }
+
+    // Encriptar contraseña si está presente y no está encriptada
+    if (data.contrasena && typeof data.contrasena === 'string') {
+      if (!data.contrasena.startsWith('$2b$') && !data.contrasena.startsWith('$2a$')) {
+        data.contrasena = bcrypt.hashSync(data.contrasena, 10);
+      }
+    } else if (data.contrasena === '') {
+      // Si se envía vacía, evitamos sobreescribir la existente
+      delete data.contrasena;
+    }
+
     if (!data.cedula_id) {
       data.cedula_id = data.usuario ? `${data.usuario} Tja.` : `GEN_${Date.now()}`;
     }
