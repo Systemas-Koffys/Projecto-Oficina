@@ -1,5 +1,5 @@
 <template>
-    <div class="personal-view p-6 h-full flex flex-col space-y-6 animate-fade-in overflow-y-auto">
+    <div class="personal-view p-6 space-y-6 animate-fade-in">
         
         <!-- ESTADÍSTICAS SUPERIORES -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
@@ -13,44 +13,68 @@
             <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-blue-500">
                 <div class="w-12 h-12 bg-blue-100/20 text-blue-600 rounded-2xl flex items-center justify-center text-xl">👷</div>
                 <div>
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Técnicos</p>
-                    <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo?.includes('Técnico')).length }}</p>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Técnicos de Equipo</p>
+                    <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Técnico de equipo').length }}</p>
                 </div>
             </div>
             <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-purple-500">
                 <div class="w-12 h-12 bg-purple-100/20 text-purple-600 rounded-2xl flex items-center justify-center text-xl">🚐</div>
                 <div>
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Logística/Chofer</p>
-                    <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo?.includes('Chofer')).length }}</p>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Choferes</p>
+                    <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Chofer').length }}</p>
                 </div>
             </div>
-            <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-orange-500">
-                <div class="w-12 h-12 bg-orange-100/20 text-orange-600 rounded-2xl flex items-center justify-center text-xl">🛡️</div>
+            <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-green-500">
+                <div class="w-12 h-12 bg-green-100/20 text-green-700 rounded-2xl flex items-center justify-center text-xl">🌳</div>
                 <div>
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Permanentes</p>
-                    <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.tipo_contrato?.includes('Permanente')).length }}</p>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Trepadores</p>
+                    <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Trepador').length }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-card p-6 rounded-[2.5rem] shadow-sm border border-border no-print">
-            <h2 class="text-2xl font-black">Directorio General de Personal</h2>
-            
-            <div class="flex items-center gap-4 w-full md:w-auto">
-                <div class="relative flex-1 md:w-64">
-                    <input v-model="search" type="text" placeholder="Buscar por nombre..." 
-                        class="w-full pl-10 pr-4 py-3 rounded-2xl border border-border focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none transition-all font-bold text-sm">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted">🔍</span>
+        <div class="bg-card p-6 rounded-[2.5rem] shadow-sm border border-border no-print space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <h2 class="text-2xl font-black">Directorio General de Personal</h2>
+                
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                    <div class="relative flex-1 md:w-64">
+                        <input v-model="search" type="text" placeholder="Buscar por nombre..." 
+                            class="w-full pl-10 pr-4 py-3 rounded-2xl border border-border focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none transition-all font-bold text-sm">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted">🔍</span>
+                    </div>
+                    <button @click="openNew" class="px-6 py-4 bg-accent text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:opacity-90 transition-all">
+                        + Registrar Personal
+                    </button>
                 </div>
-                <button @click="openNew" class="px-6 py-4 bg-accent text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:opacity-90 transition-all">
-                    + Registrar Personal
+            </div>
+
+            <!-- Filtros rápidos por cargo -->
+            <div class="flex flex-wrap gap-2 pt-2 border-t border-border">
+                <span class="text-[10px] font-black text-muted uppercase tracking-widest self-center mr-1">Filtrar:</span>
+                <button
+                    v-for="f in filtros"
+                    :key="f.key"
+                    @click="filterCargo = filterCargo === f.key ? '' : f.key"
+                    :class="[
+                        'px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wide transition-all border flex items-center gap-1.5',
+                        filterCargo === f.key
+                            ? 'bg-accent text-white border-accent shadow-lg shadow-accent/20'
+                            : 'bg-main text-muted border-border hover:border-accent hover:text-accent'
+                    ]"
+                >
+                    {{ f.label }}
+                    <span :class="[
+                        'text-[9px] font-black px-1.5 py-0.5 rounded-full',
+                        filterCargo === f.key ? 'bg-white/20 text-white' : 'bg-border text-muted'
+                    ]">{{ contarPorFiltro(f.key) }}</span>
                 </button>
             </div>
         </div>
 
         <!-- TABLA DE PERSONAL -->
-        <div class="flex-1 bg-card rounded-3xl shadow-sm border border-border overflow-hidden no-print">
+        <div class="bg-card rounded-3xl shadow-sm border border-border overflow-hidden no-print">
             <div class="overflow-x-auto p-4">
                 <table class="w-full text-left border-separate border-spacing-y-3">
                     <thead>
@@ -75,7 +99,10 @@
                                         <img v-if="p.foto" :src="p.foto" class="w-full h-full object-cover">
                                         <span v-else class="font-black text-accent text-lg">{{ p.nombre?.[0].toUpperCase() }}</span>
                                     </div>
-                                    <span class="font-black text-sm text-main">{{ p.nombre }}</span>
+                                    <div class="flex flex-col">
+                                        <span class="font-black text-sm text-main leading-tight">{{ p.nombre }}</span>
+                                        <span class="text-[10px] text-muted font-bold tracking-tight mt-0.5">CI: {{ p.cedula_id || '---' }}</span>
+                                    </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 border-y border-border text-main">
@@ -109,208 +136,304 @@
             </div>
         </div>
 
-        <!-- MODAL DE VISTA (CREDENCIAL PROFESIONAL) -->
-        <div v-if="viewPerson" class="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 z-[100] no-print">
-            <div class="bg-card rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up border-8 border-border">
+        <!-- MODAL DE VISTA (DETALLES DE PERSONAL) -->
+        <Teleport to="body">
+        <div v-if="viewPerson" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+            <div class="bg-white rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
                 
-                <!-- Cabecera Institucional -->
-                <div class="bg-accent p-8 text-white flex justify-between items-center relative overflow-hidden">
-                    <div class="absolute right-0 bottom-0 opacity-10 transform translate-x-1/4 translate-y-1/4">
-                        <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.45l8.15 14.55H3.85L12 5.45z"/></svg>
+                <!-- Header Institucional -->
+                <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg">
+                    <div>
+                        <h3 class="font-black text-xl tracking-tight leading-none">Expediente de Personal</h3>
+                        <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Detalles Completos del Funcionario</p>
                     </div>
-                    <div class="relative z-10">
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] opacity-70">Gobierno Autónomo Municipal</p>
-                        <h4 class="text-xl font-black tracking-tighter">FICHA DE PERSONAL</h4>
-                    </div>
-                    <button @click="viewPerson = null" class="relative z-10 w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full text-2xl font-light transition-all">&times;</button>
+                    <button type="button" @click="viewPerson = null" class="hover:bg-white/20 p-2 rounded-xl transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
                 </div>
 
-                <div class="p-10 -mt-8 relative z-10">
-                    <!-- Foto / Inicial -->
-                    <div class="flex justify-center mb-8">
-                        <div class="w-40 h-40 bg-card rounded-[3rem] p-2 shadow-2xl relative">
-                            <div class="w-full h-full bg-accent text-white rounded-[2.5rem] flex items-center justify-center text-5xl font-black shadow-inner overflow-hidden">
-                                <img v-if="viewPerson.foto" :src="viewPerson.foto" class="w-full h-full object-cover">
-                                <span v-else>{{ viewPerson.nombre?.[0] }}</span>
+                <!-- Cuerpo de Detalles -->
+                <div class="p-8 space-y-6 overflow-y-auto max-h-[75vh] custom-scrollbar bg-slate-50/50">
+                    
+                    <!-- Fila Superior: Foto y Nombre -->
+                    <div class="flex flex-col sm:flex-row items-center gap-6 p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                        <div class="w-28 h-28 bg-emerald-50 rounded-2xl overflow-hidden flex items-center justify-center border-2 border-emerald-100 shadow-md">
+                            <img v-if="viewPerson.foto" :src="viewPerson.foto" class="w-full h-full object-cover">
+                            <span v-else class="text-4xl font-black text-emerald-700">{{ viewPerson.nombre?.[0].toUpperCase() }}</span>
+                        </div>
+                        <div class="text-center sm:text-left space-y-2">
+                            <h4 class="text-xl font-black text-slate-800 leading-tight">{{ viewPerson.nombre }}</h4>
+                            <div class="flex flex-wrap justify-center sm:justify-start gap-2">
+                                <span class="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                                    {{ viewPerson.cargo }}
+                                </span>
+                                <span class="px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                                    Contrato: {{ viewPerson.tipo_contrato }}
+                                </span>
                             </div>
-                            <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 border-4 border-card rounded-2xl flex items-center justify-center shadow-lg">
-                                <span class="text-white text-lg">✓</span>
+                        </div>
+                    </div>
+
+                    <!-- Datos Generales -->
+                    <div class="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm space-y-4">
+                        <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> Información del Funcionario
+                        </h5>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Cédula -->
+                            <div class="p-4 bg-slate-50/50 border border-slate-100 rounded-xl">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Cédula de Identidad</p>
+                                <p class="text-sm font-bold text-slate-800">{{ viewPerson.cedula_id || '---' }}</p>
+                            </div>
+                            <!-- Celular -->
+                            <div class="p-4 bg-slate-50/50 border border-slate-100 rounded-xl">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Celular de Contacto</p>
+                                <p class="text-sm font-bold text-slate-800">{{ viewPerson.celular || '---' }}</p>
+                            </div>
+                            <!-- Nacimiento -->
+                            <div class="p-4 bg-slate-50/50 border border-slate-100 rounded-xl">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fecha de Nacimiento</p>
+                                <p class="text-sm font-bold text-slate-800">{{ formatDate(viewPerson.fecha_nacimiento) }}</p>
+                            </div>
+                            <!-- Grupo Sanguíneo -->
+                            <div class="p-4 bg-slate-50/50 border border-slate-100 rounded-xl">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Grupo Sanguíneo</p>
+                                <p class="text-sm font-bold text-red-600">{{ viewPerson.tipo_sangre || '---' }}</p>
+                            </div>
+                            <!-- Ingreso -->
+                            <div class="p-4 bg-slate-50/50 border border-slate-100 rounded-xl">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fecha de Ingreso</p>
+                                <p class="text-sm font-bold text-slate-800">{{ formatDate(viewPerson.fecha_ingreso) }}</p>
+                            </div>
+                            <!-- Antigüedad -->
+                            <div class="p-4 bg-slate-50/50 border border-slate-100 rounded-xl">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Antigüedad Calculada</p>
+                                <p class="text-sm font-bold text-emerald-700">{{ calculateSeniority(viewPerson.fecha_ingreso) }}</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Datos Personales -->
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-black uppercase tracking-tighter text-main leading-none">{{ viewPerson.nombre }}</h3>
-                        <div class="flex items-center justify-center gap-2 mt-4">
-                            <span class="px-4 py-1.5 bg-accent/20 text-accent rounded-xl text-[10px] font-black uppercase tracking-widest border border-accent/10">{{ viewPerson.cargo }}</span>
-                            <span class="px-4 py-1.5 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg shadow-red-600/20">{{ viewPerson.tipo_sangre }}</span>
+                    <!-- Emergencias -->
+                    <div class="p-6 bg-red-50/30 border border-red-100 rounded-2xl shadow-sm space-y-4">
+                        <h5 class="text-[10px] font-black text-red-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <span class="w-2 h-2 bg-red-500 rounded-full"></span> Contacto de Emergencia
+                        </h5>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="p-4 bg-white/80 border border-red-100 rounded-xl">
+                                <p class="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1">Contacto Referencia</p>
+                                <p class="text-sm font-bold text-slate-800">{{ viewPerson.contacto_emergencia || '---' }}</p>
+                            </div>
+                            <div class="p-4 bg-white/80 border border-red-100 rounded-xl">
+                                <p class="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1">Celular de Emergencia</p>
+                                <p class="text-sm font-bold text-red-700">{{ viewPerson.celular_emergencia || '---' }}</p>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-main/50 p-5 rounded-3xl border border-border">
-                            <p class="text-[9px] font-black text-muted uppercase tracking-widest mb-1">Contrato</p>
-                            <p class="text-xs font-black text-main">{{ viewPerson.tipo_contrato }}</p>
-                        </div>
-                        <div class="bg-main/50 p-5 rounded-3xl border border-border">
-                            <p class="text-[9px] font-black text-muted uppercase tracking-widest mb-1">Antigüedad</p>
-                            <p class="text-xs font-black text-accent">{{ calculateSeniority(viewPerson.fecha_ingreso) }}</p>
-                        </div>
-                        <div class="bg-main/50 p-5 rounded-3xl border border-border">
-                            <p class="text-[9px] font-black text-muted uppercase tracking-widest mb-1">F. Nacimiento</p>
-                            <p class="text-xs font-black text-main">{{ formatDate(viewPerson.fecha_nacimiento) }}</p>
-                        </div>
-                        <div class="bg-red-500/5 p-5 rounded-3xl border border-red-500/10">
-                            <p class="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1">Emergencia</p>
-                            <p class="text-xs font-black text-red-600 leading-tight">{{ viewPerson.celular_emergencia }}</p>
-                            <p class="text-[8px] text-red-400 font-bold truncate">{{ viewPerson.contacto_emergencia }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Botón Imprimir -->
-                    <div class="mt-10 flex gap-4">
-                        <button @click="handlePrint" class="flex-1 py-4 bg-accent text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-accent/20 hover:opacity-90 transition-all flex items-center justify-center gap-3 active:scale-95">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                            Imprimir Credencial
-                        </button>
                     </div>
                 </div>
+
+                <!-- Footer del Modal -->
+                <div class="px-8 py-5 bg-white border-t border-slate-100 flex justify-end">
+                    <button type="button" @click="viewPerson = null" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-black uppercase text-xs tracking-wider transition-all">
+                        Cerrar Ficha
+                    </button>
+                </div>
+
             </div>
         </div>
+        </Teleport>
 
-        <!-- MODAL DE EDICIÓN -->
-        <div v-if="showModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] no-print">
-            <div class="bg-card rounded-[3.5rem] shadow-2xl w-full max-w-3xl overflow-hidden animate-fade-in-up border border-white/10">
-                <div class="p-10 bg-accent text-white flex justify-between items-center relative">
-                    <div class="relative z-10">
-                        <h4 class="text-3xl font-black uppercase tracking-tighter">{{ editingPerson ? 'Editar Perfil' : 'Nuevo Funcionario' }}</h4>
-                        <p class="text-xs opacity-80 font-black uppercase tracking-[0.2em] mt-1">{{ formData.nombre || 'Completa los datos técnicos' }}</p>
+        <!-- MODAL DE EDICIÓN (Teleport al body para centrado correcto) -->
+        <Teleport to="body">
+        <div v-if="showModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+            <div class="bg-white rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-4xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
+                
+                <!-- Header Institucional -->
+                <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg">
+                    <div>
+                        <h3 class="font-black text-xl tracking-tight leading-none">{{ editingPerson ? 'Editar Expediente de Personal' : 'Registrar Nuevo Funcionario' }}</h3>
+                        <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Dirección de Personal y Accesos</p>
                     </div>
-                    <button @click="showModal = false" class="relative z-10 text-4xl font-light hover:rotate-90 transition-all">&times;</button>
+                    <button type="button" @click="showModal = false" class="hover:bg-white/20 p-2 rounded-xl transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
                 </div>
                 
-                <form @submit.prevent="saveData" class="p-10 grid grid-cols-3 gap-8 overflow-y-auto max-h-[70vh] custom-scrollbar">
+                <!-- Cuerpo del Formulario -->
+                <form @submit.prevent="saveData" class="p-8 space-y-8 overflow-y-auto max-h-[75vh] custom-scrollbar bg-slate-50/50">
+                    
                     <!-- Foto Upload Section -->
-                    <div class="col-span-3 flex items-center gap-8 p-6 bg-app rounded-[2.5rem] border-2 border-dashed border-border mb-4">
+                    <div class="flex items-center gap-8 p-6 bg-emerald-50/50 border border-emerald-100 rounded-xl shadow-sm">
                         <div class="relative group">
-                            <div class="w-24 h-24 bg-card rounded-2xl border-2 border-border overflow-hidden flex items-center justify-center shadow-lg">
+                            <div class="w-24 h-24 bg-white rounded-2xl border-2 border-emerald-100 overflow-hidden flex items-center justify-center shadow-lg">
                                 <img v-if="formData.foto" :src="formData.foto" class="w-full h-full object-cover">
                                 <span v-else class="text-4xl">👤</span>
                             </div>
-                            <label class="absolute -bottom-2 -right-2 w-8 h-8 bg-accent text-white rounded-xl flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-all">
+                            <label class="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-600 text-white rounded-xl flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-all border border-white">
                                 📷
                                 <input type="file" @change="handleFotoUpload" class="hidden" accept="image/*">
                             </label>
                         </div>
                         <div>
-                            <p class="font-black text-main text-sm">Fotografía del Funcionario</p>
-                            <p class="text-xs text-muted font-medium mt-1">Recomendado: Cuadrada, fondo claro. Máx 2MB.</p>
+                            <p class="font-black text-slate-800 text-sm">Fotografía del Funcionario</p>
+                            <p class="text-xs text-slate-500 font-medium mt-1">Recomendado: Cuadrada, fondo claro. Máx 2MB.</p>
                             <button v-if="formData.foto" type="button" @click="formData.foto = ''" class="text-[10px] font-black text-red-500 uppercase mt-2 tracking-widest hover:underline">Eliminar foto</button>
                         </div>
                     </div>
 
-                    <div class="col-span-3">
-                        <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-2 ml-2">Nombre Completo del Personal</label>
-                        <input v-model="formData.nombre" type="text" required class="w-full px-6 py-4 rounded-2xl bg-app border-2 border-border focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all font-black text-main" placeholder="Ej: Kevin Flores">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-2 ml-2">Cargo Institucional</label>
-                        <select v-model="formData.cargo" required class="w-full px-6 py-4 rounded-2xl bg-app border-2 border-border focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all font-black text-main">
-                            <option v-for="c in cargos" :key="c" :value="c">{{ c }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-2 ml-2">Tipo de Contrato</label>
-                        <select v-model="formData.tipo_contrato" required class="w-full px-6 py-4 rounded-2xl bg-app border-2 border-border focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all font-black text-main">
-                            <option v-for="t in ['Permanente (Ítem)', 'Eventual (Consultor)', 'Pasante/Práctica', 'Contrato Externo']" :key="t" :value="t">{{ t }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-2 ml-2">G. Sanguíneo</label>
-                        <select v-model="formData.tipo_sangre" class="w-full px-6 py-4 rounded-2xl bg-app border-2 border-border focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all font-black text-main">
-                            <option v-for="t in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']" :key="t" :value="t">{{ t }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-2 ml-2">Fecha de Ingreso</label>
-                        <input v-model="formData.fecha_ingreso" type="date" class="w-full px-6 py-4 rounded-2xl bg-app border-2 border-border focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all font-black text-main">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-2 ml-2">F. Nacimiento</label>
-                        <input v-model="formData.fecha_nacimiento" type="date" class="w-full px-6 py-4 rounded-2xl bg-app border-2 border-border focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all font-black text-main">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-2 ml-2">Celular de Contacto</label>
-                        <input v-model="formData.celular" type="text" class="w-full px-6 py-4 rounded-2xl bg-app border-2 border-border focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all font-black text-main" placeholder="777XXXXX">
-                    </div>
-
-                    <div class="col-span-3 grid grid-cols-2 gap-6 pt-6 border-t border-border bg-red-500/5 p-6 rounded-[2rem] border-dashed">
-                        <div>
-                            <label class="block text-[10px] font-black text-red-500 uppercase tracking-widest mb-2 ml-2">Referencia de Emergencia</label>
-                            <input v-model="formData.contacto_emergencia" type="text" class="w-full px-6 py-4 rounded-2xl bg-white border-2 border-red-500/10 focus:border-red-500 outline-none transition-all font-black text-main" placeholder="Ej: Madre / Esposa">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-black text-red-500 uppercase tracking-widest mb-2 ml-2">Celular Emergencia</label>
-                            <input v-model="formData.celular_emergencia" type="text" class="w-full px-6 py-4 rounded-2xl bg-white border-2 border-red-500/10 focus:border-red-500 outline-none transition-all font-black text-main" placeholder="Número urgente">
+                    <!-- SECCIÓN 01: DATOS PERSONALES -->
+                    <div class="p-6 bg-white border border-slate-100 rounded-xl shadow-sm space-y-6">
+                        <h4 class="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 01. Datos Personales e Identificación
+                        </h4>
+                        
+                        <div class="grid grid-cols-3 gap-6">
+                            <div class="col-span-2 flex flex-col">
+                                <label class="label-prime">Nombre Completo <span class="text-red-500 font-black">*</span></label>
+                                <input v-model="formData.nombre" type="text" required class="form-input-prime" placeholder="Ej: Kevin Flores Vallejos">
+                            </div>
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime">Cédula de Identidad <span class="text-red-500 font-black">*</span></label>
+                                <input v-model="formData.cedula_id" type="text" required class="form-input-prime" placeholder="Ej: 7200607 Tja.">
+                            </div>
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime">Fecha de Nacimiento</label>
+                                <input v-model="formData.fecha_nacimiento" type="date" class="form-input-prime">
+                            </div>
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime">Grupo Sanguíneo</label>
+                                <select v-model="formData.tipo_sangre" class="form-input-prime">
+                                    <option v-for="t in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']" :key="t" :value="t">{{ t }}</option>
+                                </select>
+                            </div>
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime">Celular de Contacto</label>
+                                <input v-model="formData.celular" type="text" class="form-input-prime" placeholder="Ej: 777XXXXX">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-span-3 flex gap-4 pt-4">
-                        <button type="button" @click="showModal = false" class="flex-1 py-5 rounded-2xl bg-app border-2 border-border font-black text-muted uppercase text-xs tracking-widest hover:bg-main/5 transition-all">Cancelar</button>
-                        <button type="submit" class="flex-[2] py-5 bg-accent text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-accent/20 hover:scale-[1.01] active:scale-95 transition-all">
-                            {{ editingPerson ? 'Actualizar Funcionario' : 'Finalizar Registro' }}
+                    <!-- SECCIÓN 02: DETALLES LABORALES -->
+                    <div class="p-6 bg-white border border-slate-100 rounded-xl shadow-sm space-y-6">
+                        <h4 class="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 02. Información Laboral
+                        </h4>
+                        
+                        <div class="grid grid-cols-3 gap-6">
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime">Cargo Institucional <span class="text-red-500 font-black">*</span></label>
+                                <select v-model="formData.cargo" required class="form-input-prime">
+                                    <option v-for="c in cargos" :key="c" :value="c">{{ c }}</option>
+                                </select>
+                            </div>
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime">Tipo de Contrato <span class="text-red-500 font-black">*</span></label>
+                                <select v-model="formData.tipo_contrato" required class="form-input-prime">
+                                    <option v-for="t in ['Permanente (Ítem)', 'Eventual (Consultor)', 'Plazo Fijo', 'Administrativo']" :key="t" :value="t">{{ t }}</option>
+                                </select>
+                            </div>
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime">Fecha de Ingreso</label>
+                                <input v-model="formData.fecha_ingreso" type="date" class="form-input-prime">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 03: CONTACTO DE EMERGENCIA -->
+                    <div class="p-6 bg-red-50/30 border border-red-100 rounded-xl shadow-sm space-y-6">
+                        <h4 class="text-[10px] font-black text-red-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <span class="w-2 h-2 bg-red-500 rounded-full"></span> 03. Contacto de Emergencia
+                        </h4>
+                        
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="flex flex-col">
+                                <label class="label-prime text-red-800">Referencia de Emergencia</label>
+                                <input v-model="formData.contacto_emergencia" type="text" class="form-input-prime border-red-100 focus:border-red-500" placeholder="Ej: Madre / Esposa (Nombre)">
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="label-prime text-red-800">Celular Emergencia</label>
+                                <input v-model="formData.celular_emergencia" type="text" class="form-input-prime border-red-100 focus:border-red-500" placeholder="Número urgente">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 04: ACCESO AL SISTEMA (CREDENCIALES) -->
+                    <div class="p-6 bg-emerald-50/30 border border-emerald-100 rounded-xl shadow-sm space-y-6">
+                        <div class="flex items-center justify-between border-b border-emerald-100/60 pb-4">
+                            <h4 class="text-[10px] font-black text-emerald-800 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 04. Acceso al Sistema
+                            </h4>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" v-model="formData.habilitarAcceso" class="w-4 h-4 rounded text-emerald-600 border-gray-300 focus:ring-emerald-500">
+                                <span class="text-xs font-black text-emerald-800 uppercase tracking-wider">Habilitar Cuenta de Usuario</span>
+                            </label>
+                        </div>
+                        
+                        <div v-if="formData.habilitarAcceso" class="grid grid-cols-3 gap-6 animate-prime-in">
+                            <!-- Nombre de usuario = nombre completo (auto) -->
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime text-emerald-800">Nombre de Usuario
+                                    <span class="text-emerald-500 normal-case text-[10px] font-medium ml-1">(automático)</span>
+                                </label>
+                                <div class="form-input-prime border-emerald-100 bg-emerald-50/60 text-emerald-900 select-none cursor-default truncate">
+                                    {{ formData.nombre || 'Ingresa el nombre primero...' }}
+                                </div>
+                                <p class="text-[10px] text-emerald-600 font-bold mt-1 ml-1">⚡ Se usa el nombre completo para iniciar sesión.</p>
+                            </div>
+                            <!-- Contraseña -->
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime text-emerald-800">Contraseña
+                                    <span v-if="editingPerson" class="text-emerald-500 normal-case text-[10px] font-medium">(vacío = mantener)</span>
+                                    <span v-else class="text-red-500 font-black">*</span>
+                                </label>
+                                <input v-model="formData.password" type="password" :required="formData.habilitarAcceso && !editingPerson" class="form-input-prime border-emerald-100 focus:border-emerald-500" placeholder="••••••••">
+                            </div>
+                            <!-- Nivel de acceso -->
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime text-emerald-800">Nivel de Acceso <span class="text-red-500 font-black">*</span></label>
+                                <select v-model="formData.role" required class="form-input-prime border-emerald-100 focus:border-emerald-500">
+                                    <option value="USER">Usuario (Acceso básico)</option>
+                                    <option value="ADMIN">Administrador</option>
+                                    <option value="ROOT">Superusuario (ROOT)</option>
+                                </select>
+                            </div>
+                            <!-- Correo -->
+                            <div class="col-span-2 flex flex-col">
+                                <label class="label-prime text-emerald-800">Correo Institucional</label>
+                                <input v-model="formData.email" type="email" class="form-input-prime border-emerald-100 focus:border-emerald-500" placeholder="correo@tarija.bo">
+                            </div>
+                            <!-- Estado -->
+                            <div class="col-span-1 flex flex-col">
+                                <label class="label-prime text-emerald-800">Estado de Cuenta <span class="text-red-500 font-black">*</span></label>
+                                <select v-model="formData.estado" required class="form-input-prime border-emerald-100 focus:border-emerald-500">
+                                    <option value="Activo">Activo (Habilitado)</option>
+                                    <option value="Inactivo">Inactivo (Suspendido)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div v-else class="text-xs text-slate-500 font-medium italic">
+                            Este funcionario no tiene credenciales de acceso al sistema. Activa la casilla superior para asignarle una cuenta.
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="flex gap-4 pt-4 border-t border-slate-100 bg-white p-6 rounded-b-[2rem]">
+                        <button type="button" @click="showModal = false" class="flex-1 py-4 rounded-xl border-2 border-slate-100 font-black text-slate-500 uppercase text-xs tracking-widest hover:bg-slate-50 transition-all">Cancelar</button>
+                        <button type="submit" class="flex-[2] py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-emerald-600/20 active:scale-95 transition-all">
+                            {{ editingPerson ? 'Guardar Cambios' : 'Registrar Funcionario' }}
                         </button>
                     </div>
                 </form>
             </div>
         </div>
+        </Teleport>
 
-        <!-- AREA DE IMPRESIÓN (CREDENCIAL) -->
-        <div v-if="viewPerson" class="hidden print:block print:p-0">
-            <div class="w-[350px] mx-auto bg-white border-[3px] border-black rounded-[2.5rem] overflow-hidden shadow-none">
-                <div class="bg-black p-6 text-white text-center">
-                    <p class="text-[8px] font-black uppercase tracking-[0.3em] mb-1">Gobierno Autónomo Municipal</p>
-                    <h2 class="text-xl font-black tracking-tighter">CREDENCIAL DE PERSONAL</h2>
-                </div>
-                <div class="p-10">
-                    <div class="flex justify-center mb-8">
-                        <div class="w-32 h-32 border-[3px] border-black rounded-[2rem] overflow-hidden flex items-center justify-center">
-                            <img v-if="viewPerson.foto" :src="viewPerson.foto" class="w-full h-full object-cover">
-                            <span v-else class="text-5xl font-black text-black">{{ viewPerson.nombre?.[0] }}</span>
-                        </div>
-                    </div>
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-black text-gray-900 uppercase leading-tight">{{ viewPerson.nombre }}</h3>
-                        <p class="text-sm font-black text-gray-600 uppercase mt-2">{{ viewPerson.cargo }}</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-6 border-t-2 border-gray-100 pt-6">
-                        <div>
-                            <p class="text-[7px] font-black text-gray-400 uppercase tracking-widest">Grupo Sanguíneo</p>
-                            <p class="text-xs font-black">{{ viewPerson.tipo_sangre }}</p>
-                        </div>
-                        <div>
-                            <p class="text-[7px] font-black text-gray-400 uppercase tracking-widest">Tipo de Contrato</p>
-                            <p class="text-xs font-black">{{ viewPerson.tipo_contrato }}</p>
-                        </div>
-                        <div class="col-span-2 bg-red-50 p-4 rounded-2xl border border-red-100">
-                            <p class="text-[8px] font-black text-red-500 uppercase tracking-widest">En Caso de Emergencia</p>
-                            <p class="text-[11px] font-black text-red-700 mt-1">{{ viewPerson.celular_emergencia }}</p>
-                            <p class="text-[9px] text-red-400 font-bold uppercase">{{ viewPerson.contacto_emergencia }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 p-6 text-[8px] text-center text-gray-400 italic leading-relaxed">
-                    Este documento es personal e intransferible. <br> Válido solo para fines institucionales y de seguridad.
-                </div>
-            </div>
-        </div>
+
 
     </div>
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, updateCatalogo, deleteCatalogo, addCatalogo, showToast } = mainStore
@@ -321,18 +444,21 @@ const editingPerson = ref(null)
 const viewPerson = ref(null)
 
 const cargos = [
+    'Responsable de Área',
     'Jefe de Unidad',
-    'Encargado de área',
     'Técnico de sistemas',
     'Técnico de verificación',
     'Técnico de equipo',
+    'Trepador',
     'Chofer',
-    'Podador',
-    'Cargador'
+    'Cargador',
+    'Operador',
+    'Toconero'
 ]
 
 const formData = reactive({
     nombre: '',
+    cedula_id: '',
     cargo: 'Técnico de sistemas',
     tipo_contrato: 'Permanente (Ítem)',
     fecha_ingreso: '',
@@ -341,12 +467,51 @@ const formData = reactive({
     tipo_sangre: 'O+',
     contacto_emergencia: '',
     celular_emergencia: '',
-    foto: ''
+    foto: '',
+    habilitarAcceso: false,
+    username: '',
+    password: '',
+    role: 'USER',
+    email: '',
+    estado: 'Activo'
 })
 
+const filterCargo = ref('')
+
+const filtros = [
+    { key: 'tecnico', label: 'Técnicos' },
+    { key: 'chofer', label: 'Choferes' },
+    { key: 'trepador', label: 'Trepadores' },
+    { key: 'cargador', label: 'Cargadores' },
+    { key: 'operador', label: 'Operadores' },
+    { key: 'toconero', label: 'Toconeros' },
+    { key: 'jefe', label: 'Jefes / Responsables' },
+]
+
+const matchFiltro = (p, key) => {
+    const c = p.cargo?.toLowerCase() || ''
+    if (key === 'tecnico') return c.startsWith('técnico')
+    if (key === 'chofer') return c === 'chofer'
+    if (key === 'trepador') return c === 'trepador'
+    if (key === 'cargador') return c === 'cargador'
+    if (key === 'operador') return c === 'operador'
+    if (key === 'toconero') return c === 'toconero'
+    if (key === 'jefe') return c === 'responsable de área' || c === 'jefe de unidad'
+    return true
+}
+
+const contarPorFiltro = (key) => store.tecnicos.filter(p => matchFiltro(p, key)).length
+
 const filteredPersonal = computed(() => {
-    if (!search.value) return store.tecnicos
-    return store.tecnicos.filter(p => p.nombre.toLowerCase().includes(search.value.toLowerCase()))
+    let result = store.tecnicos
+    if (filterCargo.value) result = result.filter(p => matchFiltro(p, filterCargo.value))
+    if (search.value) result = result.filter(p => p.nombre.toLowerCase().includes(search.value.toLowerCase()))
+    return result
+})
+
+// El username siempre es el nombre completo del funcionario
+watch(() => formData.nombre, (newName) => {
+    formData.username = newName
 })
 
 const formatDate = (dateStr) => {
@@ -377,12 +542,23 @@ const handleFotoUpload = (e) => {
 
 const openNew = () => {
     editingPerson.value = null
-    Object.keys(formData).forEach(key => {
-        if (key === 'cargo') formData[key] = 'Técnico de sistemas'
-        else if (key === 'tipo_contrato') formData[key] = 'Permanente (Ítem)'
-        else if (key === 'tipo_sangre') formData[key] = 'O+'
-        else formData[key] = ''
-    })
+    formData.nombre = ''
+    formData.cedula_id = ''
+    formData.cargo = 'Técnico de sistemas'
+    formData.tipo_contrato = 'Permanente (Ítem)'
+    formData.fecha_ingreso = ''
+    formData.celular = ''
+    formData.fecha_nacimiento = ''
+    formData.tipo_sangre = 'O+'
+    formData.contacto_emergencia = ''
+    formData.celular_emergencia = ''
+    formData.foto = ''
+    formData.habilitarAcceso = false
+    formData.username = ''
+    formData.password = ''
+    formData.role = 'USER'
+    formData.email = ''
+    formData.estado = 'Activo'
     showModal.value = true
 }
 
@@ -393,6 +569,13 @@ const openView = (p) => {
 const openEdit = (p) => {
     editingPerson.value = p
     Object.assign(formData, p)
+    formData.habilitarAcceso = !!p.username
+    formData.username = p.username || p.nombre || ''
+    formData.password = ''
+    formData.role = p.role || 'USER'
+    formData.email = p.email || ''
+    formData.estado = p.estado || 'Activo'
+    
     if (p.fecha_nacimiento) formData.fecha_nacimiento = new Date(p.fecha_nacimiento).toISOString().split('T')[0]
     if (p.fecha_ingreso) formData.fecha_ingreso = new Date(p.fecha_ingreso).toISOString().split('T')[0]
     showModal.value = true
@@ -406,15 +589,30 @@ const handleDelete = async (p) => {
 
 const saveData = async () => {
     try {
+        const payload = { ...formData }
+        
+        // El username siempre es el nombre completo
+        payload.username = payload.nombre
+        
+        if (!payload.habilitarAcceso) {
+            payload.username = null
+            payload.password = null
+            payload.role = 'TECNICO'
+            payload.email = null
+            payload.estado = 'Activo'
+        }
+        
+        delete payload.habilitarAcceso
+        
         let ok = editingPerson.value 
-            ? await updateCatalogo('tecnicos', editingPerson.value.id, formData) 
-            : await addCatalogo('tecnicos', formData)
+            ? await updateCatalogo('tecnicos', editingPerson.value.id, payload) 
+            : await addCatalogo('tecnicos', payload)
         
         if (ok) {
             showToast('Datos guardados correctamente', 'success')
             showModal.value = false
         } else {
-            showToast('Error al guardar: Verifique el tamaño de la imagen', 'error')
+            showToast('Error al guardar: Verifique los datos', 'error')
         }
     } catch (e) {
         console.error(e)
@@ -422,12 +620,11 @@ const saveData = async () => {
     }
 }
 
-const handlePrint = () => {
-    window.print()
-}
+
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -446,4 +643,17 @@ const handlePrint = () => {
 
 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+.label-prime { @apply text-sm font-semibold text-slate-700 mb-1.5 ml-1 flex items-center gap-1; }
+.form-input-prime {
+    @apply w-full px-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 
+           outline-none transition-all focus:ring-4 focus:ring-emerald-500/10 shadow-sm;
+}
+.animate-prime-in {
+    animation: primePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes primePop {
+    from { opacity: 0; transform: scale(0.98) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
 </style>
