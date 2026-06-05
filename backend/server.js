@@ -4,6 +4,9 @@ import mysql from 'mysql2/promise';
 import { exec } from 'child_process';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 const port = 3000;
@@ -67,6 +70,81 @@ app.get('/api/health', async (req, res) => {
     res.json({ status: 'ok', db: 'connected' });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// Ruta para inicializar y sembrar la base de datos (Útil para entornos como Render/Aiven)
+app.get('/api/dev/seed', async (req, res) => {
+  console.log('--- Nueva petición a /api/dev/seed ---');
+  try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const initSqlPath = path.resolve(__dirname, 'init.sql');
+
+    if (!fs.existsSync(initSqlPath)) {
+      console.error(`❌ init.sql no encontrado en: ${initSqlPath}`);
+      return res.status(404).json({ error: 'Archivo init.sql no encontrado' });
+    }
+
+    const sqlContent = fs.readFileSync(initSqlPath, 'utf8');
+    
+    // Separar las sentencias SQL limpiando espacios y comentarios vacíos
+    const statements = sqlContent
+      .split(';')
+      .map(stmt => stmt.trim())
+      .filter(stmt => {
+        if (!stmt) return false;
+        
+        // Quitar comentarios SQL que comienzan con '--' o '/*'
+        const cleanStmt = stmt
+          .split('\n')
+          .filter(line => !line.trim().startsWith('--'))
+          .join('\n')
+          .trim();
+          
+        if (!cleanStmt) return false;
+
+        const upper = cleanStmt.toUpperCase();
+        // Omitir comandos de creación y selección de base de datos
+        if (
+          upper.startsWith('CREATE DATABASE') || 
+          upper.startsWith('DROP DATABASE') || 
+          upper.startsWith('USE ')
+        ) {
+          return false;
+        }
+        return true;
+      });
+
+    console.log(`Iniciando ejecución de ${statements.length} sentencias SQL...`);
+
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      
+      for (let i = 0; i < statements.length; i++) {
+        const stmt = statements[i];
+        try {
+          await connection.query(stmt);
+        } catch (queryErr) {
+          console.error(`❌ Error en sentencia ${i + 1}/${statements.length}:`, queryErr.message);
+          console.error('Sentencia fallida:', stmt);
+          await connection.rollback();
+          throw new Error(`Sentencia ${i + 1} falló: ${queryErr.message}`);
+        }
+      }
+      
+      await connection.commit();
+      console.log('✅ Base de datos inicializada y sembrada con éxito.');
+      res.json({ success: true, message: 'Base de datos sembrada e inicializada con éxito' });
+    } catch (dbErr) {
+      res.status(500).json({ error: 'Error al sembrar la base de datos', detail: dbErr.message });
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('❌ Error general en /api/dev/seed:', error);
+    res.status(500).json({ error: 'Error interno del servidor', detail: error.message });
   }
 });
 
