@@ -19,7 +19,7 @@ services:
     build: ./backend
     container_name: api_oficina
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
       - ./backend:/app
       - /app/node_modules

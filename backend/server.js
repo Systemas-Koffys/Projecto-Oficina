@@ -15,7 +15,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_oficina_2026';
 // Middleware de Autenticación
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  let token = authHeader && authHeader.split(' ')[1];
+  
+  // Si no está en cabeceras, buscar en los parámetros query de la URL (para descargas directas)
+  if (!token && req.query.token) {
+    token = req.query.token;
+  }
   
   if (!token) return res.status(401).json({ error: 'Acceso denegado: Token requerido' });
 
@@ -153,14 +158,15 @@ app.get('/api/usuarios/publico', async (req, res) => {
   console.log('--- Nueva petición a /api/usuarios/publico ---');
   try {
     console.log('Ejecutando query en la base de datos...');
-    const [rows] = await pool.query('SELECT nombre_completo, usuario, role, cargo FROM personal WHERE usuario IS NOT NULL');
+    const [rows] = await pool.query('SELECT nombre_completo, usuario, role, cargo, foto FROM personal WHERE usuario IS NOT NULL');
     console.log(`Query exitosa. Se encontraron ${rows.length} usuarios.`);
     
     const processed = rows.map(u => ({
       nombre: u.nombre_completo || u.usuario,
       username: u.usuario,
       role: u.role,
-      cargo: u.cargo
+      cargo: u.cargo,
+      foto: u.foto
     }));
     res.json(processed);
   } catch (error) {
@@ -903,8 +909,8 @@ app.get('/api/backup', (req, res) => {
   
   const fileName = `backup_oficina_${new Date().toISOString().split('T')[0]}.sql`;
   
-  // Usamos docker exec para asegurarnos de que el comando funcione sin necesidad de MySQL local
-  const cmd = `docker exec db_oficina mysqldump -u root -ppassword ${db}`;
+  // Ejecutamos mysqldump conectando directamente al host de la base de datos a través de la red
+  const cmd = `mysqldump -h ${host} -u ${user} -p${pass} ${db}`;
   
   exec(cmd, { maxBuffer: 1024 * 1024 * 25 }, (error, stdout, stderr) => {
     if (error) {

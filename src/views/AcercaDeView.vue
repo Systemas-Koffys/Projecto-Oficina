@@ -132,8 +132,8 @@
           <!-- Contenido de la Ficha -->
           <div class="p-6 pt-0 relative flex-1 flex flex-col">
             <!-- Monograma Medallón con Logo SK y Aro de Brillo -->
-            <div class="w-20 h-20 bg-gradient-to-tr from-accent to-emerald-500 text-white rounded-2xl shadow-lg flex items-center justify-center -mt-10 ml-2 font-black text-2xl tracking-wider ring-4 ring-card select-none">
-              SK
+            <div class="w-20 h-20 bg-card rounded-2xl shadow-lg flex items-center justify-center -mt-10 ml-2 overflow-hidden ring-4 ring-card select-none">
+              <img :src="logoKoffys" class="w-full h-full object-contain p-2">
             </div>
             
             <!-- Perfil e Identidad -->
@@ -143,31 +143,31 @@
                 <!-- Icono de Verificado -->
                 <span class="w-4.5 h-4.5 bg-emerald-500 text-white rounded-full flex items-center justify-center text-[10px] shrink-0 font-bold" title="Desarrollador Oficial del Sistema">✓</span>
               </div>
-              <p class="text-accent font-black text-xs uppercase tracking-wider mt-1">Ingeniero de Software & Creador</p>
+              <p class="text-accent font-black text-xs uppercase tracking-wider mt-1">Técnico en Sistemas & Creador</p>
               
               <!-- Resumen Bio de Alta Calidad -->
               <p class="text-muted text-[11px] leading-relaxed font-semibold mt-3 bg-main/30 p-3.5 rounded-2xl border border-border/40">
-                Especialista en desarrollo full-stack y automatización de procesos institucionales. Responsable del diseño arquitectónico, seguridad de datos y mantenimiento técnico del sistema.
+                Especialista en administración de servidores en la nube, optimización digital y bases de datos. Desarrollador principal del sistema, brindando soluciones integrales de software bajo su firma de desarrollo <strong>Systemas Koffy's</strong>.
               </p>
             </div>
             
             <!-- Cuadrícula de Contactos Rápidos -->
             <div class="mt-5 space-y-2.5">
-              <a href="tel:+59169309970" 
+              <a href="https://wa.me/59169309970" target="_blank" 
                 class="flex items-center justify-between p-3 bg-main/40 hover:bg-accent/5 border border-border/60 hover:border-accent/30 rounded-2xl transition-all group/item">
                 <div class="flex items-center gap-3">
                   <div class="w-8 h-8 bg-accent/10 text-accent rounded-xl flex items-center justify-center group-hover/item:scale-110 transition-transform">
                     <Phone size="14" />
                   </div>
                   <div class="text-left">
-                    <p class="text-[9px] text-muted font-bold uppercase leading-none">Teléfono Celular</p>
+                    <p class="text-[9px] text-muted font-bold uppercase leading-none">WhatsApp / Celular</p>
                     <p class="text-xs font-black text-main mt-0.5">+591 69309970</p>
                   </div>
                 </div>
-                <span class="text-[10px] font-black text-accent opacity-0 group-hover/item:opacity-100 transition-opacity">Llamar →</span>
+                <span class="text-[10px] font-black text-accent opacity-0 group-hover/item:opacity-100 transition-opacity">WhatsApp →</span>
               </a>
 
-              <a href="mailto:Systemaskoffys@gmail.com" 
+              <a href="mailto:Systemaskoffys@gmail.com" target="_blank" 
                 class="flex items-center justify-between p-3 bg-main/40 hover:bg-accent/5 border border-border/60 hover:border-accent/30 rounded-2xl transition-all group/item">
                 <div class="flex items-center gap-3 overflow-hidden">
                   <div class="w-8 h-8 bg-accent/10 text-accent rounded-xl flex items-center justify-center group-hover/item:scale-110 transition-transform shrink-0">
@@ -184,12 +184,12 @@
 
             <!-- Botones de Redes Sociales Premium -->
             <div class="mt-6 pt-4 border-t border-border/60 grid grid-cols-2 gap-3">
-              <a href="#" target="_blank" 
+              <a href="https://www.linkedin.com/in/kevin-flores-631a16189" target="_blank" 
                 class="py-2.5 bg-accent hover:bg-accent-hover text-on-accent text-center rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
                 <Linkedin size="14" />
                 LINKEDIN
               </a>
-              <a href="#" target="_blank" 
+              <a href="https://github.com/Systemas-Koffys" target="_blank" 
                 class="py-2.5 bg-main border border-border hover:border-main-hover text-center rounded-xl font-black text-xs text-main transition-all flex items-center justify-center gap-1.5 shadow-inner hover:bg-main/80 active:scale-95">
                 <Github size="14" />
                 GITHUB
@@ -227,6 +227,7 @@
 <script setup>
 import { useMainStore } from '../store/mainStore.js'
 import { Info, FileText, MapPin, Users, ShieldCheck, Code, Phone, Mail, Linkedin, Github, CheckCircle } from 'lucide-vue-next'
+import logoKoffys from '../assets/logo-koffys.png'
 
 const mainStore = useMainStore()
 const { uiState } = mainStore

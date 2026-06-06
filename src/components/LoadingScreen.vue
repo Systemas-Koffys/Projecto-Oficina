@@ -8,7 +8,7 @@
         <!-- Logo con Iluminación -->
         <div class="relative w-40 h-40 mb-12 group">
           <div class="absolute inset-0 bg-accent/30 rounded-full blur-3xl animate-pulse"></div>
-          <div class="relative w-full h-full bg-white/5 backdrop-blur-sm rounded-[3rem] border border-white/20 flex items-center justify-center shadow-2xl overflow-hidden p-6">
+          <div class="relative w-full h-full bg-white/5 backdrop-blur-sm rounded-[3rem] border border-white/20 flex items-center justify-center shadow-2xl overflow-hidden" :class="uiState.logo_app ? 'p-2' : 'p-6'">
             <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain">
             <span v-else class="text-7xl font-black text-accent drop-shadow-lg">A</span>
           </div>

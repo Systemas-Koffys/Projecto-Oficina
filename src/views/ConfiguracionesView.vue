@@ -6,8 +6,14 @@ const { store, uiState, addCatalogo, updateCatalogo, deleteCatalogo, showToast, 
 
 // Categorías disponibles
 const categorias = [
-    { id: 'especies', nombre: 'Especies de Árboles', icono: '🌳', campos: [{ key: 'nombre', label: 'Nombre de la Especie', type: 'text' }] },
-    { id: 'acciones', nombre: 'Acciones Técnicas', icono: '🪚', campos: [{ key: 'nombre', label: 'Nombre de la Acción', type: 'text' }] },
+    { id: 'especies', nombre: 'Especies de Árboles', icono: '🌳', campos: [
+        { key: 'nombre', label: 'Nombre Común', type: 'text' },
+        { key: 'nombre_cientifico', label: 'Nombre Científico', type: 'text' }
+    ] },
+    { id: 'acciones', nombre: 'Acciones Técnicas', icono: '🪚', campos: [
+        { key: 'nombre', label: 'Nombre de la Acción', type: 'text' },
+        { key: 'descripcion', label: 'Detalles de la Acción', type: 'text' }
+    ] },
     { id: 'barrios', nombre: 'Barrios', icono: '🏘️', campos: [
         { key: 'nombre', label: 'Nombre del Barrio', type: 'text' },
         { key: 'id_distrito', label: 'Distrito', type: 'select', options: 'distritos' }
@@ -48,7 +54,7 @@ const ejecutarConfirmacion = async () => {
 }
 
 const handleBackup = () => {
-    window.location.href = '/api/backup'
+    window.location.href = `/api/backup?token=${uiState.token}`
     showToast('Iniciando descarga del respaldo...', 'success')
 }
 

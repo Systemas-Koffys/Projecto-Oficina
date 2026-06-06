@@ -16,20 +16,45 @@ const abrirEdicion = (sol) => {
     uiState.showModal = true;
 }
 
+// Modal de confirmación personalizado
+const showConfirmModal = ref(false)
+const confirmTitle = ref('Confirmar Eliminación')
+const confirmMessage = ref('¿Estás seguro de eliminar este registro?')
+let onConfirmCallback = null
+
+const mostrarConfirmacion = (titulo, mensaje, callback) => {
+    confirmTitle.value = titulo
+    confirmMessage.value = mensaje
+    onConfirmCallback = callback
+    showConfirmModal.value = true
+}
+
+const ejecutarConfirmacion = async () => {
+    showConfirmModal.value = false
+    if (onConfirmCallback) {
+        await onConfirmCallback()
+    }
+}
+
 // Confirmar y eliminar
-const confirmarEliminar = async (sol) => {
+const confirmarEliminar = (sol) => {
     const nombre = sol.solicitante_nombre || `#${sol.id_solicitud}`;
     const cod    = sol.comunicacion_interna || `#${sol.id_solicitud}`;
-    if (!confirm(`¿Eliminar definitivamente el historial de la solicitud "${cod}"?\nEsta acción borrará el registro permanente.`)) return;
     
-    const ok = await deleteSolicitud(sol.id_solicitud);
-    if (ok) {
-        showToast(`Historial ${cod} eliminado correctamente.`, 'success');
-        if (solicitudSeleccionada.value?.id_solicitud == sol.id_solicitud)
-            solicitudSeleccionada.value = null;
-    } else {
-        showToast('No se pudo eliminar. Revisa la conexión.', 'error');
-    }
+    mostrarConfirmacion(
+        'Confirmar Eliminación',
+        `¿Eliminar definitivamente el historial de la solicitud "${cod}"?\nEsta acción borrará el registro permanente.`,
+        async () => {
+            const ok = await deleteSolicitud(sol.id_solicitud);
+            if (ok) {
+                showToast(`Historial ${cod} eliminado correctamente.`, 'success');
+                if (solicitudSeleccionada.value?.id_solicitud == sol.id_solicitud)
+                    solicitudSeleccionada.value = null;
+            } else {
+                showToast('No se pudo eliminar. Revisa la conexión.', 'error');
+            }
+        }
+    );
 }
 
 const imprimirReporte = async () => {
@@ -701,6 +726,35 @@ const formatLoDeterminado = (sol) => {
                 </div>
             </div>
         </div>
+        
+        <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
+        <Teleport to="body">
+            <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
+                <div class="bg-card rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col border border-border animate-prime-in">
+                    <!-- Icono de Advertencia -->
+                    <div class="p-8 flex flex-col items-center text-center gap-4">
+                        <div class="w-14 h-14 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-2xl select-none">
+                            ⚠️
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-main leading-tight">{{ confirmTitle }}</h4>
+                            <p class="text-xs text-muted font-semibold mt-2 px-2 leading-relaxed">{{ confirmMessage }}</p>
+                        </div>
+                    </div>
+                    <!-- Botones de Acción -->
+                    <div class="p-6 bg-app border-t border-border flex gap-3">
+                        <button @click="showConfirmModal = false" 
+                            class="flex-1 px-4 py-3 bg-card border border-border rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-main/10 transition-all active:scale-95 shadow-sm cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button @click="ejecutarConfirmacion" 
+                            class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 cursor-pointer">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
     </div>
 </template>
 

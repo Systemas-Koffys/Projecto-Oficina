@@ -18,10 +18,8 @@ onMounted(async () => {
     publicUsers.value = await fetchPublicUsuarios()
 })
 
-const selectedUserRole = computed(() => {
-    const user = publicUsers.value.find(u => u.nombre === username.value)
-    if (!user) return ''
-    return `Ingresando como ${user.role} - ${user.cargo || 'Técnico'}`
+const selectedUser = computed(() => {
+    return publicUsers.value.find(u => u.nombre === username.value)
 })
 
 const handleLogin = async () => {
@@ -50,8 +48,8 @@ const handleLogin = async () => {
     <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 p-6">
         <div class="w-full max-w-md">
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-24 h-24 bg-white/10 rounded-[2.5rem] backdrop-blur-xl border border-white/20 mb-6 shadow-2xl overflow-hidden">
-                    <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-4" alt="Logo Institucional">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-white/10 rounded-[2.5rem] backdrop-blur-xl border border-white/20 mb-6 shadow-2xl overflow-hidden" :class="uiState.logo_app ? 'p-1.5' : 'p-4'">
+                    <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain" alt="Logo Institucional">
                     <span v-else class="text-4xl">🌳</span>
                 </div>
                 <h1 class="text-4xl font-black text-white tracking-tighter mb-2">SISTEMA DE GESTIÓN DE ARBORICULTURA</h1>
@@ -61,40 +59,48 @@ const handleLogin = async () => {
             <!-- Card de Login -->
             <div class="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden border border-white/20">
                 <div class="p-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-1">Bienvenido al Sistema</h2>
-                    <p class="text-gray-500 text-sm mb-8">Por favor, identifíquese para continuar</p>
+                    <!-- Cabecera Dinámica con Foto y Rol -->
+                    <div class="mb-8 flex flex-col items-center">
+                        <div class="w-24 h-24 rounded-full border-4 border-emerald-500/20 bg-gray-100 flex items-center justify-center overflow-hidden shadow-lg transition-all duration-500 hover:scale-105">
+                            <img v-if="selectedUser?.foto" :src="selectedUser.foto" class="w-full h-full object-cover">
+                            <div v-else-if="selectedUser?.nombre" class="w-full h-full bg-emerald-600 flex items-center justify-center text-white text-3xl font-black">
+                                {{ selectedUser.nombre.charAt(0) }}
+                            </div>
+                            <svg v-else class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                        
+                        <template v-if="selectedUser">
+                            <h2 class="text-xl font-black text-gray-800 mt-4 text-center leading-tight transition-all duration-300 animate-fade-in">{{ selectedUser.nombre }}</h2>
+                            <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mt-1 text-center transition-all duration-300 animate-fade-in">{{ selectedUser.cargo || 'Técnico' }}</p>
+                            <span class="inline-block text-[9px] font-black text-white bg-emerald-700 px-3.5 py-1.5 rounded-full uppercase tracking-widest mt-2 border border-emerald-700 transition-all duration-300 animate-fade-in">
+                                Rango: {{ selectedUser.role }}
+                            </span>
+                        </template>
+                        <template v-else>
+                            <h2 class="text-2xl font-bold text-gray-800 mt-4 mb-1 text-center">Bienvenido al Sistema</h2>
+                            <p class="text-gray-500 text-sm text-center">Por favor, identifíquese para continuar</p>
+                        </template>
+                    </div>
 
                     <form @submit.prevent="handleLogin" class="space-y-6" id="login-form">
                         <!-- Selector de Usuario -->
                         <div class="space-y-2">
                             <label class="block text-xs font-black text-emerald-900 uppercase tracking-wider ml-1" for="login-username-select">Personal Autorizado</label>
-                            <div class="relative group">
+                            <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl focus-within:border-emerald-500 focus-within:bg-white transition-all cursor-pointer">
+                                <div class="text-gray-400 shrink-0 flex items-center justify-center">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                </div>
                                 <select v-model="username" required id="login-username-select"
-                                    class="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl text-gray-900 font-bold focus:border-emerald-500 focus:bg-white outline-none transition-all cursor-pointer">
+                                    class="flex-1 bg-transparent border-0 outline-none text-gray-900 font-bold cursor-pointer py-1 min-w-0">
                                     <option value="" disabled class="text-gray-500 bg-white">-- Seleccione su Nombre --</option>
                                     <option v-for="user in publicUsers" :key="user.nombre" :value="user.nombre" class="text-gray-900 bg-white">
                                         {{ user.nombre }}
                                     </option>
                                 </select>
-
-                                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                </div>
-                                <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                <div class="text-gray-400 pointer-events-none shrink-0 flex items-center justify-center">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Rango (Detección Automática) -->
-                        <div v-if="username" class="space-y-2 animate-fade-in">
-                            <label class="block text-xs font-black text-emerald-900 uppercase tracking-wider ml-1">Rango / Nivel de Acceso</label>
-                            <div class="relative">
-                                <div class="w-full pl-12 pr-4 py-4 bg-emerald-50 border-2 border-emerald-100 rounded-2xl text-emerald-700 font-black flex items-center shadow-inner">
-                                    {{ selectedUserRole }}
-                                </div>
-                                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                                 </div>
                             </div>
                         </div>
@@ -102,14 +108,14 @@ const handleLogin = async () => {
                         <!-- Password -->
                         <div class="space-y-2">
                             <label class="block text-xs font-black text-emerald-900 uppercase tracking-wider ml-1" for="login-password-input">Contraseña de Seguridad</label>
-                            <div class="relative group">
-                                <input v-model="password" :type="showPassword ? 'text' : 'password'" required placeholder="••••••••" id="login-password-input"
-                                    class="w-full pl-12 pr-12 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl text-gray-800 font-bold focus:border-emerald-500 focus:bg-white outline-none transition-all">
-                                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+                            <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl focus-within:border-emerald-500 focus-within:bg-white transition-all">
+                                <div class="text-gray-400 shrink-0 flex items-center justify-center">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                 </div>
+                                <input v-model="password" :type="showPassword ? 'text' : 'password'" required placeholder="••••••••" id="login-password-input"
+                                    class="flex-1 bg-transparent border-0 outline-none text-gray-800 font-bold py-1 min-w-0">
                                 <button type="button" @click="showPassword = !showPassword" id="login-toggle-password-btn"
-                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-600 transition-colors focus:outline-none"
+                                    class="text-gray-400 hover:text-emerald-600 transition-colors focus:outline-none shrink-0 flex items-center justify-center"
                                     :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
                                     <svg v-if="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
@@ -150,6 +156,19 @@ const handleLogin = async () => {
 select option {
     color: #111827 !important;
     background-color: #ffffff !important;
+}
+
+#login-form select,
+#login-form input {
+    border: none !important;
+    background-color: transparent !important;
+    padding: 0.25rem 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    height: auto !important;
+    width: 100% !important;
+    font-size: 1rem !important;
+    line-height: normal !important;
 }
 
 .animate-fade-in {

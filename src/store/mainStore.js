@@ -270,7 +270,11 @@ export const useMainStore = defineStore('mainStore', () => {
   async function fetchPublicUsuarios() {
     try {
       const response = await fetch(`${API_URL}/usuarios/publico`);
-      return await response.json();
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) return data;
+      }
+      return [];
     } catch (error) {
       console.error("Error al cargar usuarios públicos:", error);
       return [];

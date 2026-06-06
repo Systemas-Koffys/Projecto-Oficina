@@ -9,6 +9,26 @@ const activeTab = ref('generador')
 const editId = ref(null)
 const editNombre = ref('')
 
+// Modal de confirmación personalizado
+const showConfirmModal = ref(false)
+const confirmTitle = ref('Confirmar Eliminación')
+const confirmMessage = ref('¿Estás seguro de eliminar este registro?')
+let onConfirmCallback = null
+
+const mostrarConfirmacion = (titulo, mensaje, callback) => {
+    confirmTitle.value = titulo
+    confirmMessage.value = mensaje
+    onConfirmCallback = callback
+    showConfirmModal.value = true
+}
+
+const ejecutarConfirmacion = async () => {
+    showConfirmModal.value = false
+    if (onConfirmCallback) {
+        await onConfirmCallback()
+    }
+}
+
 // Filtros para el generador
 const filtroBarrio = ref('')
 const filtroTecnico = ref('')
@@ -102,10 +122,16 @@ const handleReimprimir = (imp) => {
     window.print()
 }
 
-const confirmarEliminar = async (imp) => {
-    if (!confirm(`¿Estás seguro de eliminar el registro del reporte "${imp.nombre_reporte}"?\nEsta acción es irreversible.`)) return
-    const ok = await deleteImpresion(imp.id)
-    if (ok) showToast('Registro eliminado', 'success')
+const confirmarEliminar = (imp) => {
+    mostrarConfirmacion(
+        'Confirmar Eliminación',
+        `¿Estás seguro de eliminar el registro del reporte "${imp.nombre_reporte}"?\nEsta acción es irreversible.`,
+        async () => {
+            const ok = await deleteImpresion(imp.id)
+            if (ok) showToast('Registro de reporte eliminado correctamente', 'success')
+            else showToast('Error al eliminar el registro', 'error')
+        }
+    )
 }
 
 const iniciarEdicion = (imp) => {
@@ -246,10 +272,10 @@ const formatFecha = (str) => {
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="text-[10px] font-black uppercase text-gray-400 tracking-widest border-b border-gray-100">
+                                        <th class="px-8 py-4 w-12 text-center">#</th>
                                         <th class="px-8 py-4">Código / Solicitante</th>
                                         <th class="px-6 py-4">Ubicación Exacta</th>
                                         <th class="px-6 py-4">Acción Técnica</th>
-                                        <th class="px-6 py-4 text-center">Req.</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -261,7 +287,8 @@ const formatFecha = (str) => {
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr v-for="sol in solicitudesFiltradas" :key="sol.id_solicitud" class="group border-b border-gray-50 hover:bg-emerald-50/30 transition-all">
+                                    <tr v-for="(sol, idx) in solicitudesFiltradas" :key="sol.id_solicitud" class="group border-b border-gray-50 hover:bg-emerald-50/30 transition-all">
+                                        <td class="px-8 py-5 text-center font-bold text-gray-400">{{ idx + 1 }}</td>
                                         <td class="px-8 py-5">
                                             <p class="font-black text-emerald-800 text-sm mb-0.5">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</p>
                                             <p class="text-xs text-gray-500 font-bold uppercase tracking-tighter">{{ sol.solicitante_nombre }}</p>
@@ -272,12 +299,6 @@ const formatFecha = (str) => {
                                         </td>
                                         <td class="px-6 py-5">
                                             <span class="text-xs font-bold text-gray-600">{{ getAccion(sol.id_accion) }}</span>
-                                        </td>
-                                        <td class="px-6 py-5">
-                                            <div class="flex justify-center gap-2">
-                                                <span v-if="sol.requiere_setar" class="w-7 h-7 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center text-xs font-bold shadow-sm" title="SETAR">⚡</span>
-                                                <span v-if="sol.requiere_plataforma" class="w-7 h-7 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-xs font-bold shadow-sm" title="Grúa">🏗️</span>
-                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -353,13 +374,24 @@ const formatFecha = (str) => {
 
         <!-- ÁREA DE IMPRESIÓN GRUPAL (HOJA DE RUTA FORMAL) -->
         <div class="hidden print:block bulk-print-layout">
-            <!-- Header Institucional Centrado -->
-            <div class="text-center border-b-2 border-black pb-4 mb-6">
-                <p class="text-lg font-black uppercase">Gobierno Autónomo Municipal de Tarija</p>
-                <p class="text-sm font-bold uppercase">Secretaría Municipal de Infraestructura y Servicios</p>
-                <p class="text-xs font-medium uppercase">Unidad de Arboricultura y Espacios Verdes</p>
-                <h1 class="text-2xl font-black mt-4 border-t border-black pt-4">HOJA DE RUTA CONSOLIDADA</h1>
-                <div class="flex justify-center gap-4 mt-2 text-[10px] font-bold italic">
+            <!-- Header Institucional con Logo (Igual que solicitudes pendientes/historial) -->
+            <div class="print-header-layout">
+                <div class="print-logo-container">
+                    <img v-if="uiState.logo_institucional" :src="uiState.logo_institucional" />
+                    <div v-else class="text-[8px] font-black text-center text-gray-400 p-1 uppercase">
+                        Logo <br> Municipal
+                    </div>
+                </div>
+                <div class="flex-1 text-center">
+                    <p class="font-black text-lg print-gov">Gobierno Autónomo Municipal de Tarija</p>
+                    <p class="font-bold text-sm print-sec">Secretaría Municipal de Infraestructura y Servicios</p>
+                    <p class="text-sm font-medium print-unit">Unidad de Arboricultura y Espacios Verdes</p>
+                </div>
+            </div>
+
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-black mt-2 print-title">HOJA DE RUTA CONSOLIDADA</h1>
+                <div class="flex justify-center gap-4 mt-1 text-[10px] font-bold italic text-gray-600 print-meta">
                     <span>Emisión: {{ new Date().toLocaleString() }}</span>
                     <span>|</span>
                     <span>Generado por: {{ uiState.user?.nombre }}</span>
@@ -378,15 +410,16 @@ const formatFecha = (str) => {
             <table class="w-full border-collapse border-2 border-black">
                 <thead>
                     <tr class="bg-gray-100 text-[9px] uppercase font-black text-center">
+                        <th class="border-2 border-black p-2 w-10 text-center">#</th>
                         <th class="border-2 border-black p-2 w-16">Código</th>
                         <th class="border-2 border-black p-2 w-48 text-left">Solicitante y Ubicación</th>
                         <th class="border-2 border-black p-2 text-left">Detalle de Acción Técnica</th>
-                        <th class="border-2 border-black p-2 w-24">Req. Logísticos</th>
                         <th class="border-2 border-black p-2 w-24">Firma Conformidad</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="sol in solicitudesFiltradas" :key="sol.id_solicitud" class="text-[10px]">
+                    <tr v-for="(sol, idx) in solicitudesFiltradas" :key="sol.id_solicitud" class="text-[10px]">
+                        <td class="border-2 border-black p-2 text-center font-bold">{{ idx + 1 }}</td>
                         <td class="border-2 border-black p-2 text-center font-black">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</td>
                         <td class="border-2 border-black p-2">
                             <p class="font-black uppercase text-emerald-900 mb-1">{{ sol.solicitante_nombre }}</p>
@@ -396,13 +429,6 @@ const formatFecha = (str) => {
                         <td class="border-2 border-black p-2">
                             <p class="font-bold uppercase text-gray-800">{{ getAccion(sol.id_accion) }}</p>
                             <p class="text-[9px] text-gray-500 mt-1">Ref: {{ sol.referencia }}</p>
-                        </td>
-                        <td class="border-2 border-black p-2 text-center font-black">
-                            <div class="flex flex-col gap-1 items-center">
-                                <span v-if="sol.requiere_setar">⚡ SETAR</span>
-                                <span v-if="sol.requiere_plataforma">🏗️ GRÚA</span>
-                                <span v-if="sol.es_emergencia" class="text-red-700">🚨 EMERGENCIA</span>
-                            </div>
                         </td>
                         <td class="border-2 border-black p-2"></td>
                     </tr>
@@ -430,6 +456,34 @@ const formatFecha = (str) => {
             </div>
         </div>
 
+        <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
+        <Teleport to="body">
+            <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
+                <div class="bg-card rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col border border-border animate-prime-in">
+                    <!-- Icono de Advertencia -->
+                    <div class="p-8 flex flex-col items-center text-center gap-4">
+                        <div class="w-14 h-14 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-2xl select-none">
+                            ⚠️
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-main leading-tight">{{ confirmTitle }}</h4>
+                            <p class="text-xs text-muted font-semibold mt-2 px-2 leading-relaxed">{{ confirmMessage }}</p>
+                        </div>
+                    </div>
+                    <!-- Botones de Acción -->
+                    <div class="p-6 bg-app border-t border-border flex gap-3">
+                        <button @click="showConfirmModal = false" 
+                            class="flex-1 px-4 py-3 bg-card border border-border rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-main/10 transition-all active:scale-95 shadow-sm cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button @click="ejecutarConfirmacion" 
+                            class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 cursor-pointer">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
     </div>
 </template>
 
@@ -448,6 +502,59 @@ const formatFecha = (str) => {
     .bulk-print-layout, .bulk-print-layout * { visibility: visible; }
     .bulk-print-layout { position: absolute; left: 0; top: 0; width: 100%; }
     .no-print { display: none !important; }
+
+    /* Estilo de Cabecera Formal con Logo */
+    .print-header-layout {
+        display: flex !important;
+        align-items: center !important;
+        gap: 24px !important;
+        border-bottom: 2pt solid #000 !important;
+        padding-bottom: 12px !important;
+        margin-bottom: 16px !important;
+        width: 100% !important;
+    }
+    .print-logo-container {
+        width: 70pt !important;
+        height: 70pt !important;
+        flex-shrink: 0 !important;
+        border: 1px solid #ccc !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: #fafafa !important;
+    }
+    .print-logo-container img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+    }
+    .print-gov {
+        font-size: 14pt !important;
+        font-weight: 900 !important;
+        margin: 0 !important;
+        line-height: 1.2 !important;
+    }
+    .print-sec {
+        font-size: 10pt !important;
+        font-weight: 700 !important;
+        margin: 2px 0 0 0 !important;
+    }
+    .print-unit {
+        font-size: 9pt !important;
+        font-weight: 500 !important;
+        margin: 2px 0 0 0 !important;
+    }
+    .print-title {
+        font-size: 16pt !important;
+        font-weight: 900 !important;
+        margin-top: 8px !important;
+    }
+    .print-meta {
+        font-size: 8.5pt !important;
+        color: #444 !important;
+    }
 }
 
 .animate-in { animation: fadeIn 0.5s ease-out; }

@@ -3,8 +3,8 @@
         <!-- Logo / Brand -->
         <div class="p-4 md:p-8 mb-0 md:mb-4 hidden md:block">
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-accent text-on-accent rounded-2xl flex items-center justify-center shadow-lg overflow-hidden border border-white/20">
-                    <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-2">
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden border border-white/20" :class="uiState.logo_app ? 'bg-transparent' : 'bg-accent text-on-accent'">
+                    <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-0">
                     <span v-else class="font-black text-2xl">A</span>
                 </div>
                 <div>

@@ -19,7 +19,7 @@
           </div>
           <div class="h-12 w-px bg-gray-200 hidden md:block"></div>
           <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-accent rounded-2xl flex items-center justify-center shadow-xl overflow-hidden p-2">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl overflow-hidden" :class="uiState.logo_app ? 'bg-transparent p-0' : 'bg-accent p-2'">
               <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain">
               <Leaf v-else class="text-white" size="28" />
             </div>
