@@ -2,7 +2,7 @@
     <div class="personal-view p-6 space-y-6 animate-fade-in">
         
         <!-- ESTADÍSTICAS SUPERIORES -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 no-print">
             <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4">
                 <div class="w-12 h-12 bg-accent/20 text-accent rounded-2xl flex items-center justify-center text-xl">👥</div>
                 <div>
@@ -13,7 +13,7 @@
             <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-blue-500">
                 <div class="w-12 h-12 bg-blue-100/20 text-blue-600 rounded-2xl flex items-center justify-center text-xl">👷</div>
                 <div>
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Técnicos de Equipo</p>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Técnicos</p>
                     <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Técnico de equipo').length }}</p>
                 </div>
             </div>
@@ -29,6 +29,20 @@
                 <div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Trepadores</p>
                     <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Trepador').length }}</p>
+                </div>
+            </div>
+            <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-amber-500">
+                <div class="w-12 h-12 bg-amber-100/20 text-amber-600 rounded-2xl flex items-center justify-center text-xl">💪</div>
+                <div>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cargadores</p>
+                    <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Cargador').length }}</p>
+                </div>
+            </div>
+            <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-teal-500">
+                <div class="w-12 h-12 bg-teal-100/20 text-teal-600 rounded-2xl flex items-center justify-center text-xl">🪵</div>
+                <div>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Toconeros</p>
+                    <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Toconero').length }}</p>
                 </div>
             </div>
         </div>
