@@ -44,6 +44,127 @@
         </div>
     </div>
 
+    <!-- Sección de Requerimientos y Alertas de Campo (Cola Activa) y Tipo de Solicitante -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Requerimientos Logísticos (Izquierda) -->
+        <div class="lg:col-span-8 card p-8 border-none shadow-2xl flex flex-col justify-between">
+            <div>
+                <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
+                    🛠️ Requerimientos y Alertas de Campo
+                </h3>
+                <p class="text-xs text-muted font-bold uppercase tracking-widest mb-6">Necesidades operativas de la cola de pendientes</p>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                <!-- SETAR -->
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50/50 p-4 rounded-2xl border border-orange-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-orange-200 transition-all group cursor-default">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg">⚡</span>
+                        <span class="text-[9px] font-black text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full uppercase tracking-wider">SETAR</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.reqSetar }}</p>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Cortes de Energía</p>
+                    </div>
+                </div>
+
+                <!-- Grúa / Plataforma -->
+                <div class="bg-gradient-to-br from-blue-50 to-sky-50/50 p-4 rounded-2xl border border-blue-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-blue-200 transition-all group cursor-default">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg">🏗️</span>
+                        <span class="text-[9px] font-black text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Grúa</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.reqPlataforma }}</p>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Plataformas</p>
+                    </div>
+                </div>
+
+                <!-- Ficha Técnica -->
+                <div class="bg-gradient-to-br from-indigo-50 to-violet-50/50 p-4 rounded-2xl border border-indigo-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-indigo-200 transition-all group cursor-default">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg">📋</span>
+                        <span class="text-[9px] font-black text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Ficha</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.reqFicha }}</p>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Evaluaciones</p>
+                    </div>
+                </div>
+
+                <!-- Árbol Seco -->
+                <div class="bg-gradient-to-br from-yellow-50 to-amber-50/50 p-4 rounded-2xl border border-amber-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-amber-200 transition-all group cursor-default">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg">🌵</span>
+                        <span class="text-[9px] font-black text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Seco</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.arbolSeco }}</p>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Especies Secas</p>
+                    </div>
+                </div>
+
+                <!-- Segunda Nota -->
+                <div class="bg-gradient-to-br from-purple-50 to-fuchsia-50/50 p-4 rounded-2xl border border-purple-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-purple-200 transition-all group cursor-default">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg">✉️</span>
+                        <span class="text-[9px] font-black text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full uppercase tracking-wider">2ª Nota</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.segundaNota }}</p>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Reiteraciones</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tipo de Solicitante (Derecha) -->
+        <div class="lg:col-span-4 card p-8 border-none shadow-2xl flex flex-col justify-between">
+            <div>
+                <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
+                    👥 Tipo de Solicitante
+                </h3>
+                <p class="text-xs text-muted font-bold uppercase tracking-widest mb-6">Perfil de la demanda actual</p>
+            </div>
+
+            <!-- Ratios y Proporción -->
+            <div class="space-y-6">
+                <!-- Barra comparativa bicolor -->
+                <div class="w-full h-4 bg-gray-100 rounded-full overflow-hidden flex shadow-inner">
+                    <div class="h-full bg-emerald-600 transition-all duration-1000" 
+                         :style="{ width: stats.total ? (stats.particulares / stats.total) * 100 + '%' : '50%' }"
+                         title="Particulares"></div>
+                    <div class="h-full bg-blue-600 transition-all duration-1000" 
+                         :style="{ width: stats.total ? (stats.institucionales / stats.total) * 100 + '%' : '50%' }"
+                         title="Institucionales"></div>
+                </div>
+
+                <!-- Detalle con Leyenda -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Particular -->
+                    <div class="p-4 bg-emerald-50/40 rounded-2xl border border-emerald-100/60">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2.5 h-2.5 bg-emerald-600 rounded-full"></span>
+                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider">Particulares</span>
+                        </div>
+                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.particulares }}</p>
+                        <p class="text-[10px] font-bold text-emerald-600">{{ stats.total ? Math.round((stats.particulares / stats.total) * 100) : 0 }}%</p>
+                    </div>
+
+                    <!-- Institucional -->
+                    <div class="p-4 bg-blue-50/40 rounded-2xl border border-blue-100/60">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2.5 h-2.5 bg-blue-600 rounded-full"></span>
+                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider">Institucionales</span>
+                        </div>
+                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.institucionales }}</p>
+                        <p class="text-[10px] font-bold text-blue-600">{{ stats.total ? Math.round((stats.institucionales / stats.total) * 100) : 0 }}%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Charts Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <!-- Evolución y Tendencias -->
@@ -104,55 +225,87 @@
         </div>
     </div>
 
-    <!-- Tabla de Pendientes -->
-    <div class="card p-8 border-none shadow-2xl overflow-hidden bg-white">
-        <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-6">
-            <h3 class="font-black text-xl tracking-tighter flex items-center gap-3">
-                <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
-                Cola de Trabajo Inmediata
-            </h3>
-            <button @click="$router.push('/solicitudes')" class="text-[10px] font-black uppercase tracking-widest text-accent hover:underline html2pdf__ignore">Ver todo</button>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full" v-if="ultimasSolicitudes.length > 0">
-                <thead>
-                    <tr class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">
-                        <th class="py-4 px-4 text-left">Código</th>
-                        <th class="py-4 px-4 text-left">Ingreso</th>
-                        <th class="py-4 px-4 text-left">Ubicación / Barrio</th>
-                        <th class="py-4 px-4 text-left">Solicitud</th>
-                        <th class="py-4 px-4 text-center">Prioridad</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr v-for="(sol, index) in ultimasSolicitudes" :key="index" class="group hover:bg-gray-50 transition-all">
-                        <td class="py-5 px-4 font-black text-sm text-accent">{{ sol.comunicacion_interna }}</td>
-                        <td class="py-5 px-4 text-xs font-bold text-gray-500">{{ sol.fecha_ingreso }}</td>
-                        <td class="py-5 px-4">
-                            <p class="text-sm font-black text-gray-800">{{ getBarrioNombre(sol.id_barrio) }}</p>
-                            <p class="text-[10px] font-bold text-gray-400 truncate max-w-[200px]">{{ sol.calle }}</p>
-                        </td>
-                        <td class="py-5 px-4">
-                            <div class="flex items-center gap-2">
-                                <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-                                <span class="text-xs font-bold text-gray-700">{{ getAccionNombre(sol.id_accion_solicitada) }}</span>
-                            </div>
-                        </td>
-                        <td class="py-5 px-4 text-center">
-                            <span :class="['px-3 py-1 rounded-full text-[9px] font-black tracking-widest', 
-                                sol.nivel_urgencia === 'Alta' || sol.es_emergencia ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-500']">
-                                {{ sol.es_emergencia ? 'EMERGENCIA' : sol.nivel_urgencia }}
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div v-else class="text-center py-12">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 mb-4">
-                    <CheckCircle2 class="w-8 h-8 text-emerald-400" />
+    <!-- Tabla de Pendientes y Backlog por Distrito -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Tabla de Pendientes (Izquierda) -->
+        <div class="lg:col-span-8 card p-8 border-none shadow-2xl overflow-hidden bg-white">
+            <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-6">
+                <h3 class="font-black text-xl tracking-tighter flex items-center gap-3">
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                    Cola de Trabajo Inmediata
+                </h3>
+                <button @click="$router.push('/solicitudes')" class="text-[10px] font-black uppercase tracking-widest text-accent hover:underline html2pdf__ignore">Ver todo</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full" v-if="ultimasSolicitudes.length > 0">
+                    <thead>
+                        <tr class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">
+                            <th class="py-4 px-4 text-left">Código</th>
+                            <th class="py-4 px-4 text-left">Ingreso</th>
+                            <th class="py-4 px-4 text-left">Ubicación / Barrio</th>
+                            <th class="py-4 px-4 text-left">Solicitud</th>
+                            <th class="py-4 px-4 text-center">Prioridad</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        <tr v-for="(sol, index) in ultimasSolicitudes" :key="index" class="group hover:bg-gray-50 transition-all">
+                            <td class="py-5 px-4 font-black text-sm text-accent">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</td>
+                            <td class="py-5 px-4 text-xs font-bold text-gray-500">{{ sol.fecha_ingreso }}</td>
+                            <td class="py-5 px-4">
+                                <p class="text-sm font-black text-gray-800">{{ getBarrioNombre(sol.id_barrio) }}</p>
+                                <p class="text-[10px] font-bold text-gray-400 truncate max-w-[200px]">{{ sol.calle }}</p>
+                            </td>
+                            <td class="py-5 px-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                                    <span class="text-xs font-bold text-gray-700">{{ getAccionNombre(sol.id_accion_solicitada) }}</span>
+                                </div>
+                            </td>
+                            <td class="py-5 px-4 text-center">
+                                <span :class="['px-3 py-1 rounded-full text-[9px] font-black tracking-widest', 
+                                    sol.nivel_urgencia === 'Alta' || sol.es_emergencia ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-500']">
+                                    {{ sol.es_emergencia ? 'EMERGENCIA' : sol.nivel_urgencia }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div v-else class="text-center py-12">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 mb-4">
+                        <CheckCircle2 class="w-8 h-8 text-emerald-400" />
+                    </div>
+                    <h4 class="text-lg font-black text-gray-800">¡Todo al día!</h4>
+                    <p class="text-sm font-medium text-gray-500 mt-1">No hay solicitudes pendientes en este periodo.</p>
                 </div>
-                <h4 class="text-lg font-black text-gray-800">¡Todo al día!</h4>
-                <p class="text-sm font-medium text-gray-500 mt-1">No hay solicitudes pendientes en este periodo.</p>
+            </div>
+        </div>
+
+        <!-- Backlog por Distrito (Derecha) -->
+        <div class="lg:col-span-4 card p-8 border-none shadow-2xl bg-white flex flex-col justify-between">
+            <div>
+                <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
+                    📍 Pendientes por Distrito
+                </h3>
+                <p class="text-xs text-muted font-bold uppercase tracking-widest mb-6">Carga activa en territorio</p>
+            </div>
+
+            <div class="space-y-4 max-h-[350px] overflow-y-auto custom-scrollbar pr-2 flex-1 mt-4">
+                <div v-for="(dist, idx) in distritosPendientes" :key="idx" 
+                     class="flex items-center justify-between p-3.5 bg-gray-50 rounded-2xl border border-gray-100 hover:border-accent/30 hover:bg-accent/5 transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center font-black text-xs">
+                            D{{ dist.nombre.replace(/\D/g, '') || idx + 1 }}
+                        </div>
+                        <span class="text-xs font-black text-gray-700 uppercase tracking-wide">{{ dist.nombre }}</span>
+                    </div>
+                    <span class="px-3 py-1 bg-red-100 text-red-700 border border-red-200 rounded-lg text-xs font-black tabular-nums">
+                        {{ dist.value }} pend.
+                    </span>
+                </div>
+                
+                <div v-if="distritosPendientes.length === 0" class="text-center py-12 text-gray-400 text-xs font-bold">
+                    ¡Todos los distritos al día!
+                </div>
             </div>
         </div>
     </div>
@@ -217,18 +370,56 @@ const solicitudesFiltradas = computed(() => {
 const stats = computed(() => {
     const data = solicitudesFiltradas.value;
     const total = data.length;
-    const completadas = data.filter(s => s.estado_tramite === 'Ejecutado').length;
+    const completadas = data.filter(s => s.estado_tramite === 'Terminado').length;
     const enProceso = data.filter(s => s.estado_tramite === 'En espera').length;
     const urgentes = data.filter(s => s.nivel_urgencia === 'Alta' || s.es_emergencia).length;
     const efectividad = total > 0 ? Math.round((completadas / total) * 100) : 0;
     
+    // Alertas de Campo (Filtro por solicitudes pendientes)
+    const pendientes = data.filter(s => s.estado_tramite === 'En espera');
+    const reqSetar = pendientes.filter(s => s.requiere_setar).length;
+    const reqPlataforma = pendientes.filter(s => s.requiere_plataforma).length;
+    const reqFicha = pendientes.filter(s => s.requiere_ficha_tecnica).length;
+    const arbolSeco = pendientes.filter(s => s.arbol_seco).length;
+    const segundaNota = pendientes.filter(s => s.segunda_nota).length;
+
+    // Tipos de Solicitantes (Del total filtrado)
+    const institucionales = data.filter(s => s.id_tipo_institucion && s.id_tipo_institucion !== '').length;
+    const particulares = total - institucionales;
+
     return {
         total,
         completadas,
         enProceso,
         urgentes,
-        efectividad
+        efectividad,
+        reqSetar,
+        reqPlataforma,
+        reqFicha,
+        arbolSeco,
+        segundaNota,
+        institucionales,
+        particulares
     }
+})
+
+// --- DISTRITOS CON TRÁMITES PENDIENTES ---
+const distritosPendientes = computed(() => {
+    const counts = {}
+    store.solicitudes.forEach(s => {
+        if (s.estado_tramite === 'En espera') {
+            const barrio = store.barrios.find(b => b.id === s.id_barrio)
+            if (barrio) {
+                const distId = barrio.id_distrito
+                const d = store.distritos.find(x => x.id === distId)
+                const nombre = d ? d.nombre : `Distrito ${distId}`
+                counts[nombre] = (counts[nombre] || 0) + 1
+            }
+        }
+    })
+    return Object.entries(counts)
+        .map(([nombre, value]) => ({ nombre, value }))
+        .sort((a, b) => b.value - a.value)
 })
 
 // --- ANIMACIÓN DE NÚMEROS (CountUp) ---
@@ -267,7 +458,7 @@ watch(() => stats.value.total, animarNumeros, { immediate: true })
 
 const statCards = computed(() => [
     { id: 'total', label: 'Total Solicitudes', value: stats.value.total, icon: ClipboardList, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: 100 },
-    { id: 'completadas', label: 'Obras Ejecutadas', value: stats.value.completadas, icon: CheckCircle2, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: stats.value.efectividad },
+    { id: 'completadas', label: 'Trámites Finalizados', value: stats.value.completadas, icon: CheckCircle2, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: stats.value.efectividad },
     { id: 'enProceso', label: 'Trámites en Cola', value: stats.value.enProceso, icon: Clock3, color: '#f59e0b', bg: 'bg-white', iconBg: 'bg-amber-50', iconColor: 'text-amber-600', percent: stats.value.total ? (stats.value.enProceso/stats.value.total)*100 : 0 },
     { id: 'urgentes', label: 'Alertas Críticas', value: stats.value.urgentes, icon: AlertTriangle, color: '#ef4444', bg: 'bg-white', iconBg: 'bg-red-50', iconColor: 'text-red-600', percent: stats.value.total ? (stats.value.urgentes/stats.value.total)*100 : 0 }
 ])
@@ -309,7 +500,7 @@ const generarDatosGraficos = () => {
             data.acciones[n] = (data.acciones[n] || 0) + 1;
         }
         // Técnicos (Solo completados)
-        if (s.estado_tramite === 'Ejecutado' && s.id_tecnico_ejecucion) {
+        if (s.estado_tramite === 'Terminado' && s.id_tecnico_ejecucion) {
             const tec = store.tecnicos.find(t => t.id === s.id_tecnico_ejecucion);
             if (tec) data.tecnicos[tec.nombre] = (data.tecnicos[tec.nombre] || 0) + 1;
         }
