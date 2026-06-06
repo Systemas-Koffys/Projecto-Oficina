@@ -108,11 +108,9 @@
                                 <div class="overflow-hidden">
                                     <p class="text-xs font-black text-main truncate leading-tight" :title="p.nombre">{{ p.nombre }}</p>
                                     <div class="mt-1 flex items-center">
-                                        <select v-model="p.rol_equipo" @change="updateRole(p)" :disabled="uiState.user?.role === 'USER'"
-                                            class="text-[9px] font-black uppercase bg-accent/10 text-accent rounded-md px-1.5 py-0.5 outline-none border-none cursor-pointer disabled:cursor-default disabled:opacity-90">
-                                            <option value="Sin Rol">Elegir Rol</option>
-                                            <option v-for="r in roles" :key="r" :value="r">{{ r }}</option>
-                                        </select>
+                                        <span class="text-[9px] font-black uppercase bg-accent/10 text-accent rounded-md px-1.5 py-0.5">
+                                            {{ p.cargo || 'Sin Cargo' }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -143,9 +141,6 @@ const mainStore = useMainStore()
 const { store, uiState, updateCatalogo, showToast } = mainStore
 
 const teamColors = ['#10b981', '#3b82f6', '#f59e0b']
-
-// Roles de equipo adaptados a cargos institucionales operativos reales
-const roles = ['Chofer', 'Técnico de equipo', 'Trepador', 'Cargador', 'Operador', 'Toconero']
 
 const shifts = [
     { id: 'morning', label: 'Mañana', time: '04:00 - 12:00' },
@@ -223,17 +218,13 @@ const assignToAny = async (p) => {
 }
 
 const assignToTeam = async (p, teamId) => {
-    const ok = await updateCatalogo('tecnicos', p.id, { id_equipo: teamId, rol_equipo: 'Sin Rol' })
+    const ok = await updateCatalogo('tecnicos', p.id, { id_equipo: teamId, rol_equipo: p.cargo || 'Sin Rol' })
     if (ok) showToast(`${p.nombre} asignado al Equipo ${teamId}`, 'success')
 }
 
 const removeFromTeam = async (p) => {
     const ok = await updateCatalogo('tecnicos', p.id, { id_equipo: null, rol_equipo: null })
     if (ok) showToast(`${p.nombre} liberado del equipo`, 'success')
-}
-
-const updateRole = async (p) => {
-    await updateCatalogo('tecnicos', p.id, { rol_equipo: p.rol_equipo })
 }
 </script>
 
