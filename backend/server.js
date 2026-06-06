@@ -724,6 +724,7 @@ const getPkColumn = (tabla) => {
 
 const mapIncomingFields = (tabla, body) => {
   const data = { ...body };
+  
   if (tabla === 'tecnicos' || tabla === 'personal') {
     if (data.nombre !== undefined) {
       data.nombre_completo = data.nombre;
@@ -759,7 +760,42 @@ const mapIncomingFields = (tabla, body) => {
     if (!data.cedula_id) {
       data.cedula_id = data.usuario ? `${data.usuario} Tja.` : `GEN_${Date.now()}`;
     }
+  } else if (tabla === 'especies') {
+    if (data.nombre !== undefined) {
+      data.nombre_comun = data.nombre;
+      delete data.nombre;
+    }
+  } else if (tabla === 'acciones') {
+    if (data.nombre !== undefined) {
+      data.nombre_accion = data.nombre;
+      delete data.nombre;
+    }
+  } else if (tabla === 'tipos_institucion') {
+    if (data.nombre !== undefined) {
+      data.nombre_tipo = data.nombre;
+      delete data.nombre;
+    }
+  } else if (tabla === 'instituciones') {
+    if (data.nombre !== undefined) {
+      data.nombre_institucion = data.nombre;
+      delete data.nombre;
+    }
+    if (data.id_tipo !== undefined) {
+      data.id_tipo_solicitante = data.id_tipo;
+      delete data.id_tipo;
+    }
+  } else if (tabla === 'distritos') {
+    if (data.nombre !== undefined) {
+      data.numero_distrito = data.nombre;
+      delete data.nombre;
+    }
+  } else if (tabla === 'barrios') {
+    if (data.nombre !== undefined) {
+      data.nombre_barrio = data.nombre;
+      delete data.nombre;
+    }
   }
+  
   return data;
 };
 
