@@ -1,5 +1,6 @@
 -- Inicialización de Base de Datos (NORMALIZADA CON TABLA PERSONAL Y DETALLE ARBOLES v3)
 
+SET NAMES utf8mb4;
 DROP DATABASE IF EXISTS dboficina;
 CREATE DATABASE dboficina CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE dboficina;
