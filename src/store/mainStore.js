@@ -72,7 +72,9 @@ export const useMainStore = defineStore('mainStore', () => {
         uiState.token = data.token;
         const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         uiState.loginTime = now;
-        localStorage.setItem('user', JSON.stringify(data.user));
+        const userToSave = { ...data.user };
+        delete userToSave.foto;
+        localStorage.setItem('user', JSON.stringify(userToSave));
         localStorage.setItem('token', data.token);
         localStorage.setItem('loginTime', now);
         localStorage.setItem('loginTimeFull', new Date().toISOString());
