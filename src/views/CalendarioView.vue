@@ -218,6 +218,6 @@ const saveEvent = async () => {
 .fc-col-header-cell-cushion { color: rgba(255,255,255,0.5); font-weight: 800; text-transform: uppercase; padding: 12px 0 !important; font-size: 0.75rem; }
 .fc-day-today { background-color: rgba(16, 185, 129, 0.05) !important; }
 .fc-event { cursor: pointer; border-radius: 4px; padding: 2px 4px; font-weight: bold; font-size: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.fc-day-feriado { background-color: rgba(52, 211, 153, 0.22) !important; }
-.fc-day-sat, .fc-day-sun { background-color: rgba(52, 211, 153, 0.08) !important; }
+.fc-day-feriado { background-color: #065f46 !important; } /* Verde claro distinguible para feriados */
+.fc-day-sat, .fc-day-sun { background-color: #043e2f !important; } /* Verde intermedio distinguible para fines de semana */
 </style>
