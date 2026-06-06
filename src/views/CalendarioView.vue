@@ -18,7 +18,7 @@
     <!-- Calendar View -->
     <div class="flex-1 p-6 md:p-8 overflow-y-auto">
       <div class="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl relative">
-        <FullCalendar :options="calendarOptions" />
+        <FullCalendar :key="calendarKey" :options="calendarOptions" />
       </div>
     </div>
 
@@ -89,6 +89,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 const showModal = ref(false)
 const eventosBase = ref([])
+const calendarKey = ref(0)
 
 const currentEvent = reactive({
   id: null,
@@ -115,6 +116,18 @@ const calendarOptions = reactive({
     left: 'prev,next today',
     center: 'title',
     right: 'dayGridMonth,dayGridWeek'
+  },
+  dayCellDidMount: (arg) => {
+    const dateStr = arg.date.toLocaleDateString('sv-SE'); // Formato YYYY-MM-DD local seguro
+    const tieneFeriado = eventosBase.value.some(ev => {
+      if (!ev.fecha_aniversario) return false;
+      const evDate = new Date(ev.fecha_aniversario).toLocaleDateString('sv-SE');
+      const esFeriado = ev.nombre_barrio && ev.nombre_barrio.startsWith('Feriado:');
+      return evDate === dateStr && esFeriado;
+    });
+    if (tieneFeriado) {
+      arg.el.classList.add('fc-day-feriado');
+    }
   },
   eventMouseEnter: (info) => {
     tooltip.data = info.event.extendedProps.raw
@@ -144,11 +157,12 @@ const loadData = async () => {
   calendarOptions.events = eventosBase.value.map(ev => ({
     id: ev.id,
     title: ev.nombre_barrio,
-    date: new Date(ev.fecha_aniversario).toISOString().split('T')[0], // Ajuste zona horaria simple
+    date: new Date(ev.fecha_aniversario).toLocaleDateString('sv-SE'), // Ajuste zona horaria local seguro
     backgroundColor: ev.color_etiqueta || '#10b981',
     borderColor: 'transparent',
     extendedProps: { raw: ev }
   }))
+  calendarKey.value++
 }
 
 onMounted(() => {
@@ -204,4 +218,6 @@ const saveEvent = async () => {
 .fc-col-header-cell-cushion { color: rgba(255,255,255,0.5); font-weight: 800; text-transform: uppercase; padding: 12px 0 !important; font-size: 0.75rem; }
 .fc-day-today { background-color: rgba(16, 185, 129, 0.05) !important; }
 .fc-event { cursor: pointer; border-radius: 4px; padding: 2px 4px; font-weight: bold; font-size: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.fc-day-feriado { background-color: rgba(52, 211, 153, 0.22) !important; }
+.fc-day-sat, .fc-day-sun { background-color: rgba(52, 211, 153, 0.08) !important; }
 </style>
