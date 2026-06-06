@@ -426,6 +426,49 @@
             </div>
         </div>
         </Teleport>
+        
+        <!-- Modal de Confirmación de Eliminación -->
+        <Teleport to="body">
+        <Transition name="fade-confirm">
+        <div v-if="confirmDialog.visible" class="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] no-print">
+            <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-white/20 scale-in animate-prime-in">
+                <!-- Icono de advertencia -->
+                <div class="bg-gradient-to-br from-red-500 to-red-700 p-8 flex flex-col items-center text-white">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-black text-lg tracking-tight">Eliminar Personal</h3>
+                    <p class="text-red-100/80 text-xs font-bold uppercase tracking-widest mt-1">Acción de seguridad</p>
+                </div>
+                <!-- Contenido -->
+                <div class="p-6 text-center space-y-3">
+                    <p class="text-slate-700 text-sm font-bold leading-relaxed">
+                        ¿Seguro que quieres eliminar permanentemente a
+                    </p>
+                    <p class="font-black text-slate-900 text-base">"{{ confirmDialog.nombre }}"?</p>
+                    <p class="text-slate-500 text-xs font-medium">
+                        Esta acción no se puede deshacer y removerá al<br>empleado de todos los equipos y registros del sistema.
+                    </p>
+                </div>
+                <!-- Botones -->
+                <div class="px-6 pb-6 flex gap-3">
+                    <button
+                        @click="confirmDialog.visible = false"
+                        class="flex-1 py-3 rounded-xl border-2 border-slate-100 font-black text-slate-500 uppercase text-xs tracking-widest hover:bg-slate-50 transition-all">
+                        Cancelar
+                    </button>
+                    <button
+                        @click="confirmarEliminacion"
+                        class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-red-600/20 active:scale-95 transition-all">
+                        Sí, Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+        </Transition>
+        </Teleport>
 
 
 
@@ -442,6 +485,12 @@ const search = ref('')
 const showModal = ref(false)
 const editingPerson = ref(null)
 const viewPerson = ref(null)
+
+const confirmDialog = reactive({
+    visible: false,
+    nombre: '',
+    id: null
+})
 
 const cargos = [
     'Responsable de Área',
@@ -581,9 +630,15 @@ const openEdit = (p) => {
     showModal.value = true
 }
 
-const handleDelete = async (p) => {
-    if (!confirm(`¿Eliminar permanentemente a ${p.nombre}?`)) return
-    const ok = await deleteCatalogo('tecnicos', p.id)
+const handleDelete = (p) => {
+    confirmDialog.id = p.id
+    confirmDialog.nombre = p.nombre
+    confirmDialog.visible = true
+}
+
+const confirmarEliminacion = async () => {
+    confirmDialog.visible = false
+    const ok = await deleteCatalogo('tecnicos', confirmDialog.id)
     if (ok) showToast('Personal eliminado', 'success')
 }
 
@@ -656,4 +711,7 @@ const saveData = async () => {
     from { opacity: 0; transform: scale(0.98) translateY(20px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
 }
+
+.fade-confirm-enter-active, .fade-confirm-leave-active { transition: opacity 0.2s ease; }
+.fade-confirm-enter-from, .fade-confirm-leave-to { opacity: 0; }
 </style>
