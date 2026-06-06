@@ -1,4 +1,4 @@
-﻿-- InicializaciÃ³n de Base de Datos (NORMALIZADA CON TABLA PERSONAL Y DETALLE ARBOLES v3)
+-- InicializaciÃ³n de Base de Datos (NORMALIZADA CON TABLA PERSONAL Y DETALLE ARBOLES v3)
 
 SET NAMES utf8mb4;
 DROP DATABASE IF EXISTS dboficina;
@@ -161,25 +161,8 @@ CREATE TABLE IF NOT EXISTS calendario_barrios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
-
+-- 3. DATOS REALES DE PRODUCCION (exportados de base local)
 -- =============================================================================
--- 3. DATOS REALES DE PRODUCCION (exportados de base local - fotos excluidas)
--- =============================================================================
-docker : mysqldump: [Warning] Using a password on the command line interface can be insecure.
-En línea: 2 Carácter: 1
-+ docker exec db_oficina mysqldump -uroot -ppassword --no-tablespaces - ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (mysqldump: [War...an be insecure.:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-Warning: A partial dump from a server that has GTIDs will by default include the GTIDs of all transactions, even those 
-that changed suppressed parts of the database. If you don't want to restore GTIDs, pass --set-gtid-purged=OFF. To make 
-a complete dump, pass --all-databases --triggers --routines --events. 
-Warning: A dump from a server that has GTIDs enabled will by default include the GTIDs of all transactions, even those 
-that were executed during its extraction and might not be represented in the dumped data. This might result in an 
-inconsistent data dump. 
-In order to ensure a consistent backup of the database, pass --single-transaction or --lock-all-tables or 
---source-data. 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
