@@ -410,3 +410,21 @@ INSERT INTO calendario_barrios (fecha_aniversario, nombre_barrio, presidente_bar
 ('2026-12-16', 'Maria de Los Angeles', NULL, NULL, '#f59e0b'),
 ('2026-12-21', 'Petrolero', NULL, NULL, '#6366f1'),
 ('2026-12-29', 'San Geronimo Sud', NULL, NULL, '#6366f1');
+
+-- Poblar Feriados Nacionales y Departamentales (Calendario Festivo)
+INSERT INTO calendario_barrios (fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta) VALUES
+('2026-01-01', 'Feriado: Año Nuevo', NULL, NULL, '#ef4444'),
+('2026-01-02', 'Feriado: Puente de Año Nuevo', NULL, NULL, '#ef4444'),
+('2026-01-23', 'Feriado: Día del Estado Plurinacional', NULL, NULL, '#ef4444'),
+('2026-02-16', 'Feriado: Carnaval (Día 1)', NULL, NULL, '#ef4444'),
+('2026-02-17', 'Feriado: Carnaval (Día 2)', NULL, NULL, '#ef4444'),
+('2026-04-03', 'Feriado: Viernes Santo', NULL, NULL, '#ef4444'),
+('2026-04-15', 'Feriado: Aniversario Departamental de Tarija (La Tablada)', NULL, NULL, '#b91c1c'),
+('2026-05-01', 'Feriado: Día del Trabajo', NULL, NULL, '#ef4444'),
+('2026-06-04', 'Feriado: Corpus Christi', NULL, NULL, '#ef4444'),
+('2026-06-05', 'Feriado: Puente Corpus Christi', NULL, NULL, '#ef4444'),
+('2026-06-22', 'Feriado: Año Nuevo Andino Amazónico Chaqueño', NULL, NULL, '#ef4444'),
+('2026-08-06', 'Feriado: Día de la Independencia de Bolivia', NULL, NULL, '#ef4444'),
+('2026-08-07', 'Feriado: Puente de la Independencia', NULL, NULL, '#ef4444'),
+('2026-11-02', 'Feriado: Día de Todos los Difuntos', NULL, NULL, '#ef4444'),
+('2026-12-25', 'Feriado: Navidad', NULL, NULL, '#ef4444');
