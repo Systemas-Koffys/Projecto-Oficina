@@ -95,34 +95,48 @@ export const useMainStore = defineStore('mainStore', () => {
     localStorage.removeItem('loginTime');
   }
 
+  function handleAuthError() {
+    console.warn("Error de autenticación (401). Cerrando sesión...");
+    logout();
+    showToast("Sesión expirada. Por favor, inicie sesión nuevamente.", "error");
+  }
+
   // Función para descargar los catálogos de MySQL
   async function fetchCatalogos() {
     uiState.isLoading = true;
     try {
       const response = await fetch(`${API_URL}/catalogos`, { headers: getAuthHeaders() });
-      const data = await response.json();
-      
-      // Poblar el store con los catálogos principales
-      store.tecnicos = data.tecnicos || [];
-      store.acciones = data.acciones || [];
-      store.especies = data.especies || [];
-      store.tipos_institucion = data.tipos_institucion || [];
-      store.instituciones = data.instituciones || [];
-      store.distritos = data.distritos || [];
-      store.barrios = data.barrios || [];
-      
-      // Descargar datos complementarios en PARALELO para no bloquear el inicio
-      Promise.allSettled([
-          fetchUsuarios(),
-          fetchImpresiones(),
-          fetchConfig(),
-          fetchSolicitudes()
-      ]).then(() => {
-          console.log("Carga de datos secundarios completada.");
-          uiState.isLoading = false;
-      });
-      
-      console.log("Catálogos base cargados desde MySQL.");
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Poblar el store con los catálogos principales
+        store.tecnicos = data.tecnicos || [];
+        store.acciones = data.acciones || [];
+        store.especies = data.especies || [];
+        store.tipos_institucion = data.tipos_institucion || [];
+        store.instituciones = data.instituciones || [];
+        store.distritos = data.distritos || [];
+        store.barrios = data.barrios || [];
+        
+        // Descargar datos complementarios en PARALELO para no bloquear el inicio
+        Promise.allSettled([
+            fetchUsuarios(),
+            fetchImpresiones(),
+            fetchConfig(),
+            fetchSolicitudes()
+        ]).then(() => {
+            console.log("Carga de datos secundarios completada.");
+            uiState.isLoading = false;
+        });
+        
+        console.log("Catálogos base cargados desde MySQL.");
+      } else {
+        console.error("Error al cargar los catálogos:", response.status);
+        if (response.status === 401) {
+          handleAuthError();
+        }
+        uiState.isLoading = false;
+      }
     } catch (error) {
       console.error("Error al cargar los catálogos:", error);
       uiState.isLoading = false;
@@ -133,24 +147,28 @@ export const useMainStore = defineStore('mainStore', () => {
   async function fetchConfig() {
     try {
       const response = await fetch(`${API_URL}/config`, { headers: getAuthHeaders() });
-      const config = await response.json();
-      store.config = config;
-      
-      // Sincronizar logos del servidor al uiState y localStorage
-      if (config.logo_app) {
-        uiState.logo_app = config.logo_app;
-        localStorage.setItem('logo_app', config.logo_app);
-      } else if (config.logo_app === null || config.logo_app === '') {
-        uiState.logo_app = null;
-        localStorage.removeItem('logo_app');
-      }
-      
-      if (config.logo_institucional) {
-        uiState.logo_institucional = config.logo_institucional;
-        localStorage.setItem('logo_institucional', config.logo_institucional);
-      } else if (config.logo_institucional === null || config.logo_institucional === '') {
-        uiState.logo_institucional = null;
-        localStorage.removeItem('logo_institucional');
+      if (response.ok) {
+        const config = await response.json();
+        store.config = config;
+        
+        // Sincronizar logos del servidor al uiState y localStorage
+        if (config.logo_app) {
+          uiState.logo_app = config.logo_app;
+          localStorage.setItem('logo_app', config.logo_app);
+        } else if (config.logo_app === null || config.logo_app === '') {
+          uiState.logo_app = null;
+          localStorage.removeItem('logo_app');
+        }
+        
+        if (config.logo_institucional) {
+          uiState.logo_institucional = config.logo_institucional;
+          localStorage.setItem('logo_institucional', config.logo_institucional);
+        } else if (config.logo_institucional === null || config.logo_institucional === '') {
+          uiState.logo_institucional = null;
+          localStorage.removeItem('logo_institucional');
+        }
+      } else if (response.status === 401) {
+        handleAuthError();
       }
     } catch (error) {
       console.error("Error al cargar configuración:", error);
@@ -179,7 +197,14 @@ export const useMainStore = defineStore('mainStore', () => {
   async function fetchImpresiones() {
     try {
       const response = await fetch(`${API_URL}/impresiones`, { headers: getAuthHeaders() });
-      store.impresiones = await response.json();
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          store.impresiones = data;
+        }
+      } else if (response.status === 401) {
+        handleAuthError();
+      }
     } catch (error) {
       console.error("Error al cargar impresiones:", error);
     }
@@ -254,8 +279,15 @@ export const useMainStore = defineStore('mainStore', () => {
   async function fetchUsuarios() {
     try {
       const response = await fetch(`${API_URL}/usuarios`, { headers: getAuthHeaders() });
-      store.usuarios = await response.json();
-      console.log("Usuarios cargados desde MySQL con éxito.");
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          store.usuarios = data;
+          console.log("Usuarios cargados desde MySQL con éxito.");
+        }
+      } else if (response.status === 401) {
+        handleAuthError();
+      }
     } catch (error) {
       console.error("Error al cargar los usuarios:", error);
     }
@@ -320,8 +352,15 @@ export const useMainStore = defineStore('mainStore', () => {
   async function fetchSolicitudes() {
     try {
       const response = await fetch(`${API_URL}/solicitudes`, { headers: getAuthHeaders() });
-      store.solicitudes = await response.json();
-      console.log("Solicitudes cargadas desde MySQL con éxito.");
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          store.solicitudes = data;
+          console.log("Solicitudes cargadas desde MySQL con éxito.");
+        }
+      } else if (response.status === 401) {
+        handleAuthError();
+      }
     } catch (error) {
       console.error("Error al cargar las solicitudes:", error);
     }
