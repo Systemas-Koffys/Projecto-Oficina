@@ -116,8 +116,8 @@ CREATE TABLE solicitudes_poda (
     FOREIGN KEY (id_institucion) REFERENCES instituciones(id_institucion),
     FOREIGN KEY (id_distrito) REFERENCES distritos(id_distrito),
     FOREIGN KEY (id_barrio) REFERENCES barrios(id_barrio),
-    FOREIGN KEY (id_tecnico_verificador) REFERENCES personal(id_personal),
-    FOREIGN KEY (id_tecnico_ejecucion) REFERENCES personal(id_personal)
+    FOREIGN KEY (id_tecnico_verificador) REFERENCES personal(id_personal) ON DELETE SET NULL,
+    FOREIGN KEY (id_tecnico_ejecucion) REFERENCES personal(id_personal) ON DELETE SET NULL
 );
 
 CREATE TABLE detalle_arboles (

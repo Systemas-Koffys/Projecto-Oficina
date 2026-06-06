@@ -639,7 +639,11 @@ const handleDelete = (p) => {
 const confirmarEliminacion = async () => {
     confirmDialog.visible = false
     const ok = await deleteCatalogo('tecnicos', confirmDialog.id)
-    if (ok) showToast('Personal eliminado', 'success')
+    if (ok) {
+        showToast('Personal eliminado', 'success')
+    } else {
+        showToast('No se pudo eliminar el personal. Podría estar asignado a solicitudes.', 'error')
+    }
 }
 
 const saveData = async () => {
