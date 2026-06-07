@@ -1,32 +1,73 @@
 <template>
   <Transition name="fade">
-    <div v-if="uiState.isLoading" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#022c22] text-white">
-      <!-- Fondo de Iluminación Radial -->
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.15)_0%,transparent_70%)]"></div>
+    <div v-if="uiState.isLoading" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#011a12] text-white overflow-hidden">
 
-      <div class="relative z-10 flex flex-col items-center">
-        <!-- Logo con Iluminación -->
-        <div class="relative w-40 h-40 mb-12 group">
-          <div class="absolute inset-0 bg-accent/30 rounded-full blur-3xl animate-pulse"></div>
-          <div class="relative w-full h-full bg-white/5 backdrop-blur-sm rounded-[3rem] border border-white/20 flex items-center justify-center shadow-2xl overflow-hidden" :class="uiState.logo_app ? 'p-2' : 'p-6'">
-            <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain">
-            <span v-else class="text-7xl font-black text-accent drop-shadow-lg">A</span>
+      <!-- Fondo Aurora Suave (mismo estilo que Login) -->
+      <div class="aurora-bg absolute inset-0"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12)_0%,transparent_70%)]"></div>
+
+      <div class="relative z-10 flex flex-col items-center gap-10">
+
+        <!-- Árbol SVG con Anillo de Crecimiento (Opción B) -->
+        <div class="tree-ring-container relative flex items-center justify-center" style="width:200px;height:200px;">
+          
+          <!-- Aura pulsante externa -->
+          <div class="absolute inset-0 rounded-full bg-emerald-500/10 animate-pulse blur-xl"></div>
+
+          <!-- Anillo de Progreso SVG -->
+          <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 200 200">
+            <!-- Pista base del anillo -->
+            <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(16,185,129,0.12)" stroke-width="6"/>
+            <!-- Anillo animado de crecimiento -->
+            <circle
+              cx="100" cy="100" r="88"
+              fill="none"
+              stroke="#10b981"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-dasharray="553"
+              class="ring-grow"
+              style="filter: drop-shadow(0 0 8px #10b981);"
+            />
+          </svg>
+
+          <!-- Puntos de brillo orbitando el anillo -->
+          <svg class="absolute inset-0 w-full h-full" viewBox="0 0 200 200">
+            <circle class="orbit-dot" cx="100" cy="12" r="4" fill="#6ee7b7" style="filter: drop-shadow(0 0 6px #6ee7b7);"/>
+          </svg>
+
+          <!-- Círculo de fondo central -->
+          <div class="relative z-10 w-32 h-32 rounded-full bg-gradient-to-br from-emerald-900/80 to-emerald-950/90 backdrop-blur-sm border border-emerald-500/20 shadow-2xl flex items-center justify-center">
+
+            <!-- Árbol SVG estilizado -->
+            <svg viewBox="0 0 64 80" class="w-16 h-16 tree-sway" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Tronco -->
+              <rect x="28" y="54" width="8" height="20" rx="4" fill="#6b4226" opacity="0.9"/>
+              <!-- Copa inferior (más ancha) -->
+              <ellipse cx="32" cy="52" rx="20" ry="14" fill="#059669" opacity="0.9"/>
+              <!-- Copa media -->
+              <ellipse cx="32" cy="38" rx="15" ry="12" fill="#10b981" opacity="0.95"/>
+              <!-- Copa superior (punta) -->
+              <ellipse cx="32" cy="26" rx="10" ry="10" fill="#34d399" />
+              <!-- Brillo en punta -->
+              <ellipse cx="29" cy="22" rx="3" ry="2" fill="#a7f3d0" opacity="0.5"/>
+            </svg>
           </div>
         </div>
 
-        <h2 class="text-4xl font-black mb-4 tracking-tighter text-center">
-          Iniciando <span class="text-accent">Gestión de Arboricultura</span>
-        </h2>
-        
-        <!-- Barra de Carga -->
-        <div class="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden mb-6 border border-white/5">
-          <div class="h-full bg-accent shadow-[0_0_15px_#10b981] animate-[loading-bar_2s_infinite_ease-in-out]"></div>
+        <!-- Textos -->
+        <div class="text-center space-y-3">
+          <h2 class="text-3xl font-black tracking-tighter">
+            Iniciando <span class="text-emerald-400">Arboricultura</span>
+          </h2>
+
+          <!-- Mensaje dinámico con icono ping -->
+          <p class="text-white/50 font-bold text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-3">
+            <span class="inline-block w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping"></span>
+            {{ loadingMessage }}
+          </p>
         </div>
 
-        <p class="text-white/50 font-bold text-xs uppercase tracking-[0.3em] flex items-center gap-3">
-          <span class="inline-block w-1.5 h-1.5 bg-accent rounded-full animate-ping"></span>
-          {{ loadingMessage }}
-        </p>
       </div>
     </div>
   </Transition>
@@ -50,7 +91,6 @@ let messageIndex = 0
 let messageInterval = null
 let wakeupTimer = null
 
-// Observamos isLoading para arrancar o limpiar el timer
 watch(() => uiState.isLoading, (isLoading) => {
   if (isLoading) {
     loadingMessage.value = messages[0]
@@ -59,20 +99,13 @@ watch(() => uiState.isLoading, (isLoading) => {
       loadingMessage.value = messages[messageIndex % messages.length]
       messageIndex++
     }, 1500)
-    
     wakeupTimer = setTimeout(() => {
       if (messageInterval) clearInterval(messageInterval)
       loadingMessage.value = 'El servidor se está despertando (esto puede tardar 30s)...'
     }, 5000)
   } else {
-    if (messageInterval) {
-      clearInterval(messageInterval)
-      messageInterval = null
-    }
-    if (wakeupTimer) {
-      clearTimeout(wakeupTimer)
-      wakeupTimer = null
-    }
+    if (messageInterval) { clearInterval(messageInterval); messageInterval = null }
+    if (wakeupTimer) { clearTimeout(wakeupTimer); wakeupTimer = null }
   }
 }, { immediate: true })
 
@@ -83,11 +116,63 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-@keyframes loading-bar {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(0); }
-  100% { transform: translateX(100%); }
+/* ==============================
+   FONDO AURORA (igual que Login)
+   ============================== */
+.aurora-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(6, 78, 59, 0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 80% 70%, rgba(5, 150, 105, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 50% 90%, rgba(16, 185, 129, 0.2) 0%, transparent 50%),
+    #011a12;
+  animation: aurora-shift 10s ease-in-out infinite alternate;
 }
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+@keyframes aurora-shift {
+  0%   { filter: hue-rotate(0deg) brightness(1); }
+  50%  { filter: hue-rotate(8deg) brightness(1.08); }
+  100% { filter: hue-rotate(-5deg) brightness(0.95); }
+}
+
+/* ==============================
+   ANILLO DE CRECIMIENTO
+   ============================== */
+.ring-grow {
+  animation: ring-grow-anim 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transform-origin: center;
+}
+@keyframes ring-grow-anim {
+  0%   { stroke-dashoffset: 553; opacity: 0.4; }
+  60%  { stroke-dashoffset: 0;   opacity: 1;   }
+  100% { stroke-dashoffset: -553; opacity: 0.2; }
+}
+
+/* ==============================
+   PUNTO ORBITANDO
+   ============================== */
+.orbit-dot {
+  transform-origin: 100px 100px;
+  animation: orbit 2.4s linear infinite;
+}
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ==============================
+   ÁRBOL MECIÉNDOSE
+   ============================== */
+.tree-sway {
+  animation: tree-sway 3.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+@keyframes tree-sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50%       { transform: rotate(2deg);  }
+}
+
+/* ==============================
+   TRANSICIÓN DE ENTRADA/SALIDA
+   ============================== */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.35s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

@@ -45,7 +45,7 @@ const handleLogin = async () => {
 </script>
 
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 p-6 relative overflow-hidden">
+    <div class="login-aurora min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
         <div class="w-full max-w-md relative z-10">
             <div class="text-center mb-8">
                 <div class="inline-flex items-center justify-center w-24 h-24 bg-white/10 rounded-[2.5rem] backdrop-blur-xl border border-white/20 mb-6 shadow-2xl overflow-hidden" :class="uiState.logo_app ? 'p-1.5' : 'p-4'">
@@ -197,5 +197,34 @@ select option {
 @keyframes loginCardPop {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   FONDO AURORA — Opción F
+   ============================================================ */
+.login-aurora {
+    background:
+        radial-gradient(ellipse 90% 70% at 10% 20%, rgba(6, 78, 59, 0.9) 0%, transparent 55%),
+        radial-gradient(ellipse 75% 60% at 90% 80%, rgba(5, 150, 105, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 50% at 50% 100%, rgba(4, 120, 87, 0.5) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 10%, rgba(16, 185, 129, 0.25) 0%, transparent 50%),
+        #011a12;
+    animation: aurora-login 12s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-login {
+    0% {
+        filter: hue-rotate(0deg) brightness(1);
+        background-position: 0% 0%;
+    }
+    33% {
+        filter: hue-rotate(10deg) brightness(1.06);
+    }
+    66% {
+        filter: hue-rotate(-6deg) brightness(0.96);
+    }
+    100% {
+        filter: hue-rotate(4deg) brightness(1.03);
+    }
 }
 </style>
