@@ -4,6 +4,10 @@ import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, deleteUsuario, showToast } = mainStore
 import UsuarioModal from '../components/UsuarioModal.vue'
+import { 
+    Users, User, ShieldCheck, Crown, Plus, 
+    Eye, Pencil, UserMinus, X, AlertTriangle 
+} from 'lucide-vue-next'
 
 const showModal = ref(false)
 const usuarioParaEditar = ref(null)
@@ -60,28 +64,36 @@ const openNew = () => {
     <!-- ESTADÍSTICAS -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
         <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-blue-500">
-            <div class="w-12 h-12 bg-blue-100/20 text-blue-600 rounded-2xl flex items-center justify-center text-xl">🔐</div>
+            <div class="w-12 h-12 bg-blue-100/20 text-blue-600 rounded-2xl flex items-center justify-center">
+                <Users class="w-6 h-6" />
+            </div>
             <div>
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Usuarios</p>
                 <p class="text-2xl font-black">{{ totalUsuarios }}</p>
             </div>
         </div>
         <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-emerald-400">
-            <div class="w-12 h-12 bg-emerald-100/20 text-emerald-600 rounded-2xl flex items-center justify-center text-xl">👤</div>
+            <div class="w-12 h-12 bg-emerald-100/20 text-emerald-600 rounded-2xl flex items-center justify-center">
+                <User class="w-6 h-6" />
+            </div>
             <div>
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Acceso Usuario</p>
                 <p class="text-2xl font-black">{{ totalUsers }}</p>
             </div>
         </div>
         <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-emerald-500">
-            <div class="w-12 h-12 bg-emerald-100/20 text-emerald-600 rounded-2xl flex items-center justify-center text-xl">⚙️</div>
+            <div class="w-12 h-12 bg-emerald-100/20 text-emerald-600 rounded-2xl flex items-center justify-center">
+                <ShieldCheck class="w-6 h-6" />
+            </div>
             <div>
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Acceso Administrador</p>
                 <p class="text-2xl font-black">{{ totalAdmins }}</p>
             </div>
         </div>
         <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-purple-500">
-            <div class="w-12 h-12 bg-purple-100/20 text-purple-600 rounded-2xl flex items-center justify-center text-xl">👑</div>
+            <div class="w-12 h-12 bg-purple-100/20 text-purple-600 rounded-2xl flex items-center justify-center">
+                <Crown class="w-6 h-6" />
+            </div>
             <div>
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Acceso Superusuario</p>
                 <p class="text-2xl font-black">{{ totalRoots }}</p>
@@ -95,14 +107,14 @@ const openNew = () => {
         <div class="px-6 py-5 bg-gradient-to-r from-emerald-800 to-emerald-950 flex justify-between items-center">
             <div>
                 <h3 class="font-black text-white text-lg flex items-center gap-2">
-                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <Users class="w-5 h-5 text-emerald-400" />
                     Directorio de Usuarios del Sistema
                 </h3>
                 <p class="text-emerald-100/70 text-xs mt-1">Personal autorizado para ingresar al sistema</p>
             </div>
             <button v-if="esRoot" @click="openNew"
                 class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-900/20 transition-all flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                <Plus class="w-5 h-5" />
                 Habilitar Acceso
             </button>
         </div>
@@ -164,14 +176,14 @@ const openNew = () => {
                         <!-- Acciones -->
                         <td v-if="esRoot" class="px-6 py-4 rounded-r-xl border-y border-r border-gray-100">
                             <div class="flex items-center justify-center gap-2">
-                                <button @click="openView(user)" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Mirar">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <button @click="openView(user)" class="w-10 h-10 flex items-center justify-center bg-white text-emerald-600 border border-gray-200 rounded-xl shadow-sm hover:bg-emerald-600 hover:text-white transition-all" title="Mirar">
+                                    <Eye class="w-5 h-5" />
                                 </button>
-                                <button @click="openEdit(user)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                <button @click="openEdit(user)" class="w-10 h-10 flex items-center justify-center bg-white text-blue-600 border border-gray-200 rounded-xl shadow-sm hover:bg-blue-600 hover:text-white transition-all" title="Editar">
+                                    <Pencil class="w-5 h-5" />
                                 </button>
-                                <button @click="handleDelete(user.id, user.nombre)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Revocar Acceso">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                <button @click="handleDelete(user.id, user.nombre)" class="w-10 h-10 flex items-center justify-center bg-white text-red-600 border border-gray-200 rounded-xl shadow-sm hover:bg-red-600 hover:text-white transition-all" title="Revocar Acceso">
+                                    <UserMinus class="w-5 h-5" />
                                 </button>
                             </div>
                         </td>
@@ -194,8 +206,8 @@ const openNew = () => {
                     <h3 class="font-black text-xl tracking-tight leading-none">Detalles de Cuenta</h3>
                     <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Seguridad e Identidad</p>
                 </div>
-                <button type="button" @click="viewUser = null" class="hover:bg-white/20 p-2 rounded-xl transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button type="button" @click="viewUser = null" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center">
+                    <X class="w-6 h-6" />
                 </button>
             </div>
 
@@ -216,7 +228,7 @@ const openNew = () => {
                 <!-- Detalles de Acceso -->
                 <div class="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm space-y-4">
                     <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> Credenciales de Acceso
+                        <ShieldCheck class="w-4 h-4 text-emerald-500" /> Credenciales de Acceso
                     </h5>
                     
                     <div class="space-y-3">
@@ -270,9 +282,7 @@ const openNew = () => {
             <!-- Icono de advertencia -->
             <div class="bg-gradient-to-br from-red-500 to-red-700 p-8 flex flex-col items-center text-white">
                 <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
+                    <AlertTriangle class="w-8 h-8 text-white" />
                 </div>
                 <h3 class="font-black text-lg tracking-tight">Revocar Acceso</h3>
                 <p class="text-red-100/80 text-xs font-bold uppercase tracking-widest mt-1">Acción de seguridad</p>
