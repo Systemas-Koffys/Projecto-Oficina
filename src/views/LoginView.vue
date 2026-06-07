@@ -45,8 +45,27 @@ const handleLogin = async () => {
 </script>
 
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 p-6">
-        <div class="w-full max-w-md">
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 p-6 relative overflow-hidden">
+        
+        <!-- Fondo Orgánico Animado -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+            <!-- Burbujas de Luz Difuminadas -->
+            <div class="absolute w-[350px] h-[350px] rounded-full bg-emerald-500/15 blur-[80px] top-10 left-[10%] animate-float-light-1"></div>
+            <div class="absolute w-[450px] h-[450px] rounded-full bg-teal-500/15 blur-[100px] bottom-10 right-[15%] animate-float-light-2"></div>
+            
+            <!-- Hojas Flotantes Suspendidas -->
+            <div class="absolute left-[12%] top-[20%] w-16 h-16 text-emerald-400/10 blur-[1px] animate-float-leaf-1 hidden md:block">
+                <svg viewBox="0 0 24 24" class="w-full h-full fill-current"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L2.18,20.66C4.26,15.49 6.34,9.34 15.34,7C14,5.08 11.26,3.67 8,3V1C12,1 15.67,3 17,5C18.33,3 22,1 22,1V3C18.74,3.67 16,5.08 14.66,7C23.66,9.34 25.74,15.49 27.82,20.66L26.18,21.34C24.1,16.17 22,10 13,8V11H11V8H17Z" /></svg>
+            </div>
+            <div class="absolute right-[18%] top-[15%] w-24 h-24 text-emerald-400/10 blur-[2px] animate-float-leaf-2 hidden md:block">
+                <svg viewBox="0 0 24 24" class="w-full h-full fill-current"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L2.18,20.66C4.26,15.49 6.34,9.34 15.34,7C14,5.08 11.26,3.67 8,3V1C12,1 15.67,3 17,5C18.33,3 22,1 22,1V3C18.74,3.67 16,5.08 14.66,7C23.66,9.34 25.74,15.49 27.82,20.66L26.18,21.34C24.1,16.17 22,10 13,8V11H11V8H17Z" /></svg>
+            </div>
+            <div class="absolute left-[20%] bottom-[15%] w-20 h-20 text-emerald-400/8 blur-[1.5px] animate-float-leaf-3 hidden md:block">
+                <svg viewBox="0 0 24 24" class="w-full h-full fill-current"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L2.18,20.66C4.26,15.49 6.34,9.34 15.34,7C14,5.08 11.26,3.67 8,3V1C12,1 15.67,3 17,5C18.33,3 22,1 22,1V3C18.74,3.67 16,5.08 14.66,7C23.66,9.34 25.74,15.49 27.82,20.66L26.18,21.34C24.1,16.17 22,10 13,8V11H11V8H17Z" /></svg>
+            </div>
+        </div>
+
+        <div class="w-full max-w-md relative z-10">
             <div class="text-center mb-8">
                 <div class="inline-flex items-center justify-center w-24 h-24 bg-white/10 rounded-[2.5rem] backdrop-blur-xl border border-white/20 mb-6 shadow-2xl overflow-hidden" :class="uiState.logo_app ? 'p-1.5' : 'p-4'">
                     <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain" alt="Logo Institucional">
@@ -178,5 +197,51 @@ select option {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- ANIMACIONES DE FONDO FLOTANTE --- */
+@keyframes floatLight1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(40px, -60px) scale(1.1); }
+}
+
+@keyframes floatLight2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-50px, 40px) scale(0.9); }
+}
+
+@keyframes floatLeaf1 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(15deg); }
+}
+
+@keyframes floatLeaf2 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-40px) rotate(-25deg); }
+}
+
+@keyframes floatLeaf3 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-25px) rotate(20deg); }
+}
+
+.animate-float-light-1 {
+  animation: floatLight1 12s ease-in-out infinite;
+}
+
+.animate-float-light-2 {
+  animation: floatLight2 16s ease-in-out infinite;
+}
+
+.animate-float-leaf-1 {
+  animation: floatLeaf1 9s ease-in-out infinite;
+}
+
+.animate-float-leaf-2 {
+  animation: floatLeaf2 12s ease-in-out infinite;
+}
+
+.animate-float-leaf-3 {
+  animation: floatLeaf3 10s ease-in-out infinite;
 }
 </style>
