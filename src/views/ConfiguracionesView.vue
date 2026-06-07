@@ -430,10 +430,6 @@ const getOptions = (optionKey) => store[optionKey] || []
 <style scoped>
 @reference "tailwindcss";
 
-.modal-header-gradient {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%) !important;
-}
-
 .label-prime { 
     font-size: 0.75rem;
     font-weight: 600;

@@ -4,15 +4,15 @@
         <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden flex flex-col animate-prime-in">
             
             <!-- Header Institucional -->
-            <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg">
+            <div class="px-8 py-6 modal-header-gradient flex justify-between items-center shadow-lg border-b border-black/10 shrink-0">
                 <div>
-                    <h3 class="font-black text-xl tracking-tight leading-none text-white">
+                    <h3 class="font-black text-xl tracking-tight leading-none">
                         {{ userData ? 'Editar Cuenta de Usuario' : 'Habilitar Acceso al Sistema' }}
                     </h3>
-                    <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Gestión de Credenciales Institucionales</p>
+                    <p class="text-[10px] opacity-80 font-bold uppercase tracking-[0.3em] mt-2">Gestión de Credenciales Institucionales</p>
                 </div>
-                <button type="button" @click="$emit('close')" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button type="button" @click="$emit('close')" class="hover:bg-white/10 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer text-[inherit]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
 

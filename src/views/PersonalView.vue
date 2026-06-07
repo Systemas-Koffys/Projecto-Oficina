@@ -176,12 +176,12 @@
             <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
                 
                 <!-- Header Institucional -->
-                <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg border-b border-[#042f1a]">
+                <div class="px-8 py-6 modal-header-gradient flex justify-between items-center shadow-lg border-b border-black/10 shrink-0">
                     <div>
-                        <h3 class="font-black text-xl tracking-tight leading-none text-white">Expediente de Personal</h3>
-                        <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Detalles Completos del Funcionario</p>
+                        <h3 class="font-black text-xl tracking-tight leading-none">Expediente de Personal</h3>
+                        <p class="text-[10px] opacity-80 font-bold uppercase tracking-[0.3em] mt-2">Detalles Completos del Funcionario</p>
                     </div>
-                    <button type="button" @click="viewPerson = null" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer">
+                    <button type="button" @click="viewPerson = null" class="hover:bg-white/10 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer text-[inherit]">
                         <X class="w-6 h-6" />
                     </button>
                 </div>
@@ -282,13 +282,13 @@
             <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-4xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
                 
                 <!-- Header Institucional -->
-                <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg border-b border-[#042f1a]">
+                <div class="px-8 py-6 modal-header-gradient flex justify-between items-center shadow-lg border-b border-black/10 shrink-0">
                     <div>
-                        <h3 class="font-black text-xl tracking-tight leading-none text-white">{{ editingPerson ? 'Editar Expediente de Personal' : 'Registrar Nuevo Funcionario' }}</h3>
-                        <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Dirección de Personal y Accesos</p>
+                        <h3 class="font-black text-xl tracking-tight leading-none">{{ editingPerson ? 'Editar Expediente de Personal' : 'Registrar Nuevo Funcionario' }}</h3>
+                        <p class="text-[10px] opacity-80 font-bold uppercase tracking-[0.3em] mt-2">Dirección de Personal y Accesos</p>
                     </div>
-                    <button type="button" @click="showModal = false" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer">
-                        <X class="w-6 h-6 animate-none text-white" />
+                    <button type="button" @click="showModal = false" class="hover:bg-white/10 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer text-[inherit]">
+                        <X class="w-6 h-6" />
                     </button>
                 </div>
                 

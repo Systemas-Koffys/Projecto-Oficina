@@ -244,3 +244,9 @@ svg { stroke: currentColor; }
 .border-main { border-color: var(--border) !important; }
 .border-sec { border-color: var(--border-sec) !important; }
 .bg-accent-soft { background-color: var(--accent-soft) !important; }
+
+/* CABECERAS DE MODALES ADAPTATIVAS */
+.modal-header-gradient {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%) !important;
+    color: var(--text-on-accent) !important;
+}

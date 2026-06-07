@@ -3,13 +3,13 @@
         <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-4xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
             
             <!-- Header Institucional -->
-            <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg border-b border-[#042f1a]">
+            <div class="px-8 py-6 modal-header-gradient flex justify-between items-center shadow-lg border-b border-black/10 shrink-0">
                 <div>
-                    <h3 class="font-black text-xl tracking-tight leading-none text-white">{{ uiState.editData ? 'Editar Expediente Técnico' : 'Nueva Solicitud de Servicio' }}</h3>
+                    <h3 class="font-black text-xl tracking-tight leading-none">{{ uiState.editData ? 'Editar Expediente Técnico' : 'Nueva Solicitud de Servicio' }}</h3>
                     <!-- Lógica de Sincronización v2.1 Activa -->
-                    <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Gestión de Arboricultura Municipal</p>
+                    <p class="text-[10px] opacity-80 font-bold uppercase tracking-[0.3em] mt-2">Gestión de Arboricultura Municipal</p>
                 </div>
-                <button type="button" @click="cerrar" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer">
+                <button type="button" @click="cerrar" class="hover:bg-white/10 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer text-[inherit]">
                     <X class="w-6 h-6" />
                 </button>
             </div>
