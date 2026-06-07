@@ -37,19 +37,22 @@
           </svg>
 
           <!-- Círculo de fondo central -->
-          <div class="relative z-10 w-32 h-32 rounded-full bg-gradient-to-br from-emerald-900/80 to-emerald-950/90 backdrop-blur-sm border border-emerald-500/20 shadow-2xl flex items-center justify-center">
+          <div class="relative z-10 w-32 h-32 rounded-full bg-gradient-to-br from-emerald-900/80 to-emerald-950/90 backdrop-blur-sm border border-emerald-500/20 shadow-2xl flex items-center justify-center overflow-hidden">
 
-            <!-- Árbol SVG estilizado -->
-            <svg viewBox="0 0 64 80" class="w-16 h-16 tree-sway" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Tronco -->
+            <!-- Logo de la aplicación (si existe) -->
+            <img
+              v-if="uiState.logo_app"
+              :src="uiState.logo_app"
+              class="w-20 h-20 object-contain tree-sway drop-shadow-lg"
+              alt="Logo"
+            />
+
+            <!-- Fallback: Árbol SVG estilizado -->
+            <svg v-else viewBox="0 0 64 80" class="w-16 h-16 tree-sway" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="28" y="54" width="8" height="20" rx="4" fill="#6b4226" opacity="0.9"/>
-              <!-- Copa inferior (más ancha) -->
               <ellipse cx="32" cy="52" rx="20" ry="14" fill="#059669" opacity="0.9"/>
-              <!-- Copa media -->
               <ellipse cx="32" cy="38" rx="15" ry="12" fill="#10b981" opacity="0.95"/>
-              <!-- Copa superior (punta) -->
               <ellipse cx="32" cy="26" rx="10" ry="10" fill="#34d399" />
-              <!-- Brillo en punta -->
               <ellipse cx="29" cy="22" rx="3" ry="2" fill="#a7f3d0" opacity="0.5"/>
             </svg>
           </div>
