@@ -57,7 +57,7 @@ const handleLogin = async () => {
             </div>
 
             <!-- Card de Login -->
-            <div class="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden border border-white/20">
+            <div class="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),_0_0_0_1px_rgba(16,185,129,0.05)] overflow-hidden border border-emerald-500/10 animate-login-card">
                 <div class="p-8">
                     <!-- Cabecera Dinámica con Foto y Rol -->
                     <div class="mb-8 flex flex-col items-center">
@@ -88,8 +88,8 @@ const handleLogin = async () => {
                         <!-- Selector de Usuario -->
                         <div class="space-y-2">
                             <label class="block text-xs font-black text-emerald-900 uppercase tracking-wider ml-1" for="login-username-select">Personal Autorizado</label>
-                            <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl focus-within:border-emerald-500 focus-within:bg-white transition-all cursor-pointer">
-                                <div class="text-gray-400 shrink-0 flex items-center justify-center">
+                            <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl focus-within:border-emerald-500 focus-within:bg-white focus-within:text-emerald-600 transition-all cursor-pointer text-gray-400">
+                                <div class="shrink-0 flex items-center justify-center">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                 </div>
                                 <select v-model="username" required id="login-username-select"
@@ -108,8 +108,8 @@ const handleLogin = async () => {
                         <!-- Password -->
                         <div class="space-y-2">
                             <label class="block text-xs font-black text-emerald-900 uppercase tracking-wider ml-1" for="login-password-input">Contraseña de Seguridad</label>
-                            <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl focus-within:border-emerald-500 focus-within:bg-white transition-all">
-                                <div class="text-gray-400 shrink-0 flex items-center justify-center">
+                            <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-2xl focus-within:border-emerald-500 focus-within:bg-white focus-within:text-emerald-600 transition-all text-gray-400">
+                                <div class="shrink-0 flex items-center justify-center">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                 </div>
                                 <input v-model="password" :type="showPassword ? 'text' : 'password'" required placeholder="••••••••" id="login-password-input"
@@ -188,5 +188,14 @@ select option {
 
 #login-submit-btn:hover {
     background: linear-gradient(to right, #047857, #059669) !important;
+}
+
+.animate-login-card {
+    animation: loginCardPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes loginCardPop {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>

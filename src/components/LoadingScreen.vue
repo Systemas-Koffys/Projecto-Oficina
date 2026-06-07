@@ -39,22 +39,46 @@ const mainStore = useMainStore()
 const { uiState } = mainStore
 
 const loadingMessage = ref('Cargando datos...')
-let timer = null
+const messages = [
+  'Conectando con el servidor...',
+  'Cargando catálogo de distritos...',
+  'Verificando sesión activa...',
+  'Optimizando interfaz gráfica...',
+  'Inicializando base de datos...'
+]
+let messageIndex = 0
+let messageInterval = null
+let wakeupTimer = null
 
 // Observamos isLoading para arrancar o limpiar el timer
 watch(() => uiState.isLoading, (isLoading) => {
   if (isLoading) {
-    loadingMessage.value = 'Cargando datos...'
-    timer = setTimeout(() => {
+    loadingMessage.value = messages[0]
+    messageIndex = 1
+    messageInterval = setInterval(() => {
+      loadingMessage.value = messages[messageIndex % messages.length]
+      messageIndex++
+    }, 1500)
+    
+    wakeupTimer = setTimeout(() => {
+      if (messageInterval) clearInterval(messageInterval)
       loadingMessage.value = 'El servidor se está despertando (esto puede tardar 30s)...'
-    }, 4000)
+    }, 5000)
   } else {
-    if (timer) clearTimeout(timer)
+    if (messageInterval) {
+      clearInterval(messageInterval)
+      messageInterval = null
+    }
+    if (wakeupTimer) {
+      clearTimeout(wakeupTimer)
+      wakeupTimer = null
+    }
   }
 }, { immediate: true })
 
 onUnmounted(() => {
-  if (timer) clearTimeout(timer)
+  if (messageInterval) clearInterval(messageInterval)
+  if (wakeupTimer) clearTimeout(wakeupTimer)
 })
 </script>
 
