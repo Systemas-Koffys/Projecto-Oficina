@@ -81,6 +81,15 @@ app.get('/api/health', async (req, res) => {
 // Ruta para inicializar y sembrar la base de datos (Útil para entornos como Render/Aiven)
 app.get('/api/dev/seed', async (req, res) => {
   console.log('--- Nueva petición a /api/dev/seed ---');
+  
+  // Validación de seguridad para inicialización de base de datos
+  const seedToken = req.query.token || req.headers['x-seed-token'];
+  const expectedToken = process.env.SEED_SECRET || 'secret_seed_token_2026';
+  
+  if (seedToken !== expectedToken) {
+    console.warn('⚠️ Intento de sembrado no autorizado.');
+    return res.status(403).json({ error: 'No autorizado: Token de sembrado inválido' });
+  }
   try {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);

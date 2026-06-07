@@ -29,3 +29,15 @@ dist-ssr
 # OS
 Thumbs.db
 db/data/
+
+# Local data and backups
+/Datos/
+/scratch/
+/backend/*.sql
+!/backend/init.sql
+/db/*.sql
+!/db/init.sql
+/*.xlsx
+/*.pdf
+/*.json
+/*.txt
