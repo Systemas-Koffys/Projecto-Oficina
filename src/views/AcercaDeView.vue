@@ -1,5 +1,5 @@
 <template>
-  <div class="acerca-view p-6 max-w-6xl mx-auto space-y-8 animate-fade-in">
+  <div class="acerca-view p-6 space-y-8 animate-fade-in">
     <!-- Encabezado Principal -->
     <div class="bg-card-main p-8 rounded-[2rem] shadow-sm border border-main flex flex-col md:flex-row justify-between items-center gap-6">
       <div>
