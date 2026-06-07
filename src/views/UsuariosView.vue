@@ -280,7 +280,7 @@ const openNew = () => {
     <div v-if="confirmDialog.visible" class="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]">
         <div class="bg-card-main rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-main scale-in">
             <!-- Icono de advertencia -->
-            <div class="bg-gradient-to-br from-red-500 to-red-700 p-8 flex flex-col items-center text-white border-b border-red-900/20">
+            <div class="modal-header-danger p-8 flex flex-col items-center text-white border-b border-red-900/20">
                 <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
                     <AlertTriangle class="w-8 h-8 text-white" />
                 </div>

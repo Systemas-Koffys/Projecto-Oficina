@@ -1,7 +1,22 @@
 <template>
 <div class="dashboard p-4 space-y-8 animate-fade-in" id="dashboard-content">
+    <!-- Header Institucional para Impresión -->
+    <div class="hidden print:flex items-center gap-6 border-b-2 border-black pb-4 mb-6">
+        <div class="w-16 h-16 border border-gray-300 rounded flex items-center justify-center bg-gray-50 overflow-hidden">
+            <img v-if="uiState.logo_institucional" :src="uiState.logo_institucional" class="w-full h-full object-contain" />
+            <div v-else class="text-[8px] font-black text-center text-slate-400 p-1 uppercase">
+                Logo <br> Municipal
+            </div>
+        </div>
+        <div class="flex-1 text-center">
+            <p class="font-black text-lg text-black">Gobierno Autónomo Municipal de Tarija</p>
+            <p class="font-bold text-xs uppercase text-slate-700">Dirección de Obras Públicas Municipales</p>
+            <p class="text-xs font-medium text-slate-500">Unidad de Arboricultura y Espacios Verdes</p>
+        </div>
+    </div>
+
     <!-- Header de Bienvenida -->
-    <div class="welcome-card flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+    <div class="welcome-card print:hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
         <div class="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
         <div class="relative z-10">
             <h2 class="welcome-title text-3xl font-black tracking-tighter">{{ saludo }}</h2>
@@ -16,16 +31,16 @@
                     {{ f.label }}
                 </button>
             </div>
-            <!-- Exportar -->
-            <button @click="exportToPDF" class="welcome-pdf-btn px-4 py-2 rounded-xl shadow-xl flex items-center gap-2 transition-all html2pdf__ignore">
-                <Download class="w-4 h-4" />
-                <span class="text-xs font-black uppercase tracking-widest">PDF</span>
+            <!-- Exportar (Imprimir) -->
+            <button @click="imprimirDashboard" class="welcome-pdf-btn px-4 py-2 rounded-xl shadow-xl flex items-center gap-2 transition-all no-print">
+                <Printer class="w-4 h-4" />
+                <span class="text-xs font-black uppercase tracking-widest">Imprimir</span>
             </button>
         </div>
     </div>
 
     <!-- Stats Cards Remodeladas -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="dashboard-stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div v-for="(card, i) in statCards" :key="i" 
             class="card p-6 flex flex-col gap-4 border-none shadow-xl transition-all hover:-translate-y-1"
             :class="card.bg">
@@ -315,12 +330,11 @@
 <script setup>
 import { computed, onMounted, ref, watch, reactive } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
-import html2pdf from 'html2pdf.js'
 const mainStore = useMainStore()
 const { store, uiState } = mainStore
 import { 
     ClipboardList, CheckCircle2, Clock3, AlertTriangle, 
-    TrendingUp, UserCheck, Download,
+    TrendingUp, UserCheck, Printer,
     Wrench, Zap, Hammer, Leaf, MailOpen, Users, MapPin, Clock
 } from 'lucide-vue-next'
 
@@ -584,18 +598,9 @@ onMounted(() => {
     }, { immediate: true })
 })
 
-// --- EXPORTAR A PDF ---
-const exportToPDF = () => {
-    const element = document.getElementById('dashboard-content');
-    const opt = {
-      margin:       0.2,
-      filename:     `Dashboard_Operativo_${new Date().toISOString().split('T')[0]}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-    mainStore.showToast('Generando PDF, por favor espere...', 'success', 3000);
-    html2pdf().set(opt).from(element).save();
+// --- IMPRIMIR DASHBOARD ---
+const imprimirDashboard = () => {
+    window.print();
 }
 </script>
 
@@ -698,8 +703,78 @@ canvas { filter: drop-shadow(0 10px 10px rgba(0,0,0,0.02)); }
     color: var(--text-on-accent);
 }
 
-/* Clases para ocultar botones al imprimir a PDF */
 @media print {
-    .html2pdf__ignore { display: none !important; }
+    /* Ocultar elementos innecesarios */
+    .sidebar, .header-bar, .no-print, .html2pdf__ignore, button {
+        display: none !important;
+    }
+
+    /* Mostrar cabecera institucional en print */
+    .print-header-layout {
+        display: flex !important;
+    }
+
+    /* Ajustes generales del contenedor */
+    #dashboard-content {
+        padding: 0 !important;
+        margin: 0 !important;
+        background: white !important;
+        color: black !important;
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+    }
+
+    /* Mantener las 4 stats cards en una fila */
+    .dashboard-stats-grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 1rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .dashboard-stats-grid > .card {
+        margin-bottom: 0 !important;
+        padding: 1rem !important;
+    }
+
+    /* Forzar que cada card/sección no se rompa a la mitad de una página */
+    .card {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        background: white !important;
+        color: black !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Ajustar las grids para que no se amontonen o se corten */
+    .grid:not(.dashboard-stats-grid) {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1.5rem !important;
+    }
+    
+    .grid:not(.dashboard-stats-grid) > div {
+        width: 100% !important;
+    }
+
+    /* Asegurar que los canvas de Chart.js tengan un tamaño razonable y no se corten */
+    canvas {
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: 250px !important;
+    }
+
+    /* Ajustar tablas de la cola de trabajo */
+    table {
+        page-break-inside: avoid !important;
+    }
+    
+    tr {
+        page-break-inside: avoid !important;
+    }
 }
 </style>

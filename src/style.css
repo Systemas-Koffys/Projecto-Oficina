@@ -226,6 +226,30 @@ svg { stroke: currentColor; }
 @media print {
     .no-print { display: none !important; }
     body { background: white !important; color: black !important; }
+
+    /* REGLA MAESTRA DE LAYOUT PARA IMPRESIÓN */
+    html, body {
+        height: auto !important;
+        overflow: visible !important;
+        background: white !important;
+    }
+
+    #app, .app-container, .flex-1, main, main > div {
+        display: block !important;
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .print\:hidden {
+        display: none !important;
+    }
 }
 
 /* Animación de entrada premium para modales */
@@ -249,6 +273,11 @@ svg { stroke: currentColor; }
 .modal-header-gradient {
     background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%) !important;
     color: var(--text-on-accent) !important;
+}
+
+.modal-header-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+    color: #ffffff !important;
 }
 
 /* TRANSICIÓN DE VISTAS DE PÁGINAS (SLIDE-UP FADE) */
