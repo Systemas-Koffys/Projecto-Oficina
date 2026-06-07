@@ -66,7 +66,7 @@
               </div>
               <div class="print-institution-text flex-1 text-center">
                 <p class="print-gov font-black text-lg">Gobierno Autónomo Municipal de Tarija</p>
-                <p class="print-sec font-bold text-sm">Secretaría Municipal de Infraestructura y Servicios</p>
+                <p class="print-sec font-bold text-sm">DIRECCION DE OBRAS PUBLICAS MUNICIPALES</p>
                 <p class="print-unit text-sm font-medium">Unidad de Arboricultura y Espacios Verdes</p>
               </div>
             </div>
@@ -370,7 +370,7 @@
             </div>
 
             <!-- Pie de Página (Contador de Hojas) -->
-            <div class="mt-8 pt-4 border-t border-gray-100 flex justify-between items-center text-[8px] text-gray-400 font-bold uppercase tracking-widest">
+            <div class="no-print mt-8 pt-4 border-t border-gray-100 flex justify-between items-center text-[8px] text-gray-400 font-bold uppercase tracking-widest">
               <span>Sistema de Gestión de Arboricultura y Espacios Verdes - G.A.M.T.</span>
               <div class="print-counter">Página <span class="pageNumber"></span></div>
             </div>
@@ -662,7 +662,28 @@ watch(() => geolocalizadas.value, () => {
 
     @page {
         size: A4 portrait;
-        margin: 0.6cm 0.8cm;
+        margin: 0.6cm 0.8cm 1.2cm 0.8cm; /* Márgenes con espacio inferior para el pie */
+    }
+    
+    @page {
+        @bottom-left {
+            content: "Sistema de Gestión de Arboricultura y Espacios Verdes - G.A.M.T.";
+            font-size: 8px;
+            font-family: inherit;
+            color: #9ca3af;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        @bottom-right {
+            content: "Página " counter(page);
+            font-size: 8px;
+            font-family: inherit;
+            color: #9ca3af;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
     }
 
     .fixed.inset-0 {

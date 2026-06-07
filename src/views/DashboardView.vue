@@ -344,13 +344,19 @@ const filtros = [
 const filtroActual = ref('todo')
 
 const solicitudesFiltradas = computed(() => {
-    if (filtroActual.value === 'todo') return store.solicitudes
+    const limitDate = new Date('2026-01-01T00:00:00')
+    const baseData = store.solicitudes.filter(s => {
+        if (!s.fecha_ingreso) return false
+        const fecha = new Date(s.fecha_ingreso)
+        return fecha >= limitDate
+    })
+
+    if (filtroActual.value === 'todo') return baseData
     
     const hoy = new Date()
     hoy.setHours(0,0,0,0)
     
-    return store.solicitudes.filter(s => {
-        if (!s.fecha_ingreso) return false
+    return baseData.filter(s => {
         const fecha = new Date(s.fecha_ingreso)
         
         if (filtroActual.value === 'hoy') {
@@ -372,7 +378,7 @@ const stats = computed(() => {
     const total = data.length;
     const completadas = data.filter(s => s.estado_tramite === 'Terminado').length;
     const enProceso = data.filter(s => s.estado_tramite === 'En espera').length;
-    const urgentes = data.filter(s => s.nivel_urgencia === 'Alta' || s.es_emergencia).length;
+    const urgentes = data.filter(s => s.nivel_urgencia === 'Alta' && s.estado_tramite === 'En espera').length;
     const efectividad = total > 0 ? Math.round((completadas / total) * 100) : 0;
     
     // Alertas de Campo (Filtro por solicitudes pendientes)
@@ -458,9 +464,9 @@ watch(() => stats.value.total, animarNumeros, { immediate: true })
 
 const statCards = computed(() => [
     { id: 'total', label: 'Total Solicitudes', value: stats.value.total, icon: ClipboardList, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: 100 },
-    { id: 'completadas', label: 'Trámites Finalizados', value: stats.value.completadas, icon: CheckCircle2, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: stats.value.efectividad },
-    { id: 'enProceso', label: 'Trámites en Cola', value: stats.value.enProceso, icon: Clock3, color: '#f59e0b', bg: 'bg-white', iconBg: 'bg-amber-50', iconColor: 'text-amber-600', percent: stats.value.total ? (stats.value.enProceso/stats.value.total)*100 : 0 },
-    { id: 'urgentes', label: 'Alertas Críticas', value: stats.value.urgentes, icon: AlertTriangle, color: '#ef4444', bg: 'bg-white', iconBg: 'bg-red-50', iconColor: 'text-red-600', percent: stats.value.total ? (stats.value.urgentes/stats.value.total)*100 : 0 }
+    { id: 'completadas', label: 'Solicitudes Realizadas', value: stats.value.completadas, icon: CheckCircle2, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: stats.value.efectividad },
+    { id: 'enProceso', label: 'Solicitudes en Espera', value: stats.value.enProceso, icon: Clock3, color: '#f59e0b', bg: 'bg-white', iconBg: 'bg-amber-50', iconColor: 'text-amber-600', percent: stats.value.total ? (stats.value.enProceso/stats.value.total)*100 : 0 },
+    { id: 'urgentes', label: 'Solicitudes Críticas', value: stats.value.urgentes, icon: AlertTriangle, color: '#ef4444', bg: 'bg-white', iconBg: 'bg-red-50', iconColor: 'text-red-600', percent: stats.value.total ? (stats.value.urgentes/stats.value.total)*100 : 0 }
 ])
 
 const ultimasSolicitudes = computed(() => {

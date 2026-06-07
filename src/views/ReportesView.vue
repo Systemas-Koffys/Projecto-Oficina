@@ -384,7 +384,7 @@ const formatFecha = (str) => {
                 </div>
                 <div class="flex-1 text-center">
                     <p class="font-black text-lg print-gov">Gobierno Autónomo Municipal de Tarija</p>
-                    <p class="font-bold text-sm print-sec">Secretaría Municipal de Infraestructura y Servicios</p>
+                    <p class="font-bold text-sm print-sec">DIRECCION DE OBRAS PUBLICAS MUNICIPALES</p>
                     <p class="text-sm font-medium print-unit">Unidad de Arboricultura y Espacios Verdes</p>
                 </div>
             </div>

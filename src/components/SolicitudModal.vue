@@ -58,7 +58,7 @@
 
                         <div class="col-span-3 flex flex-col">
                             <label class="label-prime">Notas de Solicitud / Descripción Extra</label>
-                            <textarea v-model="form.solicitante_descripcion" rows="2" class="form-input-prime resize-none" placeholder="Ej: Atender solo por la mañana o esta dañando mi pared..."></textarea>
+                            <textarea v-model="form.solicitante_descripcion" @input="capFirst($event, form, 'solicitante_descripcion')" rows="2" class="form-input-prime resize-none" placeholder="Ej: Atender solo por la mañana o esta dañando mi pared..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -198,7 +198,7 @@
                                 </div>
                                 <div class="col-span-3 flex flex-col">
                                     <label class="label-prime">Observaciones Específicas del Árbol</label>
-                                    <input v-model="arb.observaciones_arbol" type="text" class="form-input-prime" 
+                                    <input v-model="arb.observaciones_arbol" @input="capFirst($event, arb, 'observaciones_arbol')" type="text" class="form-input-prime" 
                                         placeholder="Ej: Ramas secas colgando, dañado por hongos, etc.">
                                 </div>
                             </div>
@@ -214,7 +214,7 @@
                     <!-- Detalles de la Verificación Técnica General -->
                     <div class="flex flex-col bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                         <label class="label-prime">Detalles de la Verificación Técnica General</label>
-                        <textarea v-model="form.observacion_verificacion" rows="2" class="form-input-prime resize-none" 
+                        <textarea v-model="form.observacion_verificacion" @input="capFirst($event, form, 'observacion_verificacion')" rows="2" class="form-input-prime resize-none" 
                             placeholder="Ej: Requiere plataforma por altura, coordinar con SETAR..."></textarea>
                     </div>
                 </div>
@@ -276,7 +276,7 @@
                         </div>
                         <div class="col-span-3 flex flex-col">
                             <label class="label-prime">Notas Finales de Ejecución</label>
-                            <textarea v-model="form.observaciones_finales" rows="2" class="form-input-prime resize-none" placeholder="Ej: Poda ejecutada con éxito, ramas secas removidas..."></textarea>
+                            <textarea v-model="form.observaciones_finales" @input="capFirst($event, form, 'observaciones_finales')" rows="2" class="form-input-prime resize-none" placeholder="Ej: Poda ejecutada con éxito, ramas secas removidas..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -371,9 +371,8 @@ const tecnicosFiltrados = computed(() => {
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, ""); // remove accents
         
-        return cargoNormalizado === 'tecnico' || 
-               cargoNormalizado === 'sistemas' || 
-               cargoNormalizado === 'responsable de area';
+        return (cargoNormalizado.includes('tecnico') || cargoNormalizado.includes('sistemas')) && 
+               !cargoNormalizado.includes('responsable');
     });
 })
 
@@ -431,6 +430,15 @@ const cap = (e, field) => {
         form.value[field] = v[0].toUpperCase() + v.slice(1)
     } else {
         form.value[field] = v
+    }
+}
+
+const capFirst = (e, obj, key) => {
+    const v = e.target.value
+    if (v && v[0] !== v[0].toUpperCase()) {
+        obj[key] = v[0].toUpperCase() + v.slice(1)
+    } else {
+        obj[key] = v
     }
 }
 
