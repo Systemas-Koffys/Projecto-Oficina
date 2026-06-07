@@ -1,13 +1,22 @@
 <template>
-    <div class="sidebar w-full md:w-72 h-auto md:h-screen flex flex-col relative z-50 shrink-0">
+    <div :class="['sidebar w-full h-auto md:h-screen flex flex-col relative z-50 shrink-0 transition-all duration-300 ease-in-out', uiState.isSidebarCollapsed ? 'md:w-20' : 'md:w-72']">
+        <!-- Botón Toggle de la Barra Lateral (Solo Desktop) -->
+        <button 
+            @click="toggleSidebar"
+            class="hidden md:flex absolute top-6 -right-3 w-6 h-6 rounded-full bg-accent text-on-accent items-center justify-center border border-white/20 shadow-lg cursor-pointer z-[60] transition-all hover:scale-110"
+            :title="uiState.isSidebarCollapsed ? 'Expandir menú' : 'Contraer menú'"
+        >
+            <component :is="uiState.isSidebarCollapsed ? ChevronRight : ChevronLeft" class="w-4 h-4" />
+        </button>
+
         <!-- Logo / Brand -->
-        <div class="p-4 md:p-8 mb-0 md:mb-4 hidden md:block">
-            <div class="flex items-center gap-3">
-                <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden border border-white/20" :class="uiState.logo_app ? 'bg-transparent' : 'bg-accent text-on-accent'">
+        <div class="p-4 md:p-8 mb-0 md:mb-4 hidden md:block transition-all duration-300" :class="uiState.isSidebarCollapsed ? 'md:p-4' : 'md:p-8'">
+            <div class="flex items-center" :class="uiState.isSidebarCollapsed ? 'justify-center gap-0' : 'gap-3'">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden border border-white/20 shrink-0 transition-all duration-300" :class="[uiState.logo_app ? 'bg-transparent' : 'bg-accent text-on-accent', uiState.isSidebarCollapsed ? 'w-12 h-12' : 'w-14 h-14']">
                     <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-0">
-                    <span v-else class="font-black text-2xl">A</span>
+                    <span v-else class="font-black text-xl">A</span>
                 </div>
-                <div>
+                <div v-show="!uiState.isSidebarCollapsed" class="overflow-hidden whitespace-nowrap transition-all duration-300">
                     <h1 class="text-xl font-black text-white leading-tight">Arboricultura</h1>
                     <p class="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Gestión</p>
                 </div>
@@ -17,13 +26,17 @@
         <!-- Navigation Menu -->
         <div class="flex-none md:flex-1 p-2 md:px-4 md:space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto custom-scrollbar gap-2 md:gap-0">
             <div v-for="item in filteredMenuItems" :key="item.path" 
-                class="nav-item group p-3 md:p-4 rounded-2xl cursor-pointer flex items-center gap-2 md:gap-4 transition-all shrink-0"
-                :class="{ 'active': $route.path === item.path }"
+                class="nav-item group p-3 md:p-4 rounded-2xl cursor-pointer flex items-center transition-all shrink-0"
+                :class="[
+                    $route.path === item.path ? 'active' : '',
+                    uiState.isSidebarCollapsed ? 'md:justify-center md:p-3.5 gap-0' : 'gap-2 md:gap-4'
+                ]"
+                :title="uiState.isSidebarCollapsed ? item.label : ''"
                 @click="$router.push(item.path)">
-                <div class="nav-icon opacity-70 group-hover:opacity-100 transition-all">
+                <div class="nav-icon opacity-70 group-hover:opacity-100 transition-all shrink-0">
                     <component :is="item.icon" class="w-6 h-6" />
                 </div>
-                <span class="font-bold text-sm">{{ item.label }}</span>
+                <span v-show="!uiState.isSidebarCollapsed" class="font-bold text-sm whitespace-nowrap overflow-hidden">{{ item.label }}</span>
             </div>
 
             <!-- Botón de Cerrar Sesión (Solo Mobile) -->
@@ -37,10 +50,10 @@
         </div>
 
         <!-- User Panel (Rediseñado) -->
-        <div class="p-4 md:p-6 mt-auto border-t border-white/10 bg-black/20 hidden md:block">
-            <div class="mb-4">
+        <div class="mt-auto border-t border-white/10 bg-black/20 hidden md:block transition-all duration-300" :class="[ uiState.isSidebarCollapsed ? 'p-3 text-center' : 'p-4 md:p-6' ]">
+            <div class="mb-4" v-show="!uiState.isSidebarCollapsed">
                 <div class="flex items-center gap-3 mb-4">
-                    <div class="relative">
+                    <div class="relative shrink-0">
                         <div class="w-12 h-12 bg-gradient-to-br from-accent to-emerald-700 text-on-accent rounded-2xl flex items-center justify-center font-black text-lg shadow-xl border border-white/20 overflow-hidden">
                             <img v-if="usuarioIdentificado?.foto" :src="usuarioIdentificado?.foto" class="w-full h-full object-cover">
                             <span v-else>{{ usuarioIdentificado?.nombre?.[0]?.toUpperCase() }}</span>
@@ -65,7 +78,26 @@
                 </div>
             </div>
 
-            <button @click="logout" class="w-full py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg">
+            <!-- Mini User Panel when Collapsed -->
+            <div class="flex flex-col items-center gap-4" v-show="uiState.isSidebarCollapsed">
+                <div class="relative shrink-0" :title="`${usuarioIdentificado?.nombre} (${usuarioIdentificado?.role})`">
+                    <div class="w-12 h-12 bg-gradient-to-br from-accent to-emerald-700 text-on-accent rounded-2xl flex items-center justify-center font-black text-lg shadow-xl border border-white/20 overflow-hidden">
+                        <img v-if="usuarioIdentificado?.foto" :src="usuarioIdentificado?.foto" class="w-full h-full object-cover">
+                        <span v-else>{{ usuarioIdentificado?.nombre?.[0]?.toUpperCase() }}</span>
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[#064e3b] rounded-full"></div>
+                </div>
+                
+                <button 
+                    @click="logout" 
+                    class="w-10 h-10 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all rounded-xl shadow-lg flex items-center justify-center"
+                    title="Cerrar Sesión"
+                >
+                    <LogOut class="w-5 h-5" />
+                </button>
+            </div>
+            
+            <button v-show="!uiState.isSidebarCollapsed" @click="logout" class="w-full py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg">
                 Cerrar Sesión
             </button>
         </div>
@@ -90,7 +122,9 @@ import {
     History,
     Calendar,
     Map,
-    LogOut
+    LogOut,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -107,6 +141,11 @@ const usuarioIdentificado = computed(() => {
         role: uiState.user.role
     }
 })
+
+const toggleSidebar = () => {
+    uiState.isSidebarCollapsed = !uiState.isSidebarCollapsed
+    localStorage.setItem('sidebar_collapsed', uiState.isSidebarCollapsed ? 'true' : 'false')
+}
 
 const actualizarReloj = () => {
     if (!uiState.loginTime) return
@@ -176,11 +215,16 @@ const logout = () => {
 <style scoped>
 .nav-item {
     color: rgba(255, 255, 255, 0.5);
+    transition: all 0.2s ease-in-out;
 }
 
 .nav-item:hover {
     background-color: rgba(255, 255, 255, 0.08);
     color: white;
+}
+
+/* Solo aplicar traslación si el menú está expandido */
+.sidebar:not(.md\:w-20) .nav-item:hover {
     transform: translateX(4px);
 }
 

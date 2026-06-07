@@ -32,7 +32,8 @@ export const useMainStore = defineStore('mainStore', () => {
     loginTime: localStorage.getItem('loginTime') || null,
     logo_app: localStorage.getItem('logo_app') || null,
     logo_institucional: localStorage.getItem('logo_institucional') || null,
-    isLoading: false
+    isLoading: false,
+    isSidebarCollapsed: localStorage.getItem('sidebar_collapsed') === 'true'
   });
 
   const getAuthHeaders = () => {
