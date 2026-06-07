@@ -4,28 +4,33 @@ import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, addCatalogo, updateCatalogo, deleteCatalogo, showToast, updateConfig } = mainStore
 
+import { 
+    Trees, Wrench, Home, Map, Landmark, Building, Palette, Settings,
+    Plus, Pencil, Trash2, X, AlertTriangle, Database, Server
+} from 'lucide-vue-next'
+
 // Categorías disponibles
 const categorias = [
-    { id: 'especies', nombre: 'Especies de Árboles', icono: '🌳', campos: [
+    { id: 'especies', nombre: 'Especies de Árboles', icono: Trees, campos: [
         { key: 'nombre', label: 'Nombre Común', type: 'text' },
         { key: 'nombre_cientifico', label: 'Nombre Científico', type: 'text' }
     ] },
-    { id: 'acciones', nombre: 'Acciones Técnicas', icono: '🪚', campos: [
+    { id: 'acciones', nombre: 'Acciones Técnicas', icono: Wrench, campos: [
         { key: 'nombre', label: 'Nombre de la Acción', type: 'text' },
         { key: 'descripcion', label: 'Detalles de la Acción', type: 'text' }
     ] },
-    { id: 'barrios', nombre: 'Barrios', icono: '🏘️', campos: [
+    { id: 'barrios', nombre: 'Barrios', icono: Home, campos: [
         { key: 'nombre', label: 'Nombre del Barrio', type: 'text' },
         { key: 'id_distrito', label: 'Distrito', type: 'select', options: 'distritos' }
     ]},
-    { id: 'distritos', nombre: 'Distritos', icono: '🗺️', campos: [{ key: 'nombre', label: 'Nombre/Número del Distrito', type: 'text' }] },
-    { id: 'instituciones', nombre: 'Instituciones', icono: '🏛️', campos: [
+    { id: 'distritos', nombre: 'Distritos', icono: Map, campos: [{ key: 'nombre', label: 'Nombre/Número del Distrito', type: 'text' }] },
+    { id: 'instituciones', nombre: 'Instituciones', icono: Landmark, campos: [
         { key: 'nombre', label: 'Nombre de la Institución', type: 'text' },
         { key: 'id_tipo_solicitante', label: 'Tipo de Institución', type: 'select', options: 'tipos_institucion' }
     ]},
-    { id: 'tipos_institucion', nombre: 'Tipos de Institución', icono: '🏢', campos: [{ key: 'nombre', label: 'Categoría', type: 'text' }] },
-    { id: 'personalizacion', nombre: 'Identidad Visual', icono: '🎨', tipo: 'especial_logos' },
-    { id: 'mantenimiento', nombre: 'Mantenimiento', icono: '🛠️', tipo: 'especial' },
+    { id: 'tipos_institucion', nombre: 'Tipos de Institución', icono: Building, campos: [{ key: 'nombre', label: 'Categoría', type: 'text' }] },
+    { id: 'personalizacion', nombre: 'Identidad Visual', icono: Palette, tipo: 'especial_logos' },
+    { id: 'mantenimiento', nombre: 'Mantenimiento', icono: Settings, tipo: 'especial' },
 ]
 
 const categoriaActiva = ref(categorias[0])
@@ -166,7 +171,7 @@ const getOptions = (optionKey) => store[optionKey] || []
                             : 'bg-card text-main border-border hover:border-accent/50 hover:bg-accent/5'
                     ]"
                 >
-                    <span class="text-2xl select-none">{{ cat.icono }}</span>
+                    <component :is="cat.icono" class="w-6 h-6 shrink-0 select-none" />
                     <span class="text-xs uppercase tracking-widest text-left">{{ cat.nombre }}</span>
                 </button>
             </div>
@@ -188,7 +193,7 @@ const getOptions = (optionKey) => store[optionKey] || []
                             <div class="bg-main/40 p-8 rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center gap-6 relative group">
                                 <div class="w-40 h-40 bg-card rounded-[2rem] shadow-2xl flex items-center justify-center overflow-hidden border border-border">
                                     <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-4">
-                                    <span v-else class="text-5xl">🌳</span>
+                                    <Trees v-else class="w-16 h-16 text-emerald-500/40" />
                                 </div>
                                 <div class="text-center">
                                     <p class="text-[10px] font-black text-muted uppercase tracking-widest">Uso: Sidebar y Pantalla de Login</p>
@@ -211,8 +216,8 @@ const getOptions = (optionKey) => store[optionKey] || []
                             <div class="bg-main/40 p-8 rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center gap-6">
                                 <div class="w-full h-40 bg-card rounded-[2rem] shadow-xl flex items-center justify-center overflow-hidden border border-border">
                                     <img v-if="uiState.logo_institucional" :src="uiState.logo_institucional" class="w-full h-full object-contain p-6">
-                                    <div v-else class="text-center opacity-30">
-                                        <p class="text-4xl mb-2">🏛️</p>
+                                    <div v-else class="text-center opacity-30 flex flex-col items-center gap-1.5">
+                                        <Landmark class="w-10 h-10 text-main mb-1" />
                                         <p class="text-[10px] font-black uppercase tracking-tighter text-main">Sin Logo Institucional</p>
                                     </div>
                                 </div>
@@ -242,8 +247,8 @@ const getOptions = (optionKey) => store[optionKey] || []
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="bg-accent/5 border border-accent/20 p-8 rounded-[2rem] flex flex-col gap-6">
-                            <div class="w-16 h-16 bg-accent text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-accent/30">
-                                📦
+                            <div class="w-16 h-16 bg-accent text-white rounded-2xl flex items-center justify-center shadow-lg shadow-accent/30">
+                                <Database class="w-8 h-8" />
                             </div>
                             <div>
                                 <h4 class="text-xl font-black text-main">Copia de Seguridad</h4>
@@ -255,8 +260,8 @@ const getOptions = (optionKey) => store[optionKey] || []
                         </div>
 
                         <div class="bg-card border border-border p-8 rounded-[2rem] flex flex-col gap-6">
-                            <div class="w-16 h-16 bg-main rounded-2xl flex items-center justify-center text-3xl border border-border text-accent">
-                                🛰️
+                            <div class="w-16 h-16 bg-main rounded-2xl flex items-center justify-center border border-border text-accent">
+                                <Server class="w-8 h-8" />
                             </div>
                             <div>
                                 <h4 class="text-xl font-black text-main">Estado del Servidor</h4>
@@ -289,7 +294,7 @@ const getOptions = (optionKey) => store[optionKey] || []
                             </div>
                         </div>
                         <button @click="abrirNuevo" class="bg-accent hover:bg-accent-hover text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-all shadow-xl shadow-accent/20 active:scale-95">
-                            <span class="text-lg font-light leading-none">+</span> Nuevo Registro
+                            <Plus class="w-4 h-4" /> Nuevo Registro
                         </button>
                     </div>
 
@@ -322,12 +327,12 @@ const getOptions = (optionKey) => store[optionKey] || []
                                             <button @click="abrirEdicion(item)" 
                                                 class="w-10 h-10 flex items-center justify-center bg-accent/10 text-accent rounded-xl hover:bg-accent hover:text-white transition-all shadow-sm cursor-pointer"
                                                 title="Editar Registro">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                                <Pencil class="w-4 h-4" />
                                             </button>
                                             <button @click="eliminar(item.id)" 
                                                 class="w-10 h-10 flex items-center justify-center bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm cursor-pointer"
                                                 title="Eliminar Registro">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                                <Trash2 class="w-4 h-4" />
                                             </button>
                                         </div>
                                     </td>
@@ -354,9 +359,9 @@ const getOptions = (optionKey) => store[optionKey] || []
                                 Catálogo: {{ categoriaActiva.nombre }}
                             </p>
                         </div>
-                        <button type="button" @click="showModal = false" class="hover:bg-white/20 p-2 rounded-xl transition-all cursor-pointer">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
+                        <button type="button" @click="showModal = false" class="hover:bg-white/20 p-2 rounded-xl transition-all cursor-pointer flex items-center justify-center">
+                                <X class="w-6 h-6 text-white" />
+                            </button>
                     </div>
                     
                     <!-- Formulario -->
@@ -397,8 +402,8 @@ const getOptions = (optionKey) => store[optionKey] || []
                 <div class="bg-card rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col border border-border animate-prime-in">
                     <!-- Icono de Advertencia -->
                     <div class="p-8 flex flex-col items-center text-center gap-4">
-                        <div class="w-14 h-14 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-2xl select-none">
-                            ⚠️
+                        <div class="w-14 h-14 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center">
+                            <AlertTriangle class="w-6 h-6" />
                         </div>
                         <div>
                             <h4 class="text-lg font-black text-main leading-tight">{{ confirmTitle }}</h4>
