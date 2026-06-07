@@ -500,10 +500,15 @@ export const useMainStore = defineStore('mainStore', () => {
         headers: getAuthHeaders(),
         body: JSON.stringify(evento)
       });
-      return response.ok;
+      if (response.ok) {
+        return { success: true };
+      } else {
+        const data = await response.json();
+        return { success: false, error: data.error || 'Error en el servidor' };
+      }
     } catch (error) {
       console.error('Error al agregar evento:', error);
-      return false;
+      return { success: false, error: 'Error de conexión con el servidor' };
     }
   }
 
@@ -514,10 +519,15 @@ export const useMainStore = defineStore('mainStore', () => {
         headers: getAuthHeaders(),
         body: JSON.stringify(evento)
       });
-      return response.ok;
+      if (response.ok) {
+        return { success: true };
+      } else {
+        const data = await response.json();
+        return { success: false, error: data.error || 'Error en el servidor' };
+      }
     } catch (error) {
       console.error('Error al actualizar evento:', error);
-      return false;
+      return { success: false, error: 'Error de conexión con el servidor' };
     }
   }
 

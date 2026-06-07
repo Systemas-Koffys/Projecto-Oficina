@@ -41,3 +41,6 @@ db/data/
 /*.pdf
 /*.json
 /*.txt
+/*.sql
+!/init.sql
+/*.zip

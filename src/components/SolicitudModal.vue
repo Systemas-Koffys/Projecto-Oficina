@@ -680,6 +680,19 @@ const handleGuardar = async () => {
         form.value.id_accion = form.value.arboles[0].id_accion_realizar;
     }
 
+    // Validar duplicidad de comunicación interna en el frontend
+    if (form.value.comunicacion_interna && form.value.comunicacion_interna.trim() !== '') {
+        const dup = store.solicitudes.find(s => 
+            s.comunicacion_interna && 
+            s.comunicacion_interna.trim().toLowerCase() === form.value.comunicacion_interna.trim().toLowerCase() && 
+            s.id_solicitud != (uiState.editData?.id_solicitud || 0)
+        );
+        if (dup) {
+            showToast(`🛑 ATENCIÓN: El código de comunicación interna "${form.value.comunicacion_interna}" ya existe en la solicitud con código anual ${dup.codigo_anual}.`, 'error', 6000);
+            return;
+        }
+    }
+
     try {
         let res;
         if (uiState.editData) {

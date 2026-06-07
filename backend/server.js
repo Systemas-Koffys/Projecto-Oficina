@@ -363,6 +363,18 @@ app.post('/api/solicitudes', async (req, res) => {
   try {
     await connection.beginTransaction();
     const data = req.body;
+
+    // Validar unicidad de codigo de comunicacion interna
+    if (data.comunicacion_interna && data.comunicacion_interna.trim() !== '') {
+      const [existing] = await connection.query(
+        'SELECT codigo_anual FROM solicitudes_poda WHERE LOWER(TRIM(comunicacion_interna)) = LOWER(TRIM(?))',
+        [data.comunicacion_interna]
+      );
+      if (existing.length > 0) {
+        await connection.rollback();
+        return res.status(400).json({ success: false, error: `El código de comunicación interna ya existe en la solicitud ${existing[0].codigo_anual}` });
+      }
+    }
     
     // Autocompletar distrito si falta
     let id_distrito = data.id_distrito;
@@ -459,6 +471,18 @@ app.put('/api/solicitudes/:id', async (req, res) => {
   try {
     await connection.beginTransaction();
     const data = req.body;
+
+    // Validar unicidad de codigo de comunicacion interna
+    if (data.comunicacion_interna && data.comunicacion_interna.trim() !== '') {
+      const [existing] = await connection.query(
+        'SELECT codigo_anual FROM solicitudes_poda WHERE LOWER(TRIM(comunicacion_interna)) = LOWER(TRIM(?)) AND id_solicitud != ?',
+        [data.comunicacion_interna, id]
+      );
+      if (existing.length > 0) {
+        await connection.rollback();
+        return res.status(400).json({ success: false, error: `El código de comunicación interna ya existe en la solicitud ${existing[0].codigo_anual}` });
+      }
+    }
 
     let id_distrito = data.id_distrito;
     if (!id_distrito && data.id_barrio) {
@@ -953,6 +977,18 @@ app.get('/api/calendario', async (req, res) => {
 app.post('/api/calendario', async (req, res) => {
   try {
     const { fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta } = req.body;
+
+    // Validar duplicidad de aniversarios de barrio (excluyendo feriados)
+    if (nombre_barrio && !nombre_barrio.startsWith('Feriado:')) {
+      const [existing] = await pool.query(
+        'SELECT id FROM calendario_barrios WHERE LOWER(TRIM(nombre_barrio)) = LOWER(TRIM(?))',
+        [nombre_barrio]
+      );
+      if (existing.length > 0) {
+        return res.status(400).json({ error: `El barrio "${nombre_barrio}" ya tiene un aniversario registrado en el calendario.` });
+      }
+    }
+
     const [result] = await pool.query(
       'INSERT INTO calendario_barrios (fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta) VALUES (?, ?, ?, ?, ?)',
       [fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta]
@@ -967,6 +1003,18 @@ app.post('/api/calendario', async (req, res) => {
 app.put('/api/calendario/:id', async (req, res) => {
   try {
     const { fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta } = req.body;
+
+    // Validar duplicidad de aniversarios de barrio (excluyendo feriados)
+    if (nombre_barrio && !nombre_barrio.startsWith('Feriado:')) {
+      const [existing] = await pool.query(
+        'SELECT id FROM calendario_barrios WHERE LOWER(TRIM(nombre_barrio)) = LOWER(TRIM(?)) AND id != ?',
+        [nombre_barrio, req.params.id]
+      );
+      if (existing.length > 0) {
+        return res.status(400).json({ error: `El barrio "${nombre_barrio}" ya tiene un aniversario registrado en el calendario.` });
+      }
+    }
+
     await pool.query(
       'UPDATE calendario_barrios SET fecha_aniversario=?, nombre_barrio=?, presidente_barrio=?, telefono_presidente=?, color_etiqueta=? WHERE id=?',
       [fecha_aniversario, nombre_barrio, presidente_barrio, telefono_presidente, color_etiqueta, req.params.id]
