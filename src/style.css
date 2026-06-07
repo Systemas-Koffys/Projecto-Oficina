@@ -265,4 +265,28 @@ svg { stroke: currentColor; }
 .fade-leave-to {
     opacity: 0;
     transform: translateY(-12px);
-}
+}
+
+/* ============================================================
+   CONTENEDORES COLOREADOS ADAPTATIVOS POR TEMA
+   ============================================================ */
+.theme-black .bg-blue-50 { background-color: rgba(59, 130, 246, 0.12) !important; }
+.theme-black .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.12) !important; }
+.theme-black .bg-amber-50 { background-color: rgba(245, 158, 11, 0.12) !important; }
+.theme-black .bg-purple-50 { background-color: rgba(139, 92, 246, 0.12) !important; }
+
+.theme-black .border-blue-100 { border-color: rgba(59, 130, 246, 0.25) !important; }
+.theme-black .border-emerald-100 { border-color: rgba(16, 185, 129, 0.25) !important; }
+.theme-black .border-amber-100 { border-color: rgba(245, 158, 11, 0.25) !important; }
+.theme-black .border-purple-100 { border-color: rgba(139, 92, 246, 0.25) !important; }
+
+.theme-colors .bg-blue-50 { background-color: rgba(30, 144, 255, 0.06) !important; }
+.theme-colors .bg-emerald-50 { background-color: rgba(46, 125, 50, 0.06) !important; }
+.theme-colors .bg-amber-50 { background-color: rgba(245, 158, 11, 0.06) !important; }
+.theme-colors .bg-purple-50 { background-color: rgba(139, 92, 246, 0.06) !important; }
+
+.theme-colors .border-blue-100 { border-color: rgba(30, 144, 255, 0.15) !important; }
+.theme-colors .border-emerald-100 { border-color: rgba(46, 125, 50, 0.15) !important; }
+.theme-colors .border-amber-100 { border-color: rgba(245, 158, 11, 0.15) !important; }
+.theme-colors .border-purple-100 { border-color: rgba(139, 92, 246, 0.15) !important; }
+

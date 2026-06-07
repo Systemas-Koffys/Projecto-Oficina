@@ -775,15 +775,4 @@ const handleGuardar = async () => {
 .custom-scrollbar::-webkit-scrollbar { width: 5px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
-
-/* Theme Adaptive Overrides for colored blocks */
-:global(.theme-black) .bg-blue-50 { background-color: rgba(59, 130, 246, 0.1) !important; border-color: rgba(59, 130, 246, 0.2) !important; }
-:global(.theme-black) .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-:global(.theme-black) .bg-amber-50 { background-color: rgba(245, 158, 11, 0.1) !important; border-color: rgba(245, 158, 11, 0.2) !important; }
-:global(.theme-black) .bg-purple-50 { background-color: rgba(139, 92, 246, 0.1) !important; border-color: rgba(139, 92, 246, 0.2) !important; }
-
-:global(.theme-colors) .bg-blue-50 { background-color: rgba(30, 144, 255, 0.08) !important; border-color: rgba(30, 144, 255, 0.15) !important; }
-:global(.theme-colors) .bg-emerald-50 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
-:global(.theme-colors) .bg-amber-50 { background-color: rgba(245, 158, 11, 0.08) !important; border-color: rgba(245, 158, 11, 0.15) !important; }
-:global(.theme-colors) .bg-purple-50 { background-color: rgba(139, 92, 246, 0.08) !important; border-color: rgba(139, 92, 246, 0.15) !important; }
 </style>
