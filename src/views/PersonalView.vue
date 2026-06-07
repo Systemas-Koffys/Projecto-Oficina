@@ -4,42 +4,54 @@
         <!-- ESTADÍSTICAS SUPERIORES -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 no-print">
             <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4">
-                <div class="w-12 h-12 bg-accent/20 text-accent rounded-2xl flex items-center justify-center text-xl">👥</div>
+                <div class="w-12 h-12 bg-accent/10 text-accent rounded-2xl flex items-center justify-center">
+                    <Users class="w-6 h-6" />
+                </div>
                 <div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Personal Total</p>
                     <p class="text-2xl font-black">{{ store.tecnicos.length }}</p>
                 </div>
             </div>
             <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-blue-500">
-                <div class="w-12 h-12 bg-blue-100/20 text-blue-600 rounded-2xl flex items-center justify-center text-xl">👷</div>
+                <div class="w-12 h-12 bg-blue-100/10 text-blue-600 rounded-2xl flex items-center justify-center">
+                    <HardHat class="w-6 h-6" />
+                </div>
                 <div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Técnicos</p>
                     <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Técnico de equipo').length }}</p>
                 </div>
             </div>
             <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-purple-500">
-                <div class="w-12 h-12 bg-purple-100/20 text-purple-600 rounded-2xl flex items-center justify-center text-xl">🚐</div>
+                <div class="w-12 h-12 bg-purple-100/10 text-purple-600 rounded-2xl flex items-center justify-center">
+                    <Truck class="w-6 h-6" />
+                </div>
                 <div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Choferes</p>
                     <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Chofer').length }}</p>
                 </div>
             </div>
             <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-green-500">
-                <div class="w-12 h-12 bg-green-100/20 text-green-700 rounded-2xl flex items-center justify-center text-xl">🌳</div>
+                <div class="w-12 h-12 bg-green-100/10 text-green-700 rounded-2xl flex items-center justify-center">
+                    <Trees class="w-6 h-6" />
+                </div>
                 <div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Trepadores</p>
                     <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Trepador').length }}</p>
                 </div>
             </div>
             <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-amber-500">
-                <div class="w-12 h-12 bg-amber-100/20 text-amber-600 rounded-2xl flex items-center justify-center text-xl">💪</div>
+                <div class="w-12 h-12 bg-amber-100/10 text-amber-600 rounded-2xl flex items-center justify-center">
+                    <ShieldAlert class="w-6 h-6" />
+                </div>
                 <div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cargadores</p>
                     <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Cargador').length }}</p>
                 </div>
             </div>
             <div class="bg-card p-6 rounded-[2rem] shadow-sm border border-border flex items-center gap-4 border-l-4 border-l-teal-500">
-                <div class="w-12 h-12 bg-teal-100/20 text-teal-600 rounded-2xl flex items-center justify-center text-xl">🪵</div>
+                <div class="w-12 h-12 bg-teal-100/10 text-teal-600 rounded-2xl flex items-center justify-center">
+                    <Sprout class="w-6 h-6" />
+                </div>
                 <div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Toconeros</p>
                     <p class="text-2xl font-black">{{ store.tecnicos.filter(t => t.cargo === 'Toconero').length }}</p>
@@ -56,10 +68,13 @@
                     <div class="relative flex-1 md:w-64">
                         <input v-model="search" type="text" placeholder="Buscar por nombre..." 
                             class="w-full pl-10 pr-4 py-3 rounded-2xl border border-border focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none transition-all font-bold text-sm">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted">🔍</span>
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted flex items-center justify-center">
+                            <Search class="w-4 h-4" />
+                        </span>
                     </div>
-                    <button @click="openNew" class="px-6 py-4 bg-accent text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:opacity-90 transition-all">
-                        + Registrar Personal
+                    <button @click="openNew" class="px-6 py-4 bg-accent text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:opacity-90 transition-all flex items-center gap-2">
+                        <Plus class="w-4 h-4" />
+                        <span>Registrar Personal</span>
                     </button>
                 </div>
             </div>
@@ -134,13 +149,13 @@
                             <td class="px-6 py-4 rounded-r-2xl border-y border-r border-border">
                                 <div class="flex items-center justify-center gap-2">
                                     <button @click="openView(p)" class="w-10 h-10 flex items-center justify-center bg-card text-accent border border-border rounded-xl shadow-sm hover:bg-accent hover:text-white transition-all" title="Ver Credencial">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        <Eye class="w-5 h-5" />
                                     </button>
                                     <button @click="openEdit(p)" class="w-10 h-10 flex items-center justify-center bg-card text-blue-600 border border-border rounded-xl shadow-sm hover:bg-blue-600 hover:text-white transition-all" title="Editar">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        <Pencil class="w-5 h-5" />
                                     </button>
                                     <button v-if="uiState.user?.role === 'ROOT'" @click="handleDelete(p)" class="w-10 h-10 flex items-center justify-center bg-card text-red-500 border border-border rounded-xl shadow-sm hover:bg-red-600 hover:text-white transition-all" title="Eliminar">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        <Trash2 class="w-5 h-5" />
                                     </button>
                                 </div>
                             </td>
@@ -161,8 +176,8 @@
                         <h3 class="font-black text-xl tracking-tight leading-none">Expediente de Personal</h3>
                         <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Detalles Completos del Funcionario</p>
                     </div>
-                    <button type="button" @click="viewPerson = null" class="hover:bg-white/20 p-2 rounded-xl transition-all">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <button type="button" @click="viewPerson = null" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center">
+                        <X class="w-6 h-6" />
                     </button>
                 </div>
 
@@ -191,7 +206,7 @@
                     <!-- Datos Generales -->
                     <div class="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm space-y-4">
                         <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> Información del Funcionario
+                            <Info class="w-4 h-4 text-emerald-500" /> Información del Funcionario
                         </h5>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- Cédula -->
@@ -230,7 +245,7 @@
                     <!-- Emergencias -->
                     <div class="p-6 bg-red-50/30 border border-red-100 rounded-2xl shadow-sm space-y-4">
                         <h5 class="text-[10px] font-black text-red-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <span class="w-2 h-2 bg-red-500 rounded-full"></span> Contacto de Emergencia
+                            <AlertTriangle class="w-4 h-4 text-red-500" /> Contacto de Emergencia
                         </h5>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="p-4 bg-white/80 border border-red-100 rounded-xl">
@@ -267,8 +282,8 @@
                         <h3 class="font-black text-xl tracking-tight leading-none">{{ editingPerson ? 'Editar Expediente de Personal' : 'Registrar Nuevo Funcionario' }}</h3>
                         <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Dirección de Personal y Accesos</p>
                     </div>
-                    <button type="button" @click="showModal = false" class="hover:bg-white/20 p-2 rounded-xl transition-all">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <button type="button" @click="showModal = false" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center">
+                        <X class="w-6 h-6" />
                     </button>
                 </div>
                 
@@ -297,7 +312,7 @@
                     <!-- SECCIÓN 01: DATOS PERSONALES -->
                     <div class="p-6 bg-white border border-slate-100 rounded-xl shadow-sm space-y-6">
                         <h4 class="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 01. Datos Personales e Identificación
+                            <Info class="w-4 h-4 text-emerald-600" /> 01. Datos Personales e Identificación
                         </h4>
                         
                         <div class="grid grid-cols-3 gap-6">
@@ -329,7 +344,7 @@
                     <!-- SECCIÓN 02: DETALLES LABORALES -->
                     <div class="p-6 bg-white border border-slate-100 rounded-xl shadow-sm space-y-6">
                         <h4 class="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 02. Información Laboral
+                            <Wrench class="w-4 h-4 text-emerald-600" /> 02. Información Laboral
                         </h4>
                         
                         <div class="grid grid-cols-3 gap-6">
@@ -355,7 +370,7 @@
                     <!-- SECCIÓN 03: CONTACTO DE EMERGENCIA -->
                     <div class="p-6 bg-red-50/30 border border-red-100 rounded-xl shadow-sm space-y-6">
                         <h4 class="text-[10px] font-black text-red-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <span class="w-2 h-2 bg-red-500 rounded-full"></span> 03. Contacto de Emergencia
+                            <AlertTriangle class="w-4 h-4 text-red-500" /> 03. Contacto de Emergencia
                         </h4>
                         
                         <div class="grid grid-cols-2 gap-6">
@@ -374,7 +389,7 @@
                     <div class="p-6 bg-emerald-50/30 border border-emerald-100 rounded-xl shadow-sm space-y-6">
                         <div class="flex items-center justify-between border-b border-emerald-100/60 pb-4">
                             <h4 class="text-[10px] font-black text-emerald-800 uppercase tracking-[0.2em] flex items-center gap-2">
-                                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 04. Acceso al Sistema
+                                <ShieldAlert class="w-4 h-4 text-emerald-600" /> 04. Acceso al Sistema
                             </h4>
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" v-model="formData.habilitarAcceso" class="w-4 h-4 rounded text-emerald-600 border-gray-300 focus:ring-emerald-500">
@@ -391,7 +406,10 @@
                                 <div class="form-input-prime border-emerald-100 bg-emerald-50/60 text-emerald-900 select-none cursor-default truncate">
                                     {{ formData.nombre || 'Ingresa el nombre primero...' }}
                                 </div>
-                                <p class="text-[10px] text-emerald-600 font-bold mt-1 ml-1">⚡ Se usa el nombre completo para iniciar sesión.</p>
+                                <p class="text-[10px] text-emerald-600 font-bold mt-1 ml-1 flex items-center gap-1">
+                                    <Zap class="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>Se usa el nombre completo para iniciar sesión.</span>
+                                </p>
                             </div>
                             <!-- Contraseña -->
                             <div class="col-span-1 flex flex-col">
@@ -449,9 +467,7 @@
                 <!-- Icono de advertencia -->
                 <div class="bg-gradient-to-br from-red-500 to-red-700 p-8 flex flex-col items-center text-white">
                     <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
+                        <AlertTriangle class="w-8 h-8 text-white" />
                     </div>
                     <h3 class="font-black text-lg tracking-tight">Eliminar Personal</h3>
                     <p class="text-red-100/80 text-xs font-bold uppercase tracking-widest mt-1">Acción de seguridad</p>
@@ -494,6 +510,12 @@ import { ref, computed, reactive, watch } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, updateCatalogo, deleteCatalogo, addCatalogo, showToast } = mainStore
+
+import { 
+    Users, HardHat, Truck, Trees, Search, Plus, 
+    Eye, Pencil, Trash2, X, AlertTriangle, Info, UserMinus, ShieldAlert,
+    Sprout, Wrench
+} from 'lucide-vue-next'
 
 const search = ref('')
 const showModal = ref(false)

@@ -50,7 +50,7 @@
         <div class="lg:col-span-8 card p-8 border-none shadow-2xl flex flex-col justify-between">
             <div>
                 <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
-                    🛠️ Requerimientos y Alertas de Campo
+                    <Wrench class="w-5 h-5 text-emerald-600" /> Requerimientos y Alertas de Campo
                 </h3>
                 <p class="text-xs text-muted font-bold uppercase tracking-widest mb-6">Necesidades operativas de la cola de pendientes</p>
             </div>
@@ -59,7 +59,7 @@
                 <!-- SETAR -->
                 <div class="bg-gradient-to-br from-amber-50 to-orange-50/50 p-4 rounded-2xl border border-orange-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-orange-200 transition-all group cursor-default">
                     <div class="flex justify-between items-center">
-                        <span class="text-lg">⚡</span>
+                        <Zap class="w-5 h-5 text-amber-500 animate-pulse" />
                         <span class="text-[9px] font-black text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full uppercase tracking-wider">SETAR</span>
                     </div>
                     <div>
@@ -71,7 +71,7 @@
                 <!-- Grúa / Plataforma -->
                 <div class="bg-gradient-to-br from-blue-50 to-sky-50/50 p-4 rounded-2xl border border-blue-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-blue-200 transition-all group cursor-default">
                     <div class="flex justify-between items-center">
-                        <span class="text-lg">🏗️</span>
+                        <Hammer class="w-5 h-5 text-blue-500" />
                         <span class="text-[9px] font-black text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Grúa</span>
                     </div>
                     <div>
@@ -83,7 +83,7 @@
                 <!-- Ficha Técnica -->
                 <div class="bg-gradient-to-br from-indigo-50 to-violet-50/50 p-4 rounded-2xl border border-indigo-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-indigo-200 transition-all group cursor-default">
                     <div class="flex justify-between items-center">
-                        <span class="text-lg">📋</span>
+                        <ClipboardList class="w-5 h-5 text-indigo-500" />
                         <span class="text-[9px] font-black text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Ficha</span>
                     </div>
                     <div>
@@ -95,7 +95,7 @@
                 <!-- Árbol Seco -->
                 <div class="bg-gradient-to-br from-yellow-50 to-amber-50/50 p-4 rounded-2xl border border-amber-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-amber-200 transition-all group cursor-default">
                     <div class="flex justify-between items-center">
-                        <span class="text-lg">🌵</span>
+                        <Leaf class="w-5 h-5 text-yellow-600" />
                         <span class="text-[9px] font-black text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Seco</span>
                     </div>
                     <div>
@@ -107,7 +107,7 @@
                 <!-- Segunda Nota -->
                 <div class="bg-gradient-to-br from-purple-50 to-fuchsia-50/50 p-4 rounded-2xl border border-purple-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-purple-200 transition-all group cursor-default">
                     <div class="flex justify-between items-center">
-                        <span class="text-lg">✉️</span>
+                        <MailOpen class="w-5 h-5 text-purple-500" />
                         <span class="text-[9px] font-black text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full uppercase tracking-wider">2ª Nota</span>
                     </div>
                     <div>
@@ -122,7 +122,7 @@
         <div class="lg:col-span-4 card p-8 border-none shadow-2xl flex flex-col justify-between">
             <div>
                 <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
-                    👥 Tipo de Solicitante
+                    <Users class="w-5 h-5 text-emerald-600" /> Tipo de Solicitante
                 </h3>
                 <p class="text-xs text-muted font-bold uppercase tracking-widest mb-6">Perfil de la demanda actual</p>
             </div>
@@ -230,8 +230,8 @@
         <!-- Tabla de Pendientes (Izquierda) -->
         <div class="lg:col-span-8 card p-8 border-none shadow-2xl overflow-hidden bg-white">
             <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-6">
-                <h3 class="font-black text-xl tracking-tighter flex items-center gap-3">
-                    <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                <h3 class="font-black text-xl tracking-tighter flex items-center gap-2">
+                    <Clock class="w-5 h-5 text-yellow-500 animate-pulse" />
                     Cola de Trabajo Inmediata
                 </h3>
                 <button @click="$router.push('/solicitudes')" class="text-[10px] font-black uppercase tracking-widest text-accent hover:underline html2pdf__ignore">Ver todo</button>
@@ -284,7 +284,7 @@
         <div class="lg:col-span-4 card p-8 border-none shadow-2xl bg-white flex flex-col justify-between">
             <div>
                 <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
-                    📍 Pendientes por Distrito
+                    <MapPin class="w-5 h-5 text-emerald-600" /> Pendientes por Distrito
                 </h3>
                 <p class="text-xs text-muted font-bold uppercase tracking-widest mb-6">Carga activa en territorio</p>
             </div>
@@ -320,7 +320,8 @@ const mainStore = useMainStore()
 const { store, uiState } = mainStore
 import { 
     ClipboardList, CheckCircle2, Clock3, AlertTriangle, 
-    TrendingUp, UserCheck, Download 
+    TrendingUp, UserCheck, Download,
+    Wrench, Zap, Hammer, Leaf, MailOpen, Users, MapPin, Clock
 } from 'lucide-vue-next'
 
 // --- SALUDO DINÁMICO ---

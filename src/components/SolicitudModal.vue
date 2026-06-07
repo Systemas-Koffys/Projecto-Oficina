@@ -9,8 +9,8 @@
                     <!-- Lógica de Sincronización v2.1 Activa -->
                     <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Gestión de Arboricultura Municipal</p>
                 </div>
-                <button type="button" @click="cerrar" class="hover:bg-white/20 p-2 rounded-xl transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button type="button" @click="cerrar" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center">
+                    <X class="w-6 h-6" />
                 </button>
             </div>
 
@@ -20,7 +20,7 @@
                 <!-- SECCIÓN 01: IDENTIFICACIÓN -->
                 <div class="p-6 bg-blue-50 border border-blue-100 border-l-[6px] border-l-blue-500 rounded-xl shadow-sm">
                     <h4 class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                        <span class="w-2 h-2 bg-blue-500 rounded-full"></span> 01. Información de Ingreso
+                        <Info class="w-4 h-4 text-blue-500" /> 01. Información de Ingreso
                     </h4>
                     <div class="grid grid-cols-3 gap-6">
                         <div class="col-span-1 flex flex-col">
@@ -66,7 +66,7 @@
                 <!-- SECCIÓN 02: LOCALIZACIÓN -->
                 <div class="p-6 bg-emerald-50 border border-emerald-100 border-l-[6px] border-l-emerald-500 rounded-xl shadow-sm">
                     <h4 class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 02. Localización y Referencia
+                        <MapPin class="w-4 h-4 text-emerald-500" /> 02. Localización y Referencia
                     </h4>
                     <div class="grid grid-cols-4 gap-6">
                         <div class="col-span-1 flex flex-col">
@@ -98,8 +98,8 @@
 
                         <!-- Geolocalización y Mapa Mezclado -->
                         <div class="col-span-4 border-t border-emerald-100/60 pt-4 flex flex-col gap-4">
-                            <label class="label-prime text-emerald-800 font-black uppercase text-[10px] tracking-wider">
-                                🗺️ Ubicación Geográfica del Árbol (GPS)
+                            <label class="label-prime text-emerald-800 font-black uppercase text-[10px] tracking-wider flex items-center gap-1.5">
+                                <MapPin class="w-4 h-4 text-emerald-800" /> Ubicación Geográfica del Árbol (GPS)
                             </label>
                             
                             <!-- Contenedor del Mapa Leaflet -->
@@ -129,7 +129,7 @@
                 <!-- SECCIÓN 03: DIAGNÓSTICO TÉCNICO Y ÁRBOLES -->
                 <div class="p-6 bg-amber-50 border border-amber-100 border-l-[6px] border-l-amber-500 rounded-xl shadow-sm space-y-6">
                     <h4 class="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                        <span class="w-2 h-2 bg-amber-500 rounded-full"></span> 03. Diagnóstico Técnico y Detalle de Árboles
+                        <Activity class="w-4 h-4 text-amber-500" /> 03. Diagnóstico Técnico y Detalle de Árboles
                     </h4>
                     
                     <!-- Metadata de Verificación General -->
@@ -168,8 +168,8 @@
                                     🌲 Árbol #{{ index + 1 }} {{ index === 0 ? '(Principal)' : '' }}
                                 </span>
                                 <button v-if="index > 0" type="button" @click="removeArbol(index)" 
-                                    class="px-2.5 py-1 text-[9px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-all uppercase tracking-wider">
-                                    Eliminar
+                                    class="px-2.5 py-1 text-[9px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-all uppercase tracking-wider flex items-center gap-1">
+                                    <Trash2 class="w-3 h-3" /> Eliminar
                                 </button>
                             </div>
 
@@ -207,7 +207,8 @@
                         <!-- Botón para añadir árbol -->
                         <button type="button" @click="addArbol" 
                             class="w-full py-3 bg-amber-50 hover:bg-amber-100/75 border-2 border-dashed border-amber-300 hover:border-amber-400 text-amber-800 font-black rounded-2xl text-[10px] tracking-widest uppercase transition-all flex items-center justify-center gap-2">
-                            <span>➕ Añadir otro árbol</span>
+                            <Plus class="w-4 h-4" />
+                            <span>Añadir otro árbol</span>
                         </button>
                     </div>
 
@@ -222,7 +223,7 @@
                 <!-- SECCIÓN 04: LOGÍSTICA -->
                 <div class="p-6 bg-slate-50 border border-slate-100 border-l-[6px] border-l-slate-400 rounded-xl shadow-sm">
                     <h4 class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                        <span class="w-2 h-2 bg-slate-400 rounded-full"></span> 04. Apoyo Logístico
+                        <Wrench class="w-4 h-4 text-slate-500" /> 04. Apoyo Logístico
                     </h4>
                     <div class="grid grid-cols-4 gap-4">
                         <label v-for="l in [
@@ -253,7 +254,7 @@
                 <!-- SECCIÓN 05: CIERRE -->
                 <div class="p-6 bg-purple-50 border border-purple-100 border-l-[6px] border-l-purple-500 rounded-xl shadow-sm">
                     <h4 class="text-[10px] font-black text-purple-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                        <span class="w-2 h-2 bg-purple-500 rounded-full"></span> 05. Ejecución y Cierre
+                        <CheckCircle2 class="w-4 h-4 text-purple-500" /> 05. Ejecución y Cierre
                     </h4>
                     <div class="grid grid-cols-3 gap-6">
                         <div class="col-span-1 flex flex-col">
@@ -298,6 +299,8 @@ import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, addSolicitud, updateSolicitud, showToast } = mainStore
+
+import { X, Info, MapPin, Activity, Plus, Trash2, Wrench, CheckCircle2 } from 'lucide-vue-next'
 
 const emit = defineEmits(['close'])
 

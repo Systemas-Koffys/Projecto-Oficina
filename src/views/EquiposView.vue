@@ -26,7 +26,9 @@
                     <div class="mb-4 relative">
                         <input v-model="searchDisponible" type="text" placeholder="Buscar por nombre..." 
                             class="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-border focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none transition-all font-semibold">
-                        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted text-xs">🔍</span>
+                        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted text-xs flex items-center justify-center">
+                            <Search class="w-3.5 h-3.5" />
+                        </span>
                     </div>
                     
                     <div class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar transition-all"
@@ -53,7 +55,7 @@
                                 <button @click="assignToAny(p)" 
                                     class="text-xs bg-accent text-on-accent w-6 h-6 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:opacity-90 active:scale-95" 
                                     title="Asignar a primer equipo disponible">
-                                    +
+                                    <Plus class="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         </div>
@@ -115,16 +117,14 @@
                                 </div>
                             </div>
                             <button v-if="uiState.user?.role !== 'USER'" @click="removeFromTeam(p)" 
-                                class="text-muted hover:text-red-500 transition-colors shrink-0 p-1 rounded-lg hover:bg-red-55"
+                                class="text-muted hover:text-red-500 transition-colors shrink-0 p-1 rounded-lg hover:bg-red-55 flex items-center justify-center"
                                 title="Quitar del equipo">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                </svg>
+                                <Trash2 class="w-4 h-4" />
                             </button>
                         </div>
                         
                         <div v-if="getTeamPersonnel(n).length === 0" class="h-full flex flex-col items-center justify-center text-muted border-2 border-dashed border-border rounded-2xl py-12">
-                            <span class="text-3xl mb-2">📥</span>
+                            <UserMinus class="w-8 h-8 text-slate-400 mb-2" />
                             <p class="text-xs font-black uppercase tracking-wide">Sin personal asignado</p>
                         </div>
                     </div>
@@ -139,6 +139,8 @@ import { ref, computed } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, updateCatalogo, showToast } = mainStore
+
+import { Search, Plus, Trash2, UserMinus } from 'lucide-vue-next'
 
 const teamColors = ['#10b981', '#3b82f6', '#f59e0b']
 

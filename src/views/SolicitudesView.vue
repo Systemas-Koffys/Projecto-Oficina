@@ -4,6 +4,12 @@ import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, deleteSolicitud, showToast, registrarImpresion } = mainStore
 
+import { 
+    Trash2, Plus, Eye, Printer, Pencil, X, 
+    Zap, Leaf, MailOpen, Wrench, AlertTriangle, 
+    CheckCircle2, ClipboardList 
+} from 'lucide-vue-next'
+
 const solicitudSeleccionada = ref(null)
 
 const abrirDetalle = (sol) => {
@@ -277,9 +283,7 @@ const formatLoDeterminado = (sol) => {
                     class="group relative flex items-center gap-3 px-8 py-4 bg-[#1a4731] text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-green-900/20 hover:shadow-green-900/40 hover:-translate-y-1 transition-all active:scale-95 border border-white/10"
                 >
                     <div class="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
-                        </svg>
+                        <Plus class="w-4 h-4" />
                     </div>
                     Nueva Solicitud
                 </button>
@@ -315,8 +319,9 @@ const formatLoDeterminado = (sol) => {
                         </div>
                     </div>
                     <div class="flex items-end">
-                        <button @click="limpiarFiltros" class="w-full px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
-                            🗑️ Limpiar filtros
+                        <button @click="limpiarFiltros" class="w-full px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5 font-bold">
+                            <Trash2 class="w-4 h-4 text-gray-500" />
+                            <span>Limpiar filtros</span>
                         </button>
                     </div>
                 </div>
@@ -371,16 +376,16 @@ const formatLoDeterminado = (sol) => {
                                 <td>
                                     <div class="action-buttons">
                                         <button class="btn-icon btn-ver" @click="abrirDetalle(sol)" title="Ver detalles">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <Eye class="w-4 h-4" />
                                         </button>
                                         <button class="btn-icon btn-print" @click="imprimirDirecto(sol)" title="Imprimir reporte">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                                            <Printer class="w-4 h-4" />
                                         </button>
                                         <button v-if="uiState.user?.role !== 'USER'" class="btn-icon btn-edit" @click="abrirEdicion(sol)" title="Editar solicitud">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                            <Pencil class="w-4 h-4" />
                                         </button>
                                         <button v-if="uiState.user?.role === 'ROOT'" class="btn-icon btn-delete" @click="confirmarEliminar(sol)" title="Eliminar solicitud">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                                            <Trash2 class="w-4 h-4" />
                                         </button>
                                     </div>
                                 </td>
@@ -461,51 +466,53 @@ const formatLoDeterminado = (sol) => {
                         <div class="flex flex-wrap gap-2 mt-4">
                             <!-- 1. BADGE DE PRIORIDAD CONSOLIDADO -->
                             <span v-if="solicitudSeleccionada.es_emergencia || solicitudSeleccionada.nivel_urgencia === 'Alta' || solicitudSeleccionada.es_urgencia"
-                                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black bg-red-600 text-white shadow-lg shadow-red-900/20 border border-white/20 animate-pulse">
-                                🚨 PRIORIDAD CRÍTICA / EMERGENCIA
+                                class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[10px] font-black bg-red-600 text-white shadow-lg shadow-red-900/20 border border-white/20 animate-pulse">
+                                <AlertTriangle class="w-3.5 h-3.5 text-white animate-pulse" /> PRIORIDAD CRÍTICA / EMERGENCIA
                             </span>
                             <span v-else-if="solicitudSeleccionada.nivel_urgencia === 'Intermedia'"
-                                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black bg-amber-500 text-white shadow-lg shadow-amber-900/20 border border-white/20">
-                                ⚠️ PRIORIDAD MEDIA
+                                class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[10px] font-black bg-amber-500 text-white shadow-lg shadow-amber-900/20 border border-white/20">
+                                <AlertTriangle class="w-3.5 h-3.5 text-white" /> PRIORIDAD MEDIA
                             </span>
                             <span v-else
-                                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 border border-white/20">
-                                ✅ PRIORIDAD NORMAL
+                                class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[10px] font-black bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 border border-white/20">
+                                <CheckCircle2 class="w-3.5 h-3.5 text-white" /> PRIORIDAD NORMAL
                             </span>
 
                             <!-- 2. OTROS REQUERIMIENTOS LOGÍSTICOS -->
                             <span v-if="solicitudSeleccionada.procede"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                🌲 PROCEDE TRABAJO
+                                <Leaf class="w-3 h-3 text-emerald-700" /> PROCEDE TRABAJO
                             </span>
                             <span v-if="solicitudSeleccionada.requiere_plataforma"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-blue-100 text-blue-700 border border-blue-200">
-                                🏗️ GRÚA/PLATAFORMA
+                                <Hammer class="w-3 h-3 text-blue-700" /> GRÚA/PLATAFORMA
                             </span>
                             <span v-if="solicitudSeleccionada.requiere_setar"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-orange-100 text-orange-700 border border-orange-200">
-                                ⚡ CORTE SETAR
+                                <Zap class="w-3 h-3 text-orange-700" /> CORTE SETAR
                             </span>
                             <span v-if="solicitudSeleccionada.requiere_ficha_tecnica"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-indigo-100 text-indigo-700 border border-indigo-200">
-                                📋 FICHA TÉCNICA
+                                <ClipboardList class="w-3 h-3 text-indigo-700" /> FICHA TÉCNICA
                             </span>
                             <span v-if="solicitudSeleccionada.arbol_seco"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-amber-100 text-amber-700 border border-amber-200">
-                                🌵 ÁRBOL SECO
+                                <Leaf class="w-3 h-3 text-amber-700" /> ÁRBOL SECO
                             </span>
                             <span v-if="solicitudSeleccionada.segunda_nota"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-purple-100 text-purple-700 border border-purple-200">
-                                ✉️ SEGUNDA NOTA
+                                <MailOpen class="w-3 h-3 text-purple-700" /> SEGUNDA NOTA
                             </span>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
                         <button @click="imprimirReporte" class="bg-white/15 hover:bg-white/25 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all border border-white/10">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            <Printer class="w-4 h-4" />
                             Imprimir
                         </button>
-                        <button @click="solicitudSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-xl flex items-center justify-center text-2xl leading-none transition-all border border-white/10">&times;</button>
+                        <button @click="solicitudSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-white/10">
+                            <X class="w-5 h-5" />
+                        </button>
                     </div>
                 </div>
 
