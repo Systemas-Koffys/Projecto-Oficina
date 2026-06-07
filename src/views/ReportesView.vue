@@ -156,27 +156,27 @@ const formatFecha = (str) => {
 </script>
 
 <template>
-    <div class="reportes-view p-6 max-w-[1400px] mx-auto">
+    <div class="reportes-view p-6 max-w-[1400px] mx-auto text-main animate-in">
         
         <!-- Header del Centro de Reportes -->
         <div class="mb-8 flex justify-between items-center no-print">
             <div>
-                <h2 class="text-3xl font-black text-gray-800 tracking-tight flex items-center gap-3">
-                    <FileText class="text-emerald-600 w-8 h-8" />
+                <h2 class="text-3xl font-black text-main tracking-tight flex items-center gap-3">
+                    <FileText class="text-accent w-8 h-8" />
                     Centro de Reportes e Inteligencia
                 </h2>
-                <p class="text-gray-500 font-medium mt-1">Generación de hojas de ruta, auditoría de impresiones y consolidación de datos.</p>
+                <p class="text-muted font-medium mt-1">Generación de hojas de ruta, auditoría de impresiones y consolidación de datos.</p>
             </div>
             
-            <div class="flex bg-gray-100 p-1 rounded-2xl border border-gray-200">
+            <div class="flex bg-card-sec p-1 rounded-2xl border border-main">
                 <button @click="activeTab = 'generador'" 
-                    :class="activeTab === 'generador' ? 'bg-white text-emerald-700 shadow-md scale-105' : 'text-gray-500 hover:bg-white/50'"
-                    class="px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
+                    :class="activeTab === 'generador' ? 'bg-card-main text-accent shadow-md scale-105 border border-main' : 'text-muted hover:bg-card-main/50'"
+                    class="px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 cursor-pointer">
                     <Printer size="18" /> Generador
                 </button>
                 <button @click="activeTab = 'historial'" 
-                    :class="activeTab === 'historial' ? 'bg-white text-emerald-700 shadow-md scale-105' : 'text-gray-500 hover:bg-white/50'"
-                    class="px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
+                    :class="activeTab === 'historial' ? 'bg-card-main text-accent shadow-md scale-105 border border-main' : 'text-muted hover:bg-card-main/50'"
+                    class="px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 cursor-pointer">
                     <History size="18" /> Historial
                 </button>
             </div>
@@ -188,10 +188,10 @@ const formatFecha = (str) => {
                 
                 <!-- Panel de Filtros (Lateral) -->
                 <div class="lg:col-span-1 space-y-6">
-                    <div class="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 overflow-hidden relative">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                    <div class="bg-card-main border border-main rounded-3xl shadow-sm p-6 overflow-hidden relative text-main">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-accent-soft rounded-full -mr-16 -mt-16 opacity-30"></div>
                         
-                        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <h3 class="text-xs font-black text-muted uppercase tracking-widest mb-6 flex items-center gap-2">
                             <Filter size="14" /> Parámetros de Compilación
                         </h3>
 
@@ -243,62 +243,62 @@ const formatFecha = (str) => {
                         </div>
 
                         <button @click="imprimirHojaRuta" 
-                            class="w-full mt-8 bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-3">
+                            class="w-full mt-8 bg-accent text-on-accent py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 cursor-pointer">
                             <Printer size="18" /> Generar y Registrar
                         </button>
                     </div>
 
-                    <div class="bg-emerald-900 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+                    <div class="bg-accent rounded-3xl p-6 text-on-accent shadow-xl relative overflow-hidden">
                         <div class="relative z-10">
-                            <p class="text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-2">Resumen de Carga</p>
-                            <h4 class="text-4xl font-black">{{ solicitudesFiltradas.length }}</h4>
-                            <p class="text-emerald-100 text-sm font-medium">Trámites compilados</p>
+                            <p class="opacity-80 text-[10px] font-black uppercase tracking-widest mb-2">Resumen de Carga</p>
+                            <h4 class="text-4xl font-black text-on-accent">{{ solicitudesFiltradas.length }}</h4>
+                            <p class="opacity-90 text-sm font-medium">Trámites compilados</p>
                         </div>
-                        <FileText class="absolute bottom-0 right-0 -mb-4 -mr-4 w-24 h-24 text-white/10" />
+                        <FileText class="absolute bottom-0 right-0 -mb-4 -mr-4 w-24 h-24 opacity-10" />
                     </div>
                 </div>
 
                 <!-- Tabla de Previsualización (Principal) -->
                 <div class="lg:col-span-3">
-                    <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden min-h-[600px]">
-                        <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                            <h4 class="font-black text-gray-700 text-sm uppercase tracking-widest">Previsualización de Hoja de Ruta</h4>
-                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+                    <div class="bg-card-main border border-main rounded-3xl shadow-sm overflow-hidden min-h-[600px]">
+                        <div class="px-8 py-6 border-b border-main flex justify-between items-center bg-card-sec">
+                            <h4 class="font-black text-main text-sm uppercase tracking-widest">Previsualización de Hoja de Ruta</h4>
+                            <span class="text-xs font-bold text-accent bg-accent-soft px-3 py-1 rounded-full border border-main">
                                 Documento Consolidado
                             </span>
                         </div>
 
-                        <div class="overflow-x-auto">
+                        <div class="overflow-x-auto text-main">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="text-[10px] font-black uppercase text-gray-400 tracking-widest border-b border-gray-100">
-                                        <th class="px-8 py-4 w-12 text-center">#</th>
-                                        <th class="px-8 py-4">Código / Solicitante</th>
-                                        <th class="px-6 py-4">Ubicación Exacta</th>
-                                        <th class="px-6 py-4">Acción Técnica</th>
+                                    <tr class="text-[10px] font-black uppercase text-muted tracking-widest border-b border-main">
+                                        <th class="px-8 py-4 w-12 text-center border-b border-main">#</th>
+                                        <th class="px-8 py-4 border-b border-main">Código / Solicitante</th>
+                                        <th class="px-6 py-4 border-b border-main">Ubicación Exacta</th>
+                                        <th class="px-6 py-4 border-b border-main">Acción Técnica</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-if="solicitudesFiltradas.length === 0" class="text-center py-20">
-                                        <td colspan="4" class="py-32">
-                                            <div class="flex flex-col items-center opacity-20">
+                                    <tr v-if="solicitudesFiltradas.length === 0" class="text-center py-20 bg-card-main">
+                                        <td colspan="4" class="py-32 bg-card-main border-none">
+                                            <div class="flex flex-col items-center opacity-20 bg-card-main">
                                                 <Search size="64" />
                                                 <p class="font-black text-xl mt-4">Sin resultados con estos filtros</p>
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr v-for="(sol, idx) in solicitudesFiltradas" :key="sol.id_solicitud" class="group border-b border-gray-50 hover:bg-emerald-50/30 transition-all">
-                                        <td class="px-8 py-5 text-center font-bold text-gray-400">{{ idx + 1 }}</td>
-                                        <td class="px-8 py-5">
-                                            <p class="font-black text-emerald-800 text-sm mb-0.5">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</p>
-                                            <p class="text-xs text-gray-500 font-bold uppercase tracking-tighter">{{ sol.solicitante_nombre }}</p>
+                                    <tr v-for="(sol, idx) in solicitudesFiltradas" :key="sol.id_solicitud" class="group border-b border-main hover:bg-accent-soft transition-all">
+                                        <td class="px-8 py-5 text-center font-bold text-muted border-b border-main bg-card-sec group-hover:bg-accent-soft">{{ idx + 1 }}</td>
+                                        <td class="px-8 py-5 border-b border-main">
+                                            <p class="font-black text-accent text-sm mb-0.5">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</p>
+                                            <p class="text-xs text-muted font-bold uppercase tracking-tighter">{{ sol.solicitante_nombre }}</p>
                                         </td>
-                                        <td class="px-6 py-5">
-                                            <p class="text-sm font-bold text-gray-800">{{ sol.calle }} {{ sol.numero_casa }}</p>
-                                            <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">{{ getBarrio(sol.id_barrio) }}</p>
+                                        <td class="px-6 py-5 border-b border-main">
+                                            <p class="text-sm font-bold text-main">{{ sol.calle }} {{ sol.numero_casa }}</p>
+                                            <p class="text-[10px] text-muted font-black uppercase tracking-widest">{{ getBarrio(sol.id_barrio) }}</p>
                                         </td>
-                                        <td class="px-6 py-5">
-                                            <span class="text-xs font-bold text-gray-600">{{ getAccion(sol.id_accion) }}</span>
+                                        <td class="px-6 py-5 border-b border-main">
+                                            <span class="text-xs font-bold text-main">{{ getAccion(sol.id_accion) }}</span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -311,56 +311,56 @@ const formatFecha = (str) => {
 
         <!-- VISTA HISTORIAL: AUDITORÍA DE REPORTES -->
         <div v-if="activeTab === 'historial'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="bg-white rounded-[2.5rem] border border-gray-200 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
+            <div class="bg-card-main border border-main rounded-[2.5rem] shadow-sm overflow-hidden">
+                <div class="overflow-x-auto text-main">
                     <table class="w-full text-left">
                         <thead>
-                            <tr class="bg-gray-50/80 text-[10px] font-black uppercase text-gray-400 tracking-widest border-b border-gray-100">
-                                <th class="px-8 py-6">ID / Referencia del Reporte</th>
-                                <th class="px-6 py-6">Fecha y Hora</th>
-                                <th class="px-6 py-6">Generado por</th>
-                                <th class="px-6 py-6">Tipo</th>
-                                <th class="px-8 py-6 text-right">Acciones</th>
+                            <tr class="bg-card-sec text-[10px] font-black uppercase text-muted tracking-widest border-b border-main">
+                                <th class="px-8 py-6 border-b border-main">ID / Referencia del Reporte</th>
+                                <th class="px-6 py-6 border-b border-main">Fecha y Hora</th>
+                                <th class="px-6 py-6 border-b border-main">Generado por</th>
+                                <th class="px-6 py-6 border-b border-main">Tipo</th>
+                                <th class="px-8 py-6 text-right border-b border-main">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-if="store.impresiones.length === 0">
-                                <td colspan="5" class="py-40 text-center opacity-30">
-                                    <History size="64" class="mx-auto mb-4" />
-                                    <p class="font-black text-xl uppercase tracking-widest">No hay historial registrado</p>
+                                <td colspan="5" class="py-40 text-center opacity-30 bg-card-main">
+                                    <History size="64" class="mx-auto mb-4 text-muted" />
+                                    <p class="font-black text-xl uppercase tracking-widest text-main">No hay historial registrado</p>
                                 </td>
                             </tr>
-                            <tr v-for="imp in store.impresiones" :key="imp.id" class="border-b border-gray-50 hover:bg-gray-50/50 transition-all group">
-                                <td class="px-8 py-6">
+                            <tr v-for="imp in store.impresiones" :key="imp.id" class="border-b border-main hover:bg-accent-soft transition-all group">
+                                <td class="px-8 py-6 border-b border-main">
                                     <div v-if="editId === imp.id" class="flex gap-2 items-center">
                                         <input v-model="editNombre" class="input-modern !py-1 !text-sm" @keyup.enter="guardarNuevoNombre" />
-                                        <button @click="guardarNuevoNombre" class="bg-emerald-600 text-white p-1.5 rounded-lg hover:scale-105 transition-all">✅</button>
-                                        <button @click="editId = null" class="bg-gray-200 text-gray-600 p-1.5 rounded-lg hover:scale-105 transition-all">❌</button>
+                                        <button @click="guardarNuevoNombre" class="bg-emerald-600 text-white p-1.5 rounded-lg hover:scale-105 transition-all cursor-pointer">✅</button>
+                                        <button @click="editId = null" class="bg-gray-200 text-gray-600 p-1.5 rounded-lg hover:scale-105 transition-all cursor-pointer">❌</button>
                                     </div>
                                     <div v-else>
-                                        <p class="font-black text-gray-800 text-sm mb-1 flex items-center gap-2">
+                                        <p class="font-black text-main text-sm mb-1 flex items-center gap-2">
                                             {{ imp.nombre_reporte }}
-                                            <Edit3 size="12" class="text-gray-300 group-hover:text-emerald-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-all" @click="iniciarEdicion(imp)" />
+                                            <Edit3 size="12" class="text-muted group-hover:text-emerald-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-all" @click="iniciarEdicion(imp)" />
                                         </p>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{{ imp.filtros_aplicados || 'Sin filtros específicos' }}</p>
+                                        <p class="text-[10px] text-muted font-bold uppercase tracking-tighter">{{ imp.filtros_aplicados || 'Sin filtros específicos' }}</p>
                                     </div>
                                 </td>
-                                <td class="px-6 py-6 text-sm font-bold text-gray-600">{{ formatFecha(imp.fecha_impresion) }}</td>
-                                <td class="px-6 py-6">
-                                    <span class="text-xs font-black text-gray-500 uppercase tracking-widest">{{ imp.usuario }}</span>
+                                <td class="px-6 py-6 text-sm font-bold text-muted border-b border-main">{{ formatFecha(imp.fecha_impresion) }}</td>
+                                <td class="px-6 py-6 border-b border-main">
+                                    <span class="text-xs font-black text-muted uppercase tracking-widest">{{ imp.usuario }}</span>
                                 </td>
-                                <td class="px-6 py-6">
+                                <td class="px-6 py-6 border-b border-main">
                                     <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
                                         :class="imp.tipo_reporte === 'Individual' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-purple-50 text-purple-600 border border-purple-100'">
                                         {{ imp.tipo_reporte }}
                                     </span>
                                 </td>
-                                <td class="px-8 py-6 text-right">
+                                <td class="px-8 py-6 text-right border-b border-main">
                                     <div class="flex justify-end gap-2">
-                                        <button @click="handleReimprimir(imp)" class="btn-action-report btn-view" title="Ver / Descargar">
+                                        <button @click="handleReimprimir(imp)" class="btn-action-report btn-view cursor-pointer" title="Ver / Descargar">
                                             <Eye size="16" />
                                         </button>
-                                        <button @click="confirmarEliminar(imp)" class="btn-action-report btn-delete-report" title="Eliminar del historial">
+                                        <button @click="confirmarEliminar(imp)" class="btn-action-report btn-delete-report cursor-pointer" title="Eliminar del historial">
                                             <Trash2 size="16" />
                                         </button>
                                     </div>
@@ -459,9 +459,9 @@ const formatFecha = (str) => {
         <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
         <Teleport to="body">
             <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
-                <div class="bg-card rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col border border-border animate-prime-in">
+                <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col animate-prime-in">
                     <!-- Icono de Advertencia -->
-                    <div class="p-8 flex flex-col items-center text-center gap-4">
+                    <div class="p-8 flex flex-col items-center text-center gap-4 bg-card-main text-main">
                         <div class="w-14 h-14 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-2xl select-none">
                             ⚠️
                         </div>
@@ -471,9 +471,9 @@ const formatFecha = (str) => {
                         </div>
                     </div>
                     <!-- Botones de Acción -->
-                    <div class="p-6 bg-app border-t border-border flex gap-3">
+                    <div class="p-6 bg-card-main border-t border-main flex gap-3">
                         <button @click="showConfirmModal = false" 
-                            class="flex-1 px-4 py-3 bg-card border border-border rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-main/10 transition-all active:scale-95 shadow-sm cursor-pointer">
+                            class="flex-1 px-4 py-3 bg-card-sec border border-main rounded-xl font-black text-[10px] uppercase tracking-widest text-main hover:bg-accent-soft transition-all active:scale-95 shadow-sm cursor-pointer">
                             Cancelar
                         </button>
                         <button @click="ejecutarConfirmacion" 
@@ -489,12 +489,35 @@ const formatFecha = (str) => {
 
 <style scoped>
 @reference "tailwindcss";
-.label-mini { @apply block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5; }
-.input-modern { @apply w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none text-sm font-bold text-gray-700 transition-all; }
+.label-mini {
+    @apply block text-[10px] font-black uppercase tracking-widest mb-1.5;
+    color: var(--text-muted);
+}
+.input-modern {
+    @apply w-full px-4 py-3 rounded-2xl border outline-none text-sm font-bold transition-all;
+    background-color: var(--input-bg) !important;
+    border: 2px solid var(--border) !important;
+    color: var(--text-main) !important;
+}
+.input-modern:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 4px var(--accent-soft);
+}
 
 .btn-action-report { @apply w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-90 shadow-sm; }
 .btn-view { @apply bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-100; }
 .btn-delete-report { @apply bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-100; }
+
+/* Theme Adaptive Overrides for colored blocks and buttons */
+:global(.theme-black) .btn-view { background: rgba(59, 130, 246, 0.2) !important; color: #3b82f6 !important; }
+:global(.theme-black) .btn-view:hover { background: rgba(59, 130, 246, 0.4) !important; color: #fff !important; }
+:global(.theme-black) .btn-delete-report { background: rgba(239, 68, 68, 0.2) !important; color: #ef4444 !important; }
+:global(.theme-black) .btn-delete-report:hover { background: rgba(239, 68, 68, 0.4) !important; color: #fff !important; }
+
+:global(.theme-colors) .btn-view { background: rgba(30, 144, 255, 0.1) !important; color: #1e90ff !important; }
+:global(.theme-colors) .btn-view:hover { background: rgba(30, 144, 255, 0.3) !important; color: #fff !important; }
+:global(.theme-colors) .btn-delete-report { background: rgba(239, 68, 68, 0.1) !important; color: #ef4444 !important; }
+:global(.theme-colors) .btn-delete-report:hover { background: rgba(239, 68, 68, 0.3) !important; color: #fff !important; }
 
 @media print {
     @page { size: A4 portrait; margin: 1cm; }

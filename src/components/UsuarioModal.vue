@@ -1,39 +1,39 @@
 <template>
     <Teleport to="body">
     <div class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
-        <div class="bg-white rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
+        <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden flex flex-col animate-prime-in">
             
             <!-- Header Institucional -->
             <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg">
                 <div>
-                    <h3 class="font-black text-xl tracking-tight leading-none">
+                    <h3 class="font-black text-xl tracking-tight leading-none text-white">
                         {{ userData ? 'Editar Cuenta de Usuario' : 'Habilitar Acceso al Sistema' }}
                     </h3>
                     <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Gestión de Credenciales Institucionales</p>
                 </div>
-                <button type="button" @click="$emit('close')" class="hover:bg-white/20 p-2 rounded-xl transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button type="button" @click="$emit('close')" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
 
-            <form @submit.prevent="handleSubmit" class="p-8 space-y-6 overflow-y-auto max-h-[75vh] custom-scrollbar bg-slate-50/50">
+            <form @submit.prevent="handleSubmit" class="p-8 space-y-6 overflow-y-auto max-h-[75vh] custom-scrollbar bg-card-main text-main">
 
                 <!-- SECCIÓN 01: IDENTIFICACIÓN DEL FUNCIONARIO -->
-                <div class="p-6 bg-white border border-slate-100 rounded-xl shadow-sm space-y-5">
-                    <h4 class="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em] flex items-center gap-2">
+                <div class="p-6 bg-card-sec border border-main rounded-xl shadow-sm space-y-5">
+                    <h4 class="text-[10px] font-black text-main uppercase tracking-[0.2em] flex items-center gap-2">
                         <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 01. Funcionario
                     </h4>
 
                     <!-- MODO EDICIÓN: nombre fijo, no editable -->
                     <template v-if="userData">
-                        <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <div class="flex items-center gap-4 p-4 bg-card-main rounded-xl border border-main">
                             <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 font-black text-lg border border-emerald-200 overflow-hidden">
                                 <img v-if="userData.foto" :src="userData.foto" class="w-full h-full object-cover">
                                 <span v-else>{{ userData.nombre?.[0] }}</span>
                             </div>
                             <div>
-                                <p class="font-black text-slate-800 text-sm">{{ userData.nombre }}</p>
-                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide mt-0.5">{{ userData.cargo }}</p>
+                                <p class="font-black text-main text-sm">{{ userData.nombre }}</p>
+                                <p class="text-[10px] text-muted font-bold uppercase tracking-wide mt-0.5">{{ userData.cargo }}</p>
                             </div>
                             <span class="ml-auto text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-lg uppercase">Registro fijo</span>
                         </div>
@@ -49,19 +49,19 @@
                                     {{ t.nombre }} — {{ t.cargo }}
                                 </option>
                             </select>
-                            <p class="text-[10px] text-slate-400 font-bold mt-1 ml-1">Solo muestra personal sin cuenta activa.</p>
+                            <p class="text-[10px] text-muted font-bold mt-1 ml-1">Solo muestra personal sin cuenta activa.</p>
                         </div>
                         <!-- Cargo auto-rellenado (solo lectura) -->
                         <div v-if="form.cargo" class="flex flex-col">
                             <label class="label-prime">Cargo Institucional</label>
-                            <div class="form-input-prime bg-slate-50 text-slate-500 cursor-not-allowed select-none">{{ form.cargo }}</div>
+                            <div class="form-input-prime bg-card-sec text-muted cursor-not-allowed select-none border-main">{{ form.cargo }}</div>
                         </div>
                     </template>
                 </div>
 
                 <!-- SECCIÓN 02: NIVEL DE ACCESO Y ESTADO -->
-                <div class="p-6 bg-white border border-slate-100 rounded-xl shadow-sm space-y-5">
-                    <h4 class="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em] flex items-center gap-2">
+                <div class="p-6 bg-card-sec border border-main rounded-xl shadow-sm space-y-5">
+                    <h4 class="text-[10px] font-black text-main uppercase tracking-[0.2em] flex items-center gap-2">
                         <span class="w-2 h-2 bg-blue-500 rounded-full"></span> 02. Perfil de Acceso
                     </h4>
                     <div class="grid grid-cols-2 gap-5">
@@ -98,7 +98,7 @@
                         <label class="label-prime text-emerald-800">Nombre de Usuario
                             <span class="text-emerald-500 normal-case text-[10px] font-medium ml-1">(nombre completo del funcionario)</span>
                         </label>
-                        <div class="form-input-prime border-emerald-100 bg-emerald-50/60 text-emerald-900 select-none cursor-not-allowed">
+                        <div class="form-input-prime bg-card-sec text-muted select-none cursor-not-allowed border-main">
                             {{ form.nombre || 'Selecciona un funcionario primero...' }}
                         </div>
                         <p class="text-[10px] text-emerald-600 font-bold mt-1 ml-1">⚡ El nombre completo es el identificador de inicio de sesión.</p>
@@ -139,10 +139,10 @@
 
                 <!-- Botones -->
                 <div class="flex gap-4 pt-2">
-                    <button type="button" @click="$emit('close')" class="flex-1 py-4 rounded-xl border-2 border-slate-100 font-black text-slate-500 uppercase text-xs tracking-widest hover:bg-slate-50 transition-all">
+                    <button type="button" @click="$emit('close')" class="flex-1 py-4 rounded-xl border-2 border-main font-black text-muted uppercase text-xs tracking-widest hover:bg-card-sec transition-all cursor-pointer">
                         Cancelar
                     </button>
-                    <button type="submit" :disabled="passwordMismatch" class="flex-[2] py-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-emerald-600/20 active:scale-95 transition-all">
+                    <button type="submit" :disabled="passwordMismatch" class="flex-[2] py-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer">
                         {{ userData ? 'Guardar Cambios' : 'Habilitar Acceso' }}
                     </button>
                 </div>
@@ -247,10 +247,16 @@ const handleSubmit = async () => {
 
 <style scoped>
 @reference "tailwindcss";
-.label-prime { @apply text-sm font-semibold text-slate-700 mb-1.5 ml-1 flex items-center gap-1; }
+.label-prime {
+    @apply text-sm font-semibold mb-1.5 ml-1 flex items-center gap-1;
+    color: var(--text-main);
+}
 .form-input-prime {
-    @apply w-full px-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 
+    @apply w-full px-4 py-3 rounded-xl text-sm font-bold 
            outline-none transition-all focus:ring-4 focus:ring-emerald-500/10 shadow-sm;
+    background-color: var(--input-bg) !important;
+    border: 2px solid var(--border) !important;
+    color: var(--text-main) !important;
 }
 .animate-prime-in {
     animation: primePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -260,5 +266,13 @@ const handleSubmit = async () => {
     to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+/* Theme Adaptive Overrides for colored blocks */
+:global(.theme-black) .bg-emerald-50\/30 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+:global(.theme-black) .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+:global(.theme-black) .border-emerald-100 { border-color: var(--border) !important; }
+:global(.theme-colors) .bg-emerald-50\/30 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
+:global(.theme-colors) .bg-emerald-50 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
+:global(.theme-colors) .border-emerald-100 { border-color: var(--border) !important; }
 </style>

@@ -167,8 +167,8 @@ const getOptions = (optionKey) => store[optionKey] || []
                     :class="[
                         'flex items-center gap-4 p-5 rounded-[1.5rem] font-bold transition-all border shadow-sm',
                         categoriaActiva.id === cat.id 
-                            ? 'bg-accent text-white border-accent shadow-accent/20 translate-x-2' 
-                            : 'bg-card text-main border-border hover:border-accent/50 hover:bg-accent/5'
+                            ? 'bg-accent text-[color:var(--text-on-accent)] border-accent shadow-accent/20 translate-x-2' 
+                            : 'bg-card-main text-main border-main hover:border-accent/50 hover:bg-accent/5'
                     ]"
                 >
                     <component :is="cat.icono" class="w-6 h-6 shrink-0 select-none" />
@@ -177,11 +177,11 @@ const getOptions = (optionKey) => store[optionKey] || []
             </div>
 
             <!-- Panel Central -->
-            <div class="flex-1 bg-card rounded-[2.5rem] shadow-xl border border-border flex flex-col overflow-hidden relative">
+            <div class="flex-1 bg-card-main rounded-[2.5rem] shadow-xl border border-main flex flex-col overflow-hidden relative">
                 
                 <!-- VISTA DE IDENTIDAD VISUAL (LOGOS) -->
                 <div v-if="categoriaActiva.tipo === 'especial_logos'" class="p-10 space-y-10 overflow-y-auto custom-scrollbar">
-                    <div class="border-b border-border pb-6">
+                    <div class="border-b border-main pb-6">
                         <h3 class="text-2xl font-black text-main">Identidad Visual</h3>
                         <p class="text-muted">Personaliza los logotipos que se muestran en el sistema y reportes.</p>
                     </div>
@@ -190,15 +190,15 @@ const getOptions = (optionKey) => store[optionKey] || []
                         <!-- Logo de la App -->
                         <div class="space-y-4">
                             <h4 class="text-sm font-black text-main uppercase tracking-widest ml-2">Logo de la Aplicación</h4>
-                            <div class="bg-main/40 p-8 rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center gap-6 relative group">
-                                <div class="w-40 h-40 bg-card rounded-[2rem] shadow-2xl flex items-center justify-center overflow-hidden border border-border">
+                            <div class="bg-card-sec p-8 rounded-[2.5rem] border-2 border-dashed border-main flex flex-col items-center gap-6 relative group">
+                                <div class="w-40 h-40 bg-card-main rounded-[2rem] shadow-2xl flex items-center justify-center overflow-hidden border border-main">
                                     <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-4">
-                                    <Trees v-else class="w-16 h-16 text-emerald-500/40" />
+                                    <Trees v-else class="w-16 h-16 text-accent/40" />
                                 </div>
                                 <div class="text-center">
                                     <p class="text-[10px] font-black text-muted uppercase tracking-widest">Uso: Sidebar y Pantalla de Login</p>
                                     <div class="flex gap-3 mt-4">
-                                        <label class="px-6 py-2 bg-accent text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:scale-105 transition-all shadow-lg shadow-accent/20">
+                                        <label class="px-6 py-2 bg-accent text-[color:var(--text-on-accent)] rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:scale-105 transition-all shadow-lg shadow-accent/20">
                                             Subir Nuevo
                                             <input type="file" @change="e => handleLogoUpload(e, 'app')" class="hidden" accept="image/*">
                                         </label>
@@ -213,8 +213,8 @@ const getOptions = (optionKey) => store[optionKey] || []
                         <!-- Logo Institucional -->
                         <div class="space-y-4">
                             <h4 class="text-sm font-black text-main uppercase tracking-widest ml-2">Logo para Reportes (PDF)</h4>
-                            <div class="bg-main/40 p-8 rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center gap-6">
-                                <div class="w-full h-40 bg-card rounded-[2rem] shadow-xl flex items-center justify-center overflow-hidden border border-border">
+                            <div class="bg-card-sec p-8 rounded-[2.5rem] border-2 border-dashed border-main flex flex-col items-center gap-6">
+                                <div class="w-full h-40 bg-card-main rounded-[2rem] shadow-xl flex items-center justify-center overflow-hidden border border-main">
                                     <img v-if="uiState.logo_institucional" :src="uiState.logo_institucional" class="w-full h-full object-contain p-6">
                                     <div v-else class="text-center opacity-30 flex flex-col items-center gap-1.5">
                                         <Landmark class="w-10 h-10 text-main mb-1" />
@@ -224,7 +224,7 @@ const getOptions = (optionKey) => store[optionKey] || []
                                 <div class="text-center">
                                     <p class="text-[10px] font-black text-muted uppercase tracking-widest">Uso: Encabezado de Reportes Técnicos</p>
                                     <div class="flex gap-3 mt-4">
-                                        <label class="px-6 py-2 bg-accent text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:scale-105 transition-all shadow-lg shadow-accent/20">
+                                        <label class="px-6 py-2 bg-accent text-[color:var(--text-on-accent)] rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:scale-105 transition-all shadow-lg shadow-accent/20">
                                             Cargar Imagen
                                             <input type="file" @change="e => handleLogoUpload(e, 'institucional')" class="hidden" accept="image/*">
                                         </label>
@@ -240,27 +240,27 @@ const getOptions = (optionKey) => store[optionKey] || []
 
                 <!-- VISTA DE MANTENIMIENTO -->
                 <div v-else-if="categoriaActiva.tipo === 'especial'" class="p-10 space-y-8 overflow-y-auto custom-scrollbar">
-                    <div class="border-b border-border pb-6">
+                    <div class="border-b border-main pb-6">
                         <h3 class="text-2xl font-black text-main">Mantenimiento Global</h3>
                         <p class="text-muted">Herramientas de respaldo y estado de los servicios.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="bg-accent/5 border border-accent/20 p-8 rounded-[2rem] flex flex-col gap-6">
-                            <div class="w-16 h-16 bg-accent text-white rounded-2xl flex items-center justify-center shadow-lg shadow-accent/30">
+                        <div class="bg-accent-soft border border-accent/20 p-8 rounded-[2rem] flex flex-col gap-6">
+                            <div class="w-16 h-16 bg-accent text-[color:var(--text-on-accent)] rounded-2xl flex items-center justify-center shadow-lg shadow-accent/30">
                                 <Database class="w-8 h-8" />
                             </div>
                             <div>
                                 <h4 class="text-xl font-black text-main">Copia de Seguridad</h4>
                                 <p class="text-sm text-muted mt-2">Genera un respaldo completo de la base de datos MySQL en formato SQL.</p>
                             </div>
-                            <button @click="handleBackup" class="w-full bg-accent hover:bg-accent-hover text-white py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-accent/20 active:scale-95">
+                            <button @click="handleBackup" class="w-full bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-accent/20 active:scale-95">
                                 Descargar Respaldo
                             </button>
                         </div>
 
-                        <div class="bg-card border border-border p-8 rounded-[2rem] flex flex-col gap-6">
-                            <div class="w-16 h-16 bg-main rounded-2xl flex items-center justify-center border border-border text-accent">
+                        <div class="bg-card-main border border-main p-8 rounded-[2rem] flex flex-col gap-6">
+                            <div class="w-16 h-16 bg-card-sec rounded-2xl flex items-center justify-center border border-main text-accent">
                                 <Server class="w-8 h-8" />
                             </div>
                             <div>
@@ -285,7 +285,7 @@ const getOptions = (optionKey) => store[optionKey] || []
 
                 <!-- VISTA DE CATÁLOGOS -->
                 <template v-else>
-                    <div class="p-8 border-b border-border flex justify-between items-center bg-accent/5">
+                    <div class="p-8 border-b border-main flex justify-between items-center bg-accent-soft">
                         <div>
                             <h3 class="text-2xl font-black text-main uppercase tracking-tighter">{{ categoriaActiva.nombre }}</h3>
                             <div class="flex items-center gap-2 mt-1">
@@ -293,7 +293,7 @@ const getOptions = (optionKey) => store[optionKey] || []
                                 <p class="text-xs text-muted font-bold uppercase tracking-widest">{{ items.length }} Registros totales</p>
                             </div>
                         </div>
-                        <button @click="abrirNuevo" class="bg-accent hover:bg-accent-hover text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-all shadow-xl shadow-accent/20 active:scale-95">
+                        <button @click="abrirNuevo" class="bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-all shadow-xl shadow-accent/20 active:scale-95">
                             <Plus class="w-4 h-4" /> Nuevo Registro
                         </button>
                     </div>
@@ -308,13 +308,13 @@ const getOptions = (optionKey) => store[optionKey] || []
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in items" :key="item.id" class="group bg-main/30 hover:bg-accent/5 transition-all">
-                                    <td class="px-6 py-5 text-sm font-black text-accent border-y border-l border-border rounded-l-2xl w-32">
+                                <tr v-for="item in items" :key="item.id" class="group bg-card-sec hover:bg-accent-soft transition-all">
+                                    <td class="px-6 py-5 text-sm font-black text-accent border-y border-l border-main rounded-l-2xl w-32">
                                         #{{ item.id }}
                                     </td>
-                                    <td v-for="campo in categoriaActiva.campos" :key="campo.key" class="px-6 py-5 border-y border-border">
+                                    <td v-for="campo in categoriaActiva.campos" :key="campo.key" class="px-6 py-5 border-y border-main">
                                         <template v-if="campo.type === 'select'">
-                                            <span class="text-xs font-black text-main bg-accent/10 px-3 py-1.5 rounded-lg border border-accent/10">
+                                            <span class="text-xs font-black text-main bg-accent-soft px-3 py-1.5 rounded-lg border border-accent/20">
                                                 {{ getOptions(campo.options).find(o => o.id == item[campo.key])?.nombre || item[campo.key] }}
                                             </span>
                                         </template>
@@ -322,10 +322,10 @@ const getOptions = (optionKey) => store[optionKey] || []
                                             <span class="text-sm font-bold text-main">{{ item[campo.key] }}</span>
                                         </template>
                                     </td>
-                                    <td class="px-6 py-5 text-right border-y border-r border-border rounded-r-2xl">
+                                    <td class="px-6 py-5 text-right border-y border-r border-main rounded-r-2xl">
                                         <div class="flex justify-end gap-3 transition-all">
                                             <button @click="abrirEdicion(item)" 
-                                                class="w-10 h-10 flex items-center justify-center bg-accent/10 text-accent rounded-xl hover:bg-accent hover:text-white transition-all shadow-sm cursor-pointer"
+                                                class="w-10 h-10 flex items-center justify-center bg-accent-soft text-accent rounded-xl hover:bg-accent hover:text-[color:var(--text-on-accent)] transition-all shadow-sm cursor-pointer"
                                                 title="Editar Registro">
                                                 <Pencil class="w-4 h-4" />
                                             </button>
@@ -347,26 +347,26 @@ const getOptions = (optionKey) => store[optionKey] || []
         <!-- MODAL DE EDICIÓN/NUEVO (TELEPORTADO Y REDISEÑADO PREMIUM) -->
         <Teleport to="body">
             <div v-if="showModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
-                <div class="bg-card rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-lg overflow-hidden flex flex-col border border-border animate-prime-in">
+                <div class="bg-card-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-lg overflow-hidden flex flex-col border border-main animate-prime-in">
                     
                     <!-- Cabecera del Modal -->
-                    <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg relative shrink-0">
+                    <div class="px-8 py-6 modal-header-gradient text-white flex justify-between items-center shadow-lg relative shrink-0">
                         <div>
-                            <h3 class="font-black text-xl tracking-tight leading-none">
+                            <h3 class="font-black text-xl tracking-tight leading-none text-[color:var(--text-on-accent)]">
                                 {{ editData ? 'Modificar Registro' : 'Agregar Nuevo Registro' }}
                             </h3>
-                            <p class="text-[9px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">
+                            <p class="text-[9px] text-[color:var(--text-on-accent)] opacity-80 font-bold uppercase tracking-[0.3em] mt-2">
                                 Catálogo: {{ categoriaActiva.nombre }}
                             </p>
                         </div>
                         <button type="button" @click="showModal = false" class="hover:bg-white/20 p-2 rounded-xl transition-all cursor-pointer flex items-center justify-center">
-                                <X class="w-6 h-6 text-white" />
-                            </button>
+                            <X class="w-6 h-6 text-[color:var(--text-on-accent)]" />
+                        </button>
                     </div>
                     
                     <!-- Formulario -->
-                    <form @submit.prevent="guardar" class="p-8 space-y-6 overflow-y-auto max-h-[60vh] custom-scrollbar bg-slate-50/50 dark:bg-card">
-                        <div v-for="campo in categoriaActiva.campos" :key="campo.key" class="p-5 bg-card border border-border rounded-xl shadow-sm space-y-2">
+                    <form @submit.prevent="guardar" class="p-8 space-y-6 overflow-y-auto max-h-[60vh] custom-scrollbar bg-card-sec">
+                        <div v-for="campo in categoriaActiva.campos" :key="campo.key" class="p-5 bg-card-main border border-main rounded-xl shadow-sm space-y-2">
                             <label class="label-prime">{{ campo.label }} <span class="text-red-500 font-black">*</span></label>
                             
                             <input v-if="campo.type === 'text'" type="text" v-model="formData[campo.key]" required
@@ -382,13 +382,13 @@ const getOptions = (optionKey) => store[optionKey] || []
                     </form>
 
                     <!-- Acciones del Formulario -->
-                    <div class="p-8 bg-app border-t border-border flex gap-4 shrink-0">
+                    <div class="p-8 bg-app-main border-t border-main flex gap-4 shrink-0">
                         <button type="button" @click="showModal = false" 
-                            class="flex-1 px-4 py-3 bg-card border border-border rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-main/10 transition-all active:scale-95 shadow-sm cursor-pointer">
+                            class="flex-1 px-4 py-3 bg-card-main border border-main rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-accent-soft transition-all active:scale-95 shadow-sm cursor-pointer">
                             Cancelar
                         </button>
                         <button type="submit" @click="guardar" 
-                            class="flex-[2] bg-accent hover:bg-accent-hover text-on-accent px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 cursor-pointer">
+                            class="flex-[2] bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 cursor-pointer">
                             {{ editData ? 'Guardar Cambios' : 'Crear Registro' }}
                         </button>
                     </div>
@@ -399,7 +399,7 @@ const getOptions = (optionKey) => store[optionKey] || []
         <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
         <Teleport to="body">
             <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
-                <div class="bg-card rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col border border-border animate-prime-in">
+                <div class="bg-card-main rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col border border-main animate-prime-in">
                     <!-- Icono de Advertencia -->
                     <div class="p-8 flex flex-col items-center text-center gap-4">
                         <div class="w-14 h-14 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center">
@@ -411,9 +411,9 @@ const getOptions = (optionKey) => store[optionKey] || []
                         </div>
                     </div>
                     <!-- Botones de Acción -->
-                    <div class="p-6 bg-app border-t border-border flex gap-3">
+                    <div class="p-6 bg-app-main border-t border-main flex gap-3">
                         <button @click="showConfirmModal = false" 
-                            class="flex-1 px-4 py-3 bg-card border border-border rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-main/10 transition-all active:scale-95 shadow-sm cursor-pointer">
+                            class="flex-1 px-4 py-3 bg-card-main border border-main rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-accent-soft transition-all active:scale-95 shadow-sm cursor-pointer">
                             Cancelar
                         </button>
                         <button @click="ejecutarConfirmacion" 
@@ -429,6 +429,10 @@ const getOptions = (optionKey) => store[optionKey] || []
 
 <style scoped>
 @reference "tailwindcss";
+
+.modal-header-gradient {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%) !important;
+}
 
 .label-prime { 
     font-size: 0.75rem;
@@ -446,7 +450,7 @@ const getOptions = (optionKey) => store[optionKey] || []
 .form-input-prime {
     width: 100%;
     padding: 0.75rem 1rem;
-    background-color: var(--bg-card);
+    background-color: var(--input-bg);
     border: 1px solid var(--border);
     border-radius: 0.75rem;
     font-size: 0.875rem;

@@ -268,10 +268,10 @@ const formatLoDeterminado = (sol) => {
         <div id="solicitudes" class="print:hidden">
             <div class="mb-6 flex justify-between items-center">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                    <h2 class="text-2xl font-bold text-main mb-2">
                         Gestión de Solicitudes (Pendientes)
                     </h2>
-                    <p class="text-gray-600">
+                    <p class="text-muted">
                         Administra los trámites que se encuentran actualmente en espera de atención
                     </p>
                 </div>
@@ -290,42 +290,42 @@ const formatLoDeterminado = (sol) => {
             </div>
 
             <!-- Barra de Filtros Avanzados -->
-            <div class="mb-6 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+            <div class="mb-6 bg-card-main rounded-2xl border border-main p-4 shadow-sm">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                     <div class="lg:col-span-2">
-                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Búsqueda general</label>
+                        <label class="block text-xs font-semibold text-muted mb-1 uppercase tracking-wide">Búsqueda general</label>
                         <input type="text" v-model="filtroBusqueda" class="search-input w-full" placeholder="Cod interno, solicitante, referencia..." />
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Barrio</label>
+                        <label class="block text-xs font-semibold text-muted mb-1 uppercase tracking-wide">Barrio</label>
                         <select v-model="filtroBarrio" class="search-input w-full">
                             <option value="">Todos los barrios</option>
                             <option v-for="b in store.barrios" :key="b.id" :value="b.id">{{ b.nombre }}</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Tipo de Acción</label>
+                        <label class="block text-xs font-semibold text-muted mb-1 uppercase tracking-wide">Tipo de Acción</label>
                         <select v-model="filtroAccion" class="search-input w-full">
                             <option value="">Todas las acciones</option>
                             <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
                         </select>
                     </div>
                     <div class="lg:col-span-2">
-                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Rango de Fechas de Ingreso</label>
+                        <label class="block text-xs font-semibold text-muted mb-1 uppercase tracking-wide">Rango de Fechas de Ingreso</label>
                         <div class="flex items-center gap-2">
                             <input type="date" v-model="filtroFechaDesde" class="search-input flex-1" title="Desde" />
-                            <span class="text-gray-400 font-medium text-sm">hasta</span>
+                            <span class="text-muted font-medium text-sm">hasta</span>
                             <input type="date" v-model="filtroFechaHasta" class="search-input flex-1" title="Hasta" />
                         </div>
                     </div>
                     <div class="flex items-end">
-                        <button @click="limpiarFiltros" class="w-full px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5 font-bold">
-                            <Trash2 class="w-4 h-4 text-gray-500" />
+                        <button @click="limpiarFiltros" class="w-full px-4 py-2 text-sm text-muted border border-main rounded hover:bg-card-sec transition-colors flex items-center justify-center gap-1.5 font-bold">
+                            <Trash2 class="w-4 h-4 text-muted" />
                             <span>Limpiar filtros</span>
                         </button>
                     </div>
                 </div>
-                <div class="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
+                <div class="mt-3 pt-3 border-t border-sec text-xs text-muted">
                     Mostrando <span class="font-bold text-accent">{{ solicitudesFiltradas.length }}</span> solicitudes en espera
                 </div>
             </div>
@@ -396,22 +396,22 @@ const formatLoDeterminado = (sol) => {
             </div>
 
             <!-- Pagination UI -->
-            <div class="flex justify-between items-center bg-card p-4 rounded-2xl border border-border no-print">
+            <div class="flex justify-between items-center bg-card p-4 rounded-2xl border border-main no-print">
                 <div class="text-xs font-black text-muted uppercase tracking-widest">
                     Página {{ paginaActual }} de {{ totalPaginas }}
                 </div>
                 <div class="flex gap-2">
                     <button @click="paginaActual--" :disabled="paginaActual === 1" 
-                        class="px-4 py-2 bg-main border border-border rounded-xl font-black text-xs uppercase disabled:opacity-50 hover:bg-accent/10 transition-all">
+                        class="px-4 py-2 bg-card-sec border border-main rounded-xl font-black text-xs uppercase disabled:opacity-50 hover:bg-accent-soft transition-all text-main cursor-pointer">
                         Anterior
                     </button>
                     <button v-for="p in paginasVisibles" :key="p" @click="paginaActual = p"
-                        :class="['w-10 h-10 rounded-xl font-black text-xs transition-all', 
-                                 paginaActual === p ? 'bg-accent text-white shadow-lg' : 'bg-main border border-border text-muted hover:bg-accent/10']">
+                        :class="['w-10 h-10 rounded-xl font-black text-xs transition-all cursor-pointer', 
+                                 paginaActual === p ? 'bg-accent text-on-accent shadow-lg' : 'bg-card-sec border border-main text-muted hover:bg-accent-soft']">
                         {{ p }}
                     </button>
                     <button @click="paginaActual++" :disabled="paginaActual === totalPaginas" 
-                        class="px-4 py-2 bg-main border border-border rounded-xl font-black text-xs uppercase disabled:opacity-50 hover:bg-accent/10 transition-all">
+                        class="px-4 py-2 bg-card-sec border border-main rounded-xl font-black text-xs uppercase disabled:opacity-50 hover:bg-accent-soft transition-all text-main cursor-pointer">
                         Siguiente
                     </button>
                 </div>
@@ -420,14 +420,14 @@ const formatLoDeterminado = (sol) => {
 
         <!-- Modal de Detalles (Reporte) -->
         <div v-if="solicitudSeleccionada" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 print:absolute print:inset-auto print:block print:bg-white print:p-0 print:m-0 print:overflow-visible">
-            <div class="bg-gray-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto relative print-area print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
+            <div class="bg-card-main border border-main rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto relative print-area print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
 
                 <!-- ===== CABECERA FORMAL PARA IMPRESIÓN (A4) ===== -->
                 <div class="hidden print:block print-header">
                     <div class="print-institution flex items-center gap-6 border-b-2 border-black pb-4 mb-4">
-                        <div class="w-24 h-24 flex-shrink-0 border border-gray-200 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+                        <div class="w-24 h-24 flex-shrink-0 border border-main rounded-lg overflow-hidden flex items-center justify-center bg-card-sec">
                             <img v-if="uiState.logo_institucional" :src="uiState.logo_institucional" class="w-full h-full object-contain">
-                            <div v-else class="text-[8px] font-black text-center text-gray-400 p-1 uppercase">
+                            <div v-else class="text-[8px] font-black text-center text-muted p-1 uppercase">
                                 Logo <br> Municipal
                             </div>
                         </div>
@@ -439,13 +439,13 @@ const formatLoDeterminado = (sol) => {
                     </div>
                     <div class="print-doc-title text-center">
                         <h1 class="mb-2">REPORTE TÉCNICO DE SOLICITUD</h1>
-                        <div class="print-doc-meta flex justify-center items-center gap-3 text-[10px] font-medium text-gray-700">
+                        <div class="print-doc-meta flex justify-center items-center gap-3 text-[10px] font-medium text-muted">
                             <span>Cod: <strong>{{ solicitudSeleccionada.comunicacion_interna || `#${solicitudSeleccionada.id_solicitud}` }}</strong></span>
-                            <span class="text-gray-300">|</span>
+                            <span class="text-muted/50">|</span>
                             <span>Estado: <strong>{{ solicitudSeleccionada.estado_tramite || 'En espera' }}</strong></span>
-                            <span class="text-gray-300">|</span>
+                            <span class="text-muted/50">|</span>
                             <span>Urgencia: <strong>{{ solicitudSeleccionada.es_emergencia ? 'EMERGENCIA' : (solicitudSeleccionada.nivel_urgencia || 'Normal') }}</strong></span>
-                            <span class="text-gray-300">|</span>
+                            <span class="text-muted/50">|</span>
                             <span>Emisión: <strong>{{ new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }) }} ({{ new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) }})</strong></span>
                         </div>
                     </div>
@@ -471,7 +471,7 @@ const formatLoDeterminado = (sol) => {
                             </span>
                             <span v-else-if="solicitudSeleccionada.nivel_urgencia === 'Intermedia'"
                                 class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[10px] font-black bg-amber-500 text-white shadow-lg shadow-amber-900/20 border border-white/20">
-                                <AlertTriangle class="w-3.5 h-3.5 text-white" /> PRIORIDAD MEDIA
+                                <AlertTriangle class="w-3.5 h-3.5 text-white" /> PRIORIDAD M DE LA DEMANDA
                             </span>
                             <span v-else
                                 class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[10px] font-black bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 border border-white/20">
@@ -506,119 +506,119 @@ const formatLoDeterminado = (sol) => {
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <button @click="imprimirReporte" class="bg-white/15 hover:bg-white/25 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all border border-white/10">
+                        <button @click="imprimirReporte" class="bg-white/15 hover:bg-white/25 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all border border-white/10 cursor-pointer">
                             <Printer class="w-4 h-4" />
                             Imprimir
                         </button>
-                        <button @click="solicitudSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-white/10">
+                        <button @click="solicitudSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-white/10 cursor-pointer">
                             <X class="w-5 h-5" />
                         </button>
                     </div>
                 </div>
 
                 <!-- Cuerpo de la tarjeta (5 SECCIONES FORMALES) -->
-                <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-white overflow-y-auto max-h-[70vh] custom-scrollbar">
+                <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-card-main overflow-y-auto max-h-[70vh] custom-scrollbar">
 
                     <!-- SECCIÓN 01: Información de Ingreso (AZUL) -->
                     <div class="md:col-span-2 bg-blue-50/60 border border-blue-100 rounded-2xl p-6 shadow-sm">
-                        <h4 class="flex items-center gap-2 text-[11px] font-black text-blue-800 uppercase tracking-[0.2em] mb-4 border-b border-blue-200 pb-2">
+                        <h4 class="flex items-center gap-2 text-[11px] font-black text-blue-800 dark:text-blue-400 uppercase tracking-[0.2em] mb-4 border-b border-blue-200 pb-2">
                             <span class="w-2 h-2 bg-blue-500 rounded-full"></span> 01. Información de Ingreso
                         </h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-y-5 gap-x-10 text-sm">
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Fecha de Ingreso</span>
-                                <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_ingreso) }}</span>
+                                <span class="font-bold text-main">{{ formatFecha(solicitudSeleccionada.fecha_ingreso) }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Comunicación Interna</span>
-                                <span class="font-black text-blue-900 bg-white/80 px-2 py-0.5 rounded border border-blue-100 w-fit">{{ solicitudSeleccionada.comunicacion_interna || 'S/N' }}</span>
+                                <span class="font-black text-blue-900 dark:text-blue-300 bg-card-sec px-2 py-0.5 rounded border border-sec w-fit">{{ solicitudSeleccionada.comunicacion_interna || 'S/N' }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Acción Solicitada</span>
-                                <span class="font-bold text-gray-800">{{ getAccion(solicitudSeleccionada.id_accion_solicitada) }}</span>
+                                <span class="font-bold text-main">{{ getAccion(solicitudSeleccionada.id_accion_solicitada) }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Nombre del Solicitante</span>
-                                <span class="font-bold text-gray-800">{{ solicitudSeleccionada.solicitante_nombre }}</span>
+                                <span class="font-bold text-main">{{ solicitudSeleccionada.solicitante_nombre }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Teléfono</span>
-                                <span class="font-bold text-gray-800">{{ solicitudSeleccionada.solicitante_telefono || '—' }}</span>
+                                <span class="font-bold text-main">{{ solicitudSeleccionada.solicitante_telefono || '—' }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Tipo de Institución</span>
-                                <span class="font-bold text-gray-800">{{ getTipoInstitucion(solicitudSeleccionada.id_tipo_institucion) }}</span>
+                                <span class="font-bold text-main">{{ getTipoInstitucion(solicitudSeleccionada.id_tipo_institucion) }}</span>
                             </div>
-                            <div class="md:col-span-3 flex flex-col border-t border-blue-100/50 pt-2">
+                            <div class="md:col-span-3 flex flex-col border-t border-sec pt-2">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Nombre de Institución</span>
-                                <span class="font-bold text-gray-800 uppercase text-xs">{{ getInstitucion(solicitudSeleccionada.id_nombre_institucional) }}</span>
+                                <span class="font-bold text-main uppercase text-xs">{{ getInstitucion(solicitudSeleccionada.id_nombre_institucional) }}</span>
                             </div>
-                            <div class="md:col-span-3 bg-white/80 p-4 rounded-xl border border-blue-100">
+                            <div class="md:col-span-3 bg-card-sec p-4 rounded-xl border border-sec">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-2 block">Nota de Solicitud / Descripción</span>
-                                <p class="text-gray-700 italic leading-relaxed font-medium">"{{ solicitudSeleccionada.solicitante_descripcion || 'Sin descripción adicional.' }}"</p>
+                                <p class="text-main italic leading-relaxed font-medium">"{{ solicitudSeleccionada.solicitante_descripcion || 'Sin descripción adicional.' }}"</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- SECCIÓN 02: Localización (VERDE) -->
                     <div class="md:col-span-2 bg-emerald-50/60 border border-emerald-100 rounded-2xl p-6 shadow-sm">
-                        <h4 class="flex items-center gap-2 text-[11px] font-black text-emerald-800 uppercase tracking-[0.2em] mb-4 border-b border-emerald-200 pb-2">
+                        <h4 class="flex items-center gap-2 text-[11px] font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-[0.2em] mb-4 border-b border-emerald-200 pb-2">
                             <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 02. Localización y Referencia
                         </h4>
                         <div class="space-y-4 text-sm">
-                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                            <div class="flex justify-between items-center pb-2 border-b border-sec">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Distrito Municipal</span>
-                                <span class="font-bold text-gray-800">{{ getDistritoByBarrio(solicitudSeleccionada.id_barrio) }}</span>
+                                <span class="font-bold text-main">{{ getDistritoByBarrio(solicitudSeleccionada.id_barrio) }}</span>
                             </div>
-                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                            <div class="flex justify-between items-center pb-2 border-b border-sec">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Barrio / Zona</span>
-                                <span class="font-bold text-gray-800 text-right">{{ getBarrio(solicitudSeleccionada.id_barrio) }}</span>
+                                <span class="font-bold text-main text-right">{{ getBarrio(solicitudSeleccionada.id_barrio) }}</span>
                             </div>
-                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                            <div class="flex justify-between items-center pb-2 border-b border-sec">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Calle / Avenida</span>
-                                <span class="font-bold text-gray-800 text-right">{{ solicitudSeleccionada.calle }} {{ solicitudSeleccionada.numero_casa ? 'Nº '+solicitudSeleccionada.numero_casa : '' }}</span>
+                                <span class="font-bold text-main text-right">{{ solicitudSeleccionada.calle }} {{ solicitudSeleccionada.numero_casa ? 'Nº '+solicitudSeleccionada.numero_casa : '' }}</span>
                             </div>
-                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                            <div class="flex justify-between items-center pb-2 border-b border-sec">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Coordenadas GPS</span>
                                 <span class="text-right">
                                     <a v-if="solicitudSeleccionada.lat && solicitudSeleccionada.lng" 
                                        :href="`https://www.google.com/maps?q=${solicitudSeleccionada.lat},${solicitudSeleccionada.lng}`" 
                                        target="_blank" 
-                                       class="text-blue-600 underline font-bold hover:text-blue-800 transition-colors">
+                                       class="text-blue-600 dark:text-blue-400 underline font-bold hover:text-blue-800 transition-colors">
                                         {{ solicitudSeleccionada.lat }}, {{ solicitudSeleccionada.lng }}
                                     </a>
-                                    <span v-else class="text-gray-400 italic font-medium">No registrado</span>
+                                    <span v-else class="text-muted italic font-medium">No registrado</span>
                                 </span>
                             </div>
                             <div class="flex flex-col pt-1">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">Punto de Referencia Exacto</span>
-                                <span class="font-bold text-gray-700 bg-white/80 p-3 rounded-lg border border-emerald-100">{{ solicitudSeleccionada.referencia || '—' }}</span>
+                                <span class="font-bold text-main bg-card-sec p-3 rounded-lg border border-sec">{{ solicitudSeleccionada.referencia || '—' }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- SECCIÓN 03: Diagnóstico y Lista de Árboles (GRIS) -->
-                    <div class="md:col-span-2 bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
-                        <h4 class="flex items-center gap-2 text-[11px] font-black text-slate-800 uppercase tracking-[0.2em] mb-4 border-b border-slate-200 pb-2">
-                            <span class="w-2 h-2 bg-slate-600 rounded-full"></span> 03. Diagnóstico Técnico y Detalle de Árboles
+                    <div class="md:col-span-2 bg-card-sec border border-sec rounded-2xl p-6 shadow-sm">
+                        <h4 class="flex items-center gap-2 text-[11px] font-black text-main uppercase tracking-[0.2em] mb-4 border-b border-sec pb-2">
+                            <span class="w-2 h-2 bg-accent rounded-full"></span> 03. Diagnóstico Técnico y Detalle de Árboles
                         </h4>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm mb-4">
-                            <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Técnico Evaluador</span>
-                                <span class="font-bold text-gray-800">{{ getTecnico(solicitudSeleccionada.id_tecnico_verificacion) }}</span>
+                            <div class="flex justify-between items-center pb-2 border-b border-sec">
+                                <span class="text-[9px] font-black text-muted uppercase tracking-widest">Técnico Evaluador</span>
+                                <span class="font-bold text-main">{{ getTecnico(solicitudSeleccionada.id_tecnico_verificacion) }}</span>
                             </div>
-                            <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fecha Verificación</span>
-                                <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_verificacion) }}</span>
+                            <div class="flex justify-between items-center pb-2 border-b border-sec">
+                                <span class="text-[9px] font-black text-muted uppercase tracking-widest">Fecha Verificación</span>
+                                <span class="font-bold text-main">{{ formatFecha(solicitudSeleccionada.fecha_verificacion) }}</span>
                             </div>
                         </div>
 
                         <!-- Tabla de Árboles Relacionados -->
-                        <div class="overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-4">
+                        <div class="overflow-x-auto bg-card-main rounded-xl border border-sec shadow-sm p-4 mb-4">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead>
-                                    <tr class="border-b border-slate-200 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
+                                    <tr class="border-b border-sec bg-card-sec text-[10px] uppercase tracking-wider text-muted">
                                         <th class="py-2 px-3">#</th>
                                         <th class="py-2 px-3">Especie</th>
                                         <th class="py-2 px-3">Acción Solicitada</th>
@@ -627,82 +627,82 @@ const formatLoDeterminado = (sol) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(arb, idx) in solicitudSeleccionada.arboles" :key="idx" class="border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
-                                        <td class="py-2.5 px-3 font-bold text-slate-500">{{ idx + 1 }}</td>
-                                        <td class="py-2.5 px-3 font-black text-emerald-800">{{ getEspecie(arb.id_especie) }}</td>
-                                        <td class="py-2.5 px-3 text-slate-700">{{ getAccion(arb.id_accion_solicitada) }}</td>
-                                        <td class="py-2.5 px-3 font-bold text-slate-800">{{ getAccion(arb.id_accion_realizar) }}</td>
-                                        <td class="py-2.5 px-3 text-slate-500 italic">{{ arb.observaciones_arbol || 'Sin observaciones.' }}</td>
+                                    <tr v-for="(arb, idx) in solicitudSeleccionada.arboles" :key="idx" class="border-b border-sec last:border-0 hover:bg-accent-soft">
+                                        <td class="py-2.5 px-3 font-bold text-muted">{{ idx + 1 }}</td>
+                                        <td class="py-2.5 px-3 font-black text-emerald-800 dark:text-emerald-400">{{ getEspecie(arb.id_especie) }}</td>
+                                        <td class="py-2.5 px-3 text-main">{{ getAccion(arb.id_accion_solicitada) }}</td>
+                                        <td class="py-2.5 px-3 font-bold text-main">{{ getAccion(arb.id_accion_realizar) }}</td>
+                                        <td class="py-2.5 px-3 text-muted italic">{{ arb.observaciones_arbol || 'Sin observaciones.' }}</td>
                                     </tr>
                                     <tr v-if="!solicitudSeleccionada.arboles || solicitudSeleccionada.arboles.length === 0">
-                                        <td colspan="5" class="py-3 text-center text-slate-400 font-medium">Ningún árbol registrado.</td>
+                                        <td colspan="5" class="py-3 text-center text-muted font-medium">Ningún árbol registrado.</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
                         <div class="flex flex-col pt-1">
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Informe de Verificación General</span>
-                            <span class="font-medium text-gray-700 italic bg-white/80 p-3 rounded-lg border border-slate-200">"{{ solicitudSeleccionada.observacion_verificacion || 'Sin observaciones técnicas generales registradas.' }}"</span>
+                            <span class="text-[9px] font-black text-muted uppercase tracking-widest mb-1">Informe de Verificación General</span>
+                            <span class="font-medium text-main italic bg-card-sec p-3 rounded-lg border border-sec">"{{ solicitudSeleccionada.observacion_verificacion || 'Sin observaciones técnicas generales registradas.' }}"</span>
                         </div>
                     </div>
 
                     <!-- SECCIÓN 04: Logística y Requerimientos (ÁMBAR) -->
                     <div class="md:col-span-2 bg-amber-50/60 border border-amber-200 rounded-2xl p-6 shadow-sm">
-                        <h4 class="flex items-center gap-2 text-[11px] font-black text-amber-800 uppercase tracking-[0.2em] mb-4 border-b border-amber-200 pb-2">
+                        <h4 class="flex items-center gap-2 text-[11px] font-black text-amber-800 dark:text-amber-400 uppercase tracking-[0.2em] mb-4 border-b border-amber-200 pb-2">
                             <span class="w-2 h-2 bg-amber-500 rounded-full"></span> 04. Apoyo Logístico y Alertas
                         </h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[11px]">
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
-                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🏗️ ¿Requiere Grúa / Plataforma?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.requiere_plataforma ? 'text-blue-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_plataforma ? 'SÍ' : 'NO' }}</span>
+                            <div class="flex justify-between items-center py-1 border-b border-sec">
+                                <span class="font-bold text-amber-800 dark:text-amber-400 uppercase tracking-tighter flex items-center gap-2">🏗️ ¿Requiere Grúa / Plataforma?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.requiere_plataforma ? 'text-blue-600 dark:text-blue-400' : 'text-muted'">{{ solicitudSeleccionada.requiere_plataforma ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
-                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">⚡ ¿Requiere Corte SETAR?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.requiere_setar ? 'text-orange-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_setar ? 'SÍ' : 'NO' }}</span>
+                            <div class="flex justify-between items-center py-1 border-b border-sec">
+                                <span class="font-bold text-amber-800 dark:text-amber-400 uppercase tracking-tighter flex items-center gap-2">⚡ ¿Requiere Corte SETAR?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.requiere_setar ? 'text-orange-600 dark:text-orange-400' : 'text-muted'">{{ solicitudSeleccionada.requiere_setar ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
-                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">📄 ¿Requiere Ficha Técnica?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.requiere_ficha_tecnica ? 'text-indigo-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_ficha_tecnica ? 'SÍ' : 'NO' }}</span>
+                            <div class="flex justify-between items-center py-1 border-b border-sec">
+                                <span class="font-bold text-amber-800 dark:text-amber-400 uppercase tracking-tighter flex items-center gap-2">📄 ¿Requiere Ficha Técnica?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.requiere_ficha_tecnica ? 'text-indigo-600 dark:text-indigo-400' : 'text-muted'">{{ solicitudSeleccionada.requiere_ficha_tecnica ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
-                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🌵 ¿Es Árbol Seco?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.arbol_seco ? 'text-amber-700' : 'text-gray-400'">{{ solicitudSeleccionada.arbol_seco ? 'SÍ' : 'NO' }}</span>
+                            <div class="flex justify-between items-center py-1 border-b border-sec">
+                                <span class="font-bold text-amber-800 dark:text-amber-400 uppercase tracking-tighter flex items-center gap-2">🌵 ¿Es Árbol Seco?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.arbol_seco ? 'text-amber-700' : 'text-muted'">{{ solicitudSeleccionada.arbol_seco ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
-                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🚨 ¿Es Emergencia / Urgencia?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia ? 'text-red-600' : 'text-gray-400'">{{ (solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia) ? 'SÍ' : 'NO' }}</span>
+                            <div class="flex justify-between items-center py-1 border-b border-sec">
+                                <span class="font-bold text-amber-800 dark:text-amber-400 uppercase tracking-tighter flex items-center gap-2">🚨 ¿Es Emergencia / Urgencia?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia ? 'text-red-600 dark:text-red-400' : 'text-muted'">{{ (solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia) ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
-                                <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">✅ ¿Procede Trabajo?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.procede ? 'text-emerald-600' : 'text-gray-400'">{{ solicitudSeleccionada.procede ? 'SÍ' : 'NO' }}</span>
+                            <div class="flex justify-between items-center py-1 border-b border-sec">
+                                <span class="font-bold text-amber-800 dark:text-amber-400 uppercase tracking-tighter flex items-center gap-2">✅ ¿Procede Trabajo?</span>
+                                <span class="font-black" :class="solicitudSeleccionada.procede ? 'text-emerald-600' : 'text-emerald-400'">{{ solicitudSeleccionada.procede ? 'SÍ' : 'NO' }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- SECCIÓN 05: Cierre de Trámite (PÚRPURA) -->
                     <div id="print-seccion-5" class="md:col-span-2 bg-purple-50/60 border border-purple-200 rounded-2xl p-6 shadow-sm">
-                        <h4 class="flex items-center gap-2 text-[11px] font-black text-purple-900 uppercase tracking-[0.2em] mb-4 border-b border-purple-200 pb-2">
+                        <h4 class="flex items-center gap-2 text-[11px] font-black text-purple-900 dark:text-purple-400 uppercase tracking-[0.2em] mb-4 border-b border-purple-200 pb-2">
                             <span class="w-2 h-2 bg-purple-500 rounded-full"></span> 05. Ejecución y Cierre Final
                         </h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
                             <div class="flex flex-col">
-                                <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Estado Administrativo</span>
+                                <span class="text-[9px] font-black text-purple-400 dark:text-purple-300 uppercase tracking-widest mb-1">Estado Administrativo</span>
                                 <span class="font-black uppercase text-xl" :class="solicitudSeleccionada.estado_tramite === 'Terminado' ? 'text-emerald-600' : 'text-purple-600'">
                                     {{ solicitudSeleccionada.estado_tramite }}
                                 </span>
                             </div>
                             <div class="flex flex-col">
-                                <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Encargado de Ejecución</span>
-                                <span class="font-bold text-gray-800 uppercase text-xs">{{ getTecnico(solicitudSeleccionada.id_tecnico_ejecucion) }}</span>
+                                <span class="text-[9px] font-black text-purple-400 dark:text-purple-300 uppercase tracking-widest mb-1">Encargado de Ejecución</span>
+                                <span class="font-bold text-main uppercase text-xs">{{ getTecnico(solicitudSeleccionada.id_tecnico_ejecucion) }}</span>
                             </div>
                             <div class="flex flex-col">
-                                <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Fecha de Finalización</span>
-                                <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_ejecucion) }}</span>
+                                <span class="text-[9px] font-black text-purple-400 dark:text-purple-300 uppercase tracking-widest mb-1">Fecha de Finalización</span>
+                                <span class="font-bold text-main">{{ formatFecha(solicitudSeleccionada.fecha_ejecucion) }}</span>
                             </div>
-                            <div class="md:col-span-3 bg-white/80 p-4 rounded-xl border border-purple-100">
-                                <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-2 block">Reporte Final de Obra</span>
-                                <p class="text-gray-700 font-semibold leading-relaxed">"{{ solicitudSeleccionada.observaciones_finales || 'Expediente sin reporte de cierre final.' }}"</p>
+                            <div class="md:col-span-3 bg-card-sec p-4 rounded-xl border border-sec">
+                                <span class="text-[9px] font-black text-purple-400 dark:text-purple-300 uppercase tracking-widest mb-2 block">Reporte Final de Obra</span>
+                                <p class="text-main font-semibold leading-relaxed">"{{ solicitudSeleccionada.observaciones_finales || 'Expediente sin reporte de cierre final.' }}"</p>
                             </div>
                         </div>
                     </div>
@@ -712,8 +712,8 @@ const formatLoDeterminado = (sol) => {
                 <!-- Firmas para Impresión -->
                 <div class="hidden print:block print-firmas">
                     <!-- Nota de Descargo Formal -->
-                    <div class="border-t border-b border-gray-300 py-3 mb-6">
-                        <p class="text-[9px] text-gray-600 italic text-center leading-tight">
+                    <div class="border-t border-b border-sec py-3 mb-6">
+                        <p class="text-[9px] text-muted italic text-center leading-tight">
                             "<strong>IMPORTANTE:</strong> Este documento es un reporte técnico formal con respaldo íntegro en la base de datos municipal del Sistema de Arboricultura. 
                             Se ruega verificar la exactitud de todos los datos y referencias técnicas antes de proceder con la firma de conformidad correspondiente."
                         </p>
@@ -739,14 +739,14 @@ const formatLoDeterminado = (sol) => {
                     </div>
 
                     <!-- Pie de Página (Contador de Hojas) -->
-                    <div class="no-print mt-8 pt-4 border-t border-gray-100 flex justify-between items-center text-[8px] text-gray-400 font-bold uppercase tracking-widest">
+                    <div class="no-print mt-8 pt-4 border-t border-sec flex justify-between items-center text-[8px] text-muted font-bold uppercase tracking-widest">
                         <span>Sistema de Gestión de Arboricultura y Espacios Verdes - G.A.M.T.</span>
                         <div class="print-counter">Página <span class="pageNumber"></span></div>
                     </div>
                 </div>
 
-                <div class="no-print px-6 py-4 border-t border-gray-200 flex justify-end">
-                    <button @click="solicitudSeleccionada = null" class="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all" style="background: #2d6a4f;">Cerrar</button>
+                <div class="no-print px-6 py-4 border-t border-sec flex justify-end">
+                    <button @click="solicitudSeleccionada = null" class="bg-[#2d6a4f] hover:bg-[#1b5e20] text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -996,4 +996,15 @@ const formatLoDeterminado = (sol) => {
 #btn-nueva-solicitud:hover {
     background-color: #2d6a4f !important;
 }
+
+/* Theme Adaptive Overrides for colored blocks */
+:global(.theme-black) .bg-blue-50\/60 { background-color: rgba(59, 130, 246, 0.1) !important; border-color: rgba(59, 130, 246, 0.2) !important; }
+:global(.theme-black) .bg-emerald-50\/60 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+:global(.theme-black) .bg-amber-50\/60 { background-color: rgba(245, 158, 11, 0.1) !important; border-color: rgba(245, 158, 11, 0.2) !important; }
+:global(.theme-black) .bg-purple-50\/60 { background-color: rgba(139, 92, 246, 0.1) !important; border-color: rgba(139, 92, 246, 0.2) !important; }
+
+:global(.theme-colors) .bg-blue-50\/60 { background-color: rgba(30, 144, 255, 0.08) !important; border-color: rgba(30, 144, 255, 0.15) !important; }
+:global(.theme-colors) .bg-emerald-50\/60 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
+:global(.theme-colors) .bg-amber-50\/60 { background-color: rgba(245, 158, 11, 0.08) !important; border-color: rgba(245, 158, 11, 0.15) !important; }
+:global(.theme-colors) .bg-purple-50\/60 { background-color: rgba(139, 92, 246, 0.08) !important; border-color: rgba(139, 92, 246, 0.15) !important; }
 </style>

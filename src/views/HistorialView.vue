@@ -261,57 +261,57 @@ const formatLoDeterminado = (sol) => {
 </script>
 
 <template>
-    <div class="historial-view">
+    <div class="historial-view p-6 space-y-6 text-main animate-fade-in">
         <div id="solicitudes" class="print:hidden">
             <div class="mb-6 flex justify-between items-center">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                    <h2 class="text-2xl font-black text-main mb-2">
                         Historial de Solicitudes (Terminadas)
                     </h2>
-                    <p class="text-gray-600">
+                    <p class="text-muted">
                         Consulta el registro histórico de todos los trámites finalizados satisfactoriamente
                     </p>
                 </div>
             </div>
 
             <!-- Barra de Filtros Avanzados -->
-            <div class="mb-6 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="mb-6 bg-card-main rounded-[2rem] border border-main p-6 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="lg:col-span-2">
-                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Búsqueda general</label>
+                        <label class="block text-xs font-black text-muted mb-1.5 uppercase tracking-wide">Búsqueda general</label>
                         <input type="text" v-model="filtroBusqueda" class="search-input w-full" placeholder="Cod interno, solicitante, referencia..." />
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Barrio</label>
+                        <label class="block text-xs font-black text-muted mb-1.5 uppercase tracking-wide">Barrio</label>
                         <select v-model="filtroBarrio" class="search-input w-full">
                             <option value="">Todos los barrios</option>
                             <option v-for="b in store.barrios" :key="b.id" :value="b.id">{{ b.nombre }}</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Tipo de Acción</label>
+                        <label class="block text-xs font-black text-muted mb-1.5 uppercase tracking-wide">Tipo de Acción</label>
                         <select v-model="filtroAccion" class="search-input w-full">
                             <option value="">Todas las acciones</option>
                             <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
                         </select>
                     </div>
                     <div class="lg:col-span-2">
-                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Rango de Fechas de Ingreso</label>
+                        <label class="block text-xs font-black text-muted mb-1.5 uppercase tracking-wide">Rango de Fechas de Ingreso</label>
                         <div class="flex items-center gap-2">
                             <input type="date" v-model="filtroFechaDesde" class="search-input flex-1" title="Desde" />
-                            <span class="text-gray-400 font-medium text-sm">hasta</span>
+                            <span class="text-muted font-medium text-sm">hasta</span>
                             <input type="date" v-model="filtroFechaHasta" class="search-input flex-1" title="Hasta" />
                         </div>
                     </div>
                     <div class="flex items-end">
-                        <button @click="limpiarFiltros" class="w-full px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5 font-bold">
-                            <Trash2 class="w-4 h-4 text-gray-500" />
+                        <button @click="limpiarFiltros" class="w-full px-4 py-3 text-sm text-main border border-main rounded-xl hover:bg-accent-soft transition-all flex items-center justify-center gap-1.5 font-bold cursor-pointer">
+                            <Trash2 class="w-4 h-4 text-muted" />
                             <span>Limpiar filtros</span>
                         </button>
                     </div>
                 </div>
-                <div class="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
-                    Mostrando <span class="font-bold text-green-600">{{ solicitudesFiltradas.length }}</span> trámites finalizados
+                <div class="mt-3 pt-3 border-t border-main text-xs text-muted">
+                    Mostrando <span class="font-bold text-accent">{{ solicitudesFiltradas.length }}</span> trámites finalizados
                 </div>
             </div>
 
@@ -381,22 +381,22 @@ const formatLoDeterminado = (sol) => {
             </div>
 
             <!-- Pagination -->
-            <div class="flex justify-between items-center bg-card p-4 rounded-2xl border border-border no-print">
+            <div class="flex justify-between items-center bg-card-main p-4 rounded-2xl border border-main no-print">
                 <div class="text-xs font-black text-muted uppercase tracking-widest">
                     Página {{ paginaActual }} de {{ totalPaginas }}
                 </div>
                 <div class="flex gap-2">
                     <button @click="paginaActual--" :disabled="paginaActual === 1" 
-                        class="px-4 py-2 bg-main border border-border rounded-xl font-black text-xs uppercase disabled:opacity-50 hover:bg-accent/10 transition-all">
+                        class="px-4 py-2 bg-card-sec border border-main text-main rounded-xl font-black text-xs uppercase disabled:opacity-50 hover:bg-accent-soft transition-all cursor-pointer">
                         Anterior
                     </button>
                     <button v-for="p in paginasVisibles" :key="p" @click="paginaActual = p"
-                        :class="['w-10 h-10 rounded-xl font-black text-xs transition-all', 
-                                 paginaActual === p ? 'bg-accent text-white shadow-lg' : 'bg-main border border-border text-muted hover:bg-accent/10']">
+                        :class="['w-10 h-10 rounded-xl font-black text-xs transition-all cursor-pointer', 
+                                 paginaActual === p ? 'bg-accent text-on-accent shadow-lg' : 'bg-card-sec border border-main text-main hover:bg-accent-soft']">
                         {{ p }}
                     </button>
                     <button @click="paginaActual++" :disabled="paginaActual === totalPaginas" 
-                        class="px-4 py-2 bg-main border border-border rounded-xl font-black text-xs uppercase disabled:opacity-50 hover:bg-accent/10 transition-all">
+                        class="px-4 py-2 bg-card-sec border border-main text-main rounded-xl font-black text-xs uppercase disabled:opacity-50 hover:bg-accent-soft transition-all cursor-pointer">
                         Siguiente
                     </button>
                 </div>
@@ -404,8 +404,8 @@ const formatLoDeterminado = (sol) => {
         </div>
 
         <!-- Modal de Detalles (Reporte) -->
-        <div v-if="solicitudSeleccionada" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 print:absolute print:inset-auto print:block print:bg-white print:p-0 print:m-0 print:overflow-visible">
-            <div class="bg-gray-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto relative print-area print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
+        <div v-if="solicitudSeleccionada" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 print:absolute print:inset-auto print:block print:bg-white print:p-0 print:m-0 print:overflow-visible animate-prime-in">
+            <div class="bg-card-main border border-main rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto relative print-area print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
 
                 <!-- ===== CABECERA FORMAL PARA IMPRESIÓN (A4) ===== -->
                 <div class="hidden print:block print-header">
@@ -442,8 +442,7 @@ const formatLoDeterminado = (sol) => {
                         <p class="text-green-200 text-xs font-semibold uppercase tracking-widest mb-1">Trámite de Arboricultura</p>
                         <h2 class="text-white text-xl font-bold">{{ solicitudSeleccionada.comunicacion_interna || `#${solicitudSeleccionada.id_solicitud}` }}</h2>
                         <div class="flex items-center gap-3 mt-2">
-                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
-                                :class="solicitudSeleccionada.estado_tramite === 'Terminado' ? 'bg-emerald-400 text-emerald-900' : 'bg-yellow-300 text-yellow-900'">
+                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold text-white bg-emerald-600">
                                 {{ solicitudSeleccionada.estado_tramite || 'En espera' }}
                             </span>
                         </div>
@@ -470,7 +469,7 @@ const formatLoDeterminado = (sol) => {
                             </span>
                             <span v-if="solicitudSeleccionada.requiere_plataforma"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-blue-100 text-blue-700 border border-blue-200">
-                                <Hammer class="w-3 h-3 text-blue-700" /> GRÚA/PLATAFORMA
+                                <Wrench class="w-3 h-3 text-blue-700" /> GRÚA/PLATAFORMA
                             </span>
                             <span v-if="solicitudSeleccionada.requiere_setar"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black bg-orange-100 text-orange-700 border border-orange-200">
@@ -491,18 +490,18 @@ const formatLoDeterminado = (sol) => {
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <button @click="imprimirReporte" class="bg-white/15 hover:bg-white/25 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all border border-white/10">
+                        <button @click="imprimirReporte" class="bg-white/15 hover:bg-white/25 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all border border-white/10 cursor-pointer">
                             <Printer class="w-4 h-4" />
                             Imprimir
                         </button>
-                        <button @click="solicitudSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-white/10">
+                        <button @click="solicitudSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-white/10 cursor-pointer">
                             <X class="w-5 h-5" />
                         </button>
                     </div>
                 </div>
 
                 <!-- Cuerpo de la tarjeta (5 SECCIONES FORMALES) -->
-                <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-white overflow-y-auto max-h-[70vh] custom-scrollbar">
+                <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-card-main text-main overflow-y-auto max-h-[70vh] custom-scrollbar">
 
                     <!-- SECCIÓN 01: Información de Ingreso (AZUL) -->
                     <div class="md:col-span-2 bg-blue-50/60 border border-blue-100 rounded-2xl p-6 shadow-sm">
@@ -512,72 +511,71 @@ const formatLoDeterminado = (sol) => {
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-y-5 gap-x-10 text-sm">
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Fecha de Ingreso</span>
-                                <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_ingreso) }}</span>
+                                <span class="font-bold text-main">{{ formatFecha(solicitudSeleccionada.fecha_ingreso) }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Comunicación Interna</span>
-                                <span class="font-black text-blue-900 bg-white/80 px-2 py-0.5 rounded border border-blue-100 w-fit">{{ solicitudSeleccionada.comunicacion_interna || 'S/N' }}</span>
+                                <span class="font-black text-blue-900 bg-card-sec px-2 py-0.5 rounded border border-main w-fit">{{ solicitudSeleccionada.comunicacion_interna || 'S/N' }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Acción Solicitada</span>
-                                <span class="font-bold text-gray-800">{{ getAccion(solicitudSeleccionada.id_accion_solicitada) }}</span>
+                                <span class="font-bold text-main">{{ getAccion(solicitudSeleccionada.id_accion_solicitada) }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Nombre del Solicitante</span>
-                                <span class="font-bold text-gray-800">{{ solicitudSeleccionada.solicitante_nombre }}</span>
+                                <span class="font-bold text-main">{{ solicitudSeleccionada.solicitante_nombre }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Teléfono</span>
-                                <span class="font-bold text-gray-800">{{ solicitudSeleccionada.solicitante_telefono || '—' }}</span>
+                                <span class="font-bold text-main">{{ solicitudSeleccionada.solicitante_telefono || '—' }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Tipo de Institución</span>
-                                <span class="font-bold text-gray-800">{{ getTipoInstitucion(solicitudSeleccionada.id_tipo_institucion) }}</span>
+                                <span class="font-bold text-main">{{ getTipoInstitucion(solicitudSeleccionada.id_tipo_institucion) }}</span>
                             </div>
-                            <div class="md:col-span-3 flex flex-col border-t border-blue-100/50 pt-2">
+                            <div class="md:col-span-3 flex flex-col border-t border-main pt-2">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Nombre de Institución</span>
-                                <span class="font-bold text-gray-800 uppercase text-xs">{{ getInstitucion(solicitudSeleccionada.id_nombre_institucional) }}</span>
+                                <span class="font-bold text-main uppercase text-xs">{{ getInstitucion(solicitudSeleccionada.id_nombre_institucional) }}</span>
                             </div>
-                            <div class="md:col-span-3 bg-white/80 p-4 rounded-xl border border-blue-100">
+                            <div class="md:col-span-3 bg-card-sec p-4 rounded-xl border border-main text-main">
                                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-2 block">Nota de Solicitud / Descripción</span>
-                                <p class="text-gray-700 italic leading-relaxed font-medium">"{{ solicitudSeleccionada.solicitante_descripcion || 'Sin descripción adicional.' }}"</p>
+                                <p class="text-main italic leading-relaxed font-medium">"{{ solicitudSeleccionada.solicitante_descripcion || 'Sin descripción adicional.' }}"</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- SECCIÓN 02: Localización (VERDE) -->
-                    <div class="md:col-span-2 bg-emerald-50/60 border border-emerald-100 rounded-2xl p-6 shadow-sm">
+                             <div class="md:col-span-2 bg-emerald-50/60 border border-emerald-100 rounded-2xl p-6 shadow-sm">
                         <h4 class="flex items-center gap-2 text-[11px] font-black text-emerald-800 uppercase tracking-[0.2em] mb-4 border-b border-emerald-200 pb-2">
                             <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 02. Localización y Referencia
                         </h4>
                         <div class="space-y-4 text-sm">
-                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                            <div class="flex justify-between items-center pb-2 border-b border-main">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Distrito Municipal</span>
-                                <span class="font-bold text-gray-800">{{ getDistritoByBarrio(solicitudSeleccionada.id_barrio) }}</span>
+                                <span class="font-bold text-main">{{ getDistritoByBarrio(solicitudSeleccionada.id_barrio) }}</span>
                             </div>
-                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                            <div class="flex justify-between items-center pb-2 border-b border-main">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Barrio / Zona</span>
-                                <span class="font-bold text-gray-800 text-right">{{ getBarrio(solicitudSeleccionada.id_barrio) }}</span>
+                                <span class="font-bold text-main text-right">{{ getBarrio(solicitudSeleccionada.id_barrio) }}</span>
                             </div>
-                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                            <div class="flex justify-between items-center pb-2 border-b border-main">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Calle / Avenida</span>
-                                <span class="font-bold text-gray-800 text-right">{{ solicitudSeleccionada.calle }} {{ solicitudSeleccionada.numero_casa ? 'Nº '+solicitudSeleccionada.numero_casa : '' }}</span>
+                                <span class="font-bold text-main text-right">{{ solicitudSeleccionada.calle }} {{ solicitudSeleccionada.numero_casa ? 'Nº '+solicitudSeleccionada.numero_casa : '' }}</span>
                             </div>
-                            <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                            <div class="flex justify-between items-center pb-2 border-b border-main">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Coordenadas GPS</span>
-                                <span class="font-bold text-gray-800 text-right">
+                                <span class="font-bold text-main text-right">
                                     <a v-if="solicitudSeleccionada.lat && solicitudSeleccionada.lng" 
                                        :href="`https://www.google.com/maps?q=${solicitudSeleccionada.lat},${solicitudSeleccionada.lng}`" 
                                        target="_blank" 
                                        class="text-blue-600 underline hover:text-blue-800 transition-colors">
                                         {{ solicitudSeleccionada.lat }}, {{ solicitudSeleccionada.lng }}
                                     </a>
-                                    <span v-else class="text-gray-400 italic">No registrado</span>
+                                    <span v-else class="text-muted italic">No registrado</span>
                                 </span>
                             </div>
                             <div class="flex flex-col pt-1">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">Punto de Referencia Exacto</span>
-                                <span class="font-bold text-gray-700 bg-white/80 p-3 rounded-lg border border-emerald-100">{{ solicitudSeleccionada.referencia || '—' }}</span>
+                                <span class="font-bold text-main bg-card-sec p-3 rounded-lg border border-main">{{ solicitudSeleccionada.referencia || '—' }}</span>
                             </div>
                         </div>
                     </div>
@@ -589,46 +587,46 @@ const formatLoDeterminado = (sol) => {
                         </h4>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm mb-4">
-                            <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Técnico Evaluador</span>
-                                <span class="font-bold text-gray-800">{{ getTecnico(solicitudSeleccionada.id_tecnico_verificacion) }}</span>
+                            <div class="flex justify-between items-center pb-2 border-b border-main">
+                                <span class="text-[9px] font-black text-muted uppercase tracking-widest">Técnico Evaluador</span>
+                                <span class="font-bold text-main">{{ getTecnico(solicitudSeleccionada.id_tecnico_verificacion) }}</span>
                             </div>
-                            <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fecha Verificación</span>
-                                <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_verificacion) }}</span>
+                            <div class="flex justify-between items-center pb-2 border-b border-main">
+                                <span class="text-[9px] font-black text-muted uppercase tracking-widest">Fecha Verificación</span>
+                                <span class="font-bold text-main">{{ formatFecha(solicitudSeleccionada.fecha_verificacion) }}</span>
                             </div>
                         </div>
 
                         <!-- Tabla de Árboles Relacionados -->
-                        <div class="overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-4">
+                        <div class="overflow-x-auto bg-card-sec rounded-xl border border-main shadow-sm p-4 mb-4">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead>
-                                    <tr class="border-b border-slate-200 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
+                                    <tr class="border-b border-main bg-card-main text-[10px] uppercase tracking-wider text-muted">
                                         <th class="py-2 px-3">#</th>
-                                        <th class="py-2 px-3">Especie</th>
-                                        <th class="py-2 px-3">Acción Solicitada</th>
-                                        <th class="py-2 px-3">Acción a Realizar (Inspección)</th>
-                                        <th class="py-2 px-3">Observaciones del Árbol</th>
+                                        <th class="py-2 px-3 text-main">Especie</th>
+                                        <th class="py-2 px-3 text-main">Acción Solicitada</th>
+                                        <th class="py-2 px-3 text-main">Acción a Realizar (Inspección)</th>
+                                        <th class="py-2 px-3 text-main">Observaciones del Árbol</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(arb, idx) in solicitudSeleccionada.arboles" :key="idx" class="border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
-                                        <td class="py-2.5 px-3 font-bold text-slate-500">{{ idx + 1 }}</td>
-                                        <td class="py-2.5 px-3 font-black text-emerald-800">{{ getEspecie(arb.id_especie) }}</td>
-                                        <td class="py-2.5 px-3 text-slate-700">{{ getAccion(arb.id_accion_solicitada) }}</td>
-                                        <td class="py-2.5 px-3 font-bold text-slate-800">{{ getAccion(arb.id_accion_realizar) }}</td>
-                                        <td class="py-2.5 px-3 text-slate-500 italic">{{ arb.observaciones_arbol || 'Sin observaciones.' }}</td>
+                                    <tr v-for="(arb, idx) in solicitudSeleccionada.arboles" :key="idx" class="border-b border-main last:border-0 hover:bg-accent-soft">
+                                        <td class="py-2.5 px-3 font-bold text-muted">{{ idx + 1 }}</td>
+                                        <td class="py-2.5 px-3 font-black text-accent">{{ getEspecie(arb.id_especie) }}</td>
+                                        <td class="py-2.5 px-3 text-main">{{ getAccion(arb.id_accion_solicitada) }}</td>
+                                        <td class="py-2.5 px-3 font-bold text-main">{{ getAccion(arb.id_accion_realizar) }}</td>
+                                        <td class="py-2.5 px-3 text-muted italic">{{ arb.observaciones_arbol || 'Sin observaciones.' }}</td>
                                     </tr>
                                     <tr v-if="!solicitudSeleccionada.arboles || solicitudSeleccionada.arboles.length === 0">
-                                        <td colspan="5" class="py-3 text-center text-slate-400 font-medium">Ningún árbol registrado.</td>
+                                        <td colspan="5" class="py-3 text-center text-muted font-medium bg-card-main">Ningún árbol registrado.</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
                         <div class="flex flex-col pt-1">
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Informe de Verificación General</span>
-                            <span class="font-medium text-gray-700 italic bg-white/80 p-3 rounded-lg border border-slate-200">"{{ solicitudSeleccionada.observacion_verificacion || 'Sin observaciones técnicas generales registradas.' }}"</span>
+                            <span class="text-[9px] font-black text-muted uppercase tracking-widest mb-1">Informe de Verificación General</span>
+                            <span class="font-medium text-main italic bg-card-sec p-3 rounded-lg border border-main">"{{ solicitudSeleccionada.observacion_verificacion || 'Sin observaciones técnicas generales registradas.' }}"</span>
                         </div>
                     </div>
 
@@ -638,29 +636,29 @@ const formatLoDeterminado = (sol) => {
                             <span class="w-2 h-2 bg-amber-500 rounded-full"></span> 04. Apoyo Logístico y Alertas
                         </h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[11px]">
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                            <div class="flex justify-between items-center py-1 border-b border-main">
                                 <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🏗️ ¿Requiere Grúa / Plataforma?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.requiere_plataforma ? 'text-blue-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_plataforma ? 'SÍ' : 'NO' }}</span>
+                                <span class="font-black" :class="solicitudSeleccionada.requiere_plataforma ? 'text-blue-600' : 'text-muted'">{{ solicitudSeleccionada.requiere_plataforma ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                            <div class="flex justify-between items-center py-1 border-b border-main">
                                 <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">⚡ ¿Requiere Corte SETAR?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.requiere_setar ? 'text-orange-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_setar ? 'SÍ' : 'NO' }}</span>
+                                <span class="font-black" :class="solicitudSeleccionada.requiere_setar ? 'text-orange-600' : 'text-muted'">{{ solicitudSeleccionada.requiere_setar ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                            <div class="flex justify-between items-center py-1 border-b border-main">
                                 <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">📄 ¿Requiere Ficha Técnica?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.requiere_ficha_tecnica ? 'text-indigo-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_ficha_tecnica ? 'SÍ' : 'NO' }}</span>
+                                <span class="font-black" :class="solicitudSeleccionada.requiere_ficha_tecnica ? 'text-indigo-600' : 'text-muted'">{{ solicitudSeleccionada.requiere_ficha_tecnica ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                            <div class="flex justify-between items-center py-1 border-b border-main">
                                 <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🌵 ¿Es Árbol Seco?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.arbol_seco ? 'text-amber-700' : 'text-gray-400'">{{ solicitudSeleccionada.arbol_seco ? 'SÍ' : 'NO' }}</span>
+                                <span class="font-black" :class="solicitudSeleccionada.arbol_seco ? 'text-amber-700' : 'text-muted'">{{ solicitudSeleccionada.arbol_seco ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                            <div class="flex justify-between items-center py-1 border-b border-main">
                                 <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🚨 ¿Es Emergencia / Urgencia?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia ? 'text-red-600' : 'text-gray-400'">{{ (solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia) ? 'SÍ' : 'NO' }}</span>
+                                <span class="font-black" :class="solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia ? 'text-red-600' : 'text-muted'">{{ (solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia) ? 'SÍ' : 'NO' }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                            <div class="flex justify-between items-center py-1 border-b border-main">
                                 <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">✅ ¿Procede Trabajo?</span>
-                                <span class="font-black" :class="solicitudSeleccionada.procede ? 'text-emerald-600' : 'text-gray-400'">{{ solicitudSeleccionada.procede ? 'SÍ' : 'NO' }}</span>
+                                <span class="font-black" :class="solicitudSeleccionada.procede ? 'text-emerald-600' : 'text-muted'">{{ solicitudSeleccionada.procede ? 'SÍ' : 'NO' }}</span>
                             </div>
                         </div>
                     </div>
@@ -679,13 +677,13 @@ const formatLoDeterminado = (sol) => {
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Encargado de Ejecución</span>
-                                <span class="font-bold text-gray-800 uppercase text-xs">{{ getTecnico(solicitudSeleccionada.id_tecnico_ejecucion) }}</span>
+                                <span class="font-bold text-main uppercase text-xs">{{ getTecnico(solicitudSeleccionada.id_tecnico_ejecucion) }}</span>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Fecha de Finalización</span>
-                                <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_ejecucion) }}</span>
+                                <span class="font-bold text-main">{{ formatFecha(solicitudSeleccionada.fecha_ejecucion) }}</span>
                             </div>
-                            <div class="md:col-span-3 bg-white/80 p-4 rounded-xl border border-purple-100">
+                            <div class="md:col-span-3 bg-card-sec p-4 rounded-xl border border-main text-main">
                                 <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-2 block">Reporte Final de Obra</span>
                                 <p class="text-gray-700 font-semibold leading-relaxed">"{{ solicitudSeleccionada.observaciones_finales || 'Expediente sin reporte de cierre final.' }}"</p>
                             </div>
@@ -697,8 +695,8 @@ const formatLoDeterminado = (sol) => {
                 <!-- Firmas para Impresión -->
                 <div class="hidden print:block print-firmas">
                     <!-- Nota de Descargo Formal -->
-                    <div class="border-t border-b border-gray-300 py-3 mb-6">
-                        <p class="text-[9px] text-gray-600 italic text-center leading-tight">
+                    <div class="border-t border-b border-main py-3 mb-6">
+                        <p class="text-[9px] text-muted italic text-center leading-tight">
                             "<strong>IMPORTANTE:</strong> Este documento es un reporte técnico formal con respaldo íntegro en la base de datos municipal del Sistema de Arboricultura. 
                             Se ruega verificar la exactitud de todos los datos y referencias técnicas antes de proceder con la firma de conformidad correspondiente."
                         </p>
@@ -724,14 +722,14 @@ const formatLoDeterminado = (sol) => {
                     </div>
 
                     <!-- Pie de Página (Contador de Hojas) -->
-                    <div class="no-print mt-8 pt-4 border-t border-gray-100 flex justify-between items-center text-[8px] text-gray-400 font-bold uppercase tracking-widest">
+                    <div class="no-print mt-8 pt-4 border-t border-main flex justify-between items-center text-[8px] text-muted font-bold uppercase tracking-widest">
                         <span>Sistema de Gestión de Arboricultura y Espacios Verdes - G.A.M.T.</span>
                         <div class="print-counter">Página <span class="pageNumber"></span></div>
                     </div>
                 </div>
 
-                <div class="no-print px-6 py-4 border-t border-gray-200 flex justify-end">
-                    <button @click="solicitudSeleccionada = null" class="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all" style="background: #2d6a4f;">Cerrar</button>
+                <div class="no-print px-6 py-4 border-t border-main flex justify-end bg-card-main rounded-b-2xl">
+                    <button @click="solicitudSeleccionada = null" class="px-5 py-2.5 bg-accent text-on-accent hover:opacity-90 rounded-xl text-sm font-black uppercase tracking-wider transition-all cursor-pointer">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -739,9 +737,9 @@ const formatLoDeterminado = (sol) => {
         <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
         <Teleport to="body">
             <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
-                <div class="bg-card rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col border border-border animate-prime-in">
+                <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col animate-prime-in">
                     <!-- Icono de Advertencia -->
-                    <div class="p-8 flex flex-col items-center text-center gap-4">
+                    <div class="p-8 flex flex-col items-center text-center gap-4 bg-card-main text-main">
                         <div class="w-14 h-14 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-2xl select-none">
                             ⚠️
                         </div>
@@ -751,9 +749,9 @@ const formatLoDeterminado = (sol) => {
                         </div>
                     </div>
                     <!-- Botones de Acción -->
-                    <div class="p-6 bg-app border-t border-border flex gap-3">
+                    <div class="p-6 bg-card-main border-t border-main flex gap-3">
                         <button @click="showConfirmModal = false" 
-                            class="flex-1 px-4 py-3 bg-card border border-border rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-main/10 transition-all active:scale-95 shadow-sm cursor-pointer">
+                            class="flex-1 px-4 py-3 bg-card-sec border border-main rounded-xl font-black text-[10px] uppercase tracking-widest text-main hover:bg-accent-soft transition-all active:scale-95 shadow-sm cursor-pointer">
                             Cancelar
                         </button>
                         <button @click="ejecutarConfirmacion" 
@@ -975,4 +973,50 @@ const formatLoDeterminado = (sol) => {
 .btn-edit:hover   { background: #fde68a; color: #78350f; transform: translateY(-1px); }
 .btn-delete { background: #fee2e2; color: #991b1b; }
 .btn-delete:hover { background: #fca5a5; color: #7f1d1d; transform: translateY(-1px); }
+
+.search-input {
+    background-color: var(--input-bg) !important;
+    border: 2px solid var(--border) !important;
+    color: var(--text-main) !important;
+    border-radius: 1rem;
+    padding: 0.6rem 1rem;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.search-input:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+/* Theme Adaptive Overrides for colored blocks */
+:global(.theme-black) .bg-blue-50\/60 { background-color: rgba(59, 130, 246, 0.1) !important; border-color: rgba(59, 130, 246, 0.2) !important; }
+:global(.theme-black) .bg-emerald-50\/60 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+:global(.theme-black) .bg-amber-50\/60 { background-color: rgba(245, 158, 11, 0.1) !important; border-color: rgba(245, 158, 11, 0.2) !important; }
+:global(.theme-black) .bg-purple-50\/60 { background-color: rgba(139, 92, 246, 0.1) !important; border-color: rgba(139, 92, 246, 0.2) !important; }
+:global(.theme-black) div.bg-slate-50 { background-color: var(--bg-card-sec) !important; border-color: var(--border-sec) !important; }
+
+:global(.theme-colors) .bg-blue-50\/60 { background-color: rgba(30, 144, 255, 0.08) !important; border-color: rgba(30, 144, 255, 0.15) !important; }
+:global(.theme-colors) .bg-emerald-50\/60 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
+:global(.theme-colors) .bg-amber-50\/60 { background-color: rgba(245, 158, 11, 0.08) !important; border-color: rgba(245, 158, 11, 0.15) !important; }
+:global(.theme-colors) .bg-purple-50\/60 { background-color: rgba(139, 92, 246, 0.08) !important; border-color: rgba(139, 92, 246, 0.15) !important; }
+:global(.theme-colors) div.bg-slate-50 { background-color: var(--bg-card-sec) !important; border-color: var(--border-sec) !important; }
+
+:global(.theme-black) .btn-ver { background: rgba(16, 185, 129, 0.2) !important; color: #10b981 !important; }
+:global(.theme-black) .btn-ver:hover { background: rgba(16, 185, 129, 0.4) !important; color: #fff !important; }
+:global(.theme-black) .btn-print { background: rgba(59, 130, 246, 0.2) !important; color: #3b82f6 !important; }
+:global(.theme-black) .btn-print:hover { background: rgba(59, 130, 246, 0.4) !important; color: #fff !important; }
+:global(.theme-black) .btn-edit { background: rgba(245, 158, 11, 0.2) !important; color: #f59e0b !important; }
+:global(.theme-black) .btn-edit:hover { background: rgba(245, 158, 11, 0.4) !important; color: #fff !important; }
+:global(.theme-black) .btn-delete { background: rgba(239, 68, 68, 0.2) !important; color: #ef4444 !important; }
+:global(.theme-black) .btn-delete:hover { background: rgba(239, 68, 68, 0.4) !important; color: #fff !important; }
+
+:global(.theme-colors) .btn-ver { background: rgba(30, 144, 255, 0.1) !important; color: #1e90ff !important; }
+:global(.theme-colors) .btn-ver:hover { background: rgba(30, 144, 255, 0.3) !important; color: #fff !important; }
+:global(.theme-colors) .btn-print { background: rgba(30, 144, 255, 0.1) !important; color: #1e90ff !important; }
+:global(.theme-colors) .btn-print:hover { background: rgba(30, 144, 255, 0.3) !important; color: #fff !important; }
+:global(.theme-colors) .btn-edit { background: rgba(245, 158, 11, 0.1) !important; color: #f59e0b !important; }
+:global(.theme-colors) .btn-edit:hover { background: rgba(245, 158, 11, 0.3) !important; color: #fff !important; }
+:global(.theme-colors) .btn-delete { background: rgba(239, 68, 68, 0.1) !important; color: #ef4444 !important; }
+:global(.theme-colors) .btn-delete:hover { background: rgba(239, 68, 68, 0.3) !important; color: #fff !important; }
 </style>

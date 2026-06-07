@@ -8,7 +8,7 @@
   <div v-else-if="uiState.user" :class="['flex flex-col md:flex-row h-screen overflow-hidden app-container', `theme-${uiState.theme}`]">
     <Sidebar class="print:hidden" />
     
-    <div class="flex-1 flex flex-col min-w-0 bg-main overflow-hidden">
+    <div class="flex-1 flex flex-col min-w-0 bg-app-main overflow-hidden">
       <!-- Header Dinámico -->
       <header class="header-bar print:hidden">
         <div class="breadcrumb">

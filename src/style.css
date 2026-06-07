@@ -1,5 +1,5 @@
-@import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import 'tailwindcss';
 
 /* ============================================================
    SISTEMA DE DISEÑO MAESTRO - ANTIGRAVITY UI
@@ -9,6 +9,7 @@
     /* MODO DÍA (LIMPIO) - ENTORNO ACOGEDOR Y SOFISTICADO */
     --bg-app: #fdfdfb; /* Blanco Cálido */
     --bg-card: #ffffff;
+    --bg-card-sec: #f9f9f7;
     --bg-sidebar: #2d3436; /* Charcoal Profundo */
     --bg-header: #fdfdfb;
     
@@ -21,6 +22,7 @@
     --accent-soft: rgba(46, 125, 50, 0.08);
     
     --border: #dfe6e9;
+    --border-sec: #e2e8f0;
     --input-bg: #fdfdfb;
     --table-stripe: #f9f9f7;
     --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
@@ -31,6 +33,7 @@
     /* MODO NOCHE (OSCURO) - CHARCOAL & LIME GREEN */
     --bg-app: #121212; /* Charcoal Puro */
     --bg-card: #1e1e1e;
+    --bg-card-sec: #262626;
     --bg-sidebar: #0a0a0a;
     --bg-header: #121212;
     
@@ -43,6 +46,7 @@
     --accent-soft: rgba(198, 255, 0, 0.12);
     
     --border: #2d2d2d;
+    --border-sec: #3d3d3d;
     --input-bg: #181818;
     --table-stripe: #161616;
     --shadow-sm: 0 0 0 1px rgba(255,255,255,0.05);
@@ -53,6 +57,7 @@
     /* MODO PROFESIONAL (DATOS) - PRIORIZACIÓN VISUAL */
     --bg-app: #f1f2f6; /* Gris Pizarra Suave */
     --bg-card: #ffffff;
+    --bg-card-sec: #f8f9fa;
     --bg-sidebar: #2f3542;
     --bg-header: #ffffff;
     
@@ -65,6 +70,7 @@
     --accent-soft: rgba(30, 144, 255, 0.1);
     
     --border: #ced6e0;
+    --border-sec: #cbd5e1;
     --input-bg: #ffffff;
     --table-stripe: #f1f2f6;
     --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
@@ -230,3 +236,11 @@ svg { stroke: currentColor; }
     from { opacity: 0; transform: scale(0.97) translateY(20px); }
     to   { opacity: 1; transform: scale(1) translateY(0); }
 }
+
+/* clases de utilidad temáticas */
+.bg-card-main { background-color: var(--bg-card) !important; }
+.bg-card-sec { background-color: var(--bg-card-sec) !important; }
+.bg-app-main { background-color: var(--bg-app) !important; }
+.border-main { border-color: var(--border) !important; }
+.border-sec { border-color: var(--border-sec) !important; }
+.bg-accent-soft { background-color: var(--accent-soft) !important; }

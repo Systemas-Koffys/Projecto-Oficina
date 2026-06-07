@@ -1,23 +1,23 @@
 <template>
 <div class="dashboard p-4 space-y-8 animate-fade-in" id="dashboard-content">
     <!-- Header de Bienvenida -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-[#064e3b] to-emerald-800 p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
+    <div class="welcome-card flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
         <div class="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
         <div class="relative z-10">
-            <h2 class="text-3xl font-black tracking-tighter">{{ saludo }}</h2>
-            <p class="text-emerald-200/70 font-medium text-sm mt-1 uppercase tracking-widest">Resumen Operativo • Gestión de Solicitudes</p>
+            <h2 class="welcome-title text-3xl font-black tracking-tighter">{{ saludo }}</h2>
+            <p class="welcome-subtitle font-medium text-sm mt-1 uppercase tracking-widest">Resumen Operativo • Gestión de Solicitudes</p>
         </div>
         <div class="relative z-10 flex gap-4 flex-wrap">
             <!-- Filtros Temporales -->
-            <div class="bg-black/20 backdrop-blur-md p-1 rounded-2xl flex gap-1 border border-white/10 html2pdf__ignore">
+            <div class="welcome-filters p-1 rounded-2xl flex gap-1 html2pdf__ignore">
                 <button v-for="f in filtros" :key="f.id" @click="filtroActual = f.id"
-                    :class="['px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all', 
-                    filtroActual === f.id ? 'bg-white text-emerald-900 shadow-lg scale-105' : 'text-emerald-100/70 hover:text-white hover:bg-white/10']">
+                    :class="['welcome-filter-btn px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all', 
+                    filtroActual === f.id ? 'active shadow-lg scale-105' : '']">
                     {{ f.label }}
                 </button>
             </div>
             <!-- Exportar -->
-            <button @click="exportToPDF" class="bg-accent hover:bg-emerald-400 text-white px-4 py-2 rounded-xl shadow-xl flex items-center gap-2 transition-all html2pdf__ignore">
+            <button @click="exportToPDF" class="welcome-pdf-btn px-4 py-2 rounded-xl shadow-xl flex items-center gap-2 transition-all html2pdf__ignore">
                 <Download class="w-4 h-4" />
                 <span class="text-xs font-black uppercase tracking-widest">PDF</span>
             </button>
@@ -57,62 +57,62 @@
             
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
                 <!-- SETAR -->
-                <div class="bg-gradient-to-br from-amber-50 to-orange-50/50 p-4 rounded-2xl border border-orange-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-orange-200 transition-all group cursor-default">
+                <div class="bg-card-sec p-4 rounded-2xl border border-sec flex flex-col justify-between h-28 hover:shadow-md hover:border-orange-200 transition-all group cursor-default">
                     <div class="flex justify-between items-center">
                         <Zap class="w-5 h-5 text-amber-500 animate-pulse" />
-                        <span class="text-[9px] font-black text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full uppercase tracking-wider">SETAR</span>
+                        <span class="text-[9px] font-black text-orange-600 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">SETAR</span>
                     </div>
                     <div>
-                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.reqSetar }}</p>
-                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Cortes de Energía</p>
+                        <p class="text-2xl font-black text-main tabular-nums">{{ stats.reqSetar }}</p>
+                        <p class="text-[9px] font-bold text-muted uppercase tracking-tight">Cortes de Energía</p>
                     </div>
                 </div>
 
                 <!-- Grúa / Plataforma -->
-                <div class="bg-gradient-to-br from-blue-50 to-sky-50/50 p-4 rounded-2xl border border-blue-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-blue-200 transition-all group cursor-default">
+                <div class="bg-card-sec p-4 rounded-2xl border border-sec flex flex-col justify-between h-28 hover:shadow-md hover:border-blue-200 transition-all group cursor-default">
                     <div class="flex justify-between items-center">
                         <Hammer class="w-5 h-5 text-blue-500" />
-                        <span class="text-[9px] font-black text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Grúa</span>
+                        <span class="text-[9px] font-black text-blue-600 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">Grúa</span>
                     </div>
                     <div>
-                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.reqPlataforma }}</p>
-                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Plataformas</p>
+                        <p class="text-2xl font-black text-main tabular-nums">{{ stats.reqPlataforma }}</p>
+                        <p class="text-[9px] font-bold text-muted uppercase tracking-tight">Plataformas</p>
                     </div>
                 </div>
 
                 <!-- Ficha Técnica -->
-                <div class="bg-gradient-to-br from-indigo-50 to-violet-50/50 p-4 rounded-2xl border border-indigo-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-indigo-200 transition-all group cursor-default">
+                <div class="bg-card-sec p-4 rounded-2xl border border-sec flex flex-col justify-between h-28 hover:shadow-md hover:border-indigo-200 transition-all group cursor-default">
                     <div class="flex justify-between items-center">
                         <ClipboardList class="w-5 h-5 text-indigo-500" />
-                        <span class="text-[9px] font-black text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Ficha</span>
+                        <span class="text-[9px] font-black text-indigo-600 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">Ficha</span>
                     </div>
                     <div>
-                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.reqFicha }}</p>
-                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Evaluaciones</p>
+                        <p class="text-2xl font-black text-main tabular-nums">{{ stats.reqFicha }}</p>
+                        <p class="text-[9px] font-bold text-muted uppercase tracking-tight">Evaluaciones</p>
                     </div>
                 </div>
 
                 <!-- Árbol Seco -->
-                <div class="bg-gradient-to-br from-yellow-50 to-amber-50/50 p-4 rounded-2xl border border-amber-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-amber-200 transition-all group cursor-default">
+                <div class="bg-card-sec p-4 rounded-2xl border border-sec flex flex-col justify-between h-28 hover:shadow-md hover:border-amber-200 transition-all group cursor-default">
                     <div class="flex justify-between items-center">
                         <Leaf class="w-5 h-5 text-yellow-600" />
-                        <span class="text-[9px] font-black text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Seco</span>
+                        <span class="text-[9px] font-black text-amber-700 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">Seco</span>
                     </div>
                     <div>
-                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.arbolSeco }}</p>
-                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Especies Secas</p>
+                        <p class="text-2xl font-black text-main tabular-nums">{{ stats.arbolSeco }}</p>
+                        <p class="text-[9px] font-bold text-muted uppercase tracking-tight">Especies Secas</p>
                     </div>
                 </div>
 
                 <!-- Segunda Nota -->
-                <div class="bg-gradient-to-br from-purple-50 to-fuchsia-50/50 p-4 rounded-2xl border border-purple-100 flex flex-col justify-between h-28 hover:shadow-md hover:border-purple-200 transition-all group cursor-default">
+                <div class="bg-card-sec p-4 rounded-2xl border border-sec flex flex-col justify-between h-28 hover:shadow-md hover:border-purple-200 transition-all group cursor-default">
                     <div class="flex justify-between items-center">
                         <MailOpen class="w-5 h-5 text-purple-500" />
-                        <span class="text-[9px] font-black text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full uppercase tracking-wider">2ª Nota</span>
+                        <span class="text-[9px] font-black text-purple-600 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">2ª Nota</span>
                     </div>
                     <div>
-                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.segundaNota }}</p>
-                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Reiteraciones</p>
+                        <p class="text-2xl font-black text-main tabular-nums">{{ stats.segundaNota }}</p>
+                        <p class="text-[9px] font-bold text-muted uppercase tracking-tight">Reiteraciones</p>
                     </div>
                 </div>
             </div>
@@ -130,7 +130,7 @@
             <!-- Ratios y Proporción -->
             <div class="space-y-6">
                 <!-- Barra comparativa bicolor -->
-                <div class="w-full h-4 bg-gray-100 rounded-full overflow-hidden flex shadow-inner">
+                <div class="w-full h-4 bg-card-sec rounded-full overflow-hidden flex shadow-inner">
                     <div class="h-full bg-emerald-600 transition-all duration-1000" 
                          :style="{ width: stats.total ? (stats.particulares / stats.total) * 100 + '%' : '50%' }"
                          title="Particulares"></div>
@@ -142,22 +142,22 @@
                 <!-- Detalle con Leyenda -->
                 <div class="grid grid-cols-2 gap-4">
                     <!-- Particular -->
-                    <div class="p-4 bg-emerald-50/40 rounded-2xl border border-emerald-100/60">
+                    <div class="p-4 bg-card-sec rounded-2xl border border-sec">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="w-2.5 h-2.5 bg-emerald-600 rounded-full"></span>
-                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider">Particulares</span>
+                            <span class="text-[9px] font-black text-muted uppercase tracking-wider">Particulares</span>
                         </div>
-                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.particulares }}</p>
+                        <p class="text-2xl font-black text-main tabular-nums">{{ stats.particulares }}</p>
                         <p class="text-[10px] font-bold text-emerald-600">{{ stats.total ? Math.round((stats.particulares / stats.total) * 100) : 0 }}%</p>
                     </div>
 
                     <!-- Institucional -->
-                    <div class="p-4 bg-blue-50/40 rounded-2xl border border-blue-100/60">
+                    <div class="p-4 bg-card-sec rounded-2xl border border-sec">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="w-2.5 h-2.5 bg-blue-600 rounded-full"></span>
-                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider">Institucionales</span>
+                            <span class="text-[9px] font-black text-muted uppercase tracking-wider">Institucionales</span>
                         </div>
-                        <p class="text-2xl font-black text-gray-800 tabular-nums">{{ stats.institucionales }}</p>
+                        <p class="text-2xl font-black text-main tabular-nums">{{ stats.institucionales }}</p>
                         <p class="text-[10px] font-bold text-blue-600">{{ stats.total ? Math.round((stats.institucionales / stats.total) * 100) : 0 }}%</p>
                     </div>
                 </div>
@@ -228,8 +228,8 @@
     <!-- Tabla de Pendientes y Backlog por Distrito -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <!-- Tabla de Pendientes (Izquierda) -->
-        <div class="lg:col-span-8 card p-8 border-none shadow-2xl overflow-hidden bg-white">
-            <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-6">
+        <div class="lg:col-span-8 card p-8 border-none shadow-2xl overflow-hidden">
+            <div class="flex justify-between items-center mb-8 border-b border-sec pb-6">
                 <h3 class="font-black text-xl tracking-tighter flex items-center gap-2">
                     <Clock class="w-5 h-5 text-yellow-500 animate-pulse" />
                     Cola de Trabajo Inmediata
@@ -239,7 +239,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full" v-if="ultimasSolicitudes.length > 0">
                     <thead>
-                        <tr class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">
+                        <tr class="text-[10px] font-black uppercase text-muted tracking-[0.2em]">
                             <th class="py-4 px-4 text-left">Código</th>
                             <th class="py-4 px-4 text-left">Ingreso</th>
                             <th class="py-4 px-4 text-left">Ubicación / Barrio</th>
@@ -247,23 +247,23 @@
                             <th class="py-4 px-4 text-center">Prioridad</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-50">
-                        <tr v-for="(sol, index) in ultimasSolicitudes" :key="index" class="group hover:bg-gray-50 transition-all">
+                    <tbody class="divide-y divide-sec">
+                        <tr v-for="(sol, index) in ultimasSolicitudes" :key="index" class="group hover:bg-card-sec transition-all">
                             <td class="py-5 px-4 font-black text-sm text-accent">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</td>
-                            <td class="py-5 px-4 text-xs font-bold text-gray-500">{{ sol.fecha_ingreso }}</td>
+                            <td class="py-5 px-4 text-xs font-bold text-muted">{{ sol.fecha_ingreso }}</td>
                             <td class="py-5 px-4">
-                                <p class="text-sm font-black text-gray-800">{{ getBarrioNombre(sol.id_barrio) }}</p>
-                                <p class="text-[10px] font-bold text-gray-400 truncate max-w-[200px]">{{ sol.calle }}</p>
+                                <p class="text-sm font-black text-main">{{ getBarrioNombre(sol.id_barrio) }}</p>
+                                <p class="text-[10px] font-bold text-muted truncate max-w-[200px]">{{ sol.calle }}</p>
                             </td>
                             <td class="py-5 px-4">
                                 <div class="flex items-center gap-2">
                                     <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-                                    <span class="text-xs font-bold text-gray-700">{{ getAccionNombre(sol.id_accion_solicitada) }}</span>
+                                    <span class="text-xs font-bold text-main">{{ getAccionNombre(sol.id_accion_solicitada) }}</span>
                                 </div>
                             </td>
                             <td class="py-5 px-4 text-center">
                                 <span :class="['px-3 py-1 rounded-full text-[9px] font-black tracking-widest', 
-                                    sol.nivel_urgencia === 'Alta' || sol.es_emergencia ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-500']">
+                                    sol.nivel_urgencia === 'Alta' || sol.es_emergencia ? 'bg-red-500 text-white' : 'bg-card-sec text-muted']">
                                     {{ sol.es_emergencia ? 'EMERGENCIA' : sol.nivel_urgencia }}
                                 </span>
                             </td>
@@ -271,17 +271,17 @@
                     </tbody>
                 </table>
                 <div v-else class="text-center py-12">
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 mb-4">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-card-sec mb-4">
                         <CheckCircle2 class="w-8 h-8 text-emerald-400" />
                     </div>
-                    <h4 class="text-lg font-black text-gray-800">¡Todo al día!</h4>
-                    <p class="text-sm font-medium text-gray-500 mt-1">No hay solicitudes pendientes en este periodo.</p>
+                    <h4 class="text-lg font-black text-main">¡Todo al día!</h4>
+                    <p class="text-sm font-medium text-muted mt-1">No hay solicitudes pendientes en este periodo.</p>
                 </div>
             </div>
         </div>
 
         <!-- Backlog por Distrito (Derecha) -->
-        <div class="lg:col-span-4 card p-8 border-none shadow-2xl bg-white flex flex-col justify-between">
+        <div class="lg:col-span-4 card p-8 border-none shadow-2xl flex flex-col justify-between">
             <div>
                 <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
                     <MapPin class="w-5 h-5 text-emerald-600" /> Pendientes por Distrito
@@ -291,19 +291,19 @@
 
             <div class="space-y-4 max-h-[350px] overflow-y-auto custom-scrollbar pr-2 flex-1 mt-4">
                 <div v-for="(dist, idx) in distritosPendientes" :key="idx" 
-                     class="flex items-center justify-between p-3.5 bg-gray-50 rounded-2xl border border-gray-100 hover:border-accent/30 hover:bg-accent/5 transition-all">
+                     class="flex items-center justify-between p-3.5 bg-card-sec rounded-2xl border border-sec hover:border-accent/30 hover:bg-accent-soft transition-all">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center font-black text-xs">
+                        <div class="w-8 h-8 bg-accent-soft text-accent rounded-xl flex items-center justify-center font-black text-xs">
                             D{{ dist.nombre.replace(/\D/g, '') || idx + 1 }}
                         </div>
-                        <span class="text-xs font-black text-gray-700 uppercase tracking-wide">{{ dist.nombre }}</span>
+                        <span class="text-xs font-black text-main uppercase tracking-wide">{{ dist.nombre }}</span>
                     </div>
-                    <span class="px-3 py-1 bg-red-100 text-red-700 border border-red-200 rounded-lg text-xs font-black tabular-nums">
+                    <span class="px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-xs font-black tabular-nums">
                         {{ dist.value }} pend.
                     </span>
                 </div>
                 
-                <div v-if="distritosPendientes.length === 0" class="text-center py-12 text-gray-400 text-xs font-bold">
+                <div v-if="distritosPendientes.length === 0" class="text-center py-12 text-muted text-xs font-bold">
                     ¡Todos los distritos al día!
                 </div>
             </div>
@@ -464,10 +464,10 @@ const animarNumeros = () => {
 watch(() => stats.value.total, animarNumeros, { immediate: true })
 
 const statCards = computed(() => [
-    { id: 'total', label: 'Total Solicitudes', value: stats.value.total, icon: ClipboardList, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: 100 },
-    { id: 'completadas', label: 'Solicitudes Realizadas', value: stats.value.completadas, icon: CheckCircle2, color: '#10b981', bg: 'bg-white', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', percent: stats.value.efectividad },
-    { id: 'enProceso', label: 'Solicitudes en Espera', value: stats.value.enProceso, icon: Clock3, color: '#f59e0b', bg: 'bg-white', iconBg: 'bg-amber-50', iconColor: 'text-amber-600', percent: stats.value.total ? (stats.value.enProceso/stats.value.total)*100 : 0 },
-    { id: 'urgentes', label: 'Solicitudes Críticas', value: stats.value.urgentes, icon: AlertTriangle, color: '#ef4444', bg: 'bg-white', iconBg: 'bg-red-50', iconColor: 'text-red-600', percent: stats.value.total ? (stats.value.urgentes/stats.value.total)*100 : 0 }
+    { id: 'total', label: 'Total Solicitudes', value: stats.value.total, icon: ClipboardList, color: 'var(--accent)', bg: '', iconBg: 'bg-accent-soft', iconColor: 'text-accent', percent: 100 },
+    { id: 'completadas', label: 'Solicitudes Realizadas', value: stats.value.completadas, icon: CheckCircle2, color: 'var(--accent)', bg: '', iconBg: 'bg-accent-soft', iconColor: 'text-accent', percent: stats.value.efectividad },
+    { id: 'enProceso', label: 'Solicitudes en Espera', value: stats.value.enProceso, icon: Clock3, color: '#f59e0b', bg: '', iconBg: 'bg-amber-500/10', iconColor: 'text-amber-500', percent: stats.value.total ? (stats.value.enProceso/stats.value.total)*100 : 0 },
+    { id: 'urgentes', label: 'Solicitudes Críticas', value: stats.value.urgentes, icon: AlertTriangle, color: '#ef4444', bg: '', iconBg: 'bg-red-500/10', iconColor: 'text-red-500', percent: stats.value.total ? (stats.value.urgentes/stats.value.total)*100 : 0 }
 ])
 
 const ultimasSolicitudes = computed(() => {
@@ -605,6 +605,98 @@ const exportToPDF = () => {
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .stat-card { @apply bg-white; }
 canvas { filter: drop-shadow(0 10px 10px rgba(0,0,0,0.02)); }
+
+.welcome-card {
+    background: linear-gradient(135deg, #064e3b 0%, #047857 100%) !important;
+    border: 1px solid transparent !important;
+}
+
+.welcome-title {
+    color: #ffffff !important;
+}
+
+.welcome-subtitle {
+    color: rgba(209, 250, 229, 0.8) !important;
+}
+
+.welcome-filters {
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.welcome-filter-btn {
+    color: rgba(209, 250, 229, 0.8);
+}
+.welcome-filter-btn:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.welcome-filter-btn.active {
+    background-color: #ffffff;
+    color: #064e3b;
+}
+
+.welcome-pdf-btn {
+    background-color: var(--accent);
+    color: var(--text-on-accent);
+}
+.welcome-pdf-btn:hover {
+    background-color: var(--accent-hover);
+}
+
+/* Overrides para tema oscuro y colores */
+:global(.theme-black) .welcome-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+}
+:global(.theme-black) .welcome-title {
+    color: var(--text-main) !important;
+}
+:global(.theme-black) .welcome-subtitle {
+    color: var(--text-muted) !important;
+}
+:global(.theme-black) .welcome-filters {
+    background-color: var(--bg-card-sec);
+    border: 1px solid var(--border);
+}
+:global(.theme-black) .welcome-filter-btn {
+    color: var(--text-muted);
+}
+:global(.theme-black) .welcome-filter-btn:hover {
+    color: var(--text-main);
+    background-color: var(--bg-card);
+}
+:global(.theme-black) .welcome-filter-btn.active {
+    background-color: var(--accent);
+    color: var(--text-on-accent);
+}
+
+:global(.theme-colors) .welcome-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+}
+:global(.theme-colors) .welcome-title {
+    color: var(--text-main) !important;
+}
+:global(.theme-colors) .welcome-subtitle {
+    color: var(--text-muted) !important;
+}
+:global(.theme-colors) .welcome-filters {
+    background-color: var(--bg-card-sec);
+    border: 1px solid var(--border);
+}
+:global(.theme-colors) .welcome-filter-btn {
+    color: var(--text-muted);
+}
+:global(.theme-colors) .welcome-filter-btn:hover {
+    color: var(--text-main);
+    background-color: var(--bg-card);
+}
+:global(.theme-colors) .welcome-filter-btn.active {
+    background-color: var(--accent);
+    color: var(--text-on-accent);
+}
 
 /* Clases para ocultar botones al imprimir a PDF */
 @media print {

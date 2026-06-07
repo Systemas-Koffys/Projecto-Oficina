@@ -1,25 +1,25 @@
 <template>
     <div class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
-        <div class="bg-white rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-4xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
+        <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-4xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
             
             <!-- Header Institucional -->
-            <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg">
+            <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg border-b border-[#042f1a]">
                 <div>
-                    <h3 class="font-black text-xl tracking-tight leading-none">{{ uiState.editData ? 'Editar Expediente Técnico' : 'Nueva Solicitud de Servicio' }}</h3>
+                    <h3 class="font-black text-xl tracking-tight leading-none text-white">{{ uiState.editData ? 'Editar Expediente Técnico' : 'Nueva Solicitud de Servicio' }}</h3>
                     <!-- Lógica de Sincronización v2.1 Activa -->
                     <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Gestión de Arboricultura Municipal</p>
                 </div>
-                <button type="button" @click="cerrar" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center">
+                <button type="button" @click="cerrar" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer">
                     <X class="w-6 h-6" />
                 </button>
             </div>
 
             <!-- Cuerpo del Formulario -->
-            <form @submit.prevent="handleGuardar" id="solicitudForm" class="p-8 space-y-8 overflow-y-auto max-h-[75vh] custom-scrollbar bg-slate-50/50">
+            <form @submit.prevent="handleGuardar" id="solicitudForm" class="p-8 space-y-8 overflow-y-auto max-h-[75vh] custom-scrollbar bg-card-main text-main">
                 
                 <!-- SECCIÓN 01: IDENTIFICACIÓN -->
                 <div class="p-6 bg-blue-50 border border-blue-100 border-l-[6px] border-l-blue-500 rounded-xl shadow-sm">
-                    <h4 class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <h4 class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                         <Info class="w-4 h-4 text-blue-500" /> 01. Información de Ingreso
                     </h4>
                     <div class="grid grid-cols-3 gap-6">
@@ -65,7 +65,7 @@
 
                 <!-- SECCIÓN 02: LOCALIZACIÓN -->
                 <div class="p-6 bg-emerald-50 border border-emerald-100 border-l-[6px] border-l-emerald-500 rounded-xl shadow-sm">
-                    <h4 class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <h4 class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                         <MapPin class="w-4 h-4 text-emerald-500" /> 02. Localización y Referencia
                     </h4>
                     <div class="grid grid-cols-4 gap-6">
@@ -97,13 +97,13 @@
                         </div>
 
                         <!-- Geolocalización y Mapa Mezclado -->
-                        <div class="col-span-4 border-t border-emerald-100/60 pt-4 flex flex-col gap-4">
-                            <label class="label-prime text-emerald-800 font-black uppercase text-[10px] tracking-wider flex items-center gap-1.5">
-                                <MapPin class="w-4 h-4 text-emerald-800" /> Ubicación Geográfica del Árbol (GPS)
+                        <div class="col-span-4 border-t border-sec pt-4 flex flex-col gap-4">
+                            <label class="label-prime text-emerald-800 dark:text-emerald-400 font-black uppercase text-[10px] tracking-wider flex items-center gap-1.5">
+                                <MapPin class="w-4 h-4" /> Ubicación Geográfica del Árbol (GPS)
                             </label>
                             
                             <!-- Contenedor del Mapa Leaflet -->
-                            <div class="relative w-full h-56 rounded-2xl border-2 border-emerald-100/60 shadow-sm overflow-hidden z-10">
+                            <div class="relative w-full h-56 rounded-2xl border-2 border-sec shadow-sm overflow-hidden z-10">
                                 <div id="modal-map" class="absolute inset-0"></div>
                             </div>
                             
@@ -128,12 +128,12 @@
 
                 <!-- SECCIÓN 03: DIAGNÓSTICO TÉCNICO Y ÁRBOLES -->
                 <div class="p-6 bg-amber-50 border border-amber-100 border-l-[6px] border-l-amber-500 rounded-xl shadow-sm space-y-6">
-                    <h4 class="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <h4 class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.2em] flex items-center gap-2">
                         <Activity class="w-4 h-4 text-amber-500" /> 03. Diagnóstico Técnico y Detalle de Árboles
                     </h4>
                     
                     <!-- Metadata de Verificación General -->
-                    <div class="grid grid-cols-3 gap-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="grid grid-cols-3 gap-6 bg-card-sec p-4 rounded-2xl border border-sec shadow-sm">
                         <div class="flex flex-col">
                             <label class="label-prime">Técnico Evaluador</label>
                             <select v-model="form.id_tecnico_verificacion" class="form-input-prime">
@@ -147,7 +147,7 @@
                         </div>
                         <div class="flex flex-col">
                             <label class="label-prime">Nivel de Prioridad <span class="text-red-500 font-black">*</span></label>
-                            <select v-model="form.nivel_urgencia" class="form-input-prime font-black uppercase text-amber-700">
+                            <select v-model="form.nivel_urgencia" class="form-input-prime font-black uppercase text-amber-700 dark:text-amber-400">
                                 <option value="Baja">🟢 Baja</option>
                                 <option value="Intermedia">🟡 Intermedia</option>
                                 <option value="Alta">🔴 Alta</option>
@@ -157,18 +157,18 @@
 
                     <!-- Listado Dinámico de Árboles -->
                     <div class="space-y-4">
-                        <h5 class="text-[9px] font-black text-slate-500 uppercase tracking-wider ml-1">Árboles Registrados</h5>
+                        <h5 class="text-[9px] font-black text-muted uppercase tracking-wider ml-1">Árboles Registrados</h5>
                         
                         <div v-for="(arb, index) in form.arboles" :key="index" 
-                            class="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm space-y-4 hover:border-amber-200 transition-all relative">
+                            class="p-5 bg-card-sec border border-sec rounded-2xl shadow-sm space-y-4 hover:border-amber-200 transition-all relative">
                             
                             <!-- Cabecera de la Tarjeta del Árbol -->
-                            <div class="flex justify-between items-center border-b border-slate-50 pb-2">
-                                <span class="text-[11px] font-black text-emerald-800 uppercase tracking-widest">
+                            <div class="flex justify-between items-center border-b border-sec pb-2">
+                                <span class="text-[11px] font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-widest">
                                     🌲 Árbol #{{ index + 1 }} {{ index === 0 ? '(Principal)' : '' }}
                                 </span>
                                 <button v-if="index > 0" type="button" @click="removeArbol(index)" 
-                                    class="px-2.5 py-1 text-[9px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-all uppercase tracking-wider flex items-center gap-1">
+                                    class="px-2.5 py-1 text-[9px] font-bold text-red-500 hover:text-red-700 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-all uppercase tracking-wider flex items-center gap-1 cursor-pointer">
                                     <Trash2 class="w-3 h-3" /> Eliminar
                                 </button>
                             </div>
@@ -206,14 +206,14 @@
 
                         <!-- Botón para añadir árbol -->
                         <button type="button" @click="addArbol" 
-                            class="w-full py-3 bg-amber-50 hover:bg-amber-100/75 border-2 border-dashed border-amber-300 hover:border-amber-400 text-amber-800 font-black rounded-2xl text-[10px] tracking-widest uppercase transition-all flex items-center justify-center gap-2">
+                            class="w-full py-3 bg-card-sec hover:bg-accent-soft border-2 border-dashed border-sec hover:border-accent text-main hover:text-accent font-black rounded-2xl text-[10px] tracking-widest uppercase transition-all flex items-center justify-center gap-2 cursor-pointer">
                             <Plus class="w-4 h-4" />
                             <span>Añadir otro árbol</span>
                         </button>
                     </div>
 
                     <!-- Detalles de la Verificación Técnica General -->
-                    <div class="flex flex-col bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="flex flex-col bg-card-sec p-4 rounded-2xl border border-sec shadow-sm">
                         <label class="label-prime">Detalles de la Verificación Técnica General</label>
                         <textarea v-model="form.observacion_verificacion" @input="capFirst($event, form, 'observacion_verificacion')" rows="2" class="form-input-prime resize-none" 
                             placeholder="Ej: Requiere plataforma por altura, coordinar con SETAR..."></textarea>
@@ -221,9 +221,9 @@
                 </div>
 
                 <!-- SECCIÓN 04: LOGÍSTICA -->
-                <div class="p-6 bg-slate-50 border border-slate-100 border-l-[6px] border-l-slate-400 rounded-xl shadow-sm">
-                    <h4 class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                        <Wrench class="w-4 h-4 text-slate-500" /> 04. Apoyo Logístico
+                <div class="p-6 bg-card-sec border border-sec border-l-[6px] border-l-slate-400 rounded-xl shadow-sm">
+                    <h4 class="text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <Wrench class="w-4 h-4 text-muted" /> 04. Apoyo Logístico
                     </h4>
                     <div class="grid grid-cols-4 gap-4">
                         <label v-for="l in [
@@ -239,11 +239,11 @@
                             class="relative flex flex-col items-center justify-center p-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 select-none group"
                             :class="form[l.k] 
                                 ? `border-${l.color}-500 bg-${l.color}-500 text-white scale-[1.08] shadow-lg z-10` 
-                                : `border-white bg-white text-slate-400 hover:border-${l.color}-200 shadow-sm`">
+                                : `border-sec bg-card-main text-muted hover:border-${l.color}-200 shadow-sm`">
                             
                             <span class="text-[10px] font-black uppercase mb-2">{{ l.lbl }}</span>
                             <div class="w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all"
-                                :class="form[l.k] ? 'bg-white border-white' : 'bg-slate-50 border-slate-100'">
+                                :class="form[l.k] ? 'bg-white border-white' : 'bg-card-sec border-sec'">
                                 <svg v-if="form[l.k]" class="w-4 h-4 font-black" :class="`text-${l.color}-600`" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
                                 <input type="checkbox" v-model="form[l.k]" class="hidden">
                             </div>
@@ -253,13 +253,13 @@
 
                 <!-- SECCIÓN 05: CIERRE -->
                 <div class="p-6 bg-purple-50 border border-purple-100 border-l-[6px] border-l-purple-500 rounded-xl shadow-sm">
-                    <h4 class="text-[10px] font-black text-purple-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <h4 class="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                         <CheckCircle2 class="w-4 h-4 text-purple-500" /> 05. Ejecución y Cierre
                     </h4>
                     <div class="grid grid-cols-3 gap-6">
                         <div class="col-span-1 flex flex-col">
                             <label class="label-prime">Estado de Solicitud <span class="text-red-500 font-black">*</span></label>
-                            <select v-model="form.estado_tramite" class="form-input-prime font-black uppercase text-emerald-600">
+                            <select v-model="form.estado_tramite" class="form-input-prime font-black uppercase text-emerald-600 dark:text-emerald-400">
                                 <option value="En espera">🟡 En espera</option>
                                 <option value="Terminado">🟢 Terminado</option>
                             </select>
@@ -284,8 +284,8 @@
 
                 <!-- Footer -->
                 <div class="flex gap-4 pt-4 pb-2">
-                    <button type="button" @click="cerrar" class="flex-1 px-4 py-4 rounded-2xl border-2 border-gray-100 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:bg-gray-50 transition-all">Cancelar</button>
-                    <button type="submit" class="flex-[2] px-8 py-4 rounded-2xl bg-emerald-600 text-white font-black uppercase text-[10px] tracking-widest hover:bg-emerald-700 shadow-xl shadow-emerald-200 transition-all active:scale-95">
+                    <button type="button" @click="cerrar" class="flex-1 px-4 py-4 rounded-2xl border-2 border-main text-muted font-black uppercase text-[10px] tracking-widest hover:bg-card-sec transition-all cursor-pointer">Cancelar</button>
+                    <button type="submit" class="flex-[2] px-8 py-4 rounded-2xl bg-emerald-600 text-white font-black uppercase text-[10px] tracking-widest hover:bg-emerald-700 shadow-xl shadow-emerald-950/20 transition-all active:scale-95 cursor-pointer">
                         {{ uiState.editData ? 'Actualizar Expediente' : 'Registrar Solicitud' }}
                     </button>
                 </div>
@@ -720,10 +720,16 @@ const handleGuardar = async () => {
 
 <style scoped>
 @reference "tailwindcss";
-.label-prime { @apply text-sm font-semibold text-slate-700 mb-1.5 ml-1 flex items-center gap-1; }
+.label-prime {
+    @apply text-sm font-semibold mb-1.5 ml-1 flex items-center gap-1;
+    color: var(--text-main);
+}
 .form-input-prime {
-    @apply w-full px-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-800 
+    @apply w-full px-4 py-3 rounded-xl text-sm font-bold 
            outline-none transition-all focus:ring-4 focus:ring-emerald-500/10 shadow-sm;
+    background-color: var(--input-bg) !important;
+    border: 2px solid var(--border) !important;
+    color: var(--text-main) !important;
 }
 .animate-prime-in {
     animation: primePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -769,4 +775,15 @@ const handleGuardar = async () => {
 .custom-scrollbar::-webkit-scrollbar { width: 5px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
+
+/* Theme Adaptive Overrides for colored blocks */
+:global(.theme-black) .bg-blue-50 { background-color: rgba(59, 130, 246, 0.1) !important; border-color: rgba(59, 130, 246, 0.2) !important; }
+:global(.theme-black) .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+:global(.theme-black) .bg-amber-50 { background-color: rgba(245, 158, 11, 0.1) !important; border-color: rgba(245, 158, 11, 0.2) !important; }
+:global(.theme-black) .bg-purple-50 { background-color: rgba(139, 92, 246, 0.1) !important; border-color: rgba(139, 92, 246, 0.2) !important; }
+
+:global(.theme-colors) .bg-blue-50 { background-color: rgba(30, 144, 255, 0.08) !important; border-color: rgba(30, 144, 255, 0.15) !important; }
+:global(.theme-colors) .bg-emerald-50 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
+:global(.theme-colors) .bg-amber-50 { background-color: rgba(245, 158, 11, 0.08) !important; border-color: rgba(245, 158, 11, 0.15) !important; }
+:global(.theme-colors) .bg-purple-50 { background-color: rgba(139, 92, 246, 0.08) !important; border-color: rgba(139, 92, 246, 0.15) !important; }
 </style>
