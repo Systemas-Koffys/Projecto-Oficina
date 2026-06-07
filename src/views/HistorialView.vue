@@ -9,6 +9,7 @@ import {
     Zap, Leaf, MailOpen, Wrench, AlertTriangle, 
     CheckCircle2, ClipboardList 
 } from 'lucide-vue-next'
+import EmptyState from '../components/EmptyState.vue'
 
 const solicitudSeleccionada = ref(null)
 
@@ -334,8 +335,8 @@ const formatLoDeterminado = (sol) => {
                         </thead>
                         <tbody>
                             <tr v-if="solicitudesPaginadas.length === 0">
-                                <td colspan="9" class="empty-state text-center p-8">
-                                    No hay trámites terminados que coincidan.
+                                <td colspan="9" class="p-8">
+                                    <EmptyState message="No hay trámites terminados" description="Modifica los filtros de fecha o barrio para encontrar solicitudes archivadas." />
                                 </td>
                             </tr>
                             <tr v-for="sol in solicitudesPaginadas" :key="sol.id_solicitud">

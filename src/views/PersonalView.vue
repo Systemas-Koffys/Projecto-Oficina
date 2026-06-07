@@ -118,6 +118,11 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr v-if="filteredPersonal.length === 0">
+                            <td colspan="7" class="p-8">
+                                <EmptyState message="No se encontró personal" description="Verifica el nombre o cargo ingresado en el buscador." />
+                            </td>
+                        </tr>
                         <tr v-for="(p, index) in filteredPersonal" :key="p.id" class="bg-card-sec hover:bg-accent-soft transition-all group">
                             <td class="px-6 py-4 rounded-l-2xl border-y border-l border-main text-center font-black text-muted text-sm">
                                 {{ index + 1 }}
@@ -514,6 +519,7 @@ import {
     Eye, Pencil, Trash2, X, AlertTriangle, Info, UserMinus, ShieldAlert,
     Sprout, Wrench
 } from 'lucide-vue-next'
+import EmptyState from '../components/EmptyState.vue'
 
 const search = ref('')
 const showModal = ref(false)

@@ -9,6 +9,7 @@ import {
     Zap, Leaf, MailOpen, Wrench, AlertTriangle, 
     CheckCircle2, ClipboardList 
 } from 'lucide-vue-next'
+import EmptyState from '../components/EmptyState.vue'
 
 const solicitudSeleccionada = ref(null)
 
@@ -349,8 +350,8 @@ const formatLoDeterminado = (sol) => {
                         </thead>
                         <tbody>
                             <tr v-if="solicitudesPaginadas.length === 0">
-                                <td colspan="9" class="empty-state text-center p-8">
-                                    No hay solicitudes aún o no coinciden con la búsqueda.
+                                <td colspan="9" class="p-8">
+                                    <EmptyState message="No hay solicitudes en espera" description="Intenta ajustar los criterios de búsqueda o registra una nueva solicitud." />
                                 </td>
                             </tr>
                             <tr v-for="sol in solicitudesPaginadas" :key="sol.id_solicitud">

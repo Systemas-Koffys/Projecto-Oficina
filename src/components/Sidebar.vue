@@ -245,4 +245,71 @@ const logout = () => {
     background: linear-gradient(180deg, #064e3b 0%, #022c22 100%);
     border-right: 1px solid rgba(255,255,255,0.05);
 }
+
+/* ==========================================
+   MICRO-ANIMACIONES EN ICONOS DE NAVEGACIÓN
+   ========================================== */
+.nav-item .nav-icon svg {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Dashboard - LayoutDashboard */
+.nav-item:hover svg.lucide-layout-dashboard {
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* Solicitudes - ClipboardList */
+.nav-item:hover svg.lucide-clipboard-list {
+    transform: translateY(-2.5px) scale(1.05);
+}
+
+/* Mapa - Map */
+.nav-item:hover svg.lucide-map {
+    transform: scale(1.12) rotate(-8deg);
+}
+
+/* Historial - History */
+.nav-item:hover svg.lucide-history {
+    transform: rotate(-45deg) scale(1.05);
+}
+
+/* Reportes - BarChart3 */
+.nav-item:hover svg.lucide-bar-chart3 {
+    transform: scaleY(1.22) scaleX(1.05);
+}
+
+/* Calendario - Calendar */
+.nav-item:hover svg.lucide-calendar {
+    transform: translateY(-2.5px) rotate(6deg);
+}
+
+/* Personal - Users2 */
+.nav-item:hover svg.lucide-users2 {
+    transform: scale(1.16);
+}
+
+/* Equipos - Truck */
+.nav-item:hover svg.lucide-truck {
+    transform: translateX(4px) scale(1.05);
+}
+
+/* Usuarios - ShieldCheck */
+.nav-item:hover svg.lucide-shield-check {
+    transform: scale(1.12) rotate(-5deg);
+}
+
+/* Configuraciones - Settings */
+.nav-item:hover svg.lucide-settings {
+    transform: rotate(90deg);
+}
+
+/* Acerca de - Info */
+.nav-item:hover svg.lucide-info {
+    transform: scale(1.16) rotate(12deg);
+}
+
+/* Salir - LogOut */
+.nav-item:hover svg.lucide-log-out {
+    transform: translateX(-3.5px);
+}
 </style>
