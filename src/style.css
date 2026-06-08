@@ -261,6 +261,15 @@ svg { stroke: currentColor; }
     to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+/* Cabecera roja de peligro para modales de eliminación */
+.modal-header-danger {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%) !important;
+    color: #ffffff !important;
+}
+.modal-header-danger * {
+    color: #ffffff !important;
+}
+
 /* clases de utilidad temáticas */
 .bg-card-main { background-color: var(--bg-card) !important; }
 .bg-card-sec { background-color: var(--bg-card-sec) !important; }
