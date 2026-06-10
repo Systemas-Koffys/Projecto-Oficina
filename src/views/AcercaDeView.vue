@@ -93,70 +93,37 @@
           </div>
         </div>
 
-        <!-- Historial de Versiones (Changelog) -->
+        <!-- Privacidad y Políticas -->
         <div class="bg-card-main p-8 rounded-[2rem] shadow-sm border border-main">
           <h2 class="text-lg font-black text-main mb-6 flex items-center gap-3">
             <div class="w-8 h-8 bg-accent-soft text-accent rounded-xl flex items-center justify-center">
-              <History size="18" />
+              <Book size="18" />
             </div>
-            Evolución del Sistema (Changelog)
+            Políticas de Privacidad y Términos
           </h2>
-          <div class="space-y-0">
-             <!-- Versión 3.25 -->
+          <div class="space-y-4">
              <div class="flex gap-4">
-               <div class="w-12 text-right shrink-0 pt-0.5">
-                 <span class="text-xs font-black text-main">v3.25</span>
-                 <p class="text-[9px] text-accent font-bold uppercase mt-0.5">Actual</p>
+               <div class="w-10 text-right shrink-0 pt-0.5">
+                 <ShieldCheck size="18" class="text-accent ml-auto" />
                </div>
-               <div class="relative pl-6 border-l-2 border-accent/30 pb-6">
-                 <span class="absolute -left-1.5 top-1.5 w-2.5 h-2.5 bg-accent rounded-full ring-4 ring-[color:var(--bg-card)]"></span>
-                 <p class="text-xs font-black text-main mb-1">Filtros Geográficos e Inteligencia</p>
-                 <p class="text-[11px] text-muted font-semibold leading-relaxed">Implementación de panel de control avanzado en el mapa para cruzar datos por fechas, niveles de urgencia y logística técnica. Preparación estructural para zonas de calor.</p>
+               <div class="relative pl-4 border-l-2 border-border pb-2">
+                 <p class="text-xs font-black text-main mb-1">Privacidad de Datos</p>
+                 <p class="text-[11px] text-muted font-semibold leading-relaxed">Toda la información contenida en este sistema, incluyendo la ubicación geográfica, imágenes y datos operativos, es de carácter institucional estricto. Está prohibida la extracción masiva o distribución a terceros sin autorización formal.</p>
                </div>
              </div>
              
-             <!-- Versión 3.20 -->
              <div class="flex gap-4">
-               <div class="w-12 text-right shrink-0 pt-0.5">
-                 <span class="text-xs font-black text-main opacity-60">v3.20</span>
+               <div class="w-10 text-right shrink-0 pt-0.5">
+                 <Scale size="18" class="text-accent ml-auto" />
                </div>
-               <div class="relative pl-6 border-l-2 border-border pb-6">
-                 <span class="absolute -left-1.5 top-1.5 w-2.5 h-2.5 bg-border rounded-full ring-4 ring-[color:var(--bg-card)]"></span>
-                 <p class="text-xs font-black text-main mb-1 opacity-80">Rediseño UI "Aurora" y Optimización</p>
-                 <p class="text-[11px] text-muted font-semibold leading-relaxed">Nueva pantalla de inicio de sesión con animación fluida. Corrección en la generación de reportes PDF A4 para evitar cortes de texto en impresiones masivas.</p>
-               </div>
-             </div>
-
-             <!-- Versión 3.00 -->
-             <div class="flex gap-4">
-               <div class="w-12 text-right shrink-0 pt-0.5">
-                 <span class="text-xs font-black text-main opacity-60">v3.00</span>
-               </div>
-               <div class="relative pl-6 border-l-2 border-transparent">
-                 <span class="absolute -left-1.5 top-1.5 w-2.5 h-2.5 bg-border rounded-full ring-4 ring-[color:var(--bg-card)]"></span>
-                 <p class="text-xs font-black text-main mb-1 opacity-80">Lanzamiento Base (Núcleo)</p>
-                 <p class="text-[11px] text-muted font-semibold leading-relaxed">Tablero Canvas Drag & Drop para gestión de cuadrillas, sistema de autenticación cifrado y base de datos relacional para árboles y ubicaciones.</p>
+               <div class="relative pl-4 border-l-2 border-border pb-2">
+                 <p class="text-xs font-black text-main mb-1">Derechos Reservados</p>
+                 <p class="text-[11px] text-muted font-semibold leading-relaxed">La arquitectura del software, flujos de diseño UI/UX y el código fuente original son propiedad intelectual de los desarrolladores. Todos los derechos reservados. El uso del sistema implica la aceptación de estas condiciones operativas.</p>
                </div>
              </div>
           </div>
         </div>
 
-        <!-- Stack Tecnológico Expandido -->
-        <div class="bg-card-main p-8 rounded-[2rem] border border-main shadow-sm">
-          <h3 class="text-sm font-black text-main uppercase tracking-widest mb-5 flex items-center gap-2">
-            <Code size="16" class="text-accent" />
-            Stack Tecnológico a Detalle
-          </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div v-for="tech in techs" :key="tech.n" class="bg-card-sec p-3.5 rounded-xl border border-main flex gap-3 items-center hover:border-accent/30 transition-colors">
-               <div class="w-1.5 h-full rounded-full shrink-0" :class="tech.c"></div>
-               <div>
-                 <p class="text-[11px] font-black text-main uppercase tracking-wider mb-0.5">{{ tech.n }}</p>
-                 <p class="text-[10px] text-muted font-semibold leading-tight">{{ tech.d }}</p>
-               </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Columna Lateral (Derecha) -->
@@ -271,12 +238,29 @@
         </div>
       </div>
     </div>
+
+    <!-- Stack Tecnológico (Ancho Completo) -->
+    <div class="bg-card-main p-8 rounded-[2rem] border border-main shadow-sm">
+      <h3 class="text-sm font-black text-main uppercase tracking-widest mb-5 flex items-center gap-2">
+        <Code size="16" class="text-accent" />
+        Stack Tecnológico e Infraestructura Base
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div v-for="tech in techs" :key="tech.n" class="bg-card-sec p-4 rounded-xl border border-main flex flex-col gap-2 hover:border-accent/30 transition-colors">
+           <div class="flex items-center gap-2">
+             <div class="w-2.5 h-2.5 rounded-full shrink-0" :class="tech.c"></div>
+             <p class="text-xs font-black text-main uppercase tracking-wider">{{ tech.n }}</p>
+           </div>
+           <p class="text-[11px] text-muted font-semibold leading-relaxed">{{ tech.d }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useMainStore } from '../store/mainStore.js'
-import { Info, FileText, MapPin, Users, ShieldCheck, Code, Phone, Mail, Linkedin, Github, CheckCircle, History } from 'lucide-vue-next'
+import { Info, FileText, MapPin, Users, ShieldCheck, Code, Phone, Mail, Linkedin, Github, CheckCircle, Book, Scale } from 'lucide-vue-next'
 import logoKoffys from '../assets/logo-koffys.png'
 
 const mainStore = useMainStore()
