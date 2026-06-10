@@ -78,13 +78,17 @@
             <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
           </select>
         </div>
-        <!-- Select: SETAR -->
+        <!-- Select: Condición Especial -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Requerimiento Especial</label>
+          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Condición Especial</label>
           <select v-model="filtros.setar" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
             <option value="todos">Sin Filtro Especial</option>
-            <option value="1">Requiere Corte SETAR</option>
-            <option value="plataforma">Requiere Grúa/Plataforma</option>
+            <option value="setar">⚡ Requiere Corte SETAR</option>
+            <option value="plataforma">🏗️ Requiere Grúa/Plataforma</option>
+            <option value="ficha_tecnica">📋 Requiere Ficha Técnica</option>
+            <option value="arbol_seco">🌵 Es Árbol Seco</option>
+            <option value="segunda_nota">✉️ Tiene Segunda Nota</option>
+            <option value="procede">✅ Trabajo Procedente</option>
           </select>
         </div>
         <!-- Select: Prioridad -->
@@ -92,8 +96,27 @@
           <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Nivel de Urgencia</label>
           <select v-model="filtros.prioridad" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
             <option value="todos">Todas las Prioridades</option>
-            <option value="urgencia">🚨 Emergencias / Riesgo</option>
-            <option value="normal">Prioridad Normal</option>
+            <option value="Alta">🔴 Prioridad Alta / Emergencia</option>
+            <option value="Intermedia">🟡 Prioridad Intermedia</option>
+            <option value="Baja">🟢 Prioridad Baja (Normal)</option>
+          </select>
+        </div>
+        <!-- Select: Fechas -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Rango de Fechas</label>
+          <select v-model="filtros.tiempo" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+            <option value="todos">Todos los Tiempos</option>
+            <option value="mes">📅 Este Mes</option>
+            <option value="semana">📆 Últimos 7 Días</option>
+            <option value="hoy">🕒 Solo Hoy</option>
+          </select>
+        </div>
+        <!-- Select: Técnico -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Técnico Asignado</label>
+          <select v-model="filtros.tecnico" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+            <option value="todos">Todos los Técnicos</option>
+            <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
           </select>
         </div>
       </div>
@@ -554,7 +577,9 @@ const filtros = reactive({
   barrio: 'todos',
   accion: 'todos',
   setar: 'todos',
-  prioridad: 'todos'
+  prioridad: 'todos',
+  tiempo: 'todos',
+  tecnico: 'todos'
 })
 
 // Al cambiar el distrito, resetear el barrio
@@ -594,17 +619,46 @@ const geolocalizadas = computed(() => {
       if (!matchAccion) return false
     }
 
-    // 4. Filtro Requerimientos (SETAR / Grúa)
+    // 4. Filtro Requerimientos Especiales (Etiquetas Booleanas)
     if (filtros.setar !== 'todos') {
-      if (filtros.setar === '1' && !s.requiere_setar) return false
+      if (filtros.setar === 'setar' && !s.requiere_setar) return false
       if (filtros.setar === 'plataforma' && !s.requiere_plataforma) return false
+      if (filtros.setar === 'ficha_tecnica' && !s.requiere_ficha_tecnica) return false
+      if (filtros.setar === 'arbol_seco' && !s.arbol_seco) return false
+      if (filtros.setar === 'segunda_nota' && !s.segunda_nota) return false
+      if (filtros.setar === 'procede' && !s.procede) return false
     }
 
-    // 5. Filtro Prioridad
+    // 5. Filtro Prioridad / Urgencia
     if (filtros.prioridad !== 'todos') {
-      const esUrgente = s.es_emergencia || s.es_urgencia || s.nivel_urgencia === 'Alta'
-      if (filtros.prioridad === 'urgencia' && !esUrgente) return false
-      if (filtros.prioridad === 'normal' && esUrgente) return false
+      // Mapear la lógica a Alta, Intermedia, Baja
+      let nivel = s.nivel_urgencia;
+      if (!nivel) {
+        // Fallback si no tiene nivel
+        if (s.es_emergencia || s.es_urgencia) nivel = 'Alta';
+        else nivel = 'Baja';
+      }
+      if (nivel !== filtros.prioridad && !(filtros.prioridad === 'Alta' && (s.es_emergencia || s.es_urgencia))) return false;
+    }
+
+    // 6. Filtro Técnico Asignado
+    if (filtros.tecnico !== 'todos') {
+      if (s.id_tecnico_asignado != filtros.tecnico) return false
+    }
+
+    // 7. Filtro de Tiempo
+    if (filtros.tiempo !== 'todos') {
+      const fechaSol = new Date(s.fecha_creacion || s.fecha_solicitud || Date.now());
+      const now = new Date();
+      if (filtros.tiempo === 'hoy') {
+        if (fechaSol.toDateString() !== now.toDateString()) return false;
+      } else if (filtros.tiempo === 'semana') {
+        const diffTime = Math.abs(now - fechaSol);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        if (diffDays > 7) return false;
+      } else if (filtros.tiempo === 'mes') {
+        if (fechaSol.getMonth() !== now.getMonth() || fechaSol.getFullYear() !== now.getFullYear()) return false;
+      }
     }
 
     return true
