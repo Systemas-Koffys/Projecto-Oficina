@@ -101,24 +101,22 @@
             <option value="Baja">🟢 Prioridad Baja (Normal)</option>
           </select>
         </div>
-        <!-- Select: Fechas -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Rango de Fechas</label>
-          <select v-model="filtros.tiempo" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
-            <option value="todos">Todos los Tiempos</option>
-            <option value="mes">📅 Este Mes</option>
-            <option value="semana">📆 Últimos 7 Días</option>
-            <option value="hoy">🕒 Solo Hoy</option>
-          </select>
+        <!-- Select: Fechas (Rango) -->
+        <div class="flex flex-col gap-1.5 col-span-2">
+          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Rango de Fechas (Ingreso)</label>
+          <div class="flex items-center gap-2">
+            <input type="date" v-model="filtros.fecha_inicio" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer w-full" />
+            <span class="text-muted font-bold text-xs">a</span>
+            <input type="date" v-model="filtros.fecha_fin" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer w-full" />
+          </div>
         </div>
-        <!-- Select: Técnico -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Técnico Asignado</label>
-          <select v-model="filtros.tecnico" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
-            <option value="todos">Todos los Técnicos</option>
-            <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
-          </select>
-        </div>
+      </div>
+      
+      <!-- Botón Limpiar -->
+      <div v-if="mostrarFiltros" class="flex justify-end pt-2 animate-prime-in">
+        <button @click="limpiarFiltros" class="text-xs font-bold text-muted hover:text-red-500 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-red-500/10">
+          ✕ Limpiar todos los filtros
+        </button>
       </div>
     </div>
 
@@ -578,14 +576,25 @@ const filtros = reactive({
   accion: 'todos',
   setar: 'todos',
   prioridad: 'todos',
-  tiempo: 'todos',
-  tecnico: 'todos'
+  fecha_inicio: '',
+  fecha_fin: ''
 })
 
 // Al cambiar el distrito, resetear el barrio
 watch(() => filtros.distrito, () => {
   filtros.barrio = 'todos'
 })
+
+const limpiarFiltros = () => {
+  filtros.estado = 'todos'
+  filtros.distrito = 'todos'
+  filtros.barrio = 'todos'
+  filtros.accion = 'todos'
+  filtros.setar = 'todos'
+  filtros.prioridad = 'todos'
+  filtros.fecha_inicio = ''
+  filtros.fecha_fin = ''
+}
 
 const geolocalizadas = computed(() => {
   return store.solicitudes.filter(s => {
@@ -641,23 +650,22 @@ const geolocalizadas = computed(() => {
       if (nivel !== filtros.prioridad && !(filtros.prioridad === 'Alta' && (s.es_emergencia || s.es_urgencia))) return false;
     }
 
-    // 6. Filtro Técnico Asignado
-    if (filtros.tecnico !== 'todos') {
-      if (s.id_tecnico_asignado != filtros.tecnico) return false
-    }
+    // 6. Filtro de Rango de Fechas (Ingreso)
+    if (filtros.fecha_inicio || filtros.fecha_fin) {
+      const fechaSolStr = s.fecha_creacion || s.fecha_solicitud;
+      if (!fechaSolStr) return false; // Si no tiene fecha, lo excluimos si hay filtro
+      const fechaSol = new Date(fechaSolStr);
+      // Poner fechaSol a inicio del día en hora local para comparación justa
+      fechaSol.setHours(0, 0, 0, 0);
 
-    // 7. Filtro de Tiempo
-    if (filtros.tiempo !== 'todos') {
-      const fechaSol = new Date(s.fecha_creacion || s.fecha_solicitud || Date.now());
-      const now = new Date();
-      if (filtros.tiempo === 'hoy') {
-        if (fechaSol.toDateString() !== now.toDateString()) return false;
-      } else if (filtros.tiempo === 'semana') {
-        const diffTime = Math.abs(now - fechaSol);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-        if (diffDays > 7) return false;
-      } else if (filtros.tiempo === 'mes') {
-        if (fechaSol.getMonth() !== now.getMonth() || fechaSol.getFullYear() !== now.getFullYear()) return false;
+      if (filtros.fecha_inicio) {
+        const fInicio = new Date(filtros.fecha_inicio + 'T00:00:00');
+        if (fechaSol < fInicio) return false;
+      }
+      
+      if (filtros.fecha_fin) {
+        const fFin = new Date(filtros.fecha_fin + 'T23:59:59');
+        if (fechaSol > fFin) return false;
       }
     }
 
