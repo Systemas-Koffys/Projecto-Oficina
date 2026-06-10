@@ -181,9 +181,9 @@ input:focus {
 }
 
 /* UTILIDADES DE TEXTO */
-.text-main { color: var(--text-main) !important; }
-.text-muted { color: var(--text-muted) !important; }
-.text-accent { color: var(--accent) !important; }
+.text-main { color: var(--text-main); }
+.text-muted { color: var(--text-muted); }
+.text-accent { color: var(--accent); }
 
 /* ICONOS SVGS */
 svg { stroke: currentColor; }
@@ -271,12 +271,12 @@ svg { stroke: currentColor; }
 }
 
 /* clases de utilidad temáticas */
-.bg-card-main { background-color: var(--bg-card) !important; }
-.bg-card-sec { background-color: var(--bg-card-sec) !important; }
-.bg-app-main { background-color: var(--bg-app) !important; }
-.border-main { border-color: var(--border) !important; }
-.border-sec { border-color: var(--border-sec) !important; }
-.bg-accent-soft { background-color: var(--accent-soft) !important; }
+.bg-card-main { background-color: var(--bg-card); }
+.bg-card-sec { background-color: var(--bg-card-sec); }
+.bg-app-main { background-color: var(--bg-app); }
+.border-main { border-color: var(--border); }
+.border-sec { border-color: var(--border-sec); }
+.bg-accent-soft { background-color: var(--accent-soft); }
 
 /* CABECERAS DE MODALES ADAPTATIVAS */
 .modal-header-gradient {
