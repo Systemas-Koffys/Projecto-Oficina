@@ -1,38 +1,100 @@
 <template>
   <div class="h-full flex flex-col gap-6">
     <!-- Panel de Filtros Map -->
-    <div class="card p-6 flex items-center justify-between no-print">
-      <div class="flex items-center gap-4">
-        <div class="p-3 bg-accent/10 rounded-2xl">
-          <MapPin class="text-accent" size="24" />
+    <div class="card p-6 flex flex-col gap-5 no-print relative z-10">
+      <!-- Fila Superior: Título y Estadísticas Rápidas -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="p-3 bg-accent/10 rounded-2xl">
+            <MapPin class="text-accent" size="24" />
+          </div>
+          <div>
+            <h3 class="font-black text-lg text-main">Visor Geográfico</h3>
+            <p class="text-xs text-muted font-bold uppercase tracking-widest">Monitoreo territorial de solicitudes</p>
+          </div>
         </div>
-        <div>
-          <h3 class="font-black text-lg">Visor Geográfico</h3>
-          <p class="text-xs text-muted font-bold uppercase tracking-widest">Monitoreo territorial de solicitudes</p>
-        </div>
-      </div>
-      
-      <div class="flex gap-3">
-        <!-- Selector de Capas Premium -->
-        <div class="flex bg-card p-1 rounded-xl border border-border shadow-sm mr-4">
-          <button 
-            v-for="layer in layers" 
-            :key="layer.id"
-            @click="setLayer(layer.id)"
-            class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all"
-            :class="currentLayer === layer.id ? 'bg-accent text-white' : 'text-muted hover:bg-accent/10'"
-          >
-            {{ layer.name }}
+        
+        <div class="flex gap-3 items-center">
+          <!-- Selector de Capas Premium -->
+          <div class="flex bg-card-main p-1 rounded-xl border border-main shadow-sm mr-2 hidden md:flex">
+            <button 
+              v-for="layer in layers" 
+              :key="layer.id"
+              @click="setLayer(layer.id)"
+              class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all"
+              :class="currentLayer === layer.id ? 'bg-accent text-[color:var(--text-on-accent)] shadow-md' : 'text-muted hover:bg-accent/10'"
+            >
+              {{ layer.name }}
+            </button>
+          </div>
+
+          <div class="bg-card-main px-4 py-2 rounded-xl border border-main flex items-center gap-3 shadow-sm">
+            <span class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></span>
+            <span class="text-xs font-black text-main">{{ stats.pendientes }} Pend.</span>
+          </div>
+          <div class="bg-card-main px-4 py-2 rounded-xl border border-main flex items-center gap-3 shadow-sm">
+            <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            <span class="text-xs font-black text-main">{{ stats.ejecutadas }} Ejec.</span>
+          </div>
+          
+          <button @click="mostrarFiltros = !mostrarFiltros" class="bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg active:scale-95 ml-2">
+            <Filter class="w-4 h-4" /> Filtros
           </button>
         </div>
+      </div>
 
-        <div class="bg-card px-4 py-2 rounded-xl border border-border flex items-center gap-3">
-          <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
-          <span class="text-xs font-black">Pendientes ({{ stats.pendientes }})</span>
+      <!-- Fila Inferior: Filtros (Ocultable) -->
+      <div v-if="mostrarFiltros" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 pt-4 border-t border-main animate-prime-in">
+        <!-- Select: Estado -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Estado del Trámite</label>
+          <select v-model="filtros.estado" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+            <option value="todos">Todos los Estados</option>
+            <option value="Pendiente">Solo Pendientes</option>
+            <option value="Terminado">Solo Ejecutados</option>
+          </select>
         </div>
-        <div class="bg-card px-4 py-2 rounded-xl border border-border flex items-center gap-3">
-          <span class="w-3 h-3 rounded-full bg-green-500"></span>
-          <span class="text-xs font-black">Ejecutadas ({{ stats.ejecutadas }})</span>
+        <!-- Select: Distrito -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Distrito</label>
+          <select v-model="filtros.distrito" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+            <option value="todos">Todos los Distritos</option>
+            <option v-for="d in store.distritos" :key="d.id" :value="d.id">{{ d.nombre }}</option>
+          </select>
+        </div>
+        <!-- Select: Barrio -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Barrio / Zona</label>
+          <select v-model="filtros.barrio" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+            <option value="todos">Todos los Barrios</option>
+            <option v-for="b in store.barrios.filter(b => filtros.distrito === 'todos' || b.id_distrito == filtros.distrito)" :key="b.id" :value="b.id">{{ b.nombre }}</option>
+          </select>
+        </div>
+        <!-- Select: Acción Técnica -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Acción Técnica</label>
+          <select v-model="filtros.accion" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+            <option value="todos">Cualquier Acción</option>
+            <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
+          </select>
+        </div>
+        <!-- Select: SETAR -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Requerimiento Especial</label>
+          <select v-model="filtros.setar" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+            <option value="todos">Sin Filtro Especial</option>
+            <option value="1">Requiere Corte SETAR</option>
+            <option value="plataforma">Requiere Grúa/Plataforma</option>
+          </select>
+        </div>
+        <!-- Select: Prioridad -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Nivel de Urgencia</label>
+          <select v-model="filtros.prioridad" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+            <option value="todos">Todas las Prioridades</option>
+            <option value="urgencia">🚨 Emergencias / Riesgo</option>
+            <option value="normal">Prioridad Normal</option>
+          </select>
         </div>
       </div>
     </div>
@@ -384,7 +446,7 @@
 
 <script setup>
 import { onMounted, onUnmounted, reactive, computed, ref, watch } from 'vue'
-import { MapPin } from 'lucide-vue-next'
+import { MapPin, Filter } from 'lucide-vue-next'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState } = mainStore
@@ -485,11 +547,67 @@ const formatLoSolicitado = (sol) => {
   return `${espStr} (${total} árboles)`
 }
 
+const mostrarFiltros = ref(false)
+const filtros = reactive({
+  estado: 'todos',
+  distrito: 'todos',
+  barrio: 'todos',
+  accion: 'todos',
+  setar: 'todos',
+  prioridad: 'todos'
+})
+
+// Al cambiar el distrito, resetear el barrio
+watch(() => filtros.distrito, () => {
+  filtros.barrio = 'todos'
+})
+
 const geolocalizadas = computed(() => {
   return store.solicitudes.filter(s => {
     const lat = parseFloat(s.lat)
     const lng = parseFloat(s.lng)
-    return !isNaN(lat) && !isNaN(lng)
+    if (isNaN(lat) || isNaN(lng)) return false
+
+    // 1. Filtro Estado
+    if (filtros.estado !== 'todos') {
+      if (filtros.estado === 'Pendiente' && s.estado_tramite === 'Terminado') return false
+      if (filtros.estado === 'Terminado' && s.estado_tramite !== 'Terminado') return false
+    }
+
+    // 2. Filtro Barrio y Distrito
+    if (filtros.barrio !== 'todos') {
+      if (s.id_barrio != filtros.barrio) return false
+    } else if (filtros.distrito !== 'todos') {
+      const barrioObj = store.barrios.find(b => b.id == s.id_barrio)
+      if (!barrioObj || barrioObj.id_distrito != filtros.distrito) return false
+    }
+
+    // 3. Filtro Acción Técnica
+    if (filtros.accion !== 'todos') {
+      let matchAccion = false
+      if (s.id_accion_solicitada == filtros.accion) matchAccion = true
+      if (s.arboles && s.arboles.length > 0) {
+        if (s.arboles.some(a => a.id_accion_solicitada == filtros.accion || a.id_accion_realizar == filtros.accion)) {
+          matchAccion = true
+        }
+      }
+      if (!matchAccion) return false
+    }
+
+    // 4. Filtro Requerimientos (SETAR / Grúa)
+    if (filtros.setar !== 'todos') {
+      if (filtros.setar === '1' && !s.requiere_setar) return false
+      if (filtros.setar === 'plataforma' && !s.requiere_plataforma) return false
+    }
+
+    // 5. Filtro Prioridad
+    if (filtros.prioridad !== 'todos') {
+      const esUrgente = s.es_emergencia || s.es_urgencia || s.nivel_urgencia === 'Alta'
+      if (filtros.prioridad === 'urgencia' && !esUrgente) return false
+      if (filtros.prioridad === 'normal' && esUrgente) return false
+    }
+
+    return true
   })
 })
 
