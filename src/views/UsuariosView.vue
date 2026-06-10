@@ -176,13 +176,13 @@ const openNew = () => {
                         <!-- Acciones -->
                         <td v-if="esRoot" class="px-6 py-4 rounded-r-xl border-y border-r border-main">
                             <div class="flex items-center justify-center gap-2">
-                                <button @click="openView(user)" class="w-10 h-10 flex items-center justify-center bg-card-main text-accent border border-main rounded-xl shadow-sm hover:bg-accent hover:text-on-accent transition-all cursor-pointer" title="Mirar">
+                                <button @click="openView(user)" class="w-10 h-10 flex items-center justify-center bg-card-sec text-accent border border-main rounded-xl shadow-sm hover:bg-accent hover:text-[color:var(--text-on-accent)] transition-all cursor-pointer" title="Mirar">
                                     <Eye class="w-5 h-5" />
                                 </button>
-                                <button @click="openEdit(user)" class="w-10 h-10 flex items-center justify-center bg-card-main text-blue-600 border border-main rounded-xl shadow-sm hover:bg-blue-600 hover:text-white transition-all cursor-pointer" title="Editar">
+                                <button @click="openEdit(user)" class="w-10 h-10 flex items-center justify-center bg-card-sec text-blue-600 border border-main rounded-xl shadow-sm hover:bg-blue-600 hover:text-white transition-all cursor-pointer" title="Editar">
                                     <Pencil class="w-5 h-5" />
                                 </button>
-                                <button @click="handleDelete(user.id, user.nombre)" class="w-10 h-10 flex items-center justify-center bg-card-main text-red-500 border border-main rounded-xl shadow-sm hover:bg-red-600 hover:text-white transition-all cursor-pointer" title="Revocar Acceso">
+                                <button @click="handleDelete(user.id, user.nombre)" class="w-10 h-10 flex items-center justify-center bg-card-sec text-red-500 border border-main rounded-xl shadow-sm hover:bg-red-600 hover:text-white transition-all cursor-pointer" title="Revocar Acceso">
                                     <UserMinus class="w-5 h-5" />
                                 </button>
                             </div>
