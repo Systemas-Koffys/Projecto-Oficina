@@ -104,22 +104,22 @@ const openNew = () => {
     <!-- TABLA -->
     <div class="bg-card-main rounded-3xl shadow-sm border border-main overflow-hidden">
         <!-- Header de tabla -->
-        <div class="px-6 py-5 bg-gradient-to-r from-emerald-800 to-emerald-950 flex justify-between items-center">
+        <div class="px-6 py-5 border-b border-main flex justify-between items-center bg-card-main">
             <div>
-                <h3 class="font-black text-white text-lg flex items-center gap-2">
-                    <Users class="w-5 h-5 text-emerald-400" />
+                <h3 class="font-black text-main text-lg flex items-center gap-2">
+                    <Users class="w-5 h-5 text-accent" />
                     Directorio de Usuarios del Sistema
                 </h3>
-                <p class="text-emerald-100/70 text-xs mt-1">Personal autorizado para ingresar al sistema</p>
+                <p class="text-muted text-xs mt-1">Personal autorizado para ingresar al sistema</p>
             </div>
             <button v-if="esRoot" @click="openNew"
-                class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-900/20 transition-all flex items-center gap-2 cursor-pointer">
+                class="px-4 py-2 bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] rounded-xl font-bold text-sm shadow-lg shadow-accent/20 transition-all flex items-center gap-2 cursor-pointer active:scale-95">
                 <Plus class="w-5 h-5" />
                 Habilitar Acceso
             </button>
         </div>
 
-        <div class="overflow-x-auto p-2 bg-emerald-50/30">
+        <div class="overflow-x-auto p-2 bg-card-sec">
             <table class="w-full text-left border-separate border-spacing-y-2">
                 <thead>
                     <tr class="text-muted text-[11px] font-black uppercase tracking-widest">
@@ -201,13 +201,13 @@ const openNew = () => {
         <div class="bg-card-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-md overflow-hidden flex flex-col border border-main animate-prime-in">
             
             <!-- Header Institucional -->
-            <div class="px-8 py-6 bg-gradient-to-r from-emerald-800 to-emerald-950 text-white flex justify-between items-center shadow-lg">
+            <div class="px-8 py-6 bg-card-sec border-b border-main flex justify-between items-center shadow-sm">
                 <div>
-                    <h3 class="font-black text-xl tracking-tight leading-none text-white">Detalles de Cuenta</h3>
-                    <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.3em] mt-2">Seguridad e Identidad</p>
+                    <h3 class="font-black text-xl tracking-tight leading-none text-main">Detalles de Cuenta</h3>
+                    <p class="text-[10px] text-accent font-bold uppercase tracking-[0.3em] mt-2">Seguridad e Identidad</p>
                 </div>
-                <button type="button" @click="viewUser = null" class="hover:bg-white/20 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer">
-                    <X class="w-6 h-6 text-white" />
+                <button type="button" @click="viewUser = null" class="hover:bg-accent/10 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer text-muted hover:text-accent">
+                    <X class="w-6 h-6" />
                 </button>
             </div>
 
@@ -330,9 +330,4 @@ const openNew = () => {
 .fade-confirm-enter-active, .fade-confirm-leave-active { transition: opacity 0.2s ease; }
 .fade-confirm-enter-from, .fade-confirm-leave-to { opacity: 0; }
 
-/* Theme Adaptive Overrides for colored blocks */
-:global(.theme-black) .bg-emerald-50\/30 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-:global(.theme-black) .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-:global(.theme-colors) .bg-emerald-50\/30 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
-:global(.theme-colors) .bg-emerald-50 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
 </style>
