@@ -191,7 +191,7 @@ app.get('/api/catalogos', async (req, res) => {
     const [acciones] = await pool.query('SELECT id_accion AS id, nombre_accion AS nombre, descripcion FROM acciones_catalogo');
     const [especies] = await pool.query('SELECT id_especie AS id, nombre_comun AS nombre, nombre_cientifico FROM especies_arboles');
     const [tipos_institucion] = await pool.query('SELECT id_tipo_solicitante AS id, nombre_tipo AS nombre FROM tipos_solicitantes');
-    const [instituciones] = await pool.query('SELECT id_institucion AS id, id_tipo_solicitante AS id_tipo, nombre_institucion AS nombre FROM instituciones');
+    const [instituciones] = await pool.query('SELECT id_institucion AS id, id_tipo_solicitante AS id_tipo, nombre_institucion AS nombre, id_distrito FROM instituciones');
     const [distritos] = await pool.query('SELECT id_distrito AS id, numero_distrito AS nombre FROM distritos');
     const [barrios] = await pool.query('SELECT id_barrio AS id, nombre_barrio AS nombre, id_distrito FROM barrios');
     res.json({ tecnicos, acciones, especies, tipos_institucion, instituciones, distritos, barrios });

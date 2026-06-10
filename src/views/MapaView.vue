@@ -41,7 +41,7 @@
           <button 
             v-if="mostrarFiltros" 
             @click="limpiarFiltros" 
-            class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-sm active:scale-95"
+            class="bg-card-main text-muted border border-main hover:bg-card-sec hover:text-main px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-sm active:scale-95"
           >
             <X class="w-4 h-4" /> Limpiar
           </button>

@@ -296,7 +296,7 @@ const formatLoDeterminado = (sol) => {
                     <h3 class="text-xs font-black text-muted uppercase tracking-widest flex items-center gap-2">
                         <Filter class="w-4 h-4" /> Filtros de Búsqueda
                     </h3>
-                    <button @click="limpiarFiltros" class="bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-accent/20 transition-all flex items-center gap-2 cursor-pointer active:scale-95">
+                    <button @click="limpiarFiltros" class="bg-card-main text-muted border border-main hover:bg-card-sec hover:text-main px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95">
                         <Trash2 class="w-3.5 h-3.5" />
                         Limpiar Filtros
                     </button>

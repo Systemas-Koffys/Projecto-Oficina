@@ -370,13 +370,13 @@ svg { stroke: currentColor; }
 
 /* Theme Colors (Translucent) */
 .theme-colors .btn-ver { background: rgba(30, 144, 255, 0.1) !important; color: #1e90ff !important; }
-.theme-colors .btn-ver:hover { background: rgba(30, 144, 255, 0.3) !important; color: #fff !important; transform: translateY(-2px); }
+.theme-colors .btn-ver:hover { background: rgba(30, 144, 255, 0.25) !important; color: #1e3a8a !important; transform: translateY(-2px); }
 .theme-colors .btn-print { background: rgba(30, 144, 255, 0.1) !important; color: #1e90ff !important; }
-.theme-colors .btn-print:hover { background: rgba(30, 144, 255, 0.3) !important; color: #fff !important; transform: translateY(-2px); }
+.theme-colors .btn-print:hover { background: rgba(30, 144, 255, 0.25) !important; color: #1e3a8a !important; transform: translateY(-2px); }
 .theme-colors .btn-edit { background: rgba(245, 158, 11, 0.1) !important; color: #f59e0b !important; }
-.theme-colors .btn-edit:hover { background: rgba(245, 158, 11, 0.3) !important; color: #fff !important; transform: translateY(-2px) rotate(5deg); }
+.theme-colors .btn-edit:hover { background: rgba(245, 158, 11, 0.25) !important; color: #78350f !important; transform: translateY(-2px) rotate(5deg); }
 .theme-colors .btn-delete { background: rgba(239, 68, 68, 0.1) !important; color: #ef4444 !important; }
-.theme-colors .btn-delete:hover { background: rgba(239, 68, 68, 0.3) !important; color: #fff !important; transform: translateY(-2px) rotate(-5deg); }
+.theme-colors .btn-delete:hover { background: rgba(239, 68, 68, 0.25) !important; color: #7f1d1d !important; transform: translateY(-2px) rotate(-5deg); }
 
 /* ============================================================
    AURA PULSANTE DE URGENCIA (BADGES DE EMERGENCIA/ALTA)

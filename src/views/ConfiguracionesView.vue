@@ -26,7 +26,8 @@ const categorias = [
     { id: 'distritos', nombre: 'Distritos', icono: Map, campos: [{ key: 'nombre', label: 'Nombre/Número del Distrito', type: 'text' }] },
     { id: 'instituciones', nombre: 'Instituciones', icono: Landmark, campos: [
         { key: 'nombre', label: 'Nombre de la Institución', type: 'text' },
-        { key: 'id_tipo', label: 'Tipo de Institución', type: 'select', options: 'tipos_institucion' }
+        { key: 'id_tipo', label: 'Tipo de Institución', type: 'select', options: 'tipos_institucion' },
+        { key: 'id_distrito', label: 'Distrito', type: 'select', options: 'distritos' }
     ]},
     { id: 'tipos_institucion', nombre: 'Tipos de Institución', icono: Building, campos: [{ key: 'nombre', label: 'Categoría', type: 'text' }] },
     { id: 'personalizacion', nombre: 'Identidad Visual', icono: Palette, tipo: 'especial_logos' },
