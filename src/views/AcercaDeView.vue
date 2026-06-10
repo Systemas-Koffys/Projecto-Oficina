@@ -93,18 +93,68 @@
           </div>
         </div>
 
-        <!-- Stack Tecnológico -->
-        <div class="bg-card-main p-6 rounded-[2rem] border border-main shadow-sm">
-          <h3 class="text-xs font-black text-main uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Code size="14" class="text-accent" />
-            Stack Tecnológico e Infraestructura
+        <!-- Historial de Versiones (Changelog) -->
+        <div class="bg-card-main p-8 rounded-[2rem] shadow-sm border border-main">
+          <h2 class="text-lg font-black text-main mb-6 flex items-center gap-3">
+            <div class="w-8 h-8 bg-accent-soft text-accent rounded-xl flex items-center justify-center">
+              <History size="18" />
+            </div>
+            Evolución del Sistema (Changelog)
+          </h2>
+          <div class="space-y-0">
+             <!-- Versión 3.25 -->
+             <div class="flex gap-4">
+               <div class="w-12 text-right shrink-0 pt-0.5">
+                 <span class="text-xs font-black text-main">v3.25</span>
+                 <p class="text-[9px] text-accent font-bold uppercase mt-0.5">Actual</p>
+               </div>
+               <div class="relative pl-6 border-l-2 border-accent/30 pb-6">
+                 <span class="absolute -left-1.5 top-1.5 w-2.5 h-2.5 bg-accent rounded-full ring-4 ring-[color:var(--bg-card)]"></span>
+                 <p class="text-xs font-black text-main mb-1">Filtros Geográficos e Inteligencia</p>
+                 <p class="text-[11px] text-muted font-semibold leading-relaxed">Implementación de panel de control avanzado en el mapa para cruzar datos por fechas, niveles de urgencia y logística técnica. Preparación estructural para zonas de calor.</p>
+               </div>
+             </div>
+             
+             <!-- Versión 3.20 -->
+             <div class="flex gap-4">
+               <div class="w-12 text-right shrink-0 pt-0.5">
+                 <span class="text-xs font-black text-main opacity-60">v3.20</span>
+               </div>
+               <div class="relative pl-6 border-l-2 border-border pb-6">
+                 <span class="absolute -left-1.5 top-1.5 w-2.5 h-2.5 bg-border rounded-full ring-4 ring-[color:var(--bg-card)]"></span>
+                 <p class="text-xs font-black text-main mb-1 opacity-80">Rediseño UI "Aurora" y Optimización</p>
+                 <p class="text-[11px] text-muted font-semibold leading-relaxed">Nueva pantalla de inicio de sesión con animación fluida. Corrección en la generación de reportes PDF A4 para evitar cortes de texto en impresiones masivas.</p>
+               </div>
+             </div>
+
+             <!-- Versión 3.00 -->
+             <div class="flex gap-4">
+               <div class="w-12 text-right shrink-0 pt-0.5">
+                 <span class="text-xs font-black text-main opacity-60">v3.00</span>
+               </div>
+               <div class="relative pl-6 border-l-2 border-transparent">
+                 <span class="absolute -left-1.5 top-1.5 w-2.5 h-2.5 bg-border rounded-full ring-4 ring-[color:var(--bg-card)]"></span>
+                 <p class="text-xs font-black text-main mb-1 opacity-80">Lanzamiento Base (Núcleo)</p>
+                 <p class="text-[11px] text-muted font-semibold leading-relaxed">Tablero Canvas Drag & Drop para gestión de cuadrillas, sistema de autenticación cifrado y base de datos relacional para árboles y ubicaciones.</p>
+               </div>
+             </div>
+          </div>
+        </div>
+
+        <!-- Stack Tecnológico Expandido -->
+        <div class="bg-card-main p-8 rounded-[2rem] border border-main shadow-sm">
+          <h3 class="text-sm font-black text-main uppercase tracking-widest mb-5 flex items-center gap-2">
+            <Code size="16" class="text-accent" />
+            Stack Tecnológico a Detalle
           </h3>
-          <div class="flex flex-wrap gap-2.5">
-            <span v-for="tech in techs" :key="tech.n" 
-              class="px-3.5 py-2.5 bg-card-sec rounded-xl border border-main text-xs font-bold text-main flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full" :class="tech.c"></span>
-              {{ tech.n }}
-            </span>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div v-for="tech in techs" :key="tech.n" class="bg-card-sec p-3.5 rounded-xl border border-main flex gap-3 items-center hover:border-accent/30 transition-colors">
+               <div class="w-1.5 h-full rounded-full shrink-0" :class="tech.c"></div>
+               <div>
+                 <p class="text-[11px] font-black text-main uppercase tracking-wider mb-0.5">{{ tech.n }}</p>
+                 <p class="text-[10px] text-muted font-semibold leading-tight">{{ tech.d }}</p>
+               </div>
+            </div>
           </div>
         </div>
       </div>
@@ -226,19 +276,21 @@
 
 <script setup>
 import { useMainStore } from '../store/mainStore.js'
-import { Info, FileText, MapPin, Users, ShieldCheck, Code, Phone, Mail, Linkedin, Github, CheckCircle } from 'lucide-vue-next'
+import { Info, FileText, MapPin, Users, ShieldCheck, Code, Phone, Mail, Linkedin, Github, CheckCircle, History } from 'lucide-vue-next'
 import logoKoffys from '../assets/logo-koffys.png'
 
 const mainStore = useMainStore()
 const { uiState } = mainStore
 
 const techs = [
-    { n: 'Frontend: Vue 3 + Tailwind v4', c: 'bg-emerald-500' },
-    { n: 'Estado: Pinia', c: 'bg-indigo-500' },
-    { n: 'Gráficos: Chart.js', c: 'bg-amber-500' },
-    { n: 'Backend: Node.js + Express', c: 'bg-blue-500' },
-    { n: 'Base de Datos: MySQL 8', c: 'bg-slate-700' },
-    { n: 'Infraestructura: Docker', c: 'bg-sky-500' }
+    { n: 'Vue.js 3 + Composition API', d: 'Framework web reactivo para interfaces ultra rápidas sin recargar página.', c: 'bg-emerald-500' },
+    { n: 'Tailwind CSS v4', d: 'Motor de diseño utility-first para lograr acabados estéticos premium.', c: 'bg-cyan-500' },
+    { n: 'Pinia Store', d: 'Gestor de estado global y memoria caché local (Arquitectura SPA).', c: 'bg-indigo-500' },
+    { n: 'Node.js + Express', d: 'Motor de servidor backend rápido, ligero y altamente escalable.', c: 'bg-green-600' },
+    { n: 'MySQL 8.0', d: 'Motor de base de datos relacional para integridad financiera e histórica.', c: 'bg-slate-700' },
+    { n: 'Docker Compose', d: 'Virtualización y orquestación para garantizar despliegues a prueba de fallos.', c: 'bg-sky-500' },
+    { n: 'Leaflet.js', d: 'Georreferenciación matemática y visualización satelital de coordenadas.', c: 'bg-emerald-400' },
+    { n: 'Bcrypt + JWT', d: 'Cifrado de grado militar para proteger las contraseñas y sesiones.', c: 'bg-yellow-500' }
 ]
 </script>
 
