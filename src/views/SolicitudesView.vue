@@ -7,7 +7,7 @@ const { store, uiState, deleteSolicitud, showToast, registrarImpresion } = mainS
 import { 
     Trash2, Plus, Eye, Printer, Pencil, X, 
     Zap, Leaf, MailOpen, Wrench, AlertTriangle, 
-    CheckCircle2, ClipboardList 
+    CheckCircle2, ClipboardList, Filter
 } from 'lucide-vue-next'
 import EmptyState from '../components/EmptyState.vue'
 
@@ -292,6 +292,15 @@ const formatLoDeterminado = (sol) => {
 
             <!-- Barra de Filtros Avanzados -->
             <div class="mb-6 bg-card-main rounded-2xl border border-main p-4 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-black text-muted uppercase tracking-widest flex items-center gap-2">
+                        <Filter class="w-4 h-4" /> Filtros de Búsqueda
+                    </h3>
+                    <button @click="limpiarFiltros" class="bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-accent/20 transition-all flex items-center gap-2 cursor-pointer active:scale-95">
+                        <Trash2 class="w-3.5 h-3.5" />
+                        Limpiar Filtros
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                     <div class="lg:col-span-2">
                         <label class="block text-xs font-semibold text-muted mb-1 uppercase tracking-wide">Búsqueda general</label>
@@ -318,12 +327,6 @@ const formatLoDeterminado = (sol) => {
                             <span class="text-muted font-medium text-sm">hasta</span>
                             <input type="date" v-model="filtroFechaHasta" class="search-input flex-1" title="Hasta" />
                         </div>
-                    </div>
-                    <div class="flex items-end">
-                        <button @click="limpiarFiltros" class="w-full px-4 py-2 text-sm text-muted border border-main rounded hover:bg-card-sec transition-colors flex items-center justify-center gap-1.5 font-bold">
-                            <Trash2 class="w-4 h-4 text-muted" />
-                            <span>Limpiar filtros</span>
-                        </button>
                     </div>
                 </div>
                 <div class="mt-3 pt-3 border-t border-sec text-xs text-muted">

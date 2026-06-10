@@ -37,6 +37,15 @@
             <span class="text-xs font-black text-main">{{ stats.ejecutadas }} Ejec.</span>
           </div>
           
+          <!-- Botón Limpiar (Premium) -->
+          <button 
+            v-if="mostrarFiltros" 
+            @click="limpiarFiltros" 
+            class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-sm active:scale-95"
+          >
+            <X class="w-4 h-4" /> Limpiar
+          </button>
+
           <button @click="mostrarFiltros = !mostrarFiltros" class="bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg active:scale-95 ml-2">
             <Filter class="w-4 h-4" /> Filtros
           </button>
@@ -110,13 +119,6 @@
             <input type="date" v-model="filtros.fecha_fin" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer w-full" />
           </div>
         </div>
-      </div>
-      
-      <!-- Botón Limpiar -->
-      <div v-if="mostrarFiltros" class="flex justify-end pt-2 animate-prime-in">
-        <button @click="limpiarFiltros" class="text-xs font-bold text-muted hover:text-red-500 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-red-500/10">
-          ✕ Limpiar todos los filtros
-        </button>
       </div>
     </div>
 
@@ -467,7 +469,7 @@
 
 <script setup>
 import { onMounted, onUnmounted, reactive, computed, ref, watch } from 'vue'
-import { MapPin, Filter } from 'lucide-vue-next'
+import { MapPin, Filter, X } from 'lucide-vue-next'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState } = mainStore
