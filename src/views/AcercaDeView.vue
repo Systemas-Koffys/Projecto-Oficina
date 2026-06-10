@@ -110,7 +110,9 @@
             </div>
             
             <!-- Etiqueta de Soporte Activo en el Banner -->
-            <span class="absolute top-4 right-4 px-2.5 py-1 bg-[color:var(--text-on-accent)]/10 border border-[color:var(--text-on-accent)]/20 rounded-full text-[9px] font-black text-[color:var(--text-on-accent)] tracking-wider uppercase select-none">
+            <span class="absolute top-4 right-4 px-2.5 py-1 bg-[color:var(--text-on-accent)]/10 border border-[color:var(--text-on-accent)]/20 rounded-full text-[9px] font-black text-[color:var(--text-on-accent)] tracking-wider uppercase select-none flex items-center gap-1.5 shadow-sm">
+              <span class="w-1.5 h-1.5 bg-[color:var(--text-on-accent)] rounded-full animate-ping absolute opacity-75"></span>
+              <span class="w-1.5 h-1.5 bg-[color:var(--text-on-accent)] rounded-full"></span>
               SOPORTE ACTIVO
             </span>
           </div>
@@ -118,8 +120,9 @@
           <!-- Contenido de la Ficha -->
           <div class="p-6 pt-0 relative flex-1 flex flex-col">
             <!-- Monograma Medallón con Logo SK y Aro de Brillo -->
-            <div class="w-20 h-20 bg-card-main rounded-2xl shadow-lg flex items-center justify-center -mt-10 ml-2 overflow-hidden ring-4 ring-[color:var(--bg-card)] select-none">
-              <img :src="logoKoffys" class="w-full h-full object-contain p-2">
+            <div class="w-20 h-20 bg-card-main rounded-2xl shadow-lg flex items-center justify-center -mt-10 ml-2 overflow-hidden ring-4 ring-[color:var(--bg-card)] select-none transition-transform duration-500 hover:scale-110 hover:rotate-3 cursor-pointer relative group/logo">
+              <div class="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/logo:translate-x-[100%] transition-transform duration-1000 skew-x-12"></div>
+              <img :src="logoKoffys" class="w-full h-full object-contain p-2 relative z-10">
             </div>
             
             <!-- Perfil e Identidad -->
@@ -171,13 +174,13 @@
             <!-- Botones de Redes Sociales Premium -->
             <div class="mt-6 pt-4 border-t border-main grid grid-cols-2 gap-3">
               <a href="https://www.linkedin.com/in/kevin-flores-631a16189" target="_blank" 
-                class="py-2.5 bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] text-center rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
-                <Linkedin size="14" />
+                class="py-2.5 bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] text-center rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm hover:shadow-lg hover:-translate-y-1 active:scale-95 duration-300">
+                <Linkedin size="14" class="group-hover:animate-bounce" />
                 LINKEDIN
               </a>
               <a href="https://github.com/Systemas-Koffys" target="_blank" 
-                class="py-2.5 bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] text-center rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
-                <Github size="14" />
+                class="py-2.5 bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] text-center rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm hover:shadow-lg hover:-translate-y-1 active:scale-95 duration-300 group">
+                <Github size="14" class="group-hover:animate-pulse" />
                 GITHUB
               </a>
             </div>
