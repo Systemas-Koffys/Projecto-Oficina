@@ -94,7 +94,7 @@
           </div>
           
           <div class="flex gap-3 mt-8 pt-4 border-t border-white/10">
-            <button v-if="currentEvent.id" type="button" @click="handleDelete" class="px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all flex items-center gap-1 shadow-lg hover:shadow-red-600/20">
+            <button v-if="currentEvent.id" type="button" @click="handleDelete" class="px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all flex items-center gap-1 shadow-lg hover:shadow-red-600/20 cursor-pointer">
               <Trash2 class="w-4 h-4" />
               Eliminar
             </button>
@@ -135,6 +135,43 @@
       <!-- Flecha del tooltip -->
       <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#022c22] border-b border-r border-accent/30 transform rotate-45"></div>
     </div>
+
+    <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
+    <Teleport to="body">
+    <Transition name="fade-confirm">
+    <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-[99999]">
+        <div class="bg-card-main rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-main scale-in">
+            <!-- Cabecera Roja de Peligro -->
+            <div class="modal-header-danger p-8 flex flex-col items-center text-center text-white border-b border-red-900/20">
+                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                    <AlertTriangle class="w-8 h-8 text-white" />
+                </div>
+                <h3 class="font-black text-lg tracking-tight text-white">{{ confirmTitle }}</h3>
+                <p class="text-red-100/80 text-[10px] font-bold uppercase tracking-widest mt-1">Acción Irreversible</p>
+            </div>
+
+            <!-- Cuerpo del modal -->
+            <div class="p-6 text-center space-y-3 bg-card-main">
+                <p class="text-main text-sm font-bold leading-relaxed">
+                    {{ confirmMessage }}
+                </p>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="px-6 pb-6 flex gap-3 bg-card-main">
+                <button @click="showConfirmModal = false"
+                    class="flex-1 py-3 rounded-xl border-2 border-main font-black text-muted uppercase text-xs tracking-widest hover:bg-card-sec transition-all cursor-pointer">
+                    Cancelar
+                </button>
+                <button @click="ejecutarConfirmacion"
+                    class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-red-600/20 active:scale-95 transition-all cursor-pointer">
+                    Sí, Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+    </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -143,7 +180,7 @@ import { ref, onMounted, reactive, computed } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, fetchCalendario, addCalendarioEvento, updateCalendarioEvento, deleteCalendarioEvento, showToast } = mainStore
-import { Calendar as CalendarIcon, Plus, Trash2 } from 'lucide-vue-next'
+import { Calendar as CalendarIcon, Plus, Trash2, AlertTriangle } from 'lucide-vue-next'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
@@ -153,6 +190,25 @@ const eventosBase = ref([])
 const calendarKey = ref(0)
 const isFeriado = ref(false)
 const nombreFeriado = ref('')
+
+const showConfirmModal = ref(false)
+const confirmTitle = ref('Confirmar Eliminación')
+const confirmMessage = ref('¿Estás seguro de eliminar este registro?')
+let onConfirmCallback = null
+
+const mostrarConfirmacion = (titulo, mensaje, callback) => {
+    confirmTitle.value = titulo
+    confirmMessage.value = mensaje
+    onConfirmCallback = callback
+    showConfirmModal.value = true
+}
+
+const ejecutarConfirmacion = async () => {
+    showConfirmModal.value = false
+    if (onConfirmCallback) {
+        await onConfirmCallback()
+    }
+}
 
 const currentEvent = reactive({
   id: null,
@@ -364,16 +420,20 @@ const saveEvent = async () => {
 }
 
 const handleDelete = async () => {
-  if (confirm('¿Está seguro que desea eliminar este evento?')) {
-    const ok = await deleteCalendarioEvento(currentEvent.id)
-    if (ok) {
-      showToast('Evento eliminado correctamente')
-      closeModal()
-      loadData()
-    } else {
-      showToast('Error al eliminar el evento', 'error')
+  mostrarConfirmacion(
+    'Confirmar Eliminación',
+    '¿Está seguro que desea eliminar este evento?',
+    async () => {
+      const ok = await deleteCalendarioEvento(currentEvent.id)
+      if (ok) {
+        showToast('Evento eliminado correctamente')
+        closeModal()
+        loadData()
+      } else {
+        showToast('Error al eliminar el evento', 'error')
+      }
     }
-  }
+  )
 }
 </script>
 
@@ -391,4 +451,12 @@ const handleDelete = async () => {
 .fc-event { cursor: pointer; border-radius: 4px; padding: 2px 4px; font-weight: bold; font-size: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .fc-day-feriado { background-color: #065f46 !important; } /* Verde claro distinguible para feriados */
 .fc-day-sat, .fc-day-sun { background-color: #043e2f !important; } /* Verde intermedio distinguible para fines de semana */
+
+.scale-in { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.fade-confirm-enter-active, .fade-confirm-leave-active { transition: opacity 0.2s ease; }
+.fade-confirm-enter-from, .fade-confirm-leave-to { opacity: 0; }
 </style>

@@ -737,31 +737,39 @@ const formatLoDeterminado = (sol) => {
         
         <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
         <Teleport to="body">
-            <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
-                <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm overflow-hidden flex flex-col animate-prime-in">
-                    <!-- Icono de Advertencia -->
-                    <div class="p-8 flex flex-col items-center text-center gap-4 bg-card-main text-main">
-                        <div class="w-14 h-14 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-2xl select-none">
-                            ⚠️
-                        </div>
-                        <div>
-                            <h4 class="text-lg font-black text-main leading-tight">{{ confirmTitle }}</h4>
-                            <p class="text-xs text-muted font-semibold mt-2 px-2 leading-relaxed">{{ confirmMessage }}</p>
-                        </div>
+        <Transition name="fade-confirm">
+        <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-[99999]">
+            <div class="bg-card-main rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-main scale-in">
+                <!-- Cabecera Roja de Peligro -->
+                <div class="modal-header-danger p-8 flex flex-col items-center text-center text-white border-b border-red-900/20">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                        <AlertTriangle class="w-8 h-8 text-white" />
                     </div>
-                    <!-- Botones de Acción -->
-                    <div class="p-6 bg-card-main border-t border-main flex gap-3">
-                        <button @click="showConfirmModal = false" 
-                            class="flex-1 px-4 py-3 bg-card-sec border border-main rounded-xl font-black text-[10px] uppercase tracking-widest text-main hover:bg-accent-soft transition-all active:scale-95 shadow-sm cursor-pointer">
-                            Cancelar
-                        </button>
-                        <button @click="ejecutarConfirmacion" 
-                            class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 cursor-pointer">
-                            Eliminar
-                        </button>
-                    </div>
+                    <h3 class="font-black text-lg tracking-tight text-white">{{ confirmTitle }}</h3>
+                    <p class="text-red-100/80 text-[10px] font-bold uppercase tracking-widest mt-1">Acción Irreversible</p>
+                </div>
+
+                <!-- Cuerpo del modal -->
+                <div class="p-6 text-center space-y-3 bg-card-main">
+                    <p class="text-main text-sm font-bold leading-relaxed">
+                        {{ confirmMessage }}
+                    </p>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="px-6 pb-6 flex gap-3 bg-card-main">
+                    <button @click="showConfirmModal = false"
+                        class="flex-1 py-3 rounded-xl border-2 border-main font-black text-muted uppercase text-xs tracking-widest hover:bg-card-sec transition-all cursor-pointer">
+                        Cancelar
+                    </button>
+                    <button @click="ejecutarConfirmacion"
+                        class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-red-600/20 active:scale-95 transition-all cursor-pointer">
+                        Sí, Eliminar
+                    </button>
                 </div>
             </div>
+        </div>
+        </Transition>
         </Teleport>
     </div>
 </template>
