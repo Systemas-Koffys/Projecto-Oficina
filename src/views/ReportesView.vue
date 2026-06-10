@@ -357,11 +357,11 @@ const formatFecha = (str) => {
                                 </td>
                                 <td class="px-8 py-6 text-right border-b border-main">
                                     <div class="flex justify-end gap-2">
-                                        <button @click="handleReimprimir(imp)" class="btn-action-report btn-view cursor-pointer" title="Ver / Descargar">
-                                            <Eye size="16" />
+                                        <button @click="handleReimprimir(imp)" class="btn-icon btn-print" title="Ver / Descargar">
+                                            <Eye />
                                         </button>
-                                        <button @click="confirmarEliminar(imp)" class="btn-action-report btn-delete-report cursor-pointer" title="Eliminar del historial">
-                                            <Trash2 size="16" />
+                                        <button @click="confirmarEliminar(imp)" class="btn-icon btn-delete" title="Eliminar del historial">
+                                            <Trash2 />
                                         </button>
                                     </div>
                                 </td>
@@ -512,20 +512,6 @@ const formatFecha = (str) => {
     box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
-.btn-action-report { @apply w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-90 shadow-sm; }
-.btn-view { @apply bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-100; }
-.btn-delete-report { @apply bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-100; }
-
-/* Theme Adaptive Overrides for colored blocks and buttons */
-:global(.theme-black) .btn-view { background: rgba(59, 130, 246, 0.2) !important; color: #3b82f6 !important; }
-:global(.theme-black) .btn-view:hover { background: rgba(59, 130, 246, 0.4) !important; color: #fff !important; }
-:global(.theme-black) .btn-delete-report { background: rgba(239, 68, 68, 0.2) !important; color: #ef4444 !important; }
-:global(.theme-black) .btn-delete-report:hover { background: rgba(239, 68, 68, 0.4) !important; color: #fff !important; }
-
-:global(.theme-colors) .btn-view { background: rgba(30, 144, 255, 0.1) !important; color: #1e90ff !important; }
-:global(.theme-colors) .btn-view:hover { background: rgba(30, 144, 255, 0.3) !important; color: #fff !important; }
-:global(.theme-colors) .btn-delete-report { background: rgba(239, 68, 68, 0.1) !important; color: #ef4444 !important; }
-:global(.theme-colors) .btn-delete-report:hover { background: rgba(239, 68, 68, 0.3) !important; color: #fff !important; }
 
 @media print {
     @page { size: A4 portrait; margin: 1cm; }
