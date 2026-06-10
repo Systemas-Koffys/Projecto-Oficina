@@ -119,15 +119,14 @@
           
           <!-- Contenido de la Ficha -->
           <div class="p-6 pt-0 relative flex-1 flex flex-col">
-            <!-- Monograma Medallón con Logo SK y Aro Orbital -->
-            <div class="relative -mt-11 ml-1 group/logo transition-transform duration-500 hover:scale-110 cursor-pointer w-24 h-24 flex items-center justify-center">
-              <!-- Aro exterior giratorio (Círculo que no se cierra) -->
-              <svg class="absolute inset-0 w-full h-full animate-[spin_4s_linear_infinite] text-accent" viewBox="0 0 100 100">
-                 <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="260 41" stroke-linecap="round"></circle>
-              </svg>
+            <!-- Monograma Medallón con Logo SK y Borde Luminoso -->
+            <div class="relative w-20 h-20 -mt-10 ml-2 rounded-2xl p-[2px] overflow-hidden group/logo transition-transform duration-500 hover:scale-110 cursor-pointer shadow-lg ring-4 ring-[color:var(--bg-card)] select-none">
+              <!-- Gradiente giratorio (Línea que recorre el borde) -->
+              <div class="absolute -inset-[100%] animate-[spin_3s_linear_infinite]" style="background: conic-gradient(from 0deg, transparent 0 270deg, var(--accent) 360deg);"></div>
               
-              <!-- Contenedor Principal del Logo -->
-              <div class="w-20 h-20 bg-card-main rounded-2xl shadow-lg flex items-center justify-center overflow-hidden ring-4 ring-[color:var(--bg-card)] select-none relative z-10">
+              <!-- Contenedor Principal (Tapa el centro) -->
+              <div class="relative w-full h-full bg-card-main rounded-[14px] flex items-center justify-center overflow-hidden z-10">
+                <!-- Brillo en Hover -->
                 <div class="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/logo:translate-x-[100%] transition-transform duration-1000 skew-x-12"></div>
                 <img :src="logoKoffys" class="w-full h-full object-contain p-2 relative z-10">
               </div>
