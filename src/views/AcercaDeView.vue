@@ -176,7 +176,7 @@
                 LINKEDIN
               </a>
               <a href="https://github.com/Systemas-Koffys" target="_blank" 
-                class="py-2.5 bg-card-sec border border-main hover:border-accent/30 text-center rounded-xl font-black text-xs text-main transition-all flex items-center justify-center gap-1.5 shadow-inner hover:bg-card-sec/80 active:scale-95">
+                class="py-2.5 bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] text-center rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
                 <Github size="14" />
                 GITHUB
               </a>
