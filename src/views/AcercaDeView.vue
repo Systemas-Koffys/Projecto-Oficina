@@ -93,37 +93,6 @@
           </div>
         </div>
 
-        <!-- Privacidad y Políticas -->
-        <div class="bg-card-main p-8 rounded-[2rem] shadow-sm border border-main">
-          <h2 class="text-lg font-black text-main mb-6 flex items-center gap-3">
-            <div class="w-8 h-8 bg-accent-soft text-accent rounded-xl flex items-center justify-center">
-              <Book size="18" />
-            </div>
-            Políticas de Privacidad y Términos
-          </h2>
-          <div class="space-y-4">
-             <div class="flex gap-4">
-               <div class="w-10 text-right shrink-0 pt-0.5">
-                 <ShieldCheck size="18" class="text-accent ml-auto" />
-               </div>
-               <div class="relative pl-4 border-l-2 border-border pb-2">
-                 <p class="text-xs font-black text-main mb-1">Privacidad de Datos</p>
-                 <p class="text-[11px] text-muted font-semibold leading-relaxed">Toda la información contenida en este sistema, incluyendo la ubicación geográfica, imágenes y datos operativos, es de carácter institucional estricto. Está prohibida la extracción masiva o distribución a terceros sin autorización formal.</p>
-               </div>
-             </div>
-             
-             <div class="flex gap-4">
-               <div class="w-10 text-right shrink-0 pt-0.5">
-                 <Scale size="18" class="text-accent ml-auto" />
-               </div>
-               <div class="relative pl-4 border-l-2 border-border pb-2">
-                 <p class="text-xs font-black text-main mb-1">Derechos Reservados</p>
-                 <p class="text-[11px] text-muted font-semibold leading-relaxed">La arquitectura del software, flujos de diseño UI/UX y el código fuente original son propiedad intelectual de los desarrolladores. Todos los derechos reservados. El uso del sistema implica la aceptación de estas condiciones operativas.</p>
-               </div>
-             </div>
-          </div>
-        </div>
-
       </div>
 
       <!-- Columna Lateral (Derecha) -->
@@ -164,7 +133,7 @@
               
               <!-- Resumen Bio de Alta Calidad -->
               <p class="text-muted text-[11px] leading-relaxed font-semibold mt-3 bg-card-sec p-3.5 rounded-2xl border border-main">
-                Especialista en administración de servidores en la nube, optimización digital y bases de datos. Desarrollador principal del sistema, brindando soluciones integrales de software bajo su firma de desarrollo <strong>Systemas Koffy's</strong>.
+                Desarrollador oficial de la plataforma a través de su firma <strong>Systemas Koffy's</strong>. Esta aplicación fue creada como una iniciativa personal para colaborar y modernizar la unidad operativa donde ejerce sus funciones, tras identificar la necesidad de digitalización.
               </p>
             </div>
             
@@ -215,27 +184,6 @@
           </div>
         </div>
 
-        <!-- Estado del Servidor -->
-        <div class="bg-card-main border border-main p-6 rounded-[2rem] shadow-sm flex flex-col gap-4">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-main uppercase tracking-wider">Servicio de Datos</span>
-            <span class="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-md text-[9px] font-black tracking-wider">ONLINE</span>
-          </div>
-          <div class="space-y-3">
-            <div class="flex items-center gap-2.5 text-xs text-muted font-semibold">
-              <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shrink-0"></span>
-              <span>Conexión activa con MySQL 8.0</span>
-            </div>
-            <div class="flex items-center gap-2.5 text-xs text-muted font-semibold">
-              <CheckCircle size="14" class="text-accent shrink-0" />
-              <span>Cifrado de claves Bcrypt</span>
-            </div>
-            <div class="flex items-center gap-2.5 text-xs text-muted font-semibold">
-              <ShieldCheck size="14" class="text-accent shrink-0" />
-              <span>Autenticación de sesión JWT</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -255,6 +203,41 @@
         </div>
       </div>
     </div>
+
+    <!-- Políticas de Privacidad y Términos Expandido -->
+    <div class="bg-card-main p-8 rounded-[2rem] border border-main shadow-sm flex flex-col md:flex-row gap-8">
+      <div class="md:w-1/3">
+        <h2 class="text-lg font-black text-main mb-2 flex items-center gap-3">
+          <div class="w-8 h-8 bg-accent-soft text-accent rounded-xl flex items-center justify-center shrink-0">
+            <Book size="18" />
+          </div>
+          Políticas y Términos
+        </h2>
+        <p class="text-xs text-muted font-semibold leading-relaxed">Lineamientos de uso, confidencialidad de datos y propiedad intelectual de la plataforma.</p>
+      </div>
+      <div class="md:w-2/3 space-y-6">
+         <div class="flex gap-4">
+           <div class="w-10 text-right shrink-0 pt-0.5">
+             <ShieldCheck size="18" class="text-accent ml-auto" />
+           </div>
+           <div class="relative pl-4 border-l-2 border-border pb-2">
+             <p class="text-xs font-black text-main mb-1">Privacidad y Uso de Datos Operativos</p>
+             <p class="text-[11px] text-muted font-semibold leading-relaxed">Toda la información contenida en este sistema, incluyendo la ubicación geográfica de los árboles, registros fotográficos, historiales de trabajo y datos personales de los técnicos y ciudadanos, es de carácter estrictamente confidencial. Su uso está limitado exclusivamente a las operaciones de la institución. Queda terminantemente prohibida la extracción masiva, copia no autorizada o distribución de la base de datos a terceros por cualquier medio sin autorización gubernamental formal y por escrito.</p>
+           </div>
+         </div>
+         
+         <div class="flex gap-4">
+           <div class="w-10 text-right shrink-0 pt-0.5">
+             <Scale size="18" class="text-accent ml-auto" />
+           </div>
+           <div class="relative pl-4 border-l-2 border-border pb-2">
+             <p class="text-xs font-black text-main mb-1">Derechos Reservados y Propiedad Intelectual</p>
+             <p class="text-[11px] text-muted font-semibold leading-relaxed">La arquitectura técnica del software, los flujos de diseño (UI/UX) y el código fuente original son propiedad intelectual exclusiva de Kevin Flores Vallejos ("Systemas Koffy's"). Esta licencia de uso fue otorgada como un aporte colaborativo a la institución para la mejora operativa del área. Sin embargo, el autor original retiene todos los derechos patrimoniales sobre el código base. El uso continuo de este sistema por parte de la institución implica la lectura y aceptación total de estas condiciones.</p>
+           </div>
+         </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
