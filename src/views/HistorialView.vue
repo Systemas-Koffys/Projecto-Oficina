@@ -970,21 +970,7 @@ const formatLoDeterminado = (sol) => {
 @reference "tailwindcss";
 .badge-completed { @apply bg-green-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase; }
 
-/* ===== BOTONES ACCION TABLA ===== */
-.btn-ver, .btn-print, .btn-edit, .btn-delete {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 30px; height: 30px; border-radius: 7px;
-    border: none; cursor: pointer; transition: all 0.18s ease; padding: 0;
-}
-.btn-ver svg, .btn-print svg, .btn-edit svg, .btn-delete svg { width: 15px; height: 15px; }
-.btn-ver    { background: #d8f3dc; color: #1a4731; }
-.btn-ver:hover    { background: #74c69d; color: #0f2e1e; transform: translateY(-1px); }
-.btn-print   { background: #e0f2fe; color: #0369a1; }
-.btn-print:hover   { background: #bae6fd; color: #075985; transform: translateY(-1px); }
-.btn-edit   { background: #fef3c7; color: #92400e; }
-.btn-edit:hover   { background: #fde68a; color: #78350f; transform: translateY(-1px); }
-.btn-delete { background: #fee2e2; color: #991b1b; }
-.btn-delete:hover { background: #fca5a5; color: #7f1d1d; transform: translateY(-1px); }
+/* ===== BOTONES ACCION GLOBALES ===== */
 
 .search-input {
     background-color: var(--input-bg) !important;
@@ -1013,22 +999,4 @@ const formatLoDeterminado = (sol) => {
 :global(.theme-colors) .bg-amber-50\/60 { background-color: rgba(245, 158, 11, 0.08) !important; border-color: rgba(245, 158, 11, 0.15) !important; }
 :global(.theme-colors) .bg-purple-50\/60 { background-color: rgba(139, 92, 246, 0.08) !important; border-color: rgba(139, 92, 246, 0.15) !important; }
 :global(.theme-colors) div.bg-slate-50 { background-color: var(--bg-card-sec) !important; border-color: var(--border-sec) !important; }
-
-:global(.theme-black) .btn-ver { background: rgba(16, 185, 129, 0.2) !important; color: #10b981 !important; }
-:global(.theme-black) .btn-ver:hover { background: rgba(16, 185, 129, 0.4) !important; color: #fff !important; }
-:global(.theme-black) .btn-print { background: rgba(59, 130, 246, 0.2) !important; color: #3b82f6 !important; }
-:global(.theme-black) .btn-print:hover { background: rgba(59, 130, 246, 0.4) !important; color: #fff !important; }
-:global(.theme-black) .btn-edit { background: rgba(245, 158, 11, 0.2) !important; color: #f59e0b !important; }
-:global(.theme-black) .btn-edit:hover { background: rgba(245, 158, 11, 0.4) !important; color: #fff !important; }
-:global(.theme-black) .btn-delete { background: rgba(239, 68, 68, 0.2) !important; color: #ef4444 !important; }
-:global(.theme-black) .btn-delete:hover { background: rgba(239, 68, 68, 0.4) !important; color: #fff !important; }
-
-:global(.theme-colors) .btn-ver { background: rgba(30, 144, 255, 0.1) !important; color: #1e90ff !important; }
-:global(.theme-colors) .btn-ver:hover { background: rgba(30, 144, 255, 0.3) !important; color: #fff !important; }
-:global(.theme-colors) .btn-print { background: rgba(30, 144, 255, 0.1) !important; color: #1e90ff !important; }
-:global(.theme-colors) .btn-print:hover { background: rgba(30, 144, 255, 0.3) !important; color: #fff !important; }
-:global(.theme-colors) .btn-edit { background: rgba(245, 158, 11, 0.1) !important; color: #f59e0b !important; }
-:global(.theme-colors) .btn-edit:hover { background: rgba(245, 158, 11, 0.3) !important; color: #fff !important; }
-:global(.theme-colors) .btn-delete { background: rgba(239, 68, 68, 0.1) !important; color: #ef4444 !important; }
-:global(.theme-colors) .btn-delete:hover { background: rgba(239, 68, 68, 0.3) !important; color: #fff !important; }
 </style>

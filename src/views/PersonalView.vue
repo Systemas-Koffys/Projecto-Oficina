@@ -153,14 +153,14 @@
                             </td>
                             <td class="px-6 py-4 rounded-r-2xl border-y border-r border-main">
                                 <div class="flex items-center justify-center gap-2">
-                                    <button @click="openView(p)" class="w-10 h-10 flex items-center justify-center bg-card-sec text-accent border border-main rounded-xl shadow-sm hover:bg-accent hover:text-[color:var(--text-on-accent)] transition-all cursor-pointer" title="Ver Credencial">
-                                        <Eye class="w-5 h-5" />
+                                    <button @click="openView(p)" class="btn-icon btn-ver" title="Ver Credencial">
+                                        <Eye />
                                     </button>
-                                    <button @click="openEdit(p)" class="w-10 h-10 flex items-center justify-center bg-card-sec text-blue-600 border border-main rounded-xl shadow-sm hover:bg-blue-600 hover:text-white transition-all cursor-pointer" title="Editar">
-                                        <Pencil class="w-5 h-5" />
+                                    <button @click="openEdit(p)" class="btn-icon btn-edit" title="Editar">
+                                        <Pencil />
                                     </button>
-                                    <button v-if="uiState.user?.role === 'ROOT'" @click="handleDelete(p)" class="w-10 h-10 flex items-center justify-center bg-card-sec text-red-500 border border-main rounded-xl shadow-sm hover:bg-red-600 hover:text-white transition-all cursor-pointer" title="Eliminar">
-                                        <Trash2 class="w-5 h-5" />
+                                    <button v-if="uiState.user?.role === 'ROOT'" @click="handleDelete(p)" class="btn-icon btn-delete" title="Eliminar">
+                                        <Trash2 />
                                     </button>
                                 </div>
                             </td>

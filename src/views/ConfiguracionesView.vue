@@ -324,15 +324,11 @@ const getOptions = (optionKey) => store[optionKey] || []
                                     </td>
                                     <td class="px-6 py-5 text-right border-y border-r border-main rounded-r-2xl">
                                         <div class="flex justify-end gap-3 transition-all">
-                                            <button @click="abrirEdicion(item)" 
-                                                class="w-10 h-10 flex items-center justify-center bg-accent-soft text-accent rounded-xl hover:bg-accent hover:text-[color:var(--text-on-accent)] transition-all shadow-sm cursor-pointer"
-                                                title="Editar Registro">
-                                                <Pencil class="w-4 h-4" />
+                                            <button @click="abrirEdicion(item)" class="btn-icon btn-edit" title="Editar Registro">
+                                                <Pencil />
                                             </button>
-                                            <button @click="eliminar(item.id)" 
-                                                class="w-10 h-10 flex items-center justify-center bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm cursor-pointer"
-                                                title="Eliminar Registro">
-                                                <Trash2 class="w-4 h-4" />
+                                            <button @click="eliminar(item.id)" class="btn-icon btn-delete" title="Eliminar Registro">
+                                                <Trash2 />
                                             </button>
                                         </div>
                                     </td>

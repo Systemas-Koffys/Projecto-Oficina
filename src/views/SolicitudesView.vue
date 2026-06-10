@@ -984,21 +984,7 @@ const formatLoDeterminado = (sol) => {
 </style>
 
 <style scoped>
-/* ===== BOTONES ACCION TABLA ===== */
-.btn-ver, .btn-print, .btn-edit, .btn-delete {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 30px; height: 30px; border-radius: 7px;
-    border: none; cursor: pointer; transition: all 0.18s ease; padding: 0;
-}
-.btn-ver svg, .btn-print svg, .btn-edit svg, .btn-delete svg { width: 15px; height: 15px; }
-.btn-ver    { background: #d8f3dc; color: #1a4731; }
-.btn-ver:hover    { background: #74c69d; color: #0f2e1e; transform: translateY(-1px); }
-.btn-print   { background: #e0f2fe; color: #0369a1; }
-.btn-print:hover   { background: #bae6fd; color: #075985; transform: translateY(-1px); }
-.btn-edit   { background: #fef3c7; color: #92400e; }
-.btn-edit:hover   { background: #fde68a; color: #78350f; transform: translateY(-1px); }
-.btn-delete { background: #fee2e2; color: #991b1b; }
-.btn-delete:hover { background: #fca5a5; color: #7f1d1d; transform: translateY(-1px); }
+/* ===== BOTONES ACCION GLOBALES ===== */
 
 #btn-nueva-solicitud {
     background-color: #1a4731 !important;
