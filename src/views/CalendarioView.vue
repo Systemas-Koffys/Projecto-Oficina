@@ -5,7 +5,7 @@
       <div>
         <h1 class="text-3xl font-black tracking-tight flex items-center gap-3">
           <CalendarIcon class="w-8 h-8 text-accent" />
-          Calendario Festivo
+          Calendario
         </h1>
         <p class="text-white/50 text-sm mt-1">Aniversarios de barrios y carga de trabajo asociada.</p>
       </div>
@@ -77,8 +77,7 @@
             <div v-if="solicitudesDelBarrio.length > 0" class="space-y-2 max-h-40 overflow-y-auto pr-1">
               <div v-for="sol in solicitudesDelBarrio" :key="sol.id_solicitud" class="bg-black/20 border border-white/5 rounded-xl p-3 flex justify-between items-center text-sm">
                 <div>
-                  <p class="font-black text-white">{{ sol.codigo_anual }}</p>
-                  <p class="text-xs text-white/50">C.I: {{ sol.comunicacion_interna || 'No registrado' }}</p>
+                  <p class="font-black text-white">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</p>
                 </div>
                 <span :class="[
                   sol.estado_tramite === 'Terminado' ? 'bg-emerald-500/20 text-emerald-400' :
@@ -98,7 +97,7 @@
               <Trash2 class="w-4 h-4" />
               Eliminar
             </button>
-            <button type="button" @click="closeModal" class="flex-1 py-3 text-white/50 hover:text-white font-bold transition-colors">Cancelar</button>
+            <button type="button" @click="closeModal" class="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold border border-white/10 transition-all cursor-pointer">Cancelar</button>
             <button type="submit" class="flex-1 bg-accent hover:bg-emerald-600 text-white rounded-xl py-3 font-bold transition-all shadow-lg hover:shadow-accent/20">Guardar</button>
           </div>
         </form>
@@ -124,7 +123,7 @@
           <p class="text-[10px] font-bold text-accent uppercase tracking-wider">Solicitudes de Poda ({{ getSolicitudesDelBarrio(tooltip.data.nombre_barrio).length }})</p>
           <div v-if="getSolicitudesDelBarrio(tooltip.data.nombre_barrio).length > 0" class="max-h-24 overflow-y-auto space-y-1 pr-0.5">
             <div v-for="sol in getSolicitudesDelBarrio(tooltip.data.nombre_barrio)" :key="sol.id_solicitud" class="text-[11px] bg-white/5 border border-white/10 rounded px-1.5 py-0.5 flex justify-between items-center gap-2">
-              <span class="font-bold text-white/90 truncate">{{ sol.codigo_anual }}</span>
+              <span class="font-bold text-white/90 truncate">{{ sol.comunicacion_interna || sol.codigo_anual }}</span>
               <span class="text-white/50 text-[9px] uppercase font-semibold flex-shrink-0">{{ sol.estado_tramite }}</span>
             </div>
           </div>
@@ -262,6 +261,11 @@ const calendarOptions = reactive({
   plugins: [dayGridPlugin, interactionPlugin],
   initialView: 'dayGridMonth',
   locale: 'es',
+  buttonText: {
+    today: 'Hoy',
+    month: 'Mes',
+    week: 'Semana'
+  },
   events: [],
   headerToolbar: {
     left: 'prev,next today',
@@ -446,11 +450,16 @@ const handleDelete = async () => {
 .fc .fc-button-primary:hover { background-color: var(--accent); }
 .fc .fc-button-primary:not(:disabled).fc-button-active, .fc .fc-button-primary:not(:disabled):active { background-color: var(--accent); border-color: transparent; }
 .fc-daygrid-day-number { color: rgba(255,255,255,0.8); font-weight: bold; padding: 8px !important; }
-.fc-col-header-cell-cushion { color: rgba(255,255,255,0.5); font-weight: 800; text-transform: uppercase; padding: 12px 0 !important; font-size: 0.75rem; }
-.fc-day-today { background-color: rgba(16, 185, 129, 0.05) !important; }
+.fc-col-header-cell-cushion { color: rgba(255,255,255,0.8) !important; font-weight: 800; text-transform: uppercase; padding: 12px 0 !important; font-size: 0.75rem; }
 .fc-event { cursor: pointer; border-radius: 4px; padding: 2px 4px; font-weight: bold; font-size: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.fc-day-feriado { background-color: #065f46 !important; } /* Verde claro distinguible para feriados */
-.fc-day-sat, .fc-day-sun { background-color: #043e2f !important; } /* Verde intermedio distinguible para fines de semana */
+
+/* Forzar fondos oscuros en celdas de días y cabeceras para legibilidad del texto blanco en modo claro/colors */
+.fc-col-header-cell { background-color: #013b2e !important; }
+.fc-daygrid-day { background-color: #02362b !important; }
+.fc-daygrid-day.fc-day-sat, .fc-daygrid-day.fc-day-sun { background-color: #043e2f !important; } /* Verde intermedio distinguible para fines de semana */
+.fc-daygrid-day.fc-day-feriado { background-color: #065f46 !important; } /* Verde claro distinguible para feriados */
+.fc-daygrid-day.fc-day-today { background-color: #10b981 !important; }
+.fc-daygrid-day.fc-day-today .fc-daygrid-day-number { color: #022c22 !important; }
 
 .scale-in { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 @keyframes scaleIn {

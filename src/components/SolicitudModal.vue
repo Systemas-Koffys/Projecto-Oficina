@@ -32,7 +32,7 @@
                             <input v-model="form.comunicacion_interna" @input="formatComunicacionInterna" type="text" class="form-input-prime text-center" placeholder="00/26">
                         </div>
                         <div class="col-span-1 flex flex-col">
-                            <label class="label-prime">Teléfono</label>
+                            <label class="label-prime">Teléfono <span class="text-red-500 font-black">*</span></label>
                             <input v-model="form.solicitante_telefono" type="text" class="form-input-prime" placeholder="Ej: 77000000">
                         </div>
                         <div class="col-span-3 flex flex-col">
@@ -135,14 +135,14 @@
                     <!-- Metadata de Verificación General -->
                     <div class="grid grid-cols-3 gap-6 bg-card-sec p-4 rounded-2xl border border-sec shadow-sm">
                         <div class="flex flex-col">
-                            <label class="label-prime">Técnico Evaluador</label>
+                            <label class="label-prime">Técnico Evaluador <span class="text-red-500 font-black">*</span></label>
                             <select v-model="form.id_tecnico_verificacion" class="form-input-prime">
                                 <option :value="null">-- Seleccione --</option>
                                 <option v-for="t in tecnicosFiltrados" :key="t.id" :value="t.id">{{ t.nombre }}</option>
                             </select>
                         </div>
                         <div class="flex flex-col">
-                            <label class="label-prime">Fecha Verificación</label>
+                            <label class="label-prime">Fecha Verificación <span class="text-red-500 font-black">*</span></label>
                             <input v-model="form.fecha_verificacion" type="date" class="form-input-prime">
                         </div>
                         <div class="flex flex-col">
@@ -190,7 +190,7 @@
                                     </select>
                                 </div>
                                 <div class="flex flex-col">
-                                    <label class="label-prime">Acción Determinada (Técnica)</label>
+                                    <label class="label-prime">Acción Determinada (Técnica) <span class="text-red-500 font-black">*</span></label>
                                     <select v-model="arb.id_accion_realizar" class="form-input-prime">
                                         <option :value="null">-- Seleccione --</option>
                                         <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
@@ -381,14 +381,18 @@ const tecnicosFiltrados = computed(() => {
 
 // --- SINCRONIZACIÓN (WATCHERS) ---
 
-// 1. DISTRITO -> BARRIOS (Si cambio distrito, limpio barrio si no pertenece)
+// 1. DISTRITO -> BARRIOS (Si cambio distrito, limpio barrio si no pertenece o si se deselecciona)
 watch(distritoSeleccionado, (newDist) => {
     if (isUpdating.value) return;
-    if (newDist && form.value.id_barrio) {
-        const barrioActual = store.barrios.find(b => b.id == form.value.id_barrio);
-        if (barrioActual && barrioActual.id_distrito != newDist) {
-            form.value.id_barrio = null;
+    if (newDist) {
+        if (form.value.id_barrio) {
+            const barrioActual = store.barrios.find(b => b.id == form.value.id_barrio);
+            if (barrioActual && barrioActual.id_distrito != newDist) {
+                form.value.id_barrio = null;
+            }
         }
+    } else {
+        form.value.id_barrio = null;
     }
 })
 
@@ -649,10 +653,13 @@ const handleGuardar = async () => {
     const faltantes = [];
     if (!form.value.fecha_ingreso) faltantes.push("Fecha de Ingreso");
     if (!form.value.comunicacion_interna) faltantes.push("Cód. Comunicación");
+    if (!form.value.solicitante_telefono) faltantes.push("Teléfono");
     if (!form.value.solicitante_nombre) faltantes.push("Nombre del Solicitante");
     if (!distritoSeleccionado.value) faltantes.push("Distrito");
     if (!form.value.id_barrio) faltantes.push("Barrio");
     if (!form.value.calle) faltantes.push("Calle");
+    if (!form.value.id_tecnico_verificacion) faltantes.push("Técnico Evaluador");
+    if (!form.value.fecha_verificacion) faltantes.push("Fecha Verificación");
     if (!form.value.nivel_urgencia) faltantes.push("Nivel de Prioridad");
     if (!form.value.estado_tramite) faltantes.push("Estado");
 
@@ -664,12 +671,12 @@ const handleGuardar = async () => {
     // Validación de árboles
     let invalidArbol = false;
     form.value.arboles.forEach((arb) => {
-        if (!arb.id_especie || !arb.id_accion_solicitada) {
+        if (!arb.id_especie || !arb.id_accion_solicitada || !arb.id_accion_realizar) {
             invalidArbol = true;
         }
     });
     if (invalidArbol) {
-        showToast("🛑 ATENCIÓN: Todos los árboles deben tener Especie y Acción Solicitada obligatoriamente.", "error", 6000);
+        showToast("🛑 ATENCIÓN: Todos los árboles deben tener Especie, Acción Solicitada y Acción Determinada obligatoriamente.", "error", 6000);
         return;
     }
 

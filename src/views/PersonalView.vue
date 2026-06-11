@@ -85,10 +85,10 @@
                 <button
                     v-for="f in filtros"
                     :key="f.key"
-                    @click="filterCargo = filterCargo === f.key ? '' : f.key"
+                    @click="toggleFiltro(f.key)"
                     :class="[
                         'px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wide transition-all border flex items-center gap-1.5 cursor-pointer',
-                        filterCargo === f.key
+                        filterCargos.includes(f.key)
                             ? 'bg-accent text-on-accent border-accent shadow-lg shadow-accent/20'
                             : 'bg-card-sec text-muted border-main hover:border-accent hover:text-accent'
                     ]"
@@ -96,7 +96,7 @@
                     {{ f.label }}
                     <span :class="[
                         'text-[9px] font-black px-1.5 py-0.5 rounded-full',
-                        filterCargo === f.key ? 'bg-white/20 text-on-accent' : 'bg-card-sec border border-main text-muted'
+                        filterCargos.includes(f.key) ? 'bg-white/20 text-on-accent' : 'bg-card-sec border border-main text-muted'
                     ]">{{ contarPorFiltro(f.key) }}</span>
                 </button>
             </div>
@@ -565,7 +565,16 @@ const formData = reactive({
     estado: 'Activo'
 })
 
-const filterCargo = ref('')
+const filterCargos = ref([])
+
+const toggleFiltro = (key) => {
+    const idx = filterCargos.value.indexOf(key)
+    if (idx > -1) {
+        filterCargos.value.splice(idx, 1)
+    } else {
+        filterCargos.value.push(key)
+    }
+}
 
 const filtros = [
     { key: 'tecnico', label: 'Técnicos' },
@@ -593,8 +602,12 @@ const contarPorFiltro = (key) => store.tecnicos.filter(p => matchFiltro(p, key))
 
 const filteredPersonal = computed(() => {
     let result = store.tecnicos
-    if (filterCargo.value) result = result.filter(p => matchFiltro(p, filterCargo.value))
-    if (search.value) result = result.filter(p => p.nombre.toLowerCase().includes(search.value.toLowerCase()))
+    if (filterCargos.value.length > 0) {
+        result = result.filter(p => filterCargos.value.some(key => matchFiltro(p, key)))
+    }
+    if (search.value) {
+        result = result.filter(p => p.nombre.toLowerCase().includes(search.value.toLowerCase()))
+    }
     return result
 })
 

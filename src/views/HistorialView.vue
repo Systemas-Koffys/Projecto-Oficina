@@ -7,7 +7,7 @@ const { store, uiState, deleteSolicitud, showToast, registrarImpresion } = mainS
 import { 
     Trash2, Plus, Eye, Printer, Pencil, X, 
     Zap, Leaf, MailOpen, Wrench, AlertTriangle, 
-    CheckCircle2, ClipboardList, Filter
+    CheckCircle2, ClipboardList, Filter, ArrowUpDown
 } from 'lucide-vue-next'
 import EmptyState from '../components/EmptyState.vue'
 
@@ -91,6 +91,7 @@ const filtroBarrio = ref('')
 const filtroAccion = ref('')
 const filtroFechaDesde = ref('')
 const filtroFechaHasta = ref('')
+const ordenAsc = ref(false) // false: Últimos ejecutados arriba (predeterminado), true: Primeros ejecutados arriba
 
 const limpiarFiltros = () => {
     filtroBusqueda.value = ''
@@ -143,7 +144,11 @@ const solicitudesFiltradas = computed(() => {
         }
 
         return coincideBusqueda && coincideBarrio && coincideAccion && coincideFecha;
-    }).sort((a, b) => new Date(b.fecha_ejecucion) - new Date(a.fecha_ejecucion))
+    }).sort((a, b) => {
+        const dateA = new Date(a.fecha_ejecucion || a.fecha_ingreso || 0)
+        const dateB = new Date(b.fecha_ejecucion || b.fecha_ingreso || 0)
+        return ordenAsc.value ? dateA - dateB : dateB - dateA
+    })
 })
 
 // --- Lógica de Paginación ---
@@ -281,10 +286,18 @@ const formatLoDeterminado = (sol) => {
                     <h3 class="text-xs font-black text-muted uppercase tracking-widest flex items-center gap-2">
                         <Filter class="w-4 h-4" /> Filtros de Búsqueda
                     </h3>
-                    <button @click="limpiarFiltros" class="bg-card-main text-muted border border-main hover:bg-card-sec hover:text-main px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95">
-                        <Trash2 class="w-3.5 h-3.5" />
-                        Limpiar Filtros
-                    </button>
+                    <div class="flex gap-2.5">
+                        <!-- Botón de Ordenamiento -->
+                        <button @click="ordenAsc = !ordenAsc" class="px-4 py-2 bg-accent/10 hover:bg-accent/20 text-accent hover:text-accent-hover border border-accent/20 hover:border-accent/40 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 hover:-translate-y-0.5">
+                            <ArrowUpDown class="w-3.5 h-3.5" />
+                            <span>{{ ordenAsc ? 'Orden: Primero a Último' : 'Orden: Último a Primero' }}</span>
+                        </button>
+                        <!-- Botón Limpiar Filtros Premium -->
+                        <button @click="limpiarFiltros" class="px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-600 border border-red-500/20 hover:border-red-500/40 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 hover:-translate-y-0.5">
+                            <Trash2 class="w-3.5 h-3.5" />
+                            Limpiar Filtros
+                        </button>
+                    </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="lg:col-span-2">
@@ -325,11 +338,13 @@ const formatLoDeterminado = (sol) => {
                     <table>
                         <thead>
                             <tr>
+                                <th class="w-12 text-center">#</th>
                                 <th>Cód. Interno</th>
-                                <th>Ingreso</th>
+                                <th>Fecha Ingreso</th>
                                 <th>Solicitante</th>
+                                <th>Distrito</th>
                                 <th>Barrio</th>
-                                <th>Lo Solicitado</th>
+                                <th>Árboles Registrados</th>
                                 <th>Lo Determinado</th>
                                 <th>Estado</th>
                                 <th>Urgencia</th>
@@ -338,14 +353,18 @@ const formatLoDeterminado = (sol) => {
                         </thead>
                         <tbody>
                             <tr v-if="solicitudesPaginadas.length === 0">
-                                <td colspan="9" class="p-8">
+                                <td colspan="11" class="p-8">
                                     <EmptyState message="No hay trámites terminados" description="Modifica los filtros de fecha o barrio para encontrar solicitudes archivadas." />
                                 </td>
                             </tr>
-                            <tr v-for="sol in solicitudesPaginadas" :key="sol.id_solicitud">
+                            <tr v-for="(sol, idx) in solicitudesPaginadas" :key="sol.id_solicitud">
+                                <td class="text-center font-bold text-muted bg-card-sec/30">
+                                    {{ ordenAsc ? (paginaActual - 1) * itemsPorPagina + idx + 1 : solicitudesFiltradas.length - ((paginaActual - 1) * itemsPorPagina + idx) }}
+                                </td>
                                 <td class="font-bold text-accent">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</td>
                                 <td>{{ formatFecha(sol.fecha_ingreso) }}</td>
                                 <td>{{ sol.solicitante_nombre }}</td>
+                                <td class="font-bold text-xs">{{ getDistritoByBarrio(sol.id_barrio) }}</td>
                                 <td>{{ getBarrio(sol.id_barrio) }}</td>
                                 <td class="truncate max-w-xs" :title="formatLoSolicitado(sol)">{{ formatLoSolicitado(sol) }}</td>
                                 <td class="truncate max-w-xs" :title="formatLoDeterminado(sol)">{{ formatLoDeterminado(sol) }}</td>
@@ -446,7 +465,8 @@ const formatLoDeterminado = (sol) => {
                         <p class="text-green-200 text-xs font-semibold uppercase tracking-widest mb-1">Trámite de Arboricultura</p>
                         <h2 class="text-white text-xl font-bold">{{ solicitudSeleccionada.comunicacion_interna || `#${solicitudSeleccionada.id_solicitud}` }}</h2>
                         <div class="flex items-center gap-3 mt-2">
-                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold text-white bg-emerald-600">
+                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold text-white"
+                                :class="solicitudSeleccionada.estado_tramite === 'Terminado' ? 'bg-emerald-600' : 'bg-blue-600'">
                                 {{ solicitudSeleccionada.estado_tramite || 'En espera' }}
                             </span>
                         </div>

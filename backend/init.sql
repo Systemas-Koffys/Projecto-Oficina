@@ -397,6 +397,10 @@ LOCK TABLES `tipos_solicitantes` WRITE;
 INSERT INTO `tipos_solicitantes` VALUES (1,'Área Rural'),(2,'Centro de Salud'),(3,'Institución Pública / Municipal'),(4,'Institución / Asociación'),(5,'Organización Vecinal'),(6,'Mercado Municipal'),(7,'Unidad Educativa');
 /*!40000 ALTER TABLE `tipos_solicitantes` ENABLE KEYS */;
 UNLOCK TABLES;
+-- Fix: Restore id_distrito column to instituciones table
+ALTER TABLE `instituciones` ADD COLUMN `id_distrito` INT DEFAULT NULL;
+ALTER TABLE `instituciones` ADD CONSTRAINT `fk_instituciones_distritos` FOREIGN KEY (`id_distrito`) REFERENCES `distritos` (`id_distrito`) ON DELETE SET NULL;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

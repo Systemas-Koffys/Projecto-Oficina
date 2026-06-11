@@ -240,63 +240,10 @@
         </div>
     </div>
 
-    <!-- Tabla de Pendientes y Backlog por Distrito -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <!-- Tabla de Pendientes (Izquierda) -->
-        <div class="lg:col-span-8 card p-8 border-none shadow-2xl overflow-hidden">
-            <div class="flex justify-between items-center mb-8 border-b border-sec pb-6">
-                <h3 class="font-black text-xl tracking-tighter flex items-center gap-2">
-                    <Clock class="w-5 h-5 text-yellow-500 animate-pulse" />
-                    Cola de Trabajo Inmediata
-                </h3>
-                <button @click="$router.push('/solicitudes')" class="text-[10px] font-black uppercase tracking-widest text-accent hover:underline html2pdf__ignore">Ver todo</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full" v-if="ultimasSolicitudes.length > 0">
-                    <thead>
-                        <tr class="text-[10px] font-black uppercase text-muted tracking-[0.2em]">
-                            <th class="py-4 px-4 text-left">Código</th>
-                            <th class="py-4 px-4 text-left">Ingreso</th>
-                            <th class="py-4 px-4 text-left">Ubicación / Barrio</th>
-                            <th class="py-4 px-4 text-left">Solicitud</th>
-                            <th class="py-4 px-4 text-center">Prioridad</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-sec">
-                        <tr v-for="(sol, index) in ultimasSolicitudes" :key="index" class="group hover:bg-card-sec transition-all">
-                            <td class="py-5 px-4 font-black text-sm text-accent">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</td>
-                            <td class="py-5 px-4 text-xs font-bold text-muted">{{ sol.fecha_ingreso }}</td>
-                            <td class="py-5 px-4">
-                                <p class="text-sm font-black text-main">{{ getBarrioNombre(sol.id_barrio) }}</p>
-                                <p class="text-[10px] font-bold text-muted truncate max-w-[200px]">{{ sol.calle }}</p>
-                            </td>
-                            <td class="py-5 px-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-                                    <span class="text-xs font-bold text-main">{{ getAccionNombre(sol.id_accion_solicitada) }}</span>
-                                </div>
-                            </td>
-                            <td class="py-5 px-4 text-center">
-                                <span :class="['px-3 py-1 rounded-full text-[9px] font-black tracking-widest', 
-                                    sol.nivel_urgencia === 'Alta' || sol.es_emergencia ? 'bg-red-500 text-white' : 'bg-card-sec text-muted']">
-                                    {{ sol.es_emergencia ? 'EMERGENCIA' : sol.nivel_urgencia }}
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div v-else class="text-center py-12">
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-card-sec mb-4">
-                        <CheckCircle2 class="w-8 h-8 text-emerald-400" />
-                    </div>
-                    <h4 class="text-lg font-black text-main">¡Todo al día!</h4>
-                    <p class="text-sm font-medium text-muted mt-1">No hay solicitudes pendientes en este periodo.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Backlog por Distrito (Derecha) -->
-        <div class="lg:col-span-4 card p-8 border-none shadow-2xl flex flex-col justify-between">
+    <!-- Fila de Distribución de Pendientes (Tres Cajas) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Pendientes por Distrito -->
+        <div class="card p-8 border-none shadow-2xl flex flex-col justify-between">
             <div>
                 <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
                     <MapPin class="w-5 h-5 text-emerald-600" /> Pendientes por Distrito
@@ -320,6 +267,65 @@
                 
                 <div v-if="distritosPendientes.length === 0" class="text-center py-12 text-muted text-xs font-bold">
                     ¡Todos los distritos al día!
+                </div>
+            </div>
+        </div>
+
+        <!-- Pendientes por Barrio -->
+        <div class="card p-8 border-none shadow-2xl flex flex-col justify-between">
+            <div>
+                <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
+                    <Clock class="w-5 h-5 text-yellow-500 animate-pulse" />
+                    Pendientes por Barrio
+                </h3>
+                <p class="text-xs text-muted font-bold uppercase tracking-widest mb-6">Puntos críticos en barrios</p>
+            </div>
+
+            <div class="space-y-4 max-h-[350px] overflow-y-auto custom-scrollbar pr-2 flex-1 mt-4">
+                <div v-for="(barr, idx) in barriosPendientes" :key="idx" 
+                     class="flex items-center justify-between p-3.5 bg-card-sec rounded-2xl border border-sec hover:border-accent/30 hover:bg-accent-soft transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-amber-500/10 text-amber-600 rounded-xl flex items-center justify-center font-black text-xs">
+                            #{{ idx + 1 }}
+                        </div>
+                        <span class="text-xs font-black text-main uppercase tracking-wide truncate max-w-[150px]">{{ barr.nombre }}</span>
+                    </div>
+                    <span class="px-3 py-1 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-lg text-xs font-black tabular-nums">
+                        {{ barr.value }} pend.
+                    </span>
+                </div>
+                
+                <div v-if="barriosPendientes.length === 0" class="text-center py-12 text-muted text-xs font-bold">
+                    ¡Todos los barrios al día!
+                </div>
+            </div>
+        </div>
+
+        <!-- Pendientes por Tipo de Trabajo -->
+        <div class="card p-8 border-none shadow-2xl flex flex-col justify-between">
+            <div>
+                <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
+                    <Wrench class="w-5 h-5 text-blue-600" /> Pendientes por Trabajo
+                </h3>
+                <p class="text-xs text-muted font-bold uppercase tracking-widest mb-6">Clasificación por tipo de acción</p>
+            </div>
+
+            <div class="space-y-4 max-h-[350px] overflow-y-auto custom-scrollbar pr-2 flex-1 mt-4">
+                <div v-for="(acc, idx) in accionesPendientes" :key="idx" 
+                     class="flex items-center justify-between p-3.5 bg-card-sec rounded-2xl border border-sec hover:border-accent/30 hover:bg-accent-soft transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-blue-500/10 text-blue-600 rounded-xl flex items-center justify-center font-black text-xs">
+                            {{ acc.nombre[0] || 'A' }}
+                        </div>
+                        <span class="text-xs font-black text-main uppercase tracking-wide truncate max-w-[150px]">{{ acc.nombre }}</span>
+                    </div>
+                    <span class="px-3 py-1 bg-blue-500/10 text-blue-600 border border-blue-500/20 rounded-lg text-xs font-black tabular-nums">
+                        {{ acc.value }} pend.
+                    </span>
+                </div>
+                
+                <div v-if="accionesPendientes.length === 0" class="text-center py-12 text-muted text-xs font-bold">
+                    ¡Cero tareas pendientes!
                 </div>
             </div>
         </div>
@@ -436,6 +442,41 @@ const distritosPendientes = computed(() => {
                 const nombre = d ? d.nombre : `Distrito ${distId}`
                 counts[nombre] = (counts[nombre] || 0) + 1
             }
+        }
+    })
+    return Object.entries(counts)
+        .map(([nombre, value]) => ({ nombre, value }))
+        .sort((a, b) => b.value - a.value)
+})
+
+// --- BARRIOS CON TRÁMITES PENDIENTES ---
+const barriosPendientes = computed(() => {
+    const counts = {}
+    store.solicitudes.forEach(s => {
+        if (s.estado_tramite === 'En espera') {
+            const barrio = store.barrios.find(b => b.id === s.id_barrio)
+            const nombre = barrio ? barrio.nombre : 'Sin Barrio'
+            counts[nombre] = (counts[nombre] || 0) + 1
+        }
+    })
+    return Object.entries(counts)
+        .map(([nombre, value]) => ({ nombre, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 10)
+})
+
+// --- ACCIONES CON TRÁMITES PENDIENTES ---
+const accionesPendientes = computed(() => {
+    const counts = {}
+    store.solicitudes.forEach(s => {
+        if (s.estado_tramite === 'En espera') {
+            let accId = s.id_accion_solicitada;
+            if (!accId && s.arboles && s.arboles.length > 0) {
+                accId = s.arboles[0].id_accion_solicitada;
+            }
+            const acc = store.acciones.find(a => a.id === accId)
+            const nombre = acc ? acc.nombre.split('–')[0].trim() : 'Sin Acción'
+            counts[nombre] = (counts[nombre] || 0) + 1
         }
     })
     return Object.entries(counts)

@@ -381,6 +381,24 @@ svg { stroke: currentColor; }
 /* ============================================================
    AURA PULSANTE DE URGENCIA (BADGES DE EMERGENCIA/ALTA)
    ============================================================ */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+}
+.badge-completed {
+    background-color: #10b981 !important;
+    color: #ffffff !important;
+}
+.badge-pending {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
 .badge-urgent {
     position: relative;
     overflow: visible;

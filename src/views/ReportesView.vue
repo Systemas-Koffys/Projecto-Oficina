@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, registrarImpresion, deleteImpresion, updateImpresionName, showToast, fetchImpresiones } = mainStore
@@ -30,15 +30,42 @@ const ejecutarConfirmacion = async () => {
 }
 
 // Filtros para el generador
+const nombreHojaRuta = ref('')
+const filtroEstado = ref('En espera') 
+const filtroDistrito = ref('')
 const filtroBarrio = ref('')
 const filtroTecnico = ref('')
+const filtroTipoInstitucion = ref('')
+const filtroAccion = ref('')
+const filtroUrgencia = ref('')
+const filtroEspecie = ref('')
+
+// Rango de fechas
+const filtroFechaIngresoDesde = ref('')
+const filtroFechaIngresoHasta = ref('')
+const filtroFechaVerifDesde = ref('')
+const filtroFechaVerifHasta = ref('')
+
+// Banderas Booleanas
 const filtroSetar = ref('')
 const filtroPlataforma = ref('')
-const filtroEstado = ref('En espera') 
-const filtroUrgencia = ref('')
-const filtroAccion = ref('')
-const filtroEspecie = ref('')
-const nombreHojaRuta = ref('')
+const filtroArbolSeco = ref('')
+const filtroEmergencia = ref('')
+const filtroSegundaNota = ref('')
+const filtroFichaTecnica = ref('')
+const filtroProcede = ref('')
+
+// 1. DISTRITO -> BARRIOS (Si cambio distrito, limpio barrio si no pertenece o si se deselecciona)
+watch(filtroDistrito, (newDist) => {
+    if (newDist && filtroBarrio.value) {
+        const barrioActual = store.barrios.find(b => b.id == filtroBarrio.value);
+        if (barrioActual && barrioActual.id_distrito != newDist) {
+            filtroBarrio.value = '';
+        }
+    } else if (!newDist) {
+        filtroBarrio.value = '';
+    }
+})
 
 onMounted(() => {
     // Los datos ya vienen cargados desde el App.vue
@@ -48,19 +75,76 @@ const solicitudesFiltradas = computed(() => {
     return store.solicitudes.filter(sol => {
         let match = true
         if (filtroBarrio.value && sol.id_barrio != filtroBarrio.value) match = false
+        
+        // Distrito filter
+        if (filtroDistrito.value) {
+            const b = store.barrios.find(x => x.id == sol.id_barrio)
+            if (!b || b.id_distrito != filtroDistrito.value) match = false
+        }
+        
         if (filtroTecnico.value && sol.id_tecnico_ejecucion != filtroTecnico.value) match = false
         if (filtroUrgencia.value && sol.nivel_urgencia != filtroUrgencia.value) match = false
-        if (filtroAccion.value && sol.id_accion != filtroAccion.value) match = false
-        if (filtroEspecie.value && sol.id_especie != filtroEspecie.value) match = false
         
+        // Acción filter: Match either main determined action or any tree's determined action
+        if (filtroAccion.value) {
+            const matchAccionPrincipal = sol.id_accion == filtroAccion.value
+            const matchAccionArboles = sol.arboles && sol.arboles.some(a => a.id_accion_realizar == filtroAccion.value)
+            if (!matchAccionPrincipal && !matchAccionArboles) match = false
+        }
+        
+        if (filtroEspecie.value && sol.id_especie != filtroEspecie.value) match = false
+        if (filtroTipoInstitucion.value && sol.id_tipo_institucion != filtroTipoInstitucion.value) match = false
+
+        // Fechas Ingreso
+        if (filtroFechaIngresoDesde.value && sol.fecha_ingreso) {
+            if (new Date(sol.fecha_ingreso) < new Date(filtroFechaIngresoDesde.value)) match = false
+        }
+        if (filtroFechaIngresoHasta.value && sol.fecha_ingreso) {
+            const hasta = new Date(filtroFechaIngresoHasta.value)
+            hasta.setDate(hasta.getDate() + 1)
+            if (new Date(sol.fecha_ingreso) >= hasta) match = false
+        }
+
+        // Fechas Verificación
+        if (filtroFechaVerifDesde.value && sol.fecha_verificacion) {
+            if (new Date(sol.fecha_verificacion) < new Date(filtroFechaVerifDesde.value)) match = false
+        }
+        if (filtroFechaVerifHasta.value && sol.fecha_verificacion) {
+            const hasta = new Date(filtroFechaVerifHasta.value)
+            hasta.setDate(hasta.getDate() + 1)
+            if (new Date(sol.fecha_verificacion) >= hasta) match = false
+        }
+
+        // Condiciones Especiales
         if (filtroSetar.value !== '') {
-            const reqSetar = sol.requiere_setar ? '1' : '0'
-            if (reqSetar !== filtroSetar.value) match = false
+            const req = sol.requiere_setar ? '1' : '0'
+            if (req !== filtroSetar.value) match = false
         }
         if (filtroPlataforma.value !== '') {
-            const reqPlat = sol.requiere_plataforma ? '1' : '0'
-            if (reqPlat !== filtroPlataforma.value) match = false
+            const req = sol.requiere_plataforma ? '1' : '0'
+            if (req !== filtroPlataforma.value) match = false
         }
+        if (filtroArbolSeco.value !== '') {
+            const req = sol.arbol_seco ? '1' : '0'
+            if (req !== filtroArbolSeco.value) match = false
+        }
+        if (filtroEmergencia.value !== '') {
+            const req = (sol.es_emergencia || sol.nivel_urgencia === 'Alta') ? '1' : '0'
+            if (req !== filtroEmergencia.value) match = false
+        }
+        if (filtroSegundaNota.value !== '') {
+            const req = sol.segunda_nota ? '1' : '0'
+            if (req !== filtroSegundaNota.value) match = false
+        }
+        if (filtroFichaTecnica.value !== '') {
+            const req = sol.requiere_ficha_tecnica ? '1' : '0'
+            if (req !== filtroFichaTecnica.value) match = false
+        }
+        if (filtroProcede.value !== '') {
+            const req = sol.procede ? '1' : '0'
+            if (req !== filtroProcede.value) match = false
+        }
+        
         if (filtroEstado.value && sol.estado_tramite !== filtroEstado.value) match = false
         return match
     })
@@ -82,6 +166,57 @@ const getEspecie = (id) => {
     if (!id) return 'Todas'
     const e = store.especies.find(x => x.id == id)
     return e ? e.nombre : 'N/A'
+}
+
+const getDistritoByBarrio = (idBarrio) => {
+    if (!idBarrio) return '—'
+    const b = store.barrios.find(x => x.id == idBarrio)
+    if (!b) return '—'
+    const d = store.distritos.find(x => x.id == b.id_distrito)
+    return d ? d.nombre : '—'
+}
+
+const formatFechaSimple = (str) => {
+    if (!str) return '—'
+    const f = new Date(str)
+    const d = String(f.getUTCDate()).padStart(2, '0');
+    const m = String(f.getUTCMonth() + 1).padStart(2, '0');
+    const a = String(f.getUTCFullYear()).slice(-2);
+    return `${d}/${m}/${a}`;
+}
+
+const formatLoSolicitado = (sol) => {
+    if (!sol.arboles || sol.arboles.length === 0) {
+        const esp = getEspecie(sol.id_especie)
+        const acc = getAccion(sol.id_accion_solicitada)
+        if (esp === 'No verificada') return acc
+        return `${esp} (${acc})`
+    }
+    const total = sol.arboles.length
+    if (total === 1) {
+        const esp = getEspecie(sol.arboles[0].id_especie)
+        const acc = getAccion(sol.arboles[0].id_accion_solicitada)
+        return `${esp} (${acc})`
+    }
+    const especies = sol.arboles.map(a => getEspecie(a.id_especie)).filter(n => n !== 'No verificada')
+    const uniqueEsp = [...new Set(especies)]
+    const espStr = uniqueEsp.length > 0 ? uniqueEsp.join(', ') : 'Desconocido'
+    return `${espStr} (${total} árboles)`
+}
+
+const formatLoDeterminado = (sol) => {
+    if (!sol.arboles || sol.arboles.length === 0) {
+        const acc = getAccion(sol.id_accion)
+        return acc
+    }
+    const total = sol.arboles.length
+    if (total === 1) {
+        const acc = getAccion(sol.arboles[0].id_accion_realizar)
+        return acc
+    }
+    const acciones = sol.arboles.map(a => getAccion(a.id_accion_realizar)).filter(n => n !== 'Pendiente')
+    const uniqueAcc = [...new Set(acciones)]
+    return uniqueAcc.length > 0 ? uniqueAcc.join(', ') : 'Pendiente'
 }
 
 const imprimirHojaRuta = async () => {
@@ -117,8 +252,6 @@ const imprimirHojaRuta = async () => {
 
 const handleReimprimir = (imp) => {
     showToast('Re-generando vista de impresión para: ' + imp.nombre_reporte, 'success')
-    // Nota: Aquí se podría reaplicar la lógica de filtros si se guardaran como JSON, 
-    // pero por ahora imprimimos el historial o mostramos que es inmutable.
     window.print()
 }
 
@@ -153,10 +286,33 @@ const formatFecha = (str) => {
     const f = new Date(str)
     return f.toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
+
+const limpiarFiltros = () => {
+    nombreHojaRuta.value = ''
+    filtroBarrio.value = ''
+    filtroTecnico.value = ''
+    filtroSetar.value = ''
+    filtroPlataforma.value = ''
+    filtroEstado.value = 'En espera'
+    filtroUrgencia.value = ''
+    filtroAccion.value = ''
+    filtroEspecie.value = ''
+    filtroDistrito.value = ''
+    filtroTipoInstitucion.value = ''
+    filtroFechaIngresoDesde.value = ''
+    filtroFechaIngresoHasta.value = ''
+    filtroFechaVerifDesde.value = ''
+    filtroFechaVerifHasta.value = ''
+    filtroArbolSeco.value = ''
+    filtroEmergencia.value = ''
+    filtroSegundaNota.value = ''
+    filtroFichaTecnica.value = ''
+    filtroProcede.value = ''
+}
 </script>
 
 <template>
-    <div class="reportes-view p-6 max-w-[1400px] mx-auto text-main animate-in">
+    <div class="reportes-view p-6 text-main animate-in">
         
         <!-- Header del Centro de Reportes -->
         <div class="mb-8 flex justify-between items-center no-print">
@@ -191,59 +347,182 @@ const formatFecha = (str) => {
                     <div class="bg-card-main border border-main rounded-3xl shadow-sm p-6 overflow-hidden relative text-main">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-accent-soft rounded-full -mr-16 -mt-16 opacity-30"></div>
                         
-                        <h3 class="text-xs font-black text-muted uppercase tracking-widest mb-6 flex items-center gap-2">
-                            <Filter size="14" /> Parámetros de Compilación
-                        </h3>
+                        <div class="flex justify-between items-center mb-6 relative z-10">
+                            <h3 class="text-xs font-black text-muted uppercase tracking-widest flex items-center gap-2">
+                                <Filter size="14" /> Parámetros de Compilación
+                            </h3>
+                            <button @click="limpiarFiltros" 
+                                class="text-[10px] font-black text-red-500 hover:text-white transition-all uppercase tracking-widest flex items-center gap-1 cursor-pointer bg-red-500/10 hover:bg-red-600 px-2.5 py-1 rounded-lg">
+                                Limpiar
+                            </button>
+                        </div>
 
-                        <div class="space-y-4">
-                            <div>
-                                <label class="label-mini">Nombre del Reporte (Opcional)</label>
-                                <input type="text" v-model="nombreHojaRuta" placeholder="Ej: Ruta Norte Lunes..." class="input-modern" />
-                            </div>
-                            <div>
-                                <label class="label-mini">Barrio Objetivo</label>
-                                <select v-model="filtroBarrio" class="input-modern">
-                                    <option value="">Todos los sectores</option>
-                                    <option v-for="b in store.barrios" :key="b.id" :value="b.id">{{ b.nombre }}</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="label-mini">Estado del Trámite</label>
-                                <select v-model="filtroEstado" class="input-modern">
-                                    <option value="En espera">Solo Pendientes</option>
-                                    <option value="Terminado">Solo Terminados</option>
-                                    <option value="">Cualquier estado</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="label-mini">Acción Técnica</label>
-                                <select v-model="filtroAccion" class="input-modern">
-                                    <option value="">Todas las acciones</option>
-                                    <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
-                                </select>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-6 max-h-[620px] overflow-y-auto pr-2 custom-scrollbar relative z-10">
+                            <!-- SECCIÓN: REPORTES & ESTADOS -->
+                            <div class="space-y-4">
+                                <span class="text-[9px] font-black text-muted uppercase tracking-wider block border-b border-main pb-1.5">Reportes y Estados</span>
                                 <div>
-                                    <label class="label-mini">Setar</label>
-                                    <select v-model="filtroSetar" class="input-modern">
-                                        <option value="">Ambos</option>
-                                        <option value="1">Sí</option>
-                                        <option value="0">No</option>
+                                    <label class="label-mini">Nombre del Reporte (Opcional)</label>
+                                    <input type="text" v-model="nombreHojaRuta" placeholder="Ej: Ruta Norte Lunes..." class="input-modern" />
+                                </div>
+                                <div>
+                                    <label class="label-mini">Estado del Trámite</label>
+                                    <select v-model="filtroEstado" class="input-modern">
+                                        <option value="En espera">Solo Pendientes</option>
+                                        <option value="Terminado">Solo Terminados</option>
+                                        <option value="">Cualquier estado</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- SECCIÓN: UBICACIÓN -->
+                            <div class="space-y-4">
+                                <span class="text-[9px] font-black text-muted uppercase tracking-wider block border-b border-main pb-1.5">Ubicación</span>
+                                <div>
+                                    <label class="label-mini">Distrito Municipal</label>
+                                    <select v-model="filtroDistrito" class="input-modern">
+                                        <option value="">Todos los distritos</option>
+                                        <option v-for="d in store.distritos" :key="d.id" :value="d.id">{{ d.nombre }}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="label-mini">Grúa</label>
-                                    <select v-model="filtroPlataforma" class="input-modern">
-                                        <option value="">Ambos</option>
-                                        <option value="1">Sí</option>
-                                        <option value="0">No</option>
+                                    <label class="label-mini">Barrio Objetivo</label>
+                                    <select v-model="filtroBarrio" class="input-modern">
+                                        <option value="">Todos los sectores</option>
+                                        <option v-for="b in (filtroDistrito ? store.barrios.filter(x => x.id_distrito == filtroDistrito) : store.barrios)" :key="b.id" :value="b.id">{{ b.nombre }}</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <!-- SECCIÓN: RANGOS DE FECHAS -->
+                            <div class="space-y-4">
+                                <span class="text-[9px] font-black text-muted uppercase tracking-wider block border-b border-main pb-1.5">Rango de Fechas</span>
+                                <div>
+                                    <label class="label-mini">F. Ingreso Desde</label>
+                                    <input type="date" v-model="filtroFechaIngresoDesde" class="input-modern" />
+                                </div>
+                                <div>
+                                    <label class="label-mini">F. Ingreso Hasta</label>
+                                    <input type="date" v-model="filtroFechaIngresoHasta" class="input-modern" />
+                                </div>
+                                <div>
+                                    <label class="label-mini">F. Verificación Desde</label>
+                                    <input type="date" v-model="filtroFechaVerifDesde" class="input-modern" />
+                                </div>
+                                <div>
+                                    <label class="label-mini">F. Verificación Hasta</label>
+                                    <input type="date" v-model="filtroFechaVerifHasta" class="input-modern" />
+                                </div>
+                            </div>
+
+                            <!-- SECCIÓN: DETALLES TÉCNICOS -->
+                            <div class="space-y-4">
+                                <span class="text-[9px] font-black text-muted uppercase tracking-wider block border-b border-main pb-1.5">Detalles Técnicos</span>
+                                <div>
+                                    <label class="label-mini">Técnico Responsable</label>
+                                    <select v-model="filtroTecnico" class="input-modern">
+                                        <option value="">Todos los técnicos</option>
+                                        <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="label-mini">Acción Técnica</label>
+                                    <select v-model="filtroAccion" class="input-modern">
+                                        <option value="">Todas las acciones</option>
+                                        <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="label-mini">Tipo de Institución</label>
+                                    <select v-model="filtroTipoInstitucion" class="input-modern">
+                                        <option value="">Particular / Todos</option>
+                                        <option v-for="t in store.tipos_institucion" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="label-mini">Especie de Árbol</label>
+                                    <select v-model="filtroEspecie" class="input-modern">
+                                        <option value="">Todas las especies</option>
+                                        <option v-for="e in store.especies" :key="e.id" :value="e.id">{{ e.nombre }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="label-mini">Nivel de Urgencia</label>
+                                    <select v-model="filtroUrgencia" class="input-modern">
+                                        <option value="">Todas</option>
+                                        <option value="Baja">🟢 Baja</option>
+                                        <option value="Intermedia">🟡 Intermedia</option>
+                                        <option value="Alta">🔴 Alta</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- SECCIÓN: CONDICIONES LOGÍSTICAS -->
+                            <div class="space-y-4">
+                                <span class="text-[9px] font-black text-muted uppercase tracking-wider block border-b border-main pb-1.5">Condiciones Logísticas</span>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="label-mini">Setar</label>
+                                        <select v-model="filtroSetar" class="input-modern">
+                                            <option value="">Ambos</option>
+                                            <option value="1">Sí</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="label-mini">Grúa</label>
+                                        <select v-model="filtroPlataforma" class="input-modern">
+                                            <option value="">Ambos</option>
+                                            <option value="1">Sí</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="label-mini">Seco</label>
+                                        <select v-model="filtroArbolSeco" class="input-modern">
+                                            <option value="">Ambos</option>
+                                            <option value="1">Sí</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="label-mini">Emergencia</label>
+                                        <select v-model="filtroEmergencia" class="input-modern">
+                                            <option value="">Ambos</option>
+                                            <option value="1">Sí</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="label-mini">2da Nota</label>
+                                        <select v-model="filtroSegundaNota" class="input-modern">
+                                            <option value="">Ambos</option>
+                                            <option value="1">Sí</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="label-mini">Ficha Tec.</label>
+                                        <select v-model="filtroFichaTecnica" class="input-modern">
+                                            <option value="">Ambos</option>
+                                            <option value="1">Sí</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="label-mini">Procede</label>
+                                        <select v-model="filtroProcede" class="input-modern">
+                                            <option value="">Ambos</option>
+                                            <option value="1">Sí</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <button @click="imprimirHojaRuta" 
-                            class="w-full mt-8 bg-accent text-on-accent py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 cursor-pointer">
+                            class="w-full mt-6 bg-accent text-on-accent py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 cursor-pointer">
                             <Printer size="18" /> Generar y Registrar
                         </button>
                     </div>
@@ -273,9 +552,9 @@ const formatFecha = (str) => {
                                 <thead>
                                     <tr class="text-[10px] font-black uppercase text-muted tracking-widest border-b border-main">
                                         <th class="px-8 py-4 w-12 text-center border-b border-main">#</th>
-                                        <th class="px-8 py-4 border-b border-main">Código / Solicitante</th>
-                                        <th class="px-6 py-4 border-b border-main">Ubicación Exacta</th>
-                                        <th class="px-6 py-4 border-b border-main">Acción Técnica</th>
+                                        <th class="px-8 py-4 w-32 border-b border-main">Código / F. Ingreso</th>
+                                        <th class="px-8 py-4 border-b border-main">Solicitante y Ubicación</th>
+                                        <th class="px-6 py-4 border-b border-main">Detalle de Acción Técnica</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -290,15 +569,19 @@ const formatFecha = (str) => {
                                     <tr v-for="(sol, idx) in solicitudesFiltradas" :key="sol.id_solicitud" class="group border-b border-main hover:bg-accent-soft transition-all">
                                         <td class="px-8 py-5 text-center font-bold text-muted border-b border-main bg-card-sec group-hover:bg-accent-soft">{{ idx + 1 }}</td>
                                         <td class="px-8 py-5 border-b border-main">
-                                            <p class="font-black text-accent text-sm mb-0.5">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</p>
-                                            <p class="text-xs text-muted font-bold uppercase tracking-tighter">{{ sol.solicitante_nombre }}</p>
+                                            <p class="font-black text-accent text-sm mb-0.5 whitespace-nowrap">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</p>
+                                            <p class="text-[10px] text-muted font-bold">{{ formatFechaSimple(sol.fecha_ingreso) }}</p>
+                                        </td>
+                                        <td class="px-8 py-5 border-b border-main">
+                                            <p class="text-xs text-muted font-black uppercase tracking-tighter mb-0.5">{{ sol.solicitante_nombre }}</p>
+                                            <p class="text-[10px] text-muted mb-1">📞 Telf: {{ sol.solicitante_telefono || '—' }}</p>
+                                            <p class="text-sm font-bold text-main mb-0.5">{{ sol.calle }} {{ sol.numero_casa }}</p>
+                                            <p class="text-[10px] text-accent font-black uppercase tracking-widest">{{ getBarrio(sol.id_barrio) }} (Distrito {{ getDistritoByBarrio(sol.id_barrio) }})</p>
                                         </td>
                                         <td class="px-6 py-5 border-b border-main">
-                                            <p class="text-sm font-bold text-main">{{ sol.calle }} {{ sol.numero_casa }}</p>
-                                            <p class="text-[10px] text-muted font-black uppercase tracking-widest">{{ getBarrio(sol.id_barrio) }}</p>
-                                        </td>
-                                        <td class="px-6 py-5 border-b border-main">
-                                            <span class="text-xs font-bold text-main">{{ getAccion(sol.id_accion) }}</span>
+                                            <p class="text-xs font-black text-main uppercase mb-0.5">Determinado: {{ formatLoDeterminado(sol) }}</p>
+                                            <p class="text-[11px] text-muted mb-0.5">Solicitado: {{ formatLoSolicitado(sol) }}</p>
+                                            <p class="text-[10px] text-muted italic">Ref: {{ sol.referencia || 'Sin referencia' }}</p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -394,7 +677,7 @@ const formatFecha = (str) => {
                 <div class="flex justify-center gap-4 mt-1 text-[10px] font-bold italic text-gray-600 print-meta">
                     <span>Emisión: {{ new Date().toLocaleString() }}</span>
                     <span>|</span>
-                    <span>Generado por: {{ uiState.user?.nombre }}</span>
+                    <span>Generado por: Usuario {{ uiState.user?.nombre }}</span>
                 </div>
             </div>
 
@@ -411,7 +694,8 @@ const formatFecha = (str) => {
                 <thead>
                     <tr class="bg-gray-100 text-[9px] uppercase font-black text-center">
                         <th class="border-2 border-black p-2 w-10 text-center">#</th>
-                        <th class="border-2 border-black p-2 w-16">Código</th>
+                        <th class="border-2 border-black p-2 w-20">Código</th>
+                        <th class="border-2 border-black p-2 w-20">F. Ingreso</th>
                         <th class="border-2 border-black p-2 w-48 text-left">Solicitante y Ubicación</th>
                         <th class="border-2 border-black p-2 text-left">Detalle de Acción Técnica</th>
                         <th class="border-2 border-black p-2 w-24">Firma Conformidad</th>
@@ -420,15 +704,18 @@ const formatFecha = (str) => {
                 <tbody>
                     <tr v-for="(sol, idx) in solicitudesFiltradas" :key="sol.id_solicitud" class="text-[10px]">
                         <td class="border-2 border-black p-2 text-center font-bold">{{ idx + 1 }}</td>
-                        <td class="border-2 border-black p-2 text-center font-black">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</td>
+                        <td class="border-2 border-black p-2 text-center font-black whitespace-nowrap">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</td>
+                        <td class="border-2 border-black p-2 text-center whitespace-nowrap">{{ formatFechaSimple(sol.fecha_ingreso) }}</td>
                         <td class="border-2 border-black p-2">
-                            <p class="font-black uppercase text-emerald-900 mb-1">{{ sol.solicitante_nombre }}</p>
-                            <p class="font-bold">{{ sol.calle }} {{ sol.numero_casa }}</p>
-                            <p class="text-[9px] italic">{{ getBarrio(sol.id_barrio) }}</p>
+                            <p class="font-black uppercase text-emerald-900 mb-0.5">{{ sol.solicitante_nombre }}</p>
+                            <p class="text-[9px] text-gray-500 mb-1 font-bold">📞 Telf: {{ sol.solicitante_telefono || '—' }}</p>
+                            <p class="font-bold mb-0.5">{{ sol.calle }} {{ sol.numero_casa }}</p>
+                            <p class="text-[9px] italic">{{ getBarrio(sol.id_barrio) }} (Distrito {{ getDistritoByBarrio(sol.id_barrio) }})</p>
                         </td>
                         <td class="border-2 border-black p-2">
-                            <p class="font-bold uppercase text-gray-800">{{ getAccion(sol.id_accion) }}</p>
-                            <p class="text-[9px] text-gray-500 mt-1">Ref: {{ sol.referencia }}</p>
+                            <p class="font-bold uppercase text-gray-800 mb-0.5">Determinado: {{ formatLoDeterminado(sol) }}</p>
+                            <p class="text-[9px] text-gray-600 mb-0.5">Solicitado: {{ formatLoSolicitado(sol) }}</p>
+                            <p class="text-[9px] text-gray-500 italic">Ref: {{ sol.referencia || 'Sin referencia' }}</p>
                         </td>
                         <td class="border-2 border-black p-2"></td>
                     </tr>
