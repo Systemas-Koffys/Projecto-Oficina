@@ -396,7 +396,23 @@ LOCK TABLES `tipos_solicitantes` WRITE;
 /*!40000 ALTER TABLE `tipos_solicitantes` DISABLE KEYS */;
 INSERT INTO `tipos_solicitantes` VALUES (1,'Área Rural'),(2,'Centro de Salud'),(3,'Institución Pública / Municipal'),(4,'Institución / Asociación'),(5,'Organización Vecinal'),(6,'Mercado Municipal'),(7,'Unidad Educativa');
 /*!40000 ALTER TABLE `tipos_solicitantes` ENABLE KEYS */;
-UNLOCK TABLES;
+--
+-- Table structure for table `auditoria_actividad`
+--
+
+DROP TABLE IF EXISTS `auditoria_actividad`;
+CREATE TABLE `auditoria_actividad` (
+  `id_auditoria` int NOT NULL AUTO_INCREMENT,
+  `fecha_hora` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `usuario` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `accion` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tabla_afectada` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `registro_id` int DEFAULT NULL,
+  `detalles` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id_auditoria`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

@@ -68,6 +68,21 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+// Helper de Auditoría Inmutable
+async function registrarAuditoria(req, accion, tablaAfectada, registroId, detalles) {
+  try {
+    const usuario = req.user?.username || req.user?.nombre || 'SISTEMA';
+    const role = req.user?.role || 'SISTEMA';
+    const cleanDetalles = detalles ? (typeof detalles === 'object' ? JSON.stringify(detalles) : String(detalles)) : null;
+
+    const query = 'INSERT INTO auditoria_actividad (usuario, role, accion, tabla_afectada, registro_id, detalles) VALUES (?, ?, ?, ?, ?, ?)';
+    await pool.query(query, [usuario, role, accion, tablaAfectada, registroId, cleanDetalles]);
+    console.log(`[AUDITORÍA] Registro insertado con éxito: ${usuario} -> ${accion} en ${tablaAfectada}`);
+  } catch (error) {
+    console.error('❌ ERROR AL GUARDAR REGISTRO DE AUDITORÍA:', error);
+  }
+}
+
 // Ruta de salud
 app.get('/api/health', async (req, res) => {
   try {
@@ -455,6 +470,7 @@ app.post('/api/solicitudes', async (req, res) => {
     }
 
     await connection.commit();
+    await registrarAuditoria(req, 'CREAR', 'solicitudes_poda', id_solicitud, { codigo_anual: solData.codigo_anual, solicitante: solData.nombre_solicitante });
     res.json({ success: true, id_solicitud });
   } catch (error) {
     await connection.rollback();
@@ -544,6 +560,7 @@ app.put('/api/solicitudes/:id', async (req, res) => {
     }
 
     await connection.commit();
+    await registrarAuditoria(req, 'MODIFICAR', 'solicitudes_poda', id, { estado_tramite: solData.estado_general, solicitante: solData.nombre_solicitante });
     res.json({ success: true });
   } catch (error) {
     await connection.rollback();
@@ -558,6 +575,7 @@ app.delete('/api/solicitudes/:id', async (req, res) => {
   const { id } = req.params;
   try {
     await pool.query('DELETE FROM solicitudes_poda WHERE id_solicitud = ?', [id]);
+    await registrarAuditoria(req, 'ELIMINAR', 'solicitudes_poda', id, { id_solicitud: id });
     res.json({ success: true });
   } catch (error) {
     console.error('Error al eliminar solicitud:', error);
@@ -610,6 +628,7 @@ app.post('/api/usuarios', async (req, res) => {
         [username, finalPassword, role, cargo, email, estado || 'Activo', foto || null, id]
       );
       console.log(`✅ Personal existente actualizado a Usuario con ID: ${id}`);
+      await registrarAuditoria(req, 'MODIFICAR', 'personal', id, { usuario: username, role: role, cargo: cargo, status: 'Acceso habilitado' });
       res.json({ success: true, id: id });
     } else {
       const uniqueCedula = username ? `${username} Tja.` : `GEN_${Date.now()}`;
@@ -618,6 +637,7 @@ app.post('/api/usuarios', async (req, res) => {
         [username, finalPassword, role, nombre, cargo, email, estado || 'Activo', foto || null, uniqueCedula]
       );
       console.log(`✅ Usuario nuevo creado con ID: ${result.insertId}`);
+      await registrarAuditoria(req, 'CREAR', 'personal', result.insertId, { usuario: username, role: role, cargo: cargo });
       res.json({ success: true, id: result.insertId });
     }
   } catch (error) {
@@ -648,6 +668,7 @@ app.put('/api/usuarios/:id', async (req, res) => {
 
     await pool.query(query, params);
     console.log(`✅ Usuario ${id} actualizado con éxito`);
+    await registrarAuditoria(req, 'MODIFICAR', 'personal', id, { usuario: username, role: role, cargo: cargo, estado: estado });
     res.json({ success: true });
   } catch (error) {
     console.error('❌ Error al actualizar usuario:', error);
@@ -664,6 +685,7 @@ app.delete('/api/usuarios/:id', async (req, res) => {
       [id]
     );
     console.log(`✅ Acceso de usuario revocado con éxito para ID: ${id}`);
+    await registrarAuditoria(req, 'ELIMINAR', 'personal', id, { status: 'Acceso revocado' });
     res.json({ success: true });
   } catch (error) {
     console.error('Error al revocar acceso de usuario:', error);
@@ -854,6 +876,7 @@ app.post('/api/catalogos/:tabla', async (req, res) => {
     const values = Object.values(mappedBody);
     
     const [result] = await pool.query(`INSERT INTO ${actualTable} (${fields}) VALUES (${placeholders})`, values);
+    await registrarAuditoria(req, 'CREAR', actualTable, result.insertId, mappedBody);
     res.json({ success: true, id: result.insertId });
   } catch (error) {
     console.error(`Error al insertar en ${tabla}:`, error);
@@ -879,6 +902,7 @@ app.put('/api/catalogos/:tabla/:id', async (req, res) => {
     const values = [...Object.values(mappedBody), id];
     
     await pool.query(`UPDATE ${actualTable} SET ${sets} WHERE ${pk} = ?`, values);
+    await registrarAuditoria(req, 'MODIFICAR', actualTable, id, mappedBody);
     res.json({ success: true });
   } catch (error) {
     console.error(`Error al actualizar ${tabla}:`, error);
@@ -898,6 +922,7 @@ app.delete('/api/catalogos/:tabla/:id', async (req, res) => {
 
     const pk = getPkColumn(tabla);
     await pool.query(`DELETE FROM ${actualTable} WHERE ${pk} = ?`, [id]);
+    await registrarAuditoria(req, 'ELIMINAR', actualTable, id, { id: id });
     res.json({ success: true });
   } catch (error) {
     console.error(`Error al eliminar de ${tabla}:`, error);
@@ -956,6 +981,22 @@ app.get('/api/backup', (req, res) => {
     res.send(stdout);
   });
 });
+
+// --- AUDITORÍA DE ACTIVIDAD (CAJA NEGRA) ---
+app.get('/api/auditoria', async (req, res) => {
+  if (req.user?.role !== 'ROOT') {
+    return res.status(403).json({ error: 'Acceso denegado: Se requieren permisos de ROOT' });
+  }
+
+  try {
+    const [rows] = await pool.query('SELECT * FROM auditoria_actividad ORDER BY fecha_hora DESC');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener registros de auditoría:', error);
+    res.status(500).json({ error: 'Error al obtener registros de auditoría' });
+  }
+});
+
 // --- RUTAS CALENDARIO FESTIVO ---
 app.get('/api/calendario', async (req, res) => {
   try {

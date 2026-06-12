@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import * as XLSX from 'xlsx'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, deleteSolicitud, showToast, registrarImpresion } = mainStore
@@ -7,7 +8,7 @@ const { store, uiState, deleteSolicitud, showToast, registrarImpresion } = mainS
 import { 
     Trash2, Plus, Eye, Printer, Pencil, X, 
     Zap, Leaf, MailOpen, Wrench, AlertTriangle, 
-    CheckCircle2, ClipboardList, Filter, ArrowUpDown
+    CheckCircle2, ClipboardList, Filter, ArrowUpDown, Download
 } from 'lucide-vue-next'
 import EmptyState from '../components/EmptyState.vue'
 
@@ -99,6 +100,55 @@ const limpiarFiltros = () => {
     filtroAccion.value = ''
     filtroFechaDesde.value = ''
     filtroFechaHasta.value = ''
+}
+
+const exportarExcel = () => {
+    if (solicitudesFiltradas.value.length === 0) {
+        showToast('No hay solicitudes que coincidan con los filtros.', 'error')
+        return
+    }
+
+    // Mapear los datos de las solicitudes filtradas a columnas legibles
+    const data = solicitudesFiltradas.value.map((sol, idx) => ({
+        "Nº": idx + 1,
+        "Código/Com. Interna": sol.comunicacion_interna || `#${sol.id_solicitud}`,
+        "Fecha Ingreso": formatFecha(sol.fecha_ingreso),
+        "Fecha Ejecución": formatFecha(sol.fecha_ejecucion),
+        "Solicitante": sol.solicitante_nombre,
+        "Teléfono": sol.solicitante_telefono || '—',
+        "Calle": sol.calle || '—',
+        "Nº Casa": sol.numero_casa || '—',
+        "Barrio": getBarrio(sol.id_barrio),
+        "Distrito": getDistritoByBarrio(sol.id_barrio),
+        "Técnico de Ejecución": getTecnico(sol.id_tecnico_ejecucion),
+        "Árboles Registrados": formatLoSolicitado(sol),
+        "Lo Determinado": formatLoDeterminado(sol),
+        "Estado": sol.estado_tramite || 'Terminado',
+        "Urgencia": sol.es_emergencia ? 'EMERGENCIA' : (sol.nivel_urgencia || 'Normal')
+    }))
+
+    // Crear libro y hoja
+    const worksheet = XLSX.utils.json_to_sheet(data)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Historial")
+
+    // Ajustar el ancho de las columnas
+    const maxLens = {}
+    data.forEach(row => {
+        Object.keys(row).forEach(key => {
+            const valStr = String(row[key] || '')
+            maxLens[key] = Math.max(maxLens[key] || 10, valStr.length)
+        })
+    })
+    worksheet['!cols'] = Object.keys(maxLens).map(key => ({ wch: maxLens[key] + 3 }))
+
+    // Determinar nombre del archivo
+    const fechaStr = new Date().toISOString().split('T')[0]
+    const nombreFinal = `Historial_Solicitudes_Terminadas_${fechaStr}`
+
+    // Guardar
+    XLSX.writeFile(workbook, `${nombreFinal}.xlsx`)
+    showToast('Historial Excel exportado con éxito.', 'success')
 }
 
 const solicitudesFiltradas = computed(() => {
@@ -291,6 +341,11 @@ const formatLoDeterminado = (sol) => {
                         <button @click="ordenAsc = !ordenAsc" class="px-4 py-2 bg-accent/10 hover:bg-accent/20 text-accent hover:text-accent-hover border border-accent/20 hover:border-accent/40 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 hover:-translate-y-0.5">
                             <ArrowUpDown class="w-3.5 h-3.5" />
                             <span>{{ ordenAsc ? 'Orden: Primero a Último' : 'Orden: Último a Primero' }}</span>
+                        </button>
+                        <!-- Botón Exportar Excel -->
+                        <button @click="exportarExcel" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 hover:-translate-y-0.5">
+                            <Download class="w-3.5 h-3.5" />
+                            Exportar Excel
                         </button>
                         <!-- Botón Limpiar Filtros Premium -->
                         <button @click="limpiarFiltros" class="px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-600 border border-red-500/20 hover:border-red-500/40 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 hover:-translate-y-0.5">

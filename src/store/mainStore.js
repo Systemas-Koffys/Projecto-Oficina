@@ -20,6 +20,7 @@ export const useMainStore = defineStore('mainStore', () => {
     solicitudes: [],
     usuarios: [],
     impresiones: [],
+    auditoria: [],
     config: {}
   });
 
@@ -210,6 +211,23 @@ export const useMainStore = defineStore('mainStore', () => {
       }
     } catch (error) {
       console.error("Error al cargar impresiones:", error);
+    }
+  }
+
+  // Función para descargar registros de auditoría (Caja Negra)
+  async function fetchAuditoria() {
+    try {
+      const response = await fetch(`${API_URL}/auditoria`, { headers: getAuthHeaders() });
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          store.auditoria = data;
+        }
+      } else if (response.status === 401) {
+        handleAuthError();
+      }
+    } catch (error) {
+      console.error("Error al cargar auditoría:", error);
     }
   }
 
@@ -572,6 +590,7 @@ export const useMainStore = defineStore('mainStore', () => {
     fetchCalendario,
     addCalendarioEvento,
     updateCalendarioEvento,
-    deleteCalendarioEvento
+    deleteCalendarioEvento,
+    fetchAuditoria
   };
 });

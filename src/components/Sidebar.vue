@@ -123,7 +123,8 @@ import {
     Map,
     LogOut,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    ShieldAlert
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -186,6 +187,7 @@ const menuItems = [
     { path: '/equipos', label: 'Equipos de Trabajo', icon: Truck },
     { path: '/usuarios', label: 'Usuarios', icon: ShieldCheck },
     { path: '/configuraciones', label: 'Configuraciones', icon: Settings },
+    { path: '/auditoria', label: 'Caja Negra', icon: ShieldAlert },
     { path: '/acerca', label: 'Acerca de', icon: Info },
 ]
 
@@ -295,6 +297,11 @@ const logout = () => {
 /* Usuarios - ShieldCheck */
 .nav-item:hover svg.lucide-shield-check {
     transform: scale(1.12) rotate(-5deg);
+}
+
+/* Caja Negra - ShieldAlert */
+.nav-item:hover svg.lucide-shield-alert {
+    transform: scale(1.12) rotate(5deg);
 }
 
 /* Configuraciones - Settings */

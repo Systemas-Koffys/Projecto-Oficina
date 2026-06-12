@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import * as XLSX from 'xlsx'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, registrarImpresion, deleteImpresion, updateImpresionName, showToast, fetchImpresiones } = mainStore
@@ -248,6 +249,53 @@ const imprimirHojaRuta = async () => {
             nombreHojaRuta.value = ''
         }, 500)
     }
+}
+
+const exportarExcel = () => {
+    if (solicitudesFiltradas.value.length === 0) {
+        showToast('No hay solicitudes que coincidan con los filtros.', 'error')
+        return
+    }
+    
+    // Mapear los datos de las solicitudes filtradas a columnas legibles
+    const data = solicitudesFiltradas.value.map((sol, idx) => ({
+        "Nº": idx + 1,
+        "Código/Com. Interna": sol.comunicacion_interna || `#${sol.id_solicitud}`,
+        "Fecha Ingreso": formatFechaSimple(sol.fecha_ingreso),
+        "Solicitante": sol.solicitante_nombre,
+        "Teléfono": sol.solicitante_telefono || '—',
+        "Calle": sol.calle || '—',
+        "Nº Casa": sol.numero_casa || '—',
+        "Barrio": getBarrio(sol.id_barrio),
+        "Distrito": getDistritoByBarrio(sol.id_barrio),
+        "Acción Solicitada": formatLoSolicitado(sol),
+        "Acción Determinada": formatLoDeterminado(sol),
+        "Referencia": sol.referencia || '—'
+    }))
+
+    // Crear libro y hoja
+    const worksheet = XLSX.utils.json_to_sheet(data)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Hoja de Ruta")
+
+    // Ajustar el ancho de las columnas
+    const maxLens = {}
+    data.forEach(row => {
+        Object.keys(row).forEach(key => {
+            const valStr = String(row[key] || '')
+            maxLens[key] = Math.max(maxLens[key] || 10, valStr.length)
+        })
+    })
+    worksheet['!cols'] = Object.keys(maxLens).map(key => ({ wch: maxLens[key] + 3 }))
+
+    // Determinar nombre del archivo
+    const nombreFinal = nombreHojaRuta.value 
+        ? nombreHojaRuta.value 
+        : `Hoja_de_Ruta_${getBarrio(filtroBarrio.value)}_${new Date().toISOString().split('T')[0]}`
+
+    // Guardar
+    XLSX.writeFile(workbook, `${nombreFinal}.xlsx`)
+    showToast('Archivo Excel exportado con éxito.', 'success')
 }
 
 const handleReimprimir = (imp) => {
@@ -524,6 +572,10 @@ const limpiarFiltros = () => {
                         <button @click="imprimirHojaRuta" 
                             class="w-full mt-6 bg-accent text-on-accent py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 cursor-pointer">
                             <Printer size="18" /> Generar y Registrar
+                        </button>
+                        <button @click="exportarExcel" 
+                            class="w-full mt-3 bg-card-sec text-accent border border-main py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95 flex items-center justify-center gap-3 cursor-pointer">
+                            <Download size="18" /> Exportar a Excel
                         </button>
                     </div>
 

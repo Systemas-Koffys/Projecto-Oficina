@@ -5,14 +5,18 @@ Este documento refleja el plan de crecimiento estratégico y arquitectónico del
 ## Fase 1: Perfeccionamiento Actual (Siguientes Pasos)
 - ✅ **Mejoras del Visor Geográfico:** Filtros avanzados implementados exitosamente.
 - ✅ **Dashboard Analítico Real:** Gráficos interactivos de Chart.js (líneas, barras, tortas) implementados y en funcionamiento en `DashboardView`.
-- **Exportación de Datos:** Añadir funcionalidad para descargar tablas a Excel/CSV desde el Centro de Reportes y el Historial (usando la librería `xlsx` ya presente en el proyecto).
-- **Caja Negra (Auditoría de Actividad):** Crear un registro inmutable en el backend y una vista protegida para usuarios `ROOT` para fiscalizar quién creó, modificó o eliminó registros.
+- ✅ **Exportación de Datos:** Añadir funcionalidad para descargar tablas a Excel/CSV desde el Centro de Reportes y el Historial (usando la librería `xlsx` ya presente en el proyecto).
+- ✅ **Caja Negra (Auditoría de Actividad):** Crear un registro inmutable en el backend y una vista protegida para usuarios `ROOT` para fiscalizar quién creó, modificó o eliminó registros.
 - **Calendario de Mantenimientos Activo:** Integrar las solicitudes pendientes/realizadas en `CalendarioView.vue` para planificar y agendar podas y talas directamente sobre la agenda.
 - **Módulos Faltantes:** Desarrollar el módulo de "Control de Herramientas e Inventario" para las cuadrillas.
 
 ## Fase 2: El Gran Salto Arquitectónico (Firebase & PWA)
-- **Migración a la Nube (Firebase):** Reemplazar la base de datos MySQL local y el backend en Node.js por Firebase Firestore, Authentication y Storage para operar en tiempo real y sin servidor intermedio.
-- **Progressive Web App (PWA):** Convertir el sistema en una app instalable que almacene catálogos localmente y use una cola en `IndexedDB` para permitir el registro de datos sin conexión a internet, sincronizándolos automáticamente al recuperar señal.
+- **Migración a la Nube (Firebase):** Reemplazar la base de datos MySQL local y el backend en Node.js por Firebase (Firestore para base de datos en tiempo real, Firebase Storage para almacenamiento optimizado de imágenes/fotografías, y Firebase Authentication para control de acceso y seguridad).
+- **Progressive Web App (PWA):** Convertir el sistema en una app instalable.
+  * **Persistencia Local:** Almacenamiento de catálogos y datos locales.
+  * **Cola en IndexedDB:** Permitir el registro e inserción de solicitudes sin conexión a internet, sincronizándolas automáticamente al recuperar señal.
+  * **Estrategia de Login Offline:** El inicio de sesión inicial o cambio de usuario requiere conexión a internet para autenticar contra la nube de Firebase. Una vez autenticado, Firebase Auth mantendrá la sesión activa de forma persistente a nivel local, permitiendo al usuario abrir la aplicación e ingresar al sistema directamente sin internet.
+
 
 ## Fase 3: Digitalización del Trabajo de Campo
 - **Bitácoras Móviles (Trabajos de Oficio - DOF):** Una vista móvil simplificada para que los técnicos registren su trabajo diario directamente desde la calle (ubicación, especie, acción).

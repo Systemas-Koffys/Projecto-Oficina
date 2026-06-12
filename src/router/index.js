@@ -15,6 +15,7 @@ const router = createRouter({
     { path: '/personal', name: 'personal', component: () => import('../views/PersonalView.vue') },
     { path: '/equipos', name: 'equipos', component: () => import('../views/EquiposView.vue') },
     { path: '/configuraciones', name: 'configuraciones', component: () => import('../views/ConfiguracionesView.vue') },
+    { path: '/auditoria', name: 'auditoria', component: () => import('../views/AuditoriaView.vue') },
     { path: '/acerca', name: 'acerca', component: () => import('../views/AcercaDeView.vue') }
   ]
 })
