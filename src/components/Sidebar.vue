@@ -124,7 +124,8 @@ import {
     LogOut,
     ChevronLeft,
     ChevronRight,
-    ShieldAlert
+    ShieldAlert,
+    Wrench
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -185,6 +186,7 @@ const menuItems = [
     { path: '/calendario', label: 'Calendario', icon: Calendar },
     { path: '/personal', label: 'Personal', icon: Users2 },
     { path: '/equipos', label: 'Equipos de Trabajo', icon: Truck },
+    { path: '/inventario', label: 'Herramientas e Inventario', icon: Wrench },
     { path: '/usuarios', label: 'Usuarios', icon: ShieldCheck },
     { path: '/configuraciones', label: 'Configuraciones', icon: Settings },
     { path: '/auditoria', label: 'Caja Negra', icon: ShieldAlert },
@@ -199,7 +201,7 @@ const filteredMenuItems = computed(() => {
             return ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/acerca'].includes(item.path)
         } else if (role === 'ADMIN') {
             // ADMIN ve todo excepto Usuarios y Configuraciones
-            return ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/personal', '/equipos', '/acerca'].includes(item.path)
+            return ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/personal', '/equipos', '/inventario', '/acerca'].includes(item.path)
         }
         // ROOT ve todo
         return true
@@ -312,6 +314,11 @@ const logout = () => {
 /* Acerca de - Info */
 .nav-item:hover svg.lucide-info {
     transform: scale(1.16) rotate(12deg);
+}
+
+/* Inventario - Wrench */
+.nav-item:hover svg.lucide-wrench {
+    transform: scale(1.12) rotate(15deg);
 }
 
 /* Salir - LogOut */

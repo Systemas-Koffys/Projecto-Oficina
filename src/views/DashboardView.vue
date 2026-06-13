@@ -546,7 +546,15 @@ let charts = { pie: null, bar: null, tecs: null, evol: null };
 
 const generarDatosGraficos = () => {
     const data = { distritos: {}, acciones: {}, tecnicos: {}, evolucion: {} };
-    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const mesActual = new Date().getMonth();
+
+    // Pre-llenar meses para que el gráfico de evolución siempre muestre de Enero hasta el mes actual en orden
+    if (filtroActual.value === 'todo' || filtroActual.value === 'mes') {
+        for (let i = 0; i <= mesActual; i++) {
+            data.evolucion[meses[i]] = 0;
+        }
+    }
 
     solicitudesFiltradas.value.forEach(s => {
         // Distritos
@@ -570,12 +578,16 @@ const generarDatosGraficos = () => {
         if (s.fecha_ingreso) {
             const date = new Date(s.fecha_ingreso);
             let m;
-            if (filtroActual.value === 'semana' || filtroActual.value === 'hoy' || filtroActual.value === 'mes') {
-                m = `${date.getDate()} ${meses[date.getMonth()]}`;
+            if (filtroActual.value === 'semana' || filtroActual.value === 'hoy') {
+                m = `${date.getDate()} ${meses[date.getMonth()].substring(0,3)}`;
+                data.evolucion[m] = (data.evolucion[m] || 0) + 1;
             } else {
-                m = `${meses[date.getMonth()]} ${date.getFullYear()}`;
+                m = meses[date.getMonth()];
+                // Solo contabilizar si el mes es hasta el mes actual (ignorar fechas futuras erróneas)
+                if (data.evolucion[m] !== undefined) {
+                    data.evolucion[m]++;
+                }
             }
-            data.evolucion[m] = (data.evolucion[m] || 0) + 1;
         }
     });
 
@@ -592,16 +604,16 @@ const renderCharts = () => {
     // Pie (Distritos)
     distritosResumen.value = Object.entries(raw.distritos).map(([label, value], i) => ({ label, value, color: colors[i % colors.length] }));
     charts.pie = new window.Chart(document.getElementById('chartPie'), {
-        type: 'doughnut',
-        data: { labels: Object.keys(raw.distritos), datasets: [{ data: Object.values(raw.distritos), backgroundColor: colors, borderWidth: 8, borderColor: '#fff' }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '75%' }
+        type: 'pie',
+        data: { labels: Object.keys(raw.distritos), datasets: [{ data: Object.values(raw.distritos), backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
     // Bar (Acciones)
     charts.bar = new window.Chart(document.getElementById('chartBar'), {
         type: 'bar',
-        data: { labels: Object.keys(raw.acciones), datasets: [{ data: Object.values(raw.acciones), backgroundColor: '#10b981', borderRadius: 12 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } } } }
+        data: { labels: Object.keys(raw.acciones), datasets: [{ data: Object.values(raw.acciones), backgroundColor: colors, borderRadius: { topLeft: 16, topRight: 16, bottomLeft: 0, bottomRight: 0 } }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
     });
 
     // Bar (Técnicos)

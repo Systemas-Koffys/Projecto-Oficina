@@ -8,7 +8,8 @@ Este documento refleja el plan de crecimiento estratégico y arquitectónico del
 - ✅ **Exportación de Datos:** Añadir funcionalidad para descargar tablas a Excel/CSV desde el Centro de Reportes y el Historial (usando la librería `xlsx` ya presente en el proyecto).
 - ✅ **Caja Negra (Auditoría de Actividad):** Crear un registro inmutable en el backend y una vista protegida para usuarios `ROOT` para fiscalizar quién creó, modificó o eliminó registros.
 - ✅ **Calendario de Mantenimientos Activo:** Integrar las solicitudes pendientes/realizadas en `CalendarioView.vue` para planificar y agendar podas y talas directamente sobre la agenda.
-- **Módulos Faltantes:** Desarrollar el módulo de "Control de Herramientas e Inventario" para las cuadrillas.
+- ✅ **Módulos Faltantes:** Desarrollar el módulo de "Control de Herramientas e Inventario" para las cuadrillas.
+- **Módulos Faltantes:** Desarrollar la vista de "Documentación / Informes" para reportes y plantillas oficiales (antes de iniciar la Fase 2).
 
 ## Fase 2: El Gran Salto Arquitectónico (Firebase & PWA)
 - **Migración a la Nube (Firebase):** Reemplazar la base de datos MySQL local y el backend en Node.js por Firebase (Firestore para base de datos en tiempo real, Firebase Storage para almacenamiento optimizado de imágenes/fotografías, y Firebase Authentication para control de acceso y seguridad).

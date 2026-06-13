@@ -15,6 +15,34 @@
         </div>
         
         <div class="flex gap-3 items-center">
+          <!-- Selector de Modo de Visualización (Agrupación / Mapa de Calor) -->
+          <div class="flex bg-card-main p-1 rounded-xl border border-main shadow-sm mr-2">
+            <button 
+              @click="mapMode = 'cluster'"
+              class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all flex items-center gap-1.5"
+              :class="mapMode === 'cluster' ? 'bg-accent text-[color:var(--text-on-accent)] shadow-md' : 'text-muted hover:bg-accent/10'"
+              title="Agrupación de Marcadores (Clustering)"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" stroke-width="2"/>
+                <circle cx="12" cy="12" r="3" stroke-width="2" fill="currentColor"/>
+              </svg>
+              <span>Grupo</span>
+            </button>
+            <button 
+              @click="mapMode = 'heatmap'"
+              class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all flex items-center gap-1.5"
+              :class="mapMode === 'heatmap' ? 'bg-accent text-[color:var(--text-on-accent)] shadow-md' : 'text-muted hover:bg-accent/10'"
+              title="Mapa de Calor (Heatmap)"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Calor</span>
+            </button>
+          </div>
+
           <!-- Selector de Capas Premium -->
           <div class="flex bg-card-main p-1 rounded-xl border border-main shadow-sm mr-2 hidden md:flex">
             <button 
@@ -685,6 +713,10 @@ const stats = computed(() => {
 let map = null
 const markers = []
 const currentLayer = ref('streets')
+const mapMode = ref('cluster') // 'cluster' | 'heatmap'
+
+let markerClusterGroup = null
+let heatmapLayer = null
 
 const layers = [
   { id: 'streets', name: 'Calles', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', maxZoom: 20, maxNativeZoom: 19 },
@@ -729,49 +761,118 @@ const initMap = () => {
 }
 
 const renderMarkers = () => {
-  // Limpiar marcadores previos
-  markers.forEach(m => map.removeLayer(m))
+  // Limpiar capas previas
+  if (markerClusterGroup) {
+    map.removeLayer(markerClusterGroup)
+    markerClusterGroup = null
+  }
+  if (heatmapLayer) {
+    map.removeLayer(heatmapLayer)
+    heatmapLayer = null
+  }
   
-  geolocalizadas.value.forEach(sol => {
-    const lat = parseFloat(sol.lat)
-    const lng = parseFloat(sol.lng)
-    
-    const color = sol.estado_tramite === 'Terminado' ? '#10b981' : '#f59e0b'
-    
-    const customIcon = L.divIcon({
-      className: 'custom-div-icon',
-      html: `
-        <svg viewBox="0 0 24 24" width="30" height="30" fill="${color}" stroke="#ffffff" stroke-width="1.5" class="map-tree-marker">
-          <path d="M12 2 L8 8 H10 L6 13 H9 L4 18 H11 V22 H13 V18 H20 L15 13 H18 L14 8 H16 Z" />
-        </svg>
-      `,
-      iconSize: [30, 30],
-      iconAnchor: [15, 30]
+  markers.forEach(m => map.removeLayer(m))
+  markers.length = 0
+  
+  if (mapMode.value === 'cluster') {
+    markerClusterGroup = L.markerClusterGroup({
+      showCoverageOnHover: false,
+      maxClusterRadius: 50,
+      iconCreateFunction: function(cluster) {
+        const childCount = cluster.getChildCount();
+        
+        let bgColorClass = 'bg-emerald-600 text-white';
+        let ringColorClass = 'ring-emerald-500/30';
+        if (childCount > 10) {
+          bgColorClass = 'bg-amber-500 text-white';
+          ringColorClass = 'ring-amber-500/30';
+        }
+        if (childCount > 50) {
+          bgColorClass = 'bg-red-500 text-white';
+          ringColorClass = 'ring-red-500/30';
+        }
+
+        return L.divIcon({
+          html: `
+            <div class="flex items-center justify-center w-10 h-10 rounded-full font-black text-xs border-2 border-white shadow-lg ${bgColorClass} ring-4 ${ringColorClass} transition-all duration-300 hover:scale-110">
+              <span>${childCount}</span>
+            </div>
+          `,
+          className: 'custom-cluster-icon',
+          iconSize: L.point(40, 40, true)
+        });
+      }
     })
 
-    const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map)
-    
-    const popupContent = `
-      <div style="font-family: 'Outfit', sans-serif; padding: 5px; min-width: 220px;">
-        <p style="margin: 0; font-size: 10px; font-weight: 800; color: #666; text-transform: uppercase;">Trámite: ${sol.comunicacion_interna || 'S/N'}</p>
-        <p style="margin: 5px 0; font-size: 14px; font-weight: 900; color: #333;">${formatLoSolicitado(sol)}</p>
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
-        <p style="margin: 0; font-size: 11px; color: #444;"><b>📍 Ubicación:</b> ${sol.calle || 'No especificada'}</p>
-        <p style="margin: 3px 0; font-size: 11px; color: #444;"><b>📞 Solicitante:</b> ${sol.solicitante_nombre || 'Anónimo'}</p>
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; gap: 8px;">
-          <span style="display: inline-block; padding: 4px 8px; border-radius: 6px; background: ${color}20; color: ${color}; font-size: 9px; font-weight: 900; text-transform: uppercase;">
-            ${sol.estado_tramite}
-          </span>
-          <button onclick="window.abrirDetalleTramite('${sol.id_solicitud}')" style="background: #1a4731; color: #ffffff; border: none; padding: 5px 10px; border-radius: 6px; font-size: 9.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
-            🔍 Ver Trámite
-          </button>
+    geolocalizadas.value.forEach(sol => {
+      const lat = parseFloat(sol.lat)
+      const lng = parseFloat(sol.lng)
+      if (isNaN(lat) || isNaN(lng)) return
+      
+      const color = sol.estado_tramite === 'Terminado' ? '#10b981' : '#f59e0b'
+      
+      const customIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="${color}" stroke="#ffffff" stroke-width="1.5" class="map-tree-marker">
+            <path d="M12 2 L8 8 H10 L6 13 H9 L4 18 H11 V22 H13 V18 H20 L15 13 H18 L14 8 H16 Z" />
+          </svg>
+        `,
+        iconSize: [30, 30],
+        iconAnchor: [15, 30]
+      })
+
+      const marker = L.marker([lat, lng], { icon: customIcon })
+      
+      const popupContent = `
+        <div style="font-family: 'Outfit', sans-serif; padding: 5px; min-width: 220px;">
+          <p style="margin: 0; font-size: 10px; font-weight: 800; color: #666; text-transform: uppercase;">Trámite: ${sol.comunicacion_interna || 'S/N'}</p>
+          <p style="margin: 5px 0; font-size: 14px; font-weight: 900; color: #333;">${formatLoSolicitado(sol)}</p>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+          <p style="margin: 0; font-size: 11px; color: #444;"><b>📍 Ubicación:</b> ${sol.calle || 'No especificada'}</p>
+          <p style="margin: 3px 0; font-size: 11px; color: #444;"><b>📞 Solicitante:</b> ${sol.solicitante_nombre || 'Anónimo'}</p>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; gap: 8px;">
+            <span style="display: inline-block; padding: 4px 8px; border-radius: 6px; background: ${color}20; color: ${color}; font-size: 9px; font-weight: 900; text-transform: uppercase;">
+              ${sol.estado_tramite}
+            </span>
+            <button onclick="window.abrirDetalleTramite('${sol.id_solicitud}')" style="background: #1a4731; color: #ffffff; border: none; padding: 5px 10px; border-radius: 6px; font-size: 9.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
+              🔍 Ver Trámite
+            </button>
+          </div>
         </div>
-      </div>
-    `
-    
-    marker.bindPopup(popupContent)
-    markers.push(marker)
-  })
+      `
+      
+      marker.bindPopup(popupContent)
+      markerClusterGroup.addLayer(marker)
+      markers.push(marker)
+    })
+
+    map.addLayer(markerClusterGroup)
+
+  } else if (mapMode.value === 'heatmap') {
+    const heatPoints = []
+    geolocalizadas.value.forEach(sol => {
+      const lat = parseFloat(sol.lat)
+      const lng = parseFloat(sol.lng)
+      if (isNaN(lat) || isNaN(lng)) return
+      
+      const intensity = (sol.es_emergencia || sol.es_urgencia || sol.nivel_urgencia === 'Alta') ? 1.0 : 0.5
+      heatPoints.push([lat, lng, intensity])
+    })
+
+    heatmapLayer = L.heatLayer(heatPoints, {
+      radius: 35,
+      blur: 15,
+      minOpacity: 0.4,
+      gradient: {
+        0.05: '#3b82f6', // azul
+        0.2: '#06b6d4',  // cian
+        0.4: '#10b981',  // verde
+        0.6: '#eab308',  // amarillo
+        0.8: '#ef4444'   // rojo
+      }
+    }).addTo(map)
+  }
 }
 
 onMounted(() => {
@@ -786,12 +887,14 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (map) {
+    if (markerClusterGroup) map.removeLayer(markerClusterGroup)
+    if (heatmapLayer) map.removeLayer(heatmapLayer)
     map.remove()
   }
   delete window.abrirDetalleTramite
 })
 
-watch(() => geolocalizadas.value, () => {
+watch([() => geolocalizadas.value, mapMode], () => {
   if (map) renderMarkers()
 }, { deep: true })
 </script>
@@ -806,6 +909,12 @@ watch(() => geolocalizadas.value, () => {
 }
 
 .custom-div-icon {
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
+}
+
+.custom-cluster-icon {
   background: transparent !important;
   border: none !important;
   overflow: visible !important;

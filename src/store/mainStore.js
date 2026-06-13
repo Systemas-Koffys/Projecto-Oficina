@@ -21,7 +21,11 @@ export const useMainStore = defineStore('mainStore', () => {
     usuarios: [],
     impresiones: [],
     auditoria: [],
-    config: {}
+    config: {},
+    inventarioItems: [],
+    inventarioActivos: [],
+    inventarioConsumibles: [],
+    inventarioMovimientos: []
   });
 
   const uiState = reactive({
@@ -81,12 +85,12 @@ export const useMainStore = defineStore('mainStore', () => {
         localStorage.setItem('loginTime', now);
         localStorage.setItem('loginTimeFull', new Date().toISOString());
         await fetchCatalogos();
-        return true;
+        return { success: true };
       }
-      return false;
+      return { success: false, error: data.error || 'Contraseña incorrecta. Intente de nuevo.' };
     } catch (error) {
       console.error('Error en login:', error);
-      return false;
+      return { success: false, error: 'Error de conexión con el servidor.' };
     }
   }
 
@@ -127,7 +131,11 @@ export const useMainStore = defineStore('mainStore', () => {
             fetchUsuarios(),
             fetchImpresiones(),
             fetchConfig(),
-            fetchSolicitudes()
+            fetchSolicitudes(),
+            fetchInventarioItems(),
+            fetchInventarioActivos(),
+            fetchInventarioConsumibles(),
+            fetchInventarioMovimientos()
         ]).then(() => {
             console.log("Carga de datos secundarios completada.");
             uiState.isLoading = false;
@@ -560,6 +568,191 @@ export const useMainStore = defineStore('mainStore', () => {
     }
   }
 
+  // --- CONTROL DE HERRAMIENTAS E INVENTARIO ---
+  async function fetchInventarioItems() {
+    try {
+      const response = await fetch(`${API_URL}/inventario/items`, { headers: getAuthHeaders() });
+      if (response.ok) {
+        store.inventarioItems = await response.json();
+      }
+    } catch (error) {
+      console.error("Error al cargar ítems de inventario:", error);
+    }
+  }
+
+  async function addInventarioItem(item) {
+    try {
+      const response = await fetch(`${API_URL}/inventario/items`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(item)
+      });
+      if (response.ok) {
+        await fetchInventarioItems();
+        await fetchInventarioConsumibles();
+        return { success: true };
+      }
+      return { success: false, error: 'Error al agregar ítem' };
+    } catch (error) {
+      console.error("Error al agregar ítem:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async function fetchInventarioActivos() {
+    try {
+      const response = await fetch(`${API_URL}/inventario/activos`, { headers: getAuthHeaders() });
+      if (response.ok) {
+        store.inventarioActivos = await response.json();
+      }
+    } catch (error) {
+      console.error("Error al cargar activos de inventario:", error);
+    }
+  }
+
+  async function addInventarioActivo(activo) {
+    try {
+      const response = await fetch(`${API_URL}/inventario/activos`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(activo)
+      });
+      if (response.ok) {
+        await fetchInventarioActivos();
+        return { success: true };
+      }
+      const err = await response.json();
+      return { success: false, error: err.detail || 'Error al agregar activo' };
+    } catch (error) {
+      console.error("Error al agregar activo:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async function updateInventarioActivo(id, activo) {
+    try {
+      const response = await fetch(`${API_URL}/inventario/activos/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(activo)
+      });
+      if (response.ok) {
+        await fetchInventarioActivos();
+        return { success: true };
+      }
+      const err = await response.json();
+      return { success: false, error: err.detail || 'Error al modificar activo' };
+    } catch (error) {
+      console.error("Error al modificar activo:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async function fetchInventarioConsumibles() {
+    try {
+      const response = await fetch(`${API_URL}/inventario/consumibles`, { headers: getAuthHeaders() });
+      if (response.ok) {
+        store.inventarioConsumibles = await response.json();
+      }
+    } catch (error) {
+      console.error("Error al cargar consumibles de inventario:", error);
+    }
+  }
+
+  async function fetchInventarioMovimientos() {
+    try {
+      const response = await fetch(`${API_URL}/inventario/movimientos`, { headers: getAuthHeaders() });
+      if (response.ok) {
+        store.inventarioMovimientos = await response.json();
+      }
+    } catch (error) {
+      console.error("Error al cargar movimientos de inventario:", error);
+    }
+  }
+
+  async function addInventarioMovimiento(movimiento) {
+    try {
+      const response = await fetch(`${API_URL}/inventario/movimientos`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(movimiento)
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        await fetchInventarioConsumibles();
+        await fetchInventarioMovimientos();
+        await fetchInventarioActivos();
+        return { success: true };
+      }
+      return { success: false, error: data.error || 'Error al registrar movimiento' };
+    } catch (error) {
+      console.error("Error al registrar movimiento:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async function updateEstadoDevolucion(id, datos) {
+    try {
+      const response = await fetch(`${API_URL}/inventario/movimientos/${id}/devolucion`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(datos)
+      });
+      if (response.ok) {
+        await fetchInventarioMovimientos();
+        return { success: true };
+      }
+      return { success: false, error: 'Error al actualizar devolución' };
+    } catch (error) {
+      console.error("Error al actualizar devolución:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async function addMantenimientoActivo(mantenimiento) {
+    try {
+      const response = await fetch(`${API_URL}/inventario/mantenimientos`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(mantenimiento)
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        return { success: true };
+      }
+      return { success: false, error: data.error || 'Error al registrar mantenimiento' };
+    } catch (error) {
+      console.error("Error al registrar mantenimiento:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async function fetchMantenimientosActivo(id) {
+    try {
+      const response = await fetch(`${API_URL}/inventario/activos/${id}/mantenimientos`, { headers: getAuthHeaders() });
+      if (response.ok) {
+        return await response.json();
+      }
+      return [];
+    } catch (error) {
+      console.error("Error al obtener mantenimientos del activo:", error);
+      return [];
+    }
+  }
+
+  async function fetchRepuestosActivo(id) {
+    try {
+      const response = await fetch(`${API_URL}/inventario/activos/${id}/repuestos`, { headers: getAuthHeaders() });
+      if (response.ok) {
+        return await response.json();
+      }
+      return [];
+    } catch (error) {
+      console.error("Error al obtener repuestos del activo:", error);
+      return [];
+    }
+  }
+
   return {
     store,
     uiState,
@@ -591,6 +784,18 @@ export const useMainStore = defineStore('mainStore', () => {
     addCalendarioEvento,
     updateCalendarioEvento,
     deleteCalendarioEvento,
-    fetchAuditoria
+    fetchAuditoria,
+    fetchInventarioItems,
+    addInventarioItem,
+    fetchInventarioActivos,
+    addInventarioActivo,
+    updateInventarioActivo,
+    fetchInventarioConsumibles,
+    fetchInventarioMovimientos,
+    addInventarioMovimiento,
+    updateEstadoDevolucion,
+    addMantenimientoActivo,
+    fetchMantenimientosActivo,
+    fetchRepuestosActivo
   };
 });

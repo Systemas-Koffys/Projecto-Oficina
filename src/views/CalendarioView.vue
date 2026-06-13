@@ -9,10 +9,35 @@
         </h1>
         <p class="text-white/50 text-sm mt-1">Planifica y agenda podas, talas y aniversarios de barrios en tiempo real.</p>
       </div>
-      <button v-if="uiState.user?.role !== 'USER'" @click="openModal()" class="bg-accent hover:bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-accent/20 cursor-pointer active:scale-95 hover:-translate-y-0.5">
-        <Plus class="w-5 h-5" />
-        Nuevo Evento
-      </button>
+      <div class="flex items-center gap-6">
+        <!-- Resumen del Mes -->
+        <div class="hidden xl:flex items-center gap-5 bg-white/5 border border-white/10 px-6 py-2.5 rounded-2xl shadow-inner">
+          <div class="text-right">
+            <p class="text-[9px] text-accent font-black uppercase tracking-[0.2em] mb-0.5">{{ estadisticasMes.mesNombre }}</p>
+            <p class="text-white/50 font-bold text-[10px] uppercase tracking-wider">Resumen</p>
+          </div>
+          <div class="w-px h-8 bg-white/10"></div>
+          <div class="flex items-center gap-3">
+            <div class="text-center min-w-[3rem]">
+              <p class="text-blue-400 font-black text-xl leading-none">{{ estadisticasMes.tareas }}</p>
+              <p class="text-[9px] text-white/40 font-bold uppercase tracking-wider mt-1">Tareas</p>
+            </div>
+            <div class="text-center min-w-[3rem]">
+              <p class="text-red-400 font-black text-xl leading-none">{{ estadisticasMes.feriados }}</p>
+              <p class="text-[9px] text-white/40 font-bold uppercase tracking-wider mt-1">Feriados</p>
+            </div>
+            <div class="text-center min-w-[3rem]">
+              <p class="text-emerald-400 font-black text-xl leading-none">{{ estadisticasMes.aniversarios }}</p>
+              <p class="text-[9px] text-white/40 font-bold uppercase tracking-wider mt-1">Anivers.</p>
+            </div>
+          </div>
+        </div>
+
+        <button v-if="uiState.user?.role !== 'USER'" @click="openModal()" class="bg-accent hover:bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-accent/20 cursor-pointer active:scale-95 hover:-translate-y-0.5">
+          <Plus class="w-5 h-5" />
+          Nuevo Evento
+        </button>
+      </div>
     </div>
 
     <!-- Main Workspace (Sidebar + Calendar) -->
@@ -460,6 +485,44 @@ const formatIsoDateOnly = (val) => {
 const searchQuery = ref('')
 const esDesdeAniversario = ref(false)
 
+const currentMonthStart = ref(new Date())
+
+const estadisticasMes = computed(() => {
+  const events = calendarOptions.events || []
+  const month = currentMonthStart.value.getMonth()
+  const year = currentMonthStart.value.getFullYear()
+  
+  let feriados = 0
+  let aniversarios = 0
+  let tareas = 0
+  
+  events.forEach(ev => {
+    const evDateStr = ev.date
+    if (!evDateStr) return
+    const evMonth = parseInt(evDateStr.slice(5, 7)) - 1
+    const evYear = parseInt(evDateStr.slice(0, 4))
+    
+    if (evMonth === month && evYear === year) {
+      if (ev.extendedProps?.raw?.isSolicitud) {
+        tareas++
+      } else if (ev.title && ev.title.startsWith('Feriado:')) {
+        feriados++
+      } else {
+        aniversarios++
+      }
+    }
+  })
+  
+  const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+  
+  return {
+    mesNombre: monthNames[month],
+    feriados,
+    aniversarios,
+    tareas
+  }
+})
+
 const mainStore = useMainStore()
 const { 
   store, 
@@ -735,6 +798,9 @@ const calendarOptions = reactive({
   eventReceive: handleEventReceive,
   eventDrop: handleEventDrop,
   dateClick: handleDateClick,
+  datesSet: (arg) => {
+    currentMonthStart.value = arg.view.currentStart;
+  },
   dayCellDidMount: (arg) => {
     const dateStr = formatIsoDateOnly(arg.date);
     const tieneFeriado = eventosBase.value.some(ev => {

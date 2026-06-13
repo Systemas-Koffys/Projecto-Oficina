@@ -67,10 +67,10 @@
                     <div class="grid grid-cols-2 gap-5">
                         <div class="flex flex-col">
                             <label class="label-prime">Nivel de Acceso <span class="text-red-500 font-black">*</span></label>
-                            <select v-model="form.role" required class="form-input-prime">
+                            <select v-model="form.role" required class="form-input-prime" :disabled="userData && userData.role === 'ROOT'">
                                 <option value="USER">Usuario (Acceso básico)</option>
                                 <option value="ADMIN">Administrador</option>
-                                <option value="ROOT">Superusuario (ROOT)</option>
+                                <option v-if="userData && userData.role === 'ROOT'" value="ROOT">Superusuario (ROOT)</option>
                             </select>
                         </div>
                         <div class="flex flex-col">

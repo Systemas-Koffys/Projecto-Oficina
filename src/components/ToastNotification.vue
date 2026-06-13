@@ -1,7 +1,7 @@
 <template>
   <Transition name="toast">
     <div v-if="toast.visible" 
-      class="fixed top-[30px] right-[30px] z-[9999] flex items-center gap-[20px] min-w-[450px] max-w-[600px] px-[30px] py-[24px] rounded-[28px] shadow-[0_30px_60px_-12px_rgba(0,0,0,0.4)] overflow-hidden backdrop-blur-[25px] border border-white/30 text-white transition-all duration-300 ease-in-out toast-container" 
+      class="fixed top-[30px] right-[30px] z-[99999] flex items-center gap-[20px] min-w-[450px] max-w-[600px] px-[30px] py-[24px] rounded-[28px] shadow-[0_30px_60px_-12px_rgba(0,0,0,0.4)] overflow-hidden backdrop-blur-[25px] border border-white/30 text-white transition-all duration-300 ease-in-out toast-container" 
       :class="toast.type === 'success' ? 'toast-success' : 'toast-error'"
     >
       <div 

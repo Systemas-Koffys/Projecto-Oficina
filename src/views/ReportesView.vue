@@ -393,7 +393,6 @@ const limpiarFiltros = () => {
                 <!-- Panel de Filtros (Lateral) -->
                 <div class="lg:col-span-1 space-y-6">
                     <div class="bg-card-main border border-main rounded-3xl shadow-sm p-6 overflow-hidden relative text-main">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-accent-soft rounded-full -mr-16 -mt-16 opacity-30"></div>
                         
                         <div class="flex justify-between items-center mb-6 relative z-10">
                             <h3 class="text-xs font-black text-muted uppercase tracking-widest flex items-center gap-2">

@@ -150,6 +150,7 @@ const routeName = computed(() => {
         personal: "Personal",
         usuarios: "Usuarios",
         configuraciones: "Configuración",
+        inventario: "Inventario",
         acerca: "Información"
     }
     return map[route.name] || 'Inicio'
@@ -163,6 +164,7 @@ const routeTitle = computed(() => {
         personal: "Directorio de Personal",
         usuarios: "Administración de Usuarios",
         configuraciones: "Ajustes del Sistema",
+        inventario: "Control de Herramientas e Inventario",
         acerca: "Información Institucional"
     }
     return map[route.name] || 'Bienvenido'
@@ -176,6 +178,7 @@ const routeSubtitle = computed(() => {
         personal: "Gestión de fichas técnicas, cargos y contratos",
         usuarios: "Control de acceso y perfiles de usuario",
         configuraciones: "Parámetros globales y personalización",
+        inventario: "Control y seguimiento de activos codificados, consumibles y devolución de repuestos",
         acerca: "Detalles del sistema y políticas de privacidad"
     }
     return map[route.name] || ''

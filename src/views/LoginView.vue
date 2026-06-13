@@ -32,13 +32,13 @@ const handleLogin = async () => {
     loading.value = true
     error.value = ''
     
-    const success = await login(username.value, password.value)
-    if (success) {
+    const result = await login(username.value, password.value)
+    if (result.success) {
         showToast('¡Sesión iniciada correctamente!', 'success')
         router.push('/')
     } else {
-        error.value = 'Contraseña incorrecta. Intente de nuevo.'
-        showToast('Contraseña incorrecta. Por favor intente de nuevo.', 'error')
+        error.value = result.error
+        showToast(result.error, 'error')
     }
     loading.value = false
 }
