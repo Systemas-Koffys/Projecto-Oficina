@@ -673,6 +673,12 @@ app.put('/api/usuarios/:id', async (req, res) => {
   console.log(`Intentando actualizar usuario ID: ${id} (${username})`);
   
   try {
+    // PROTECCIÓN PARA EL USUARIO ROOT
+    const [userCheck] = await pool.query('SELECT role FROM personal WHERE id_personal = ?', [id]);
+    if (userCheck.length > 0 && userCheck[0].role === 'ROOT' && role !== 'ROOT') {
+        return res.status(403).json({ success: false, error: 'No se puede quitar el rol ROOT al usuario principal.' });
+    }
+
     const fields = ['usuario=?', 'role=?', 'nombre_completo=?', 'cargo=?', 'email=?', 'estado=?', 'foto=?'];
     const params = [username, role, nombre, cargo, email, estado, foto || null];
 
@@ -699,6 +705,13 @@ app.put('/api/usuarios/:id', async (req, res) => {
 app.delete('/api/usuarios/:id', async (req, res) => {
   try {
     const { id } = req.params;
+
+    // PROTECCIÓN PARA EL USUARIO ROOT
+    const [userCheck] = await pool.query('SELECT role FROM personal WHERE id_personal = ?', [id]);
+    if (userCheck.length > 0 && userCheck[0].role === 'ROOT') {
+        return res.status(403).json({ error: 'Acción bloqueada: No se puede revocar el acceso al usuario ROOT principal.' });
+    }
+
     await pool.query(
       'UPDATE personal SET usuario = NULL, contrasena = NULL, role = "TECNICO" WHERE id_personal = ?',
       [id]
