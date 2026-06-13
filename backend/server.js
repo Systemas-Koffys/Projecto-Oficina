@@ -83,6 +83,22 @@ async function registrarAuditoria(req, accion, tablaAfectada, registroId, detall
   }
 }
 
+// Helper para formatear fechas a YYYY-MM-DD para MySQL
+function formatDbDate(val) {
+  if (!val) return null;
+  try {
+    const strVal = String(val).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(strVal)) {
+      return strVal;
+    }
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return null;
+    return d.toISOString().split('T')[0];
+  } catch (e) {
+    return null;
+  }
+}
+
 // Ruta de salud
 app.get('/api/health', async (req, res) => {
   try {
@@ -297,6 +313,7 @@ app.get('/api/solicitudes', async (req, res) => {
         urgencia AS nivel_urgencia,
         estado_general AS estado_tramite,
         fecha_execution AS fecha_ejecucion,
+        fecha_programada,
         id_tecnico_ejecucion,
         observacion_ejecucion AS observaciones_finales,
         observacion_verificacion,
@@ -413,7 +430,7 @@ app.post('/api/solicitudes', async (req, res) => {
 
     const solData = {
       codigo_anual,
-      fecha_ingreso: data.fecha_ingreso || new Date().toISOString().split('T')[0],
+      fecha_ingreso: formatDbDate(data.fecha_ingreso) || new Date().toISOString().split('T')[0],
       comunicacion_interna: data.comunicacion_interna || null,
       id_tipo_solicitante: data.id_tipo_institucion || null,
       id_institucion: data.id_nombre_institucional || null,
@@ -426,7 +443,7 @@ app.post('/api/solicitudes', async (req, res) => {
       numero_casa: data.numero_casa || null,
       referencia_casa: data.referencia || null,
       ubicacion_gps: gps,
-      fecha_inspeccion: data.fecha_verificacion || null,
+      fecha_inspeccion: formatDbDate(data.fecha_verificacion) || null,
       id_tecnico_verificador: data.id_tecnico_verificacion || null,
       esta_verificado: data.fecha_verificacion ? 'Sí' : 'No',
       observacion_verificacion: data.observacion_verificacion || null,
@@ -437,7 +454,8 @@ app.post('/api/solicitudes', async (req, res) => {
       es_emergencia: data.es_emergencia ? 1 : 0,
       urgencia: data.nivel_urgencia || 'Media',
       estado_general: data.estado_tramite || 'En espera',
-      fecha_execution: data.fecha_ejecucion || null,
+      fecha_execution: formatDbDate(data.fecha_ejecucion) || null,
+      fecha_programada: formatDbDate(data.fecha_programada) || null,
       id_tecnico_ejecucion: data.id_tecnico_ejecucion || null,
       observacion_ejecucion: data.observaciones_finales || null,
       trabajos_extra: data.trabajos_extra || 'Ninguno'
@@ -509,7 +527,7 @@ app.put('/api/solicitudes/:id', async (req, res) => {
     }
 
     const solData = {
-      fecha_ingreso: data.fecha_ingreso,
+      fecha_ingreso: formatDbDate(data.fecha_ingreso),
       comunicacion_interna: data.comunicacion_interna || null,
       id_tipo_solicitante: data.id_tipo_institucion || null,
       id_institucion: data.id_nombre_institucional || null,
@@ -521,7 +539,7 @@ app.put('/api/solicitudes/:id', async (req, res) => {
       calle: data.calle || null,
       numero_casa: data.numero_casa || null,
       referencia_casa: data.referencia || null,
-      fecha_inspeccion: data.fecha_verificacion || null,
+      fecha_inspeccion: formatDbDate(data.fecha_verificacion) || null,
       id_tecnico_verificador: data.id_tecnico_verificacion || null,
       esta_verificado: data.fecha_verificacion ? 'Sí' : 'No',
       observacion_verificacion: data.observacion_verificacion || null,
@@ -532,7 +550,8 @@ app.put('/api/solicitudes/:id', async (req, res) => {
       es_emergencia: data.es_emergencia ? 1 : 0,
       urgencia: data.nivel_urgencia || 'Media',
       estado_general: data.estado_tramite || 'En espera',
-      fecha_execution: data.fecha_ejecucion || null,
+      fecha_execution: formatDbDate(data.fecha_ejecucion) || null,
+      fecha_programada: formatDbDate(data.fecha_programada) || null,
       id_tecnico_ejecucion: data.id_tecnico_ejecucion || null,
       observacion_ejecucion: data.observaciones_finales || null,
       trabajos_extra: data.trabajos_extra || 'Ninguno'

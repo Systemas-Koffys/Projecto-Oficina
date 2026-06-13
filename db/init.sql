@@ -344,6 +344,7 @@ CREATE TABLE `solicitudes_poda` (
   `urgencia` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'Media',
   `estado_general` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'En espera',
   `fecha_execution` date DEFAULT NULL,
+  `fecha_programada` date DEFAULT NULL,
   `id_tecnico_ejecucion` int DEFAULT NULL,
   `observacion_ejecucion` text COLLATE utf8mb4_unicode_ci,
   `observacion_verificacion` text COLLATE utf8mb4_unicode_ci,

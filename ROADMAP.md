@@ -7,7 +7,7 @@ Este documento refleja el plan de crecimiento estratégico y arquitectónico del
 - ✅ **Dashboard Analítico Real:** Gráficos interactivos de Chart.js (líneas, barras, tortas) implementados y en funcionamiento en `DashboardView`.
 - ✅ **Exportación de Datos:** Añadir funcionalidad para descargar tablas a Excel/CSV desde el Centro de Reportes y el Historial (usando la librería `xlsx` ya presente en el proyecto).
 - ✅ **Caja Negra (Auditoría de Actividad):** Crear un registro inmutable en el backend y una vista protegida para usuarios `ROOT` para fiscalizar quién creó, modificó o eliminó registros.
-- **Calendario de Mantenimientos Activo:** Integrar las solicitudes pendientes/realizadas en `CalendarioView.vue` para planificar y agendar podas y talas directamente sobre la agenda.
+- ✅ **Calendario de Mantenimientos Activo:** Integrar las solicitudes pendientes/realizadas en `CalendarioView.vue` para planificar y agendar podas y talas directamente sobre la agenda.
 - **Módulos Faltantes:** Desarrollar el módulo de "Control de Herramientas e Inventario" para las cuadrillas.
 
 ## Fase 2: El Gran Salto Arquitectónico (Firebase & PWA)

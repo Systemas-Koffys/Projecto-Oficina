@@ -1,13 +1,22 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
-const { store, uiState, addCatalogo, updateCatalogo, deleteCatalogo, showToast, updateConfig } = mainStore
 
 import { 
-    Trees, Wrench, Home, Map, Landmark, Building, Palette, Settings,
+    Trees, Wrench, Home, Map, Landmark, Building, Palette, Settings, Calendar,
     Plus, Pencil, Trash2, X, AlertTriangle, Database, Server
 } from 'lucide-vue-next'
+
+// Mapa de color por número de distrito
+const DISTRICT_COLORS = {
+    1: '#10b981', 2: '#10b981',
+    3: '#3b82f6', 4: '#3b82f6',
+    5: '#8b5cf6', 6: '#8b5cf6',
+    7: '#f59e0b', 8: '#f59e0b',
+    9: '#ec4899', 10: '#ec4899',
+    11: '#6366f1', 12: '#6366f1', 13: '#6366f1'
+}
 
 // Categorías disponibles
 const categorias = [
@@ -23,11 +32,11 @@ const categorias = [
         { key: 'nombre', label: 'Nombre del Barrio', type: 'text' },
         { key: 'id_distrito', label: 'Distrito', type: 'select', options: 'distritos' }
     ]},
+    { id: 'calendario', nombre: 'Aniversarios y Feriados', icono: Calendar, tipo: 'especial_calendario' },
     { id: 'distritos', nombre: 'Distritos', icono: Map, campos: [{ key: 'nombre', label: 'Nombre/Número del Distrito', type: 'text' }] },
     { id: 'instituciones', nombre: 'Instituciones', icono: Landmark, campos: [
         { key: 'nombre', label: 'Nombre de la Institución', type: 'text' },
-        { key: 'id_tipo', label: 'Tipo de Institución', type: 'select', options: 'tipos_institucion' },
-        { key: 'id_distrito', label: 'Distrito', type: 'select', options: 'distritos' }
+        { key: 'id_tipo', label: 'Tipo de Institución', type: 'select', options: 'tipos_institucion' }
     ]},
     { id: 'tipos_institucion', nombre: 'Tipos de Institución', icono: Building, campos: [{ key: 'nombre', label: 'Categoría', type: 'text' }] },
     { id: 'personalizacion', nombre: 'Identidad Visual', icono: Palette, tipo: 'especial_logos' },
@@ -97,18 +106,39 @@ const removeLogo = async (type) => {
     showToast('Logo eliminado del servidor', 'success')
 }
 
-// Datos de la tabla activa
+// Datos y acciones del store
+const { 
+    store, uiState, 
+    addCatalogo, updateCatalogo, deleteCatalogo, showToast, updateConfig,
+    fetchCalendario, addCalendarioEvento, updateCalendarioEvento, deleteCalendarioEvento
+} = mainStore
+
+const localCalendarioData = ref([])
+
+const loadCalendario = async () => {
+    localCalendarioData.value = await fetchCalendario()
+}
+
+onMounted(async () => {
+    await loadCalendario()
+})
+
+// Items para catálogos genéricos (no calendario)
 const items = computed(() => store[categoriaActiva.value.id] || [])
 
 const cambiarCategoria = (cat) => {
     categoriaActiva.value = cat
+    if (cat.id === 'calendario') loadCalendario()
 }
 
+// --- GESTIÓN GENÉRICA DE CATÁLOGOS ---
 const abrirNuevo = () => {
     editData.value = null
     formData.value = {}
     if (categoriaActiva.value.campos) {
-        categoriaActiva.value.campos.forEach(c => formData.value[c.key] = '')
+        categoriaActiva.value.campos.forEach(c => {
+            formData.value[c.key] = ''
+        })
     }
     showModal.value = true
 }
@@ -122,13 +152,11 @@ const abrirEdicion = (item) => {
 const guardar = async () => {
     let ok = false
     const tabla = categoriaActiva.value.id
-    
     if (editData.value) {
         ok = await updateCatalogo(tabla, editData.value.id, formData.value)
     } else {
         ok = await addCatalogo(tabla, formData.value)
     }
-
     if (ok) {
         showToast('Guardado correctamente', 'success')
         showModal.value = false
@@ -149,7 +177,142 @@ const eliminar = (id) => {
     )
 }
 
-// Helpers para selects
+// --- GESTIÓN ESPECIAL: ANIVERSARIOS Y FERIADOS ---
+
+// Determinar si un ítem es feriado por su nombre
+const esFeriado = (item) => item?.nombre_barrio?.startsWith('Feriado:')
+
+// Obtener color automático para un barrio según su distrito
+const getColorForBarrio = (nombreBarrio) => {
+    if (!nombreBarrio) return '#10b981'
+    const barrio = store.barrios.find(b =>
+        b.nombre?.toLowerCase().trim() === nombreBarrio?.toLowerCase().trim()
+    )
+    if (!barrio) return '#10b981'
+    return DISTRICT_COLORS[barrio.id_distrito] || '#10b981'
+}
+
+// Formatear fecha de DB correctamente — muestra solo DD de MMMM (sin año)
+// porque estos eventos son anuales; el año en el DB es sólo referencial
+const formatFechaCalendario = (val) => {
+    if (!val) return '—'
+    try {
+        const str = (val instanceof Date)
+            ? val.toISOString().split('T')[0]
+            : String(val).split('T')[0]
+        if (!str || str === 'undefined') return '—'
+        // Mostrar solo día y mes, sin año
+        return new Date(str + 'T00:00:00Z').toLocaleDateString('es-ES', {
+            day: '2-digit', month: 'long', timeZone: 'UTC'
+        })
+    } catch { return '—' }
+}
+
+// Estado del modal de calendario
+const tipoCalendario = ref('barrio')  // 'barrio' | 'feriado'
+const showCalendarioModal = ref(false)
+const editCalendarioData = ref(null)
+const formCalendario = ref({
+    nombre_barrio: '',
+    nombre_feriado: '',
+    fecha_aniversario: '',
+    presidente_barrio: '',
+    telefono_presidente: ''
+})
+
+const abrirNuevoCalendario = () => {
+    editCalendarioData.value = null
+    tipoCalendario.value = 'barrio'
+    formCalendario.value = {
+        nombre_barrio: '',
+        nombre_feriado: '',
+        fecha_aniversario: '',
+        presidente_barrio: '',
+        telefono_presidente: ''
+    }
+    showCalendarioModal.value = true
+}
+
+const abrirEdicionCalendario = (item) => {
+    editCalendarioData.value = item
+    const isFer = esFeriado(item)
+    tipoCalendario.value = isFer ? 'feriado' : 'barrio'
+
+    // Parsear la fecha de forma segura
+    const dateStr = (item.fecha_aniversario instanceof Date)
+        ? item.fecha_aniversario.toISOString().split('T')[0]
+        : String(item.fecha_aniversario || '').split('T')[0]
+
+    formCalendario.value = {
+        nombre_barrio: isFer ? '' : (item.nombre_barrio || ''),
+        nombre_feriado: isFer ? item.nombre_barrio.replace('Feriado: ', '') : '',
+        fecha_aniversario: dateStr,
+        presidente_barrio: item.presidente_barrio || '',
+        telefono_presidente: item.telefono_presidente || ''
+    }
+    showCalendarioModal.value = true
+}
+
+const guardarCalendario = async () => {
+    const isFer = tipoCalendario.value === 'feriado'
+    let nombre_barrio, color_etiqueta
+
+    if (isFer) {
+        const nombreFer = formCalendario.value.nombre_feriado?.trim()
+        if (!nombreFer) { showToast('Ingrese el nombre del feriado', 'error'); return }
+        nombre_barrio = `Feriado: ${nombreFer}`
+        color_etiqueta = '#ef4444'
+    } else {
+        nombre_barrio = formCalendario.value.nombre_barrio
+        if (!nombre_barrio) { showToast('Seleccione un barrio', 'error'); return }
+        color_etiqueta = getColorForBarrio(nombre_barrio)
+    }
+
+    if (!formCalendario.value.fecha_aniversario) {
+        showToast('Ingrese la fecha', 'error'); return
+    }
+
+    const payload = {
+        nombre_barrio,
+        fecha_aniversario: formCalendario.value.fecha_aniversario,
+        presidente_barrio: isFer ? null : (formCalendario.value.presidente_barrio || null),
+        telefono_presidente: isFer ? null : (formCalendario.value.telefono_presidente || null),
+        color_etiqueta
+    }
+
+    let res
+    if (editCalendarioData.value) {
+        res = await updateCalendarioEvento(editCalendarioData.value.id, payload)
+    } else {
+        res = await addCalendarioEvento(payload)
+    }
+
+    if (res.success) {
+        showToast('Guardado correctamente', 'success')
+        showCalendarioModal.value = false
+        await loadCalendario()
+    } else {
+        showToast(res.error || 'Error al guardar', 'error')
+    }
+}
+
+const eliminarCalendario = (id) => {
+    mostrarConfirmacion(
+        'Confirmar Eliminación',
+        '¿Estás seguro de eliminar este registro? No se puede deshacer.',
+        async () => {
+            const ok = await deleteCalendarioEvento(id)
+            if (ok) {
+                await loadCalendario()
+                showToast('Eliminado correctamente', 'success')
+            } else {
+                showToast('Error al eliminar', 'error')
+            }
+        }
+    )
+}
+
+// Helpers para selects genéricos
 const getOptions = (optionKey) => store[optionKey] || []
 </script>
 
@@ -284,7 +447,81 @@ const getOptions = (optionKey) => store[optionKey] || []
                     </div>
                 </div>
 
-                <!-- VISTA DE CATÁLOGOS -->
+                <!-- VISTA DE ANIVERSARIOS Y FERIADOS (ESPECIAL) -->
+                <div v-else-if="categoriaActiva.tipo === 'especial_calendario'" class="flex flex-col overflow-hidden h-full">
+                    <!-- Header -->
+                    <div class="p-8 border-b border-main flex justify-between items-center bg-accent-soft shrink-0">
+                        <div>
+                            <h3 class="text-2xl font-black text-main uppercase tracking-tighter">Aniversarios y Feriados</h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="w-2 h-2 bg-accent rounded-full"></span>
+                                <p class="text-xs text-muted font-bold uppercase tracking-widest">{{ localCalendarioData.length }} Registros totales</p>
+                            </div>
+                        </div>
+                        <button @click="abrirNuevoCalendario" class="bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-all shadow-xl shadow-accent/20 active:scale-95">
+                            <Plus class="w-4 h-4" /> Nuevo Registro
+                        </button>
+                    </div>
+
+                    <!-- Tabla -->
+                    <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                        <table class="w-full text-left border-separate border-spacing-y-3">
+                            <thead>
+                                <tr class="text-[10px] font-black uppercase text-muted tracking-[0.3em]">
+                                    <th class="px-6 py-2">ID</th>
+                                    <th class="px-6 py-2">Tipo</th>
+                                    <th class="px-6 py-2">Nombre</th>
+                                    <th class="px-6 py-2">Fecha</th>
+                                    <th class="px-6 py-2">Color</th>
+                                    <th class="px-6 py-2 text-right">Gestión</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in localCalendarioData" :key="item.id" class="group bg-card-sec hover:bg-accent-soft transition-all">
+                                    <td class="px-6 py-4 text-sm font-black text-accent border-y border-l border-main rounded-l-2xl w-20">
+                                        #{{ item.id }}
+                                    </td>
+                                    <td class="px-5 py-4 border-y border-main">
+                                        <span :class="[
+                                            esFeriado(item)
+                                                ? 'bg-red-500/10 text-red-500 border-red-500/20'
+                                                : 'bg-accent/10 text-accent border-accent/20',
+                                            'text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border whitespace-nowrap'
+                                        ]">
+                                            {{ esFeriado(item) ? '🗓 Feriado' : '🏘 Aniversario' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 border-y border-main">
+                                        <span class="text-sm font-bold text-main">
+                                            {{ esFeriado(item) ? item.nombre_barrio.replace('Feriado: ', '') : item.nombre_barrio }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 border-y border-main">
+                                        <span class="text-sm font-bold text-main">{{ formatFechaCalendario(item.fecha_aniversario) }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 border-y border-main">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-5 h-5 rounded-full border border-main shrink-0" :style="{ backgroundColor: item.color_etiqueta }"></div>
+                                            <span class="text-[10px] font-mono font-bold text-muted">{{ item.color_etiqueta }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-right border-y border-r border-main rounded-r-2xl">
+                                        <div class="flex justify-end gap-3">
+                                            <button @click="abrirEdicionCalendario(item)" class="btn-icon btn-edit" title="Editar Registro">
+                                                <Pencil />
+                                            </button>
+                                            <button @click="eliminarCalendario(item.id)" class="btn-icon btn-delete" title="Eliminar Registro">
+                                                <Trash2 />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VISTA DE CATÁLOGOS GENÉRICOS -->
                 <template v-else>
                     <div class="p-8 border-b border-main flex justify-between items-center bg-accent-soft">
                         <div>
@@ -341,7 +578,132 @@ const getOptions = (optionKey) => store[optionKey] || []
             </div>
         </div>
 
-        <!-- MODAL DE EDICIÓN/NUEVO (TELEPORTADO Y REDISEÑADO PREMIUM) -->
+        <!-- MODAL DE ANIVERSARIOS Y FERIADOS (DEDICADO) -->
+        <Teleport to="body">
+            <div v-if="showCalendarioModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
+                <div class="bg-card-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-lg overflow-hidden flex flex-col border border-main animate-prime-in">
+                    
+                    <!-- Cabecera -->
+                    <div class="px-8 py-6 modal-header-gradient flex justify-between items-center shadow-lg shrink-0">
+                        <div>
+                            <h3 class="font-black text-xl tracking-tight leading-none text-[color:var(--text-on-accent)]">
+                                {{ editCalendarioData ? 'Modificar Registro' : 'Agregar Nuevo Registro' }}
+                            </h3>
+                            <p class="text-[9px] text-[color:var(--text-on-accent)] opacity-80 font-bold uppercase tracking-[0.3em] mt-2">
+                                Aniversarios y Feriados
+                            </p>
+                        </div>
+                        <button type="button" @click="showCalendarioModal = false" class="hover:bg-white/20 p-2 rounded-xl transition-all cursor-pointer flex items-center justify-center">
+                            <X class="w-6 h-6 text-[color:var(--text-on-accent)]" />
+                        </button>
+                    </div>
+                    
+                    <!-- Formulario -->
+                    <div class="p-8 space-y-5 overflow-y-auto max-h-[60vh] custom-scrollbar bg-card-sec">
+
+                        <!-- Selector de tipo (solo al crear) -->
+                        <div v-if="!editCalendarioData" class="grid grid-cols-2 gap-2 p-1.5 bg-card-main rounded-2xl border border-main">
+                            <button type="button" @click="tipoCalendario = 'barrio'; formCalendario.nombre_feriado = ''"
+                                :class="[
+                                    tipoCalendario === 'barrio'
+                                        ? 'bg-accent text-[color:var(--text-on-accent)] shadow-lg shadow-accent/20'
+                                        : 'text-muted hover:text-main',
+                                    'py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all'
+                                ]">
+                                🏘 Aniversario de Barrio
+                            </button>
+                            <button type="button" @click="tipoCalendario = 'feriado'; formCalendario.nombre_barrio = ''"
+                                :class="[
+                                    tipoCalendario === 'feriado'
+                                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                                        : 'text-muted hover:text-main',
+                                    'py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all'
+                                ]">
+                                🗓 Feriado / Festivo
+                            </button>
+                        </div>
+
+                        <!-- Indicador de tipo (solo al editar) -->
+                        <div v-else class="flex items-center gap-3 p-3 bg-card-main rounded-xl border border-main">
+                            <span :class="[
+                                esFeriado(editCalendarioData) ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-accent/10 text-accent border-accent/20',
+                                'text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg border'
+                            ]">
+                                {{ esFeriado(editCalendarioData) ? '🗓 Feriado' : '🏘 Aniversario de Barrio' }}
+                            </span>
+                            <span class="text-xs text-muted font-semibold">El tipo no es editable</span>
+                        </div>
+
+                        <!-- Campos para BARRIO -->
+                        <template v-if="tipoCalendario === 'barrio'">
+                            <div class="p-5 bg-card-main border border-main rounded-xl shadow-sm space-y-2">
+                                <label class="label-prime">Barrio <span class="text-red-500 font-black">*</span></label>
+                                <select v-model="formCalendario.nombre_barrio" required class="form-input-prime">
+                                    <option value="" disabled>-- Seleccione un barrio --</option>
+                                    <option v-for="barrio in store.barrios" :key="barrio.id" :value="barrio.nombre">{{ barrio.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="p-5 bg-card-main border border-main rounded-xl shadow-sm space-y-2">
+                                <label class="label-prime">Fecha de Aniversario <span class="text-red-500 font-black">*</span></label>
+                                <input type="date" v-model="formCalendario.fecha_aniversario" required class="form-input-prime [color-scheme:dark]">
+                            </div>
+                            <div class="p-5 bg-card-main border border-main rounded-xl shadow-sm space-y-2">
+                                <label class="label-prime">Presidente del Barrio</label>
+                                <input type="text" v-model="formCalendario.presidente_barrio" class="form-input-prime" placeholder="Nombre del presidente...">
+                            </div>
+                            <div class="p-5 bg-card-main border border-main rounded-xl shadow-sm space-y-2">
+                                <label class="label-prime">Teléfono del Presidente</label>
+                                <input type="text" v-model="formCalendario.telefono_presidente" class="form-input-prime" placeholder="Número de contacto...">
+                            </div>
+                            <!-- Color auto-asignado (solo visual) -->
+                            <div class="p-4 bg-card-main border border-main rounded-xl flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full border-2 border-white/20 shadow-lg shrink-0 transition-colors"
+                                     :style="{ backgroundColor: getColorForBarrio(formCalendario.nombre_barrio) }">
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black text-muted uppercase tracking-widest">Color de Etiqueta</p>
+                                    <p class="text-xs text-main font-semibold mt-0.5">Asignado automáticamente por distrito</p>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Campos para FERIADO -->
+                        <template v-if="tipoCalendario === 'feriado'">
+                            <div class="p-5 bg-card-main border border-main rounded-xl shadow-sm space-y-2">
+                                <label class="label-prime">Nombre del Feriado <span class="text-red-500 font-black">*</span></label>
+                                <input type="text" v-model="formCalendario.nombre_feriado" required class="form-input-prime" placeholder="Ej: Año Nuevo, Día del Trabajo...">
+                            </div>
+                            <div class="p-5 bg-card-main border border-main rounded-xl shadow-sm space-y-2">
+                                <label class="label-prime">Fecha del Feriado <span class="text-red-500 font-black">*</span></label>
+                                <input type="date" v-model="formCalendario.fecha_aniversario" required class="form-input-prime [color-scheme:dark]">
+                            </div>
+                            <!-- Color automático rojo para feriados (solo visual) -->
+                            <div class="p-4 bg-card-main border border-main rounded-xl flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full border-2 border-red-500/30 shadow-lg shrink-0 bg-red-500"></div>
+                                <div>
+                                    <p class="text-[10px] font-black text-muted uppercase tracking-widest">Color de Etiqueta</p>
+                                    <p class="text-xs text-main font-semibold mt-0.5">Rojo — asignado automáticamente a todos los feriados</p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="p-8 bg-app-main border-t border-main flex gap-4 shrink-0">
+                        <button type="button" @click="showCalendarioModal = false"
+                            class="flex-1 px-4 py-3 bg-card-main border border-main rounded-xl font-black text-[10px] uppercase tracking-widest text-muted hover:bg-accent-soft transition-all active:scale-95 shadow-sm cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="button" @click="guardarCalendario"
+                            class="flex-[2] bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 cursor-pointer">
+                            {{ editCalendarioData ? 'Guardar Cambios' : 'Crear Registro' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
+
+        <!-- MODAL DE EDICIÓN/NUEVO GENÉRICO (Para catálogos normales) -->
         <Teleport to="body">
             <div v-if="showModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
                 <div class="bg-card-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-lg overflow-hidden flex flex-col border border-main animate-prime-in">
@@ -364,13 +726,16 @@ const getOptions = (optionKey) => store[optionKey] || []
                     <!-- Formulario -->
                     <form @submit.prevent="guardar" class="p-8 space-y-6 overflow-y-auto max-h-[60vh] custom-scrollbar bg-card-sec">
                         <div v-for="campo in categoriaActiva.campos" :key="campo.key" class="p-5 bg-card-main border border-main rounded-xl shadow-sm space-y-2">
-                            <label class="label-prime">{{ campo.label }} <span class="text-red-500 font-black">*</span></label>
+                            <label class="label-prime">
+                                {{ campo.label }} 
+                                <span v-if="campo.required !== false" class="text-red-500 font-black">*</span>
+                            </label>
                             
-                            <input v-if="campo.type === 'text'" type="text" v-model="formData[campo.key]" required
+                            <input v-if="campo.type === 'text'" type="text" v-model="formData[campo.key]" :required="campo.required !== false"
                                 class="form-input-prime"
                                 :placeholder="`Ingrese el ${campo.label.toLowerCase()}...`">
 
-                            <select v-if="campo.type === 'select'" v-model="formData[campo.key]" required
+                            <select v-else-if="campo.type === 'select'" v-model="formData[campo.key]" :required="campo.required !== false"
                                 class="form-input-prime">
                                 <option value="" disabled>-- Seleccione una opción --</option>
                                 <option v-for="opt in getOptions(campo.options)" :key="opt.id" :value="opt.id">{{ opt.nombre }}</option>
