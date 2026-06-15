@@ -165,15 +165,15 @@
 
     <!-- Modal de Detalles (Reporte) -->
     <Teleport to="body">
-      <div v-if="solicitudSeleccionada" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999] print:absolute print:inset-auto print:block print:bg-white print:p-0 print:m-0 print:overflow-visible">
-        <div class="bg-gray-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto relative print-area print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
+      <div v-if="solicitudSeleccionada" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] print:absolute print:inset-auto print:block print:bg-white print:p-0 print:m-0 print:overflow-visible">
+        <div class="bg-card-main border border-main rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto relative print-area print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
 
           <!-- ===== CABECERA FORMAL PARA IMPRESIÓN (A4) ===== -->
           <div class="hidden print:block print-header">
             <div class="print-institution flex items-center gap-6 border-b-2 border-black pb-4 mb-4">
-              <div class="w-24 h-24 flex-shrink-0 border border-gray-200 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+              <div class="w-24 h-24 flex-shrink-0 border border-main rounded-lg overflow-hidden flex items-center justify-center bg-card-sec">
                 <img v-if="uiState?.logo_institucional" :src="uiState.logo_institucional" class="w-full h-full object-contain">
-                <div v-else class="text-[8px] font-black text-center text-gray-400 p-1 uppercase">
+                <div v-else class="text-[8px] font-black text-center text-muted p-1 uppercase">
                   Logo <br> Municipal
                 </div>
               </div>
@@ -185,13 +185,13 @@
             </div>
             <div class="print-doc-title text-center">
               <h1 class="mb-2">REPORTE TÉCNICO DE SOLICITUD</h1>
-              <div class="print-doc-meta flex justify-center items-center gap-3 text-[10px] font-medium text-gray-700">
+              <div class="print-doc-meta flex justify-center items-center gap-3 text-[10px] font-medium text-muted">
                 <span>Cod: <strong>{{ solicitudSeleccionada.comunicacion_interna || `#${solicitudSeleccionada.id_solicitud}` }}</strong></span>
-                <span class="text-gray-300">|</span>
+                <span class="text-muted/50">|</span>
                 <span>Estado: <strong>{{ solicitudSeleccionada.estado_tramite || 'En espera' }}</strong></span>
-                <span class="text-gray-300">|</span>
+                <span class="text-muted/50">|</span>
                 <span>Urgencia: <strong>{{ solicitudSeleccionada.es_emergencia ? 'EMERGENCIA' : (solicitudSeleccionada.nivel_urgencia || 'Normal') }}</strong></span>
-                <span class="text-gray-300">|</span>
+                <span class="text-muted/50">|</span>
                 <span>Emisión: <strong>{{ new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }) }} ({{ new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) }})</strong></span>
               </div>
             </div>
@@ -203,8 +203,7 @@
               <p class="text-green-200 text-xs font-semibold uppercase tracking-widest mb-1">Trámite de Arboricultura</p>
               <h2 class="text-white text-xl font-bold">{{ solicitudSeleccionada.comunicacion_interna || `#${solicitudSeleccionada.id_solicitud}` }}</h2>
               <div class="flex items-center gap-3 mt-2">
-                <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
-                  :class="solicitudSeleccionada.estado_tramite === 'Terminado' ? 'bg-emerald-400 text-emerald-900' : 'bg-yellow-300 text-yellow-900'">
+                <span class="text-xs px-2 py-0.5 rounded-full font-semibold text-white bg-emerald-600">
                   {{ solicitudSeleccionada.estado_tramite || 'En espera' }}
                 </span>
               </div>
@@ -252,181 +251,183 @@
               </div>
             </div>
             <div class="flex items-center gap-3">
-              <button @click="imprimirReporte" class="bg-white/15 hover:bg-white/25 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all border border-white/10">
+              <button @click="imprimirReporte" class="bg-white/15 hover:bg-white/25 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all border border-white/10 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                 Imprimir
               </button>
-              <button @click="solicitudSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-xl flex items-center justify-center text-2xl leading-none transition-all border border-white/10">&times;</button>
+              <button @click="solicitudSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-white/10 cursor-pointer">
+                <X class="w-5 h-5" />
+              </button>
             </div>
           </div>
 
           <!-- Cuerpo de la tarjeta (5 SECCIONES FORMALES) -->
-          <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-white overflow-y-auto max-h-[70vh] custom-scrollbar">
+          <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-card-main text-main overflow-y-auto max-h-[70vh] custom-scrollbar">
 
             <!-- SECCIÓN 01: Información de Ingreso (AZUL) -->
-            <div class="md:col-span-2 bg-blue-50/60 border border-blue-100 rounded-2xl p-6 shadow-sm">
-              <h4 class="flex items-center gap-2 text-[11px] font-black text-blue-800 uppercase tracking-[0.2em] mb-4 border-b border-blue-200 pb-2">
+            <div class="md:col-span-2 bg-blue-50 border border-blue-100 rounded-2xl p-6 shadow-sm">
+              <h4 class="flex items-center gap-2 text-[11px] font-black text-blue-800 uppercase tracking-[0.2em] mb-4 border-b border-blue-100 pb-2">
                 <span class="w-2 h-2 bg-blue-500 rounded-full"></span> 01. Información de Ingreso
               </h4>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-y-5 gap-x-10 text-sm">
                 <div class="flex flex-col">
                   <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Fecha de Ingreso</span>
-                  <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_ingreso) }}</span>
+                  <span class="font-bold text-main">{{ formatFecha(solicitudSeleccionada.fecha_ingreso) }}</span>
                 </div>
                 <div class="flex flex-col">
                   <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Comunicación Interna</span>
-                  <span class="font-black text-blue-900 bg-white/80 px-2 py-0.5 rounded border border-blue-100 w-fit">{{ solicitudSeleccionada.comunicacion_interna || 'S/N' }}</span>
+                  <span class="font-black text-blue-900 bg-card-sec px-2 py-0.5 rounded border border-main w-fit">{{ solicitudSeleccionada.comunicacion_interna || 'S/N' }}</span>
                 </div>
                 <div class="flex flex-col">
                   <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Acción Solicitada</span>
-                  <span class="font-bold text-gray-800">{{ getAccion(solicitudSeleccionada.id_accion_solicitada) }}</span>
+                  <span class="font-bold text-main">{{ getAccion(solicitudSeleccionada.id_accion_solicitada) }}</span>
                 </div>
                 <div class="flex flex-col">
                   <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Nombre del Solicitante</span>
-                  <span class="font-bold text-gray-800">{{ solicitudSeleccionada.solicitante_nombre }}</span>
+                  <span class="font-bold text-main">{{ solicitudSeleccionada.solicitante_nombre }}</span>
                 </div>
                 <div class="flex flex-col">
                   <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Teléfono</span>
-                  <span class="font-bold text-gray-800">{{ solicitudSeleccionada.solicitante_telefono || '—' }}</span>
+                  <span class="font-bold text-main">{{ solicitudSeleccionada.solicitante_telefono || '—' }}</span>
                 </div>
                 <div class="flex flex-col">
                   <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Tipo de Institución</span>
-                  <span class="font-bold text-gray-800">{{ getTipoInstitucion(solicitudSeleccionada.id_tipo_institucion) }}</span>
+                  <span class="font-bold text-main">{{ getTipoInstitucion(solicitudSeleccionada.id_tipo_institucion) }}</span>
                 </div>
-                <div class="md:col-span-3 flex flex-col border-t border-blue-100/50 pt-2">
+                <div class="md:col-span-3 flex flex-col border-t border-main pt-2">
                   <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Nombre de Institución</span>
-                  <span class="font-bold text-gray-800 uppercase text-xs">{{ getInstitucion(solicitudSeleccionada.id_nombre_institucional) }}</span>
+                  <span class="font-bold text-main uppercase text-xs">{{ getInstitucion(solicitudSeleccionada.id_nombre_institucional) }}</span>
                 </div>
-                <div class="md:col-span-3 bg-white/80 p-4 rounded-xl border border-blue-100">
+                <div class="md:col-span-3 bg-card-sec p-4 rounded-xl border border-main text-main">
                   <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-2 block">Nota de Solicitud / Descripción</span>
-                  <p class="text-gray-700 italic leading-relaxed font-medium">"{{ solicitudSeleccionada.solicitante_descripcion || 'Sin descripción adicional.' }}"</p>
+                  <p class="text-main italic leading-relaxed font-medium">"{{ solicitudSeleccionada.solicitante_descripcion || 'Sin descripción adicional.' }}"</p>
                 </div>
               </div>
             </div>
 
             <!-- SECCIÓN 02: Localización (VERDE) -->
-            <div class="md:col-span-2 bg-emerald-50/60 border border-emerald-100 rounded-2xl p-6 shadow-sm">
-              <h4 class="flex items-center gap-2 text-[11px] font-black text-emerald-800 uppercase tracking-[0.2em] mb-4 border-b border-emerald-200 pb-2">
+            <div class="md:col-span-2 bg-emerald-50 border border-emerald-100 rounded-2xl p-6 shadow-sm">
+              <h4 class="flex items-center gap-2 text-[11px] font-black text-emerald-800 uppercase tracking-[0.2em] mb-4 border-b border-emerald-100 pb-2">
                 <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> 02. Localización y Referencia
               </h4>
               <div class="space-y-4 text-sm">
-                <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                <div class="flex justify-between items-center pb-2 border-b border-main">
                   <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Distrito Municipal</span>
-                  <span class="font-bold text-gray-800">{{ getDistritoByBarrio(solicitudSeleccionada.id_barrio) }}</span>
+                  <span class="font-bold text-main">{{ getDistritoByBarrio(solicitudSeleccionada.id_barrio) }}</span>
                 </div>
-                <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                <div class="flex justify-between items-center pb-2 border-b border-main">
                   <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Barrio / Zona</span>
-                  <span class="font-bold text-gray-800 text-right">{{ getBarrio(solicitudSeleccionada.id_barrio) }}</span>
+                  <span class="font-bold text-main text-right">{{ getBarrio(solicitudSeleccionada.id_barrio) }}</span>
                 </div>
-                <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                <div class="flex justify-between items-center pb-2 border-b border-main">
                   <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Calle / Avenida</span>
-                  <span class="font-bold text-gray-800 text-right">{{ solicitudSeleccionada.calle }} {{ solicitudSeleccionada.numero_casa ? 'Nº '+solicitudSeleccionada.numero_casa : '' }}</span>
+                  <span class="font-bold text-main text-right">{{ solicitudSeleccionada.calle }} {{ solicitudSeleccionada.numero_casa ? 'Nº '+solicitudSeleccionada.numero_casa : '' }}</span>
                 </div>
-                <div class="flex justify-between items-center pb-2 border-b border-emerald-100/50">
+                <div class="flex justify-between items-center pb-2 border-b border-main">
                   <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Coordenadas GPS</span>
-                  <span class="text-right">
+                  <span class="font-bold text-main text-right">
                     <a v-if="solicitudSeleccionada.lat && solicitudSeleccionada.lng" 
                        :href="`https://www.google.com/maps?q=${solicitudSeleccionada.lat},${solicitudSeleccionada.lng}`" 
                        target="_blank" 
-                       class="text-blue-600 underline font-bold hover:text-blue-800 transition-colors">
+                       class="text-blue-600 dark:text-blue-400 underline font-bold hover:text-blue-800 transition-colors">
                       {{ solicitudSeleccionada.lat }}, {{ solicitudSeleccionada.lng }}
                     </a>
-                    <span v-else class="text-gray-400 italic font-medium">No registrado</span>
+                    <span v-else class="text-muted italic">No registrado</span>
                   </span>
                 </div>
                 <div class="flex flex-col pt-1">
                   <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1">Punto de Referencia Exacto</span>
-                  <span class="font-bold text-gray-700 bg-white/80 p-3 rounded-lg border border-emerald-100">{{ solicitudSeleccionada.referencia || '—' }}</span>
+                  <span class="font-bold text-main bg-card-sec p-3 rounded-lg border border-main">{{ solicitudSeleccionada.referencia || '—' }}</span>
                 </div>
               </div>
             </div>
 
             <!-- SECCIÓN 03: Diagnóstico y Lista de Árboles (GRIS) -->
-            <div class="md:col-span-2 bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
-              <h4 class="flex items-center gap-2 text-[11px] font-black text-slate-800 uppercase tracking-[0.2em] mb-4 border-b border-slate-200 pb-2">
+            <div class="md:col-span-2 bg-card-sec border border-main rounded-2xl p-6 shadow-sm">
+              <h4 class="flex items-center gap-2 text-[11px] font-black text-main uppercase tracking-[0.2em] mb-4 border-b border-main pb-2">
                 <span class="w-2 h-2 bg-slate-600 rounded-full"></span> 03. Diagnóstico Técnico y Detalle de Árboles
               </h4>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm mb-4">
-                <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
-                  <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Técnico Evaluador</span>
-                  <span class="font-bold text-gray-800">{{ getTecnico(solicitudSeleccionada.id_tecnico_verificacion) }}</span>
+                <div class="flex justify-between items-center pb-2 border-b border-main">
+                  <span class="text-[9px] font-black text-muted uppercase tracking-widest">Técnico Evaluador</span>
+                  <span class="font-bold text-main">{{ getTecnico(solicitudSeleccionada.id_tecnico_verificacion) }}</span>
                 </div>
-                <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
-                  <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fecha Verificación</span>
-                  <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_verificacion) }}</span>
+                <div class="flex justify-between items-center pb-2 border-b border-main">
+                  <span class="text-[9px] font-black text-muted uppercase tracking-widest">Fecha Verificación</span>
+                  <span class="font-bold text-main">{{ formatFecha(solicitudSeleccionada.fecha_verificacion) }}</span>
                 </div>
               </div>
 
               <!-- Tabla de Árboles Relacionados -->
-              <div class="overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-4">
+              <div class="overflow-x-auto bg-card-main rounded-xl border border-main shadow-sm p-4 mb-4">
                 <table class="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr class="border-b border-slate-200 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
+                    <tr class="border-b border-main bg-card-sec text-[10px] uppercase tracking-wider text-muted">
                       <th class="py-2 px-3">#</th>
-                      <th class="py-2 px-3">Especie</th>
-                      <th class="py-2 px-3">Acción Solicitada</th>
-                      <th class="py-2 px-3">Acción a Realizar (Inspección)</th>
-                      <th class="py-2 px-3">Observaciones del Árbol</th>
+                      <th class="py-2 px-3 text-main">Especie</th>
+                      <th class="py-2 px-3 text-main">Acción Solicitada</th>
+                      <th class="py-2 px-3 text-main">Acción a Realizar (Inspección)</th>
+                      <th class="py-2 px-3 text-main">Observaciones del Árbol</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(arb, idx) in solicitudSeleccionada.arboles" :key="idx" class="border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
-                      <td class="py-2.5 px-3 font-bold text-slate-500">{{ idx + 1 }}</td>
-                      <td class="py-2.5 px-3 font-black text-emerald-800">{{ getEspecie(arb.id_especie) }}</td>
-                      <td class="py-2.5 px-3 text-slate-700">{{ getAccion(arb.id_accion_solicitada) }}</td>
-                      <td class="py-2.5 px-3 font-bold text-slate-800">{{ getAccion(arb.id_accion_realizar) }}</td>
-                      <td class="py-2.5 px-3 text-slate-500 italic">{{ arb.observaciones_arbol || 'Sin observaciones.' }}</td>
+                    <tr v-for="(arb, idx) in solicitudSeleccionada.arboles" :key="idx" class="border-b border-main last:border-0 hover:bg-accent-soft">
+                      <td class="py-2.5 px-3 font-bold text-muted">{{ idx + 1 }}</td>
+                      <td class="py-2.5 px-3 font-black text-accent">{{ getEspecie(arb.id_especie) }}</td>
+                      <td class="py-2.5 px-3 text-main">{{ getAccion(arb.id_accion_solicitada) }}</td>
+                      <td class="py-2.5 px-3 font-bold text-main">{{ getAccion(arb.id_accion_realizar) }}</td>
+                      <td class="py-2.5 px-3 text-muted italic">{{ arb.observaciones_arbol || 'Sin observaciones.' }}</td>
                     </tr>
                     <tr v-if="!solicitudSeleccionada.arboles || solicitudSeleccionada.arboles.length === 0">
-                      <td colspan="5" class="py-3 text-center text-slate-400 font-medium">Ningún árbol registrado.</td>
+                      <td colspan="5" class="py-3 text-center text-muted font-medium bg-card-main">Ningún árbol registrado.</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               <div class="flex flex-col pt-1">
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Informe de Verificación General</span>
-                <span class="font-medium text-gray-700 italic bg-white/80 p-3 rounded-lg border border-slate-200">"{{ solicitudSeleccionada.observacion_verificacion || 'Sin observaciones técnicas generales registradas.' }}"</span>
+                <span class="text-[9px] font-black text-muted uppercase tracking-widest mb-1">Informe de Verificación General</span>
+                <span class="font-medium text-main italic bg-card-sec p-3 rounded-lg border border-main">"{{ solicitudSeleccionada.observacion_verificacion || 'Sin observaciones técnicas generales registradas.' }}"</span>
               </div>
             </div>
 
             <!-- SECCIÓN 04: Logística y Requerimientos (ÁMBAR) -->
-            <div class="md:col-span-2 bg-amber-50/60 border border-amber-200 rounded-2xl p-6 shadow-sm">
-              <h4 class="flex items-center gap-2 text-[11px] font-black text-amber-800 uppercase tracking-[0.2em] mb-4 border-b border-amber-200 pb-2">
+            <div class="md:col-span-2 bg-amber-50 border border-amber-100 rounded-2xl p-6 shadow-sm">
+              <h4 class="flex items-center gap-2 text-[11px] font-black text-amber-800 uppercase tracking-[0.2em] mb-4 border-b border-amber-100 pb-2">
                 <span class="w-2 h-2 bg-amber-500 rounded-full"></span> 04. Apoyo Logístico y Alertas
               </h4>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[11px]">
-                <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                <div class="flex justify-between items-center py-1 border-b border-main">
                   <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🏗️ ¿Requiere Grúa / Plataforma?</span>
-                  <span class="font-black" :class="solicitudSeleccionada.requiere_plataforma ? 'text-blue-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_plataforma ? 'SÍ' : 'NO' }}</span>
+                  <span class="font-black" :class="solicitudSeleccionada.requiere_plataforma ? 'text-blue-600 dark:text-blue-400' : 'text-muted'">{{ solicitudSeleccionada.requiere_plataforma ? 'SÍ' : 'NO' }}</span>
                 </div>
-                <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                <div class="flex justify-between items-center py-1 border-b border-main">
                   <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">⚡ ¿Requiere Corte SETAR?</span>
-                  <span class="font-black" :class="solicitudSeleccionada.requiere_setar ? 'text-orange-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_setar ? 'SÍ' : 'NO' }}</span>
+                  <span class="font-black" :class="solicitudSeleccionada.requiere_setar ? 'text-orange-600 dark:text-orange-400' : 'text-muted'">{{ solicitudSeleccionada.requiere_setar ? 'SÍ' : 'NO' }}</span>
                 </div>
-                <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                <div class="flex justify-between items-center py-1 border-b border-main">
                   <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">📄 ¿Requiere Ficha Técnica?</span>
-                  <span class="font-black" :class="solicitudSeleccionada.requiere_ficha_tecnica ? 'text-indigo-600' : 'text-gray-400'">{{ solicitudSeleccionada.requiere_ficha_tecnica ? 'SÍ' : 'NO' }}</span>
+                  <span class="font-black" :class="solicitudSeleccionada.requiere_ficha_tecnica ? 'text-indigo-600 dark:text-indigo-400' : 'text-muted'">{{ solicitudSeleccionada?.requiere_ficha_tecnica ? 'SÍ' : 'NO' }}</span>
                 </div>
-                <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                <div class="flex justify-between items-center py-1 border-b border-main">
                   <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🌵 ¿Es Árbol Seco?</span>
-                  <span class="font-black" :class="solicitudSeleccionada.arbol_seco ? 'text-amber-700' : 'text-gray-400'">{{ solicitudSeleccionada.arbol_seco ? 'SÍ' : 'NO' }}</span>
+                  <span class="font-black" :class="solicitudSeleccionada.arbol_seco ? 'text-amber-700' : 'text-muted'">{{ solicitudSeleccionada.arbol_seco ? 'SÍ' : 'NO' }}</span>
                 </div>
-                <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                <div class="flex justify-between items-center py-1 border-b border-main">
                   <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">🚨 ¿Es Emergencia / Urgencia?</span>
-                  <span class="font-black" :class="solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia ? 'text-red-600' : 'text-gray-400'">{{ (solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia) ? 'SÍ' : 'NO' }}</span>
+                  <span class="font-black" :class="solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia ? 'text-red-600 dark:text-red-400' : 'text-muted'">{{ (solicitudSeleccionada.es_emergencia || solicitudSeleccionada.es_urgencia) ? 'SÍ' : 'NO' }}</span>
                 </div>
-                <div class="flex justify-between items-center py-1 border-b border-amber-100/50">
+                <div class="flex justify-between items-center py-1 border-b border-main">
                   <span class="font-bold text-amber-800 uppercase tracking-tighter flex items-center gap-2">✅ ¿Procede Trabajo?</span>
-                  <span class="font-black" :class="solicitudSeleccionada.procede ? 'text-emerald-600' : 'text-gray-400'">{{ solicitudSeleccionada.procede ? 'SÍ' : 'NO' }}</span>
+                  <span class="font-black" :class="solicitudSeleccionada.procede ? 'text-emerald-600' : 'text-muted'">{{ solicitudSeleccionada.procede ? 'SÍ' : 'NO' }}</span>
                 </div>
               </div>
             </div>
 
             <!-- SECCIÓN 05: Cierre de Trámite (PÚRPURA) -->
-            <div id="print-seccion-5" class="md:col-span-2 bg-purple-50/60 border border-purple-200 rounded-2xl p-6 shadow-sm">
-              <h4 class="flex items-center gap-2 text-[11px] font-black text-purple-900 uppercase tracking-[0.2em] mb-4 border-b border-purple-200 pb-2">
+            <div id="print-seccion-5" class="md:col-span-2 bg-purple-50 border border-purple-100 rounded-2xl p-6 shadow-sm">
+              <h4 class="flex items-center gap-2 text-[11px] font-black text-purple-900 uppercase tracking-[0.2em] mb-4 border-b border-purple-100 pb-2">
                 <span class="w-2 h-2 bg-purple-500 rounded-full"></span> 05. Ejecución y Cierre Final
               </h4>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
@@ -438,15 +439,15 @@
                 </div>
                 <div class="flex flex-col">
                   <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Encargado de Ejecución</span>
-                  <span class="font-bold text-gray-800 uppercase text-xs">{{ getTecnico(solicitudSeleccionada.id_tecnico_ejecucion) }}</span>
+                  <span class="font-bold text-main uppercase text-xs">{{ getTecnico(solicitudSeleccionada.id_tecnico_ejecucion) }}</span>
                 </div>
                 <div class="flex flex-col">
                   <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Fecha de Finalización</span>
-                  <span class="font-bold text-gray-800">{{ formatFecha(solicitudSeleccionada.fecha_ejecucion) }}</span>
+                  <span class="font-bold text-main">{{ formatFecha(solicitudSeleccionada.fecha_ejecucion) }}</span>
                 </div>
-                <div class="md:col-span-3 bg-white/80 p-4 rounded-xl border border-purple-100">
+                <div class="md:col-span-3 bg-card-sec p-4 rounded-xl border border-main text-main">
                   <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-2 block">Reporte Final de Obra</span>
-                  <p class="text-gray-700 font-semibold leading-relaxed">"{{ solicitudSeleccionada.observaciones_finales || 'Expediente sin reporte de cierre final.' }}"</p>
+                  <p class="text-main font-semibold leading-relaxed">"{{ solicitudSeleccionada.observaciones_finales || 'Expediente sin reporte de cierre final.' }}"</p>
                 </div>
               </div>
             </div>
@@ -456,8 +457,8 @@
           <!-- Firmas para Impresión -->
           <div class="hidden print:block print-firmas">
             <!-- Nota de Descargo Formal -->
-            <div class="border-t border-b border-gray-300 py-3 mb-6">
-              <p class="text-[9px] text-gray-600 italic text-center leading-tight">
+            <div class="border-t border-b border-main py-3 mb-6">
+              <p class="text-[9px] text-muted italic text-center leading-tight">
                 "<strong>IMPORTANTE:</strong> Este documento es un reporte técnico formal con respaldo íntegro en la base de datos municipal del Sistema de Arboricultura. 
                 Se ruega verificar la exactitud de todos los datos y referencias técnicas antes de proceder con la firma de conformidad correspondiente."
               </p>
@@ -483,7 +484,7 @@
             </div>
 
             <!-- Pie de Página (Contador de Hojas) -->
-            <div class="no-print mt-8 pt-4 border-t border-gray-100 flex justify-between items-center text-[8px] text-gray-400 font-bold uppercase tracking-widest">
+            <div class="no-print mt-8 pt-4 border-t border-main flex justify-between items-center text-[8px] text-muted font-bold uppercase tracking-widest">
               <span>Sistema de Gestión de Arboricultura y Espacios Verdes - G.A.M.T.</span>
               <div class="print-counter">Página <span class="pageNumber"></span></div>
             </div>

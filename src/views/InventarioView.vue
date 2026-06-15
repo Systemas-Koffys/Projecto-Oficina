@@ -3,43 +3,43 @@
         
         <!-- PANELES DE ESTADÍSTICAS SUPERIORES (no-print) -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
-            <div class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4">
-                <div class="w-12 h-12 bg-accent/10 text-accent rounded-2xl flex items-center justify-center">
-                    <Boxes class="w-6 h-6" />
+            <div class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4 border-l-4 border-l-emerald-500">
+                <div class="w-12 h-12 bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center">
+                    <CheckCircle class="w-6 h-6" />
                 </div>
                 <div>
-                    <p class="text-[10px] font-black text-muted uppercase tracking-widest">Ítems Registrados</p>
-                    <p class="text-2xl font-black text-main">{{ store.inventarioItems.length }}</p>
+                    <p class="text-[10px] font-black text-muted uppercase tracking-widest">Motosierras Habilitadas</p>
+                    <p class="text-2xl font-black text-main">{{ motosierrasHabilitadasCount }}</p>
                 </div>
             </div>
             
-            <div class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4 border-l-4 border-l-emerald-500">
-                <div class="w-12 h-12 bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center">
-                    <Wrench class="w-6 h-6" />
+            <div class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4 border-l-4 border-l-red-500">
+                <div class="w-12 h-12 bg-red-500/10 text-red-600 rounded-2xl flex items-center justify-center">
+                    <AlertTriangle class="w-6 h-6" />
                 </div>
                 <div>
-                    <p class="text-[10px] font-black text-muted uppercase tracking-widest font-black">Activos Codificados</p>
-                    <p class="text-2xl font-black text-main">{{ store.inventarioActivos.length }}</p>
-                </div>
-            </div>
-
-            <div class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4 border-l-4 border-l-blue-500">
-                <div class="w-12 h-12 bg-blue-500/10 text-blue-600 rounded-2xl flex items-center justify-center">
-                    <History class="w-6 h-6" />
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-muted uppercase tracking-widest">Pendiente Devolución</p>
-                    <p class="text-2xl font-black text-blue-600 font-black">{{ devolucionesPendientesCount }}</p>
+                    <p class="text-[10px] font-black text-muted uppercase tracking-widest font-black">Baja Temp. (Motosierras)</p>
+                    <p class="text-2xl font-black text-main">{{ motosierrasBajaTempCount }}</p>
                 </div>
             </div>
 
             <div class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4 border-l-4 border-l-amber-500">
                 <div class="w-12 h-12 bg-amber-500/10 text-amber-600 rounded-2xl flex items-center justify-center">
+                    <History class="w-6 h-6" />
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-muted uppercase tracking-widest">Repuestos Pendientes</p>
+                    <p class="text-2xl font-black text-amber-600 font-black">{{ devolucionesPendientesCount }}</p>
+                </div>
+            </div>
+
+            <div class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4 border-l-4 border-l-blue-500">
+                <div class="w-12 h-12 bg-blue-500/10 text-blue-600 rounded-2xl flex items-center justify-center">
                     <Sliders class="w-6 h-6" />
                 </div>
                 <div>
-                    <p class="text-[10px] font-black text-muted uppercase tracking-widest">Ubicación Almacén</p>
-                    <p class="text-2xl font-black text-main">{{ totalStockAlmacen }} unidades</p>
+                    <p class="text-[10px] font-black text-muted uppercase tracking-widest">Técnicos con Deudas</p>
+                    <p class="text-2xl font-black text-main">{{ tecnicosConDeudasCount }} técnicos</p>
                 </div>
             </div>
         </div>
@@ -114,11 +114,12 @@
                                 <th class="px-6 py-2 text-center">Stock Total</th>
                                 <th class="px-6 py-2">Unidad</th>
                                 <th class="px-6 py-2">Estado Stock</th>
+                                <th class="px-6 py-2 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-if="filteredStock.length === 0">
-                                <td colspan="8" class="p-8 text-center text-muted font-bold">
+                                <td colspan="9" class="p-8 text-center text-muted font-bold">
                                     No se encontraron ítems en el catálogo con los filtros actuales.
                                 </td>
                             </tr>
@@ -148,10 +149,20 @@
                                 <td class="px-6 py-4 border-y border-main text-xs font-bold text-muted">
                                     {{ item.unidad_medida }}
                                 </td>
-                                <td class="px-6 py-4 rounded-r-2xl border-y border-r border-main">
+                                <td class="px-6 py-4 border-y border-main">
                                     <span v-if="item.tipo !== 'Activo' && (item.cantidad_almacen + item.cantidad_oficina + item.cantidad_tecnicos) === 0" class="badge bg-red-500/20 text-red-600 text-[9px] font-black border border-red-500/20">Agotado</span>
                                     <span v-else-if="item.tipo !== 'Activo' && (item.cantidad_almacen + item.cantidad_oficina + item.cantidad_tecnicos) < 5" class="badge bg-amber-500/20 text-amber-600 text-[9px] font-black border border-amber-500/20">Stock Bajo</span>
                                     <span v-else class="badge bg-green-500/20 text-green-600 text-[9px] font-black border border-green-500/20">Disponible</span>
+                                </td>
+                                <td class="px-6 py-4 rounded-r-2xl border-y border-r border-main text-right">
+                                    <div class="flex justify-end items-center gap-2">
+                                        <button @click="openEditItem(item)" class="p-1.5 hover:bg-amber-500/10 text-amber-600 rounded-lg hover:border-amber-500/30 border border-transparent transition-all cursor-pointer" title="Editar ítem">
+                                            <Pencil class="w-3.5 h-3.5" />
+                                        </button>
+                                        <button @click="deleteItem(item)" class="p-1.5 hover:bg-red-500/10 text-red-600 rounded-lg hover:border-red-500/30 border border-transparent transition-all cursor-pointer" title="Eliminar ítem">
+                                            <Trash2 class="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -426,6 +437,65 @@
                         </div>
                     </div>
 
+                    <!-- REGISTRO FOTOGRÁFICO DE ENTREGA E INSPECCIÓN -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-black uppercase bg-slate-900 text-white px-3 py-1.5 tracking-wider">5. Registro Fotográfico de Entrega e Inspección</h3>
+                        <div class="grid grid-cols-2 gap-4 border border-slate-900 p-4 bg-slate-50">
+                            <!-- Fila Superior: Foto Lateral Anterior vs. Foto Lateral Actual -->
+                            <div class="flex flex-col border border-slate-300 p-2 bg-white rounded">
+                                <span class="text-[9px] font-black text-slate-500 uppercase mb-1">Foto Lateral - Estado Entrega (Anterior)</span>
+                                <div class="h-40 bg-slate-100 flex items-center justify-center border border-slate-200 rounded overflow-hidden">
+                                    <img v-if="selectedActivo.foto_lateral_anterior" :src="selectedActivo.foto_lateral_anterior" class="w-full h-full object-contain">
+                                    <span v-else class="text-[10px] text-slate-400 font-bold uppercase">Sin imagen registrada</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col border border-slate-300 p-2 bg-white rounded">
+                                <span class="text-[9px] font-black text-slate-500 uppercase mb-1">Foto Lateral - Estado Actual</span>
+                                <div class="h-40 bg-slate-100 flex items-center justify-center border border-slate-200 rounded overflow-hidden">
+                                    <img v-if="selectedActivo.foto_lateral_actual" :src="selectedActivo.foto_lateral_actual" class="w-full h-full object-contain">
+                                    <span v-else class="text-[10px] text-slate-400 font-bold uppercase">Sin imagen registrada</span>
+                                </div>
+                            </div>
+                            <!-- Fila Inferior: Foto Superior Anterior vs. Foto Superior Actual -->
+                            <div class="flex flex-col border border-slate-300 p-2 bg-white rounded">
+                                <span class="text-[9px] font-black text-slate-500 uppercase mb-1">Foto Superior - Estado Entrega (Anterior)</span>
+                                <div class="h-40 bg-slate-100 flex items-center justify-center border border-slate-200 rounded overflow-hidden">
+                                    <img v-if="selectedActivo.foto_superior_anterior" :src="selectedActivo.foto_superior_anterior" class="w-full h-full object-contain">
+                                    <span v-else class="text-[10px] text-slate-400 font-bold uppercase">Sin imagen registrada</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col border border-slate-300 p-2 bg-white rounded">
+                                <span class="text-[9px] font-black text-slate-500 uppercase mb-1">Foto Superior - Estado Actual</span>
+                                <div class="h-40 bg-slate-100 flex items-center justify-center border border-slate-200 rounded overflow-hidden">
+                                    <img v-if="selectedActivo.foto_superior_actual" :src="selectedActivo.foto_superior_actual" class="w-full h-full object-contain">
+                                    <span v-else class="text-[10px] text-slate-400 font-bold uppercase">Sin imagen registrada</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- OBSERVACIONES Y ANOTACIONES ESPECIALES -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-black uppercase bg-slate-900 text-white px-3 py-1.5 tracking-wider">6. Observaciones y Notas de Campo</h3>
+                        <div class="border border-slate-900 p-4 min-h-[100px] bg-white space-y-4 text-slate-900">
+                            <!-- Observaciones del Sistema -->
+                            <div class="text-xs">
+                                <p class="font-bold text-slate-500 uppercase text-[9px] mb-1">Observaciones Registradas en Sistema:</p>
+                                <p class="italic font-medium text-slate-800">
+                                    {{ selectedActivo.observaciones || 'No se registraron observaciones especiales en el sistema.' }}
+                                </p>
+                            </div>
+                            
+                            <!-- Líneas en blanco para anotaciones físicas a mano en campo (para imprimir) -->
+                            <div class="pt-3 border-t border-dashed border-slate-300">
+                                <p class="font-bold text-slate-500 uppercase text-[9px] mb-3">Notas de Control Físico en Campo (Llenar a mano):</p>
+                                <div class="space-y-4">
+                                    <div class="border-b border-dashed border-slate-400 h-4 w-full"></div>
+                                    <div class="border-b border-dashed border-slate-400 h-4 w-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- FIRMAS DE RESPONSABILIDAD -->
                     <div class="grid grid-cols-2 pt-16 gap-12 text-center text-xs">
                         <div class="space-y-1">
@@ -472,14 +542,14 @@
                             <label class="label-prime">Cantidad a Entregar <span class="text-red-500">*</span></label>
                             <input v-model.number="movForm.cantidad" type="number" min="1" required class="form-input-prime" placeholder="Cantidad">
                             <p v-if="movForm.id_item" class="text-[10px] font-bold text-muted mt-1 ml-1">
-                                Stock Disponible Almacén: {{ getAvailableStock(movForm.id_item, 'Almacen') }} | Oficina: {{ getAvailableStock(movForm.id_item, 'Oficina') }}
+                                Stock Disponible Almacén: {{ getAvailableStock(movForm.id_item, 'Almacén') }} | Oficina: {{ getAvailableStock(movForm.id_item, 'Oficina') }}
                             </p>
                         </div>
 
                         <div class="flex flex-col">
                             <label class="label-prime">Ubicación Origen (De donde sale) <span class="text-red-500">*</span></label>
                             <select v-model="movForm.origen" required class="form-input-prime">
-                                <option value="Almacen">Almacén</option>
+                                <option value="Almacén">Almacén</option>
                                 <option value="Oficina">Oficina</option>
                             </select>
                         </div>
@@ -488,7 +558,7 @@
                             <label class="label-prime">Recibe Técnico (Responsable) <span class="text-red-500">*</span></label>
                             <select v-model="movForm.id_recibe" required class="form-input-prime">
                                 <option value="" disabled>Seleccione funcionario...</option>
-                                <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">
+                                <option v-for="t in filterOnlyTecnicos" :key="t.id" :value="t.id">
                                     {{ t.nombre }} ({{ t.cargo }})
                                 </option>
                             </select>
@@ -524,14 +594,48 @@
                     </form>
                 </div>
 
+                <!-- Tarjeta: Deudas por Técnico -->
+                <div class="bg-card-main p-6 rounded-[2.5rem] border border-main space-y-4">
+                    <div>
+                        <h3 class="text-sm font-black text-main uppercase tracking-wider">Deudas por Técnico</h3>
+                        <p class="text-[10px] text-muted font-bold">Repuestos pendientes de devolución en campo</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div v-if="deudasPorTecnico.length === 0" class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-center text-xs font-bold text-emerald-600">
+                            ¡No hay deudas pendientes! Todo al día.
+                        </div>
+                        <div v-else class="divide-y divide-main">
+                            <div v-for="debt in deudasPorTecnico" :key="debt.id" class="py-3 flex justify-between items-center first:pt-0 last:pb-0">
+                                <div>
+                                    <p class="text-xs font-black text-main">{{ debt.nombre }}</p>
+                                    <p class="text-[10px] text-muted font-semibold">{{ debt.cargo }}</p>
+                                </div>
+                                <span class="px-2.5 py-1 bg-red-500/20 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-wider border border-red-500/10">
+                                    {{ debt.deuda }} repuestos
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Listado y Flujo de Piezas Viejas / Devoluciones -->
                 <div class="lg:col-span-2 space-y-6">
                     
                     <!-- Devoluciones de Piezas Viejas Pendientes -->
                     <div class="bg-card-main p-6 rounded-[2.5rem] border border-main space-y-4">
-                        <div>
-                            <h2 class="text-lg font-black text-main">Control y Retorno de Piezas Usadas (Flujo de Devolución)</h2>
-                            <p class="text-xs text-muted font-bold">Fiscalizar repuestos cambiados en campo y retorno de piezas viejas a almacén</p>
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                            <div>
+                                <h2 class="text-lg font-black text-main">Control y Retorno de Piezas Usadas (Flujo de Devolución)</h2>
+                                <p class="text-xs text-muted font-bold">Fiscalizar repuestos cambiados en campo y retorno de piezas viejas a almacén</p>
+                            </div>
+                            <div class="relative w-full sm:w-64">
+                                <input v-model="searchDevolucion" type="text" placeholder="Buscar devoluciones..." 
+                                    class="w-full pl-9 pr-3 py-2 rounded-xl bg-card-sec border border-main text-main focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none transition-all font-bold text-xs">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+                                    <Search class="w-3.5 h-3.5" />
+                                </span>
+                            </div>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -580,9 +684,15 @@
 
                     <!-- Bitácora general de movimientos históricos -->
                     <div class="bg-card-main p-6 rounded-[2.5rem] border border-main space-y-4">
-                        <div class="flex justify-between items-center">
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                             <h2 class="text-base font-black text-main">Bitácora Reciente de Movimientos</h2>
-                            <span class="text-[10px] text-muted font-bold">Historial consolidado</span>
+                            <div class="relative w-full sm:w-64">
+                                <input v-model="searchMovimiento" type="text" placeholder="Buscar movimientos..." 
+                                    class="w-full pl-9 pr-3 py-2 rounded-xl bg-card-sec border border-main text-main focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none transition-all font-bold text-xs">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+                                    <Search class="w-3.5 h-3.5" />
+                                </span>
+                            </div>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -600,10 +710,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-if="store.inventarioMovimientos.length === 0">
+                                    <tr v-if="filteredMovimientos.length === 0">
                                         <td colspan="8" class="p-6 text-center text-slate-500 italic">No hay registros de movimientos.</td>
                                     </tr>
-                                    <tr v-for="m in store.inventarioMovimientos.slice(0, 15)" :key="m.id_movimiento" class="border-b border-main hover:bg-card-sec/55 transition-all text-muted font-semibold">
+                                    <tr v-for="m in filteredMovimientos.slice(0, 15)" :key="m.id_movimiento" class="border-b border-main hover:bg-card-sec/55 transition-all text-muted font-semibold">
                                         <td class="p-3 font-mono font-bold text-main">{{ formatDateShort(m.fecha_movimiento) }}</td>
                                         <td class="p-3 font-black text-main">{{ m.item_nombre }}</td>
                                         <td class="p-3">
@@ -634,10 +744,10 @@
         <Teleport to="body">
             
             <!-- MODAL 1: REGISTRAR NUEVO ÍTEM EN EL CATÁLOGO -->
-            <div v-if="showNewItemModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+            <div v-if="showNewItemModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
                 <div class="bg-card-main border border-main rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col animate-prime-in">
                     <div class="px-6 py-5 modal-header-gradient flex justify-between items-center">
-                        <h3 class="font-black text-lg text-white">Agregar Nuevo Ítem al Catálogo</h3>
+                        <h3 class="font-black text-lg text-white">{{ editingItem ? 'Editar Ítem del Catálogo' : 'Agregar Nuevo Ítem al Catálogo' }}</h3>
                         <button @click="showNewItemModal = false" class="text-white/80 hover:text-white cursor-pointer"><X class="w-6 h-6" /></button>
                     </div>
                     
@@ -668,14 +778,14 @@
 
                         <div class="flex gap-3 pt-4">
                             <button type="button" @click="showNewItemModal = false" class="flex-1 py-3 border border-main rounded-xl text-xs font-black uppercase tracking-wider text-muted hover:bg-card-sec transition-all cursor-pointer">Cancelar</button>
-                            <button type="submit" class="flex-1 py-3 bg-accent text-on-accent rounded-xl text-xs font-black uppercase tracking-wider shadow-lg hover:opacity-90 transition-all cursor-pointer">Crear Ítem</button>
+                            <button type="submit" class="flex-1 py-3 bg-accent text-on-accent rounded-xl text-xs font-black uppercase tracking-wider shadow-lg hover:opacity-90 transition-all cursor-pointer">{{ editingItem ? 'Guardar Cambios' : 'Crear Ítem' }}</button>
                         </div>
                     </form>
                 </div>
             </div>
 
             <!-- MODAL 2: CARGA MASIVA / INGRESO DE COMPRAS POR ITEM -->
-            <div v-if="showBulkImportModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+            <div v-if="showBulkImportModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
                 <div class="bg-card-main border border-main rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden flex flex-col animate-prime-in">
                     <div class="px-6 py-5 modal-header-gradient flex justify-between items-center">
                         <div>
@@ -705,7 +815,7 @@
                             <div class="flex flex-col">
                                 <label class="label-prime">Ubicación Destino <span class="text-red-500">*</span></label>
                                 <select v-model="bulkForm.destino" required class="form-input-prime">
-                                    <option value="Almacen">Almacén Central</option>
+                                    <option value="Almacén">Almacén Central</option>
                                     <option value="Oficina">Oficina Técnica</option>
                                 </select>
                             </div>
@@ -735,7 +845,7 @@
             </div>
 
             <!-- MODAL 3: TRASLADAR STOCK ENTRE ALMACÉN Y OFICINA -->
-            <div v-if="showTransferModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+            <div v-if="showTransferModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
                 <div class="bg-card-main border border-main rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col animate-prime-in">
                     <div class="px-6 py-5 modal-header-gradient flex justify-between items-center">
                         <h3 class="font-black text-lg text-white">Trasladar Stock Interno</h3>
@@ -792,7 +902,7 @@
             </div>
 
             <!-- MODAL 4: REGISTRAR/EDITAR ACTIVO CODIFICADO (FICHA TÉCNICA) -->
-            <div v-if="showActivoModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+            <div v-if="showActivoModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
                 <div class="bg-card-main border border-main rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col animate-prime-in">
                     <div class="px-6 py-5 modal-header-gradient flex justify-between items-center">
                         <h3 class="font-black text-lg text-white">{{ editingActivo ? 'Editar Ficha Activo' : 'Registrar Nuevo Activo Codificado' }}</h3>
@@ -886,7 +996,7 @@
                                 <label class="label-prime">Responsable Legal (Custodio)</label>
                                 <select v-model="activoForm.id_custodio" class="form-input-prime">
                                     <option value="">Ninguno</option>
-                                    <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                                    <option v-for="t in filterOnlyTecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
                                 </select>
                             </div>
 
@@ -894,7 +1004,7 @@
                                 <label class="label-prime">Operario Designado</label>
                                 <select v-model="activoForm.id_usuario_operario" class="form-input-prime">
                                     <option value="">Ninguno</option>
-                                    <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                                    <option v-for="t in filterOnlyTecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
                                 </select>
                             </div>
 
@@ -922,10 +1032,85 @@
                             <div class="flex flex-col">
                                 <label class="label-prime">Ubicación Física Actual</label>
                                 <select v-model="activoForm.ubicacion_actual" class="form-input-prime">
-                                    <option value="Almacen">Almacén</option>
+                                    <option value="Almacén">Almacén</option>
                                     <option value="Oficina">Oficina</option>
-                                    <option value="Tecnico">Técnico (Cuadrilla)</option>
+                                    <option value="Técnico">Técnico (Cuadrilla)</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <!-- REGISTRO DE FOTOGRAFÍAS -->
+                        <div class="border-t border-main pt-4 mt-2">
+                            <h4 class="font-black text-xs text-main uppercase tracking-wider mb-3">Fotografías del Activo (Ficha Técnica)</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- Foto Lateral Anterior -->
+                                <div class="flex flex-col p-3 border border-main rounded-2xl bg-card-sec relative">
+                                    <label class="label-prime text-[10px] font-black uppercase tracking-wider mb-2">Foto Lateral - Estado Entrega (Anterior)</label>
+                                    <div class="flex flex-col items-center justify-center border-2 border-dashed border-main rounded-xl p-2 min-h-[140px] relative overflow-hidden bg-card-main transition-all hover:border-accent/50">
+                                        <template v-if="activoForm.foto_lateral_anterior">
+                                            <img :src="activoForm.foto_lateral_anterior" class="max-h-[120px] object-contain rounded-lg">
+                                            <button type="button" @click="activoForm.foto_lateral_anterior = null" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 cursor-pointer transition-all shadow-md z-10">
+                                                <Trash2 class="w-4 h-4" />
+                                            </button>
+                                        </template>
+                                        <template v-else>
+                                            <Upload class="w-8 h-8 text-muted mb-1" />
+                                            <span class="text-[10px] text-muted text-center font-bold">Subir foto lateral</span>
+                                            <input type="file" accept="image/*" @change="handlePhotoUpload('foto_lateral_anterior', $event)" class="absolute inset-0 opacity-0 cursor-pointer">
+                                        </template>
+                                    </div>
+                                </div>
+                                <!-- Foto Lateral Actual -->
+                                <div class="flex flex-col p-3 border border-main rounded-2xl bg-card-sec relative">
+                                    <label class="label-prime text-[10px] font-black uppercase tracking-wider mb-2">Foto Lateral - Estado Actual (Inspección)</label>
+                                    <div class="flex flex-col items-center justify-center border-2 border-dashed border-main rounded-xl p-2 min-h-[140px] relative overflow-hidden bg-card-main transition-all hover:border-accent/50">
+                                        <template v-if="activoForm.foto_lateral_actual">
+                                            <img :src="activoForm.foto_lateral_actual" class="max-h-[120px] object-contain rounded-lg">
+                                            <button type="button" @click="activoForm.foto_lateral_actual = null" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 cursor-pointer transition-all shadow-md z-10">
+                                                <Trash2 class="w-4 h-4" />
+                                            </button>
+                                        </template>
+                                        <template v-else>
+                                            <Upload class="w-8 h-8 text-muted mb-1" />
+                                            <span class="text-[10px] text-muted text-center font-bold">Subir foto lateral</span>
+                                            <input type="file" accept="image/*" @change="handlePhotoUpload('foto_lateral_actual', $event)" class="absolute inset-0 opacity-0 cursor-pointer">
+                                        </template>
+                                    </div>
+                                </div>
+                                <!-- Foto Superior Anterior -->
+                                <div class="flex flex-col p-3 border border-main rounded-2xl bg-card-sec relative">
+                                    <label class="label-prime text-[10px] font-black uppercase tracking-wider mb-2">Foto Superior - Estado Entrega (Anterior)</label>
+                                    <div class="flex flex-col items-center justify-center border-2 border-dashed border-main rounded-xl p-2 min-h-[140px] relative overflow-hidden bg-card-main transition-all hover:border-accent/50">
+                                        <template v-if="activoForm.foto_superior_anterior">
+                                            <img :src="activoForm.foto_superior_anterior" class="max-h-[120px] object-contain rounded-lg">
+                                            <button type="button" @click="activoForm.foto_superior_anterior = null" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 cursor-pointer transition-all shadow-md z-10">
+                                                <Trash2 class="w-4 h-4" />
+                                            </button>
+                                        </template>
+                                        <template v-else>
+                                            <Upload class="w-8 h-8 text-muted mb-1" />
+                                            <span class="text-[10px] text-muted text-center font-bold">Subir foto superior</span>
+                                            <input type="file" accept="image/*" @change="handlePhotoUpload('foto_superior_anterior', $event)" class="absolute inset-0 opacity-0 cursor-pointer">
+                                        </template>
+                                    </div>
+                                </div>
+                                <!-- Foto Superior Actual -->
+                                <div class="flex flex-col p-3 border border-main rounded-2xl bg-card-sec relative">
+                                    <label class="label-prime text-[10px] font-black uppercase tracking-wider mb-2">Foto Superior - Estado Actual (Inspección)</label>
+                                    <div class="flex flex-col items-center justify-center border-2 border-dashed border-main rounded-xl p-2 min-h-[140px] relative overflow-hidden bg-card-main transition-all hover:border-accent/50">
+                                        <template v-if="activoForm.foto_superior_actual">
+                                            <img :src="activoForm.foto_superior_actual" class="max-h-[120px] object-contain rounded-lg">
+                                            <button type="button" @click="activoForm.foto_superior_actual = null" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 cursor-pointer transition-all shadow-md z-10">
+                                                <Trash2 class="w-4 h-4" />
+                                            </button>
+                                        </template>
+                                        <template v-else>
+                                            <Upload class="w-8 h-8 text-muted mb-1" />
+                                            <span class="text-[10px] text-muted text-center font-bold">Subir foto superior</span>
+                                            <input type="file" accept="image/*" @change="handlePhotoUpload('foto_superior_actual', $event)" class="absolute inset-0 opacity-0 cursor-pointer">
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -943,7 +1128,7 @@
             </div>
 
             <!-- MODAL 5: TRANSFERIR CUSTODIA DE ACTIVO -->
-            <div v-if="showCustodyModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+            <div v-if="showCustodyModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
                 <div class="bg-card-main border border-main rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col animate-prime-in">
                     <div class="px-6 py-5 modal-header-gradient flex justify-between items-center">
                         <h3 class="font-black text-lg text-white">Transferir Custodia / Operario</h3>
@@ -960,7 +1145,7 @@
                             <label class="label-prime">Nuevo Responsable Legal (Custodio)</label>
                             <select v-model="custodyForm.id_custodio" class="form-input-prime">
                                 <option value="">Ninguno (En almacén/oficina)</option>
-                                <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                                <option v-for="t in filterOnlyTecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
                             </select>
                         </div>
 
@@ -968,16 +1153,16 @@
                             <label class="label-prime">Nuevo Operario Designado</label>
                             <select v-model="custodyForm.id_usuario_operario" class="form-input-prime">
                                 <option value="">Ninguno</option>
-                                <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
+                                <option v-for="t in filterOnlyTecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
                             </select>
                         </div>
 
                         <div class="flex flex-col">
                             <label class="label-prime">Nueva Ubicación Física</label>
                             <select v-model="custodyForm.ubicacion_actual" required class="form-input-prime">
-                                <option value="Almacen">Almacén Central</option>
+                                <option value="Almacén">Almacén Central</option>
                                 <option value="Oficina">Oficina Técnica</option>
-                                <option value="Tecnico">En Cuadrilla (Técnico)</option>
+                                <option value="Técnico">En Cuadrilla (Técnico)</option>
                             </select>
                         </div>
 
@@ -995,7 +1180,7 @@
             </div>
 
             <!-- MODAL 6: REGISTRAR MANTENIMIENTO ANUAL CON GRILLA DINÁMICA -->
-            <div v-if="showMaintenanceModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+            <div v-if="showMaintenanceModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
                 <div class="bg-card-main border border-main rounded-[2.5rem] shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col animate-prime-in">
                     <div class="px-6 py-5 modal-header-gradient flex justify-between items-center">
                         <div>
@@ -1086,6 +1271,41 @@
                     </form>
                 </div>
             </div>
+
+            <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
+            <Transition name="fade-confirm">
+                <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
+                    <div class="bg-card-main rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-main scale-in">
+                        <!-- Cabecera Roja de Peligro -->
+                        <div class="modal-header-danger p-8 flex flex-col items-center text-center text-white border-b border-red-900/20">
+                            <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                                <AlertTriangle class="w-8 h-8 text-white" />
+                            </div>
+                            <h3 class="font-black text-lg tracking-tight text-white">{{ confirmTitle }}</h3>
+                            <p class="text-red-100/80 text-[10px] font-bold uppercase tracking-widest mt-1">Acción Irreversible</p>
+                        </div>
+
+                        <!-- Cuerpo del modal -->
+                        <div class="p-6 text-center space-y-3 bg-card-main">
+                            <p class="text-main text-sm font-bold leading-relaxed">
+                                {{ confirmMessage }}
+                            </p>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="px-6 pb-6 flex gap-3 bg-card-main">
+                            <button @click="showConfirmModal = false"
+                                class="flex-1 py-3 rounded-xl border-2 border-main font-black text-muted uppercase text-xs tracking-widest hover:bg-card-sec transition-all cursor-pointer">
+                                Cancelar
+                            </button>
+                            <button @click="ejecutarConfirmacion"
+                                class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-red-600/20 active:scale-95 transition-all cursor-pointer">
+                                Sí, Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </Transition>
             
         </Teleport>
 
@@ -1097,7 +1317,7 @@ import { ref, computed, reactive, watch, onMounted } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 import { 
     Boxes, Wrench, Search, Plus, ArrowRightLeft, ArrowDownToLine, Printer, Eye, Pencil, X, History,
-    CheckCircle, Sliders
+    CheckCircle, Sliders, Trash2, AlertTriangle, Upload
 } from 'lucide-vue-next'
 
 const mainStore = useMainStore()
@@ -1109,6 +1329,8 @@ const activeTab = ref('stock')
 // Búsqueda
 const searchStock = ref('')
 const searchActivo = ref('')
+const searchDevolucion = ref('')
+const searchMovimiento = ref('')
 
 // Ficha Técnica de activo seleccionado
 const selectedActivo = ref(null)
@@ -1125,6 +1347,27 @@ const showCustodyModal = ref(false)
 const showMaintenanceModal = ref(false)
 
 const editingActivo = ref(null)
+const editingItem = ref(null)
+
+// Confirmación modal custom
+const showConfirmModal = ref(false)
+const confirmTitle = ref('Confirmar Eliminación')
+const confirmMessage = ref('¿Estás seguro de eliminar este registro?')
+let onConfirmCallback = null
+
+const mostrarConfirmacion = (titulo, mensaje, callback) => {
+    confirmTitle.value = titulo
+    confirmMessage.value = mensaje
+    onConfirmCallback = callback
+    showConfirmModal.value = true
+}
+
+const ejecutarConfirmacion = async () => {
+    showConfirmModal.value = false
+    if (onConfirmCallback) {
+        await onConfirmCallback()
+    }
+}
 
 // Formularios reactivos
 const itemForm = reactive({
@@ -1137,7 +1380,7 @@ const itemForm = reactive({
 const bulkForm = reactive({
     id_item: '',
     cantidad: 1,
-    destino: 'Almacen',
+    destino: 'Almacén',
     fecha_movimiento: new Date().toISOString().split('T')[0],
     costo_total: 0,
     observaciones: ''
@@ -1146,7 +1389,7 @@ const bulkForm = reactive({
 const transferForm = reactive({
     id_item: '',
     cantidad: 1,
-    origen: 'Almacen',
+    origen: 'Almacén',
     destino: 'Oficina',
     observaciones: ''
 })
@@ -1169,10 +1412,14 @@ const activoForm = reactive({
     codigo_activo: '',
     estado: 'Bueno',
     uso: 'Moderado',
-    ubicacion_actual: 'Almacen',
+    ubicacion_actual: 'Almacén',
     id_custodio: '',
     id_usuario_operario: '',
-    observaciones: ''
+    observaciones: '',
+    foto_lateral_anterior: null,
+    foto_lateral_actual: null,
+    foto_superior_anterior: null,
+    foto_superior_actual: null
 })
 
 const custodyForm = reactive({
@@ -1181,7 +1428,7 @@ const custodyForm = reactive({
     codigo_activo: '',
     id_custodio: '',
     id_usuario_operario: '',
-    ubicacion_actual: 'Almacen',
+    ubicacion_actual: 'Almacén',
     observaciones: ''
 })
 
@@ -1198,8 +1445,8 @@ const movForm = reactive({
     id_item: '',
     cantidad: 1,
     tipo_movimiento: 'Entrega',
-    origen: 'Almacen',
-    destino: 'Tecnico',
+    origen: 'Almacén',
+    destino: 'Técnico',
     id_recibe: '',
     id_activo_destino: '',
     fecha_movimiento: new Date().toISOString().split('T')[0],
@@ -1213,6 +1460,48 @@ const totalStockAlmacen = computed(() => {
 
 const devolucionesPendientesCount = computed(() => {
     return store.inventarioMovimientos.filter(m => m.estado_devolucion === 'Pendiente devolución').length
+})
+
+// KPIs de Motosierras y Técnicos
+const motosierrasHabilitadasCount = computed(() => {
+    return store.inventarioActivos.filter(a => 
+        a.id_item === 1 && 
+        ['Excelente', 'Bueno', 'Regular'].includes(a.estado)
+    ).length
+})
+
+const motosierrasBajaTempCount = computed(() => {
+    return store.inventarioActivos.filter(a => 
+        a.id_item === 1 && 
+        ['Malo', 'Mantenimiento', 'De Baja'].includes(a.estado)
+    ).length
+})
+
+const tecnicosConDeudasCount = computed(() => {
+    const pending = store.inventarioMovimientos.filter(m => m.estado_devolucion === 'Pendiente devolución')
+    const uniqueIds = new Set(pending.map(m => m.id_recibe).filter(Boolean))
+    return uniqueIds.size
+})
+
+const deudasPorTecnico = computed(() => {
+    const pending = store.inventarioMovimientos.filter(m => m.estado_devolucion === 'Pendiente devolución')
+    const list = []
+    store.tecnicos.forEach(t => {
+        const count = pending.filter(m => m.id_recibe === t.id).reduce((sum, m) => sum + m.cantidad, 0)
+        if (count > 0) {
+            list.push({
+                id: t.id,
+                nombre: t.nombre,
+                cargo: t.cargo,
+                deuda: count
+            })
+        }
+    })
+    return list.sort((a, b) => b.deuda - a.deuda)
+})
+
+const filterOnlyTecnicos = computed(() => {
+    return store.tecnicos.filter(t => t.role === 'TECNICO')
 })
 
 const filteredStock = computed(() => {
@@ -1255,7 +1544,34 @@ const selectedItemIsRepuesto = computed(() => {
 })
 
 const pendienteDevoluciones = computed(() => {
-    return store.inventarioMovimientos.filter(m => m.estado_devolucion === 'Pendiente devolución')
+    let list = store.inventarioMovimientos.filter(m => m.estado_devolucion === 'Pendiente devolución')
+    if (searchDevolucion.value) {
+        const q = searchDevolucion.value.toLowerCase()
+        list = list.filter(m => 
+            m.item_nombre.toLowerCase().includes(q) ||
+            m.recibe_nombre.toLowerCase().includes(q) ||
+            (m.activo_codigo && m.activo_codigo.toLowerCase().includes(q)) ||
+            (m.activo_modelo && m.activo_modelo.toLowerCase().includes(q)) ||
+            (m.observaciones && m.observaciones.toLowerCase().includes(q))
+        )
+    }
+    return list
+})
+
+const filteredMovimientos = computed(() => {
+    let list = store.inventarioMovimientos
+    if (searchMovimiento.value) {
+        const q = searchMovimiento.value.toLowerCase()
+        list = list.filter(m => 
+            m.item_nombre.toLowerCase().includes(q) ||
+            (m.recibe_nombre && m.recibe_nombre.toLowerCase().includes(q)) ||
+            m.tipo_movimiento.toLowerCase().includes(q) ||
+            m.origen.toLowerCase().includes(q) ||
+            m.destino.toLowerCase().includes(q) ||
+            (m.observaciones && m.observaciones.toLowerCase().includes(q))
+        )
+    }
+    return list
 })
 
 const calculateMaintFormTotal = computed(() => {
@@ -1305,11 +1621,36 @@ const calculateMantenimientoTotal = (detalles) => {
 
 // Dialog openers
 const openNewItemModal = () => {
+    editingItem.value = null
     itemForm.nombre = ''
     itemForm.tipo = 'Consumible'
     itemForm.unidad_medida = 'Unidad'
     itemForm.descripcion = ''
     showNewItemModal.value = true
+}
+
+const openEditItem = (item) => {
+    editingItem.value = item
+    itemForm.nombre = item.nombre
+    itemForm.tipo = item.tipo
+    itemForm.unidad_medida = item.unidad_medida
+    itemForm.descripcion = item.descripcion || ''
+    showNewItemModal.value = true
+}
+
+const deleteItem = async (item) => {
+    mostrarConfirmacion(
+        'Confirmar Eliminación',
+        `¿Estás seguro de que deseas eliminar el ítem "${item.nombre}" del catálogo?\nEsta acción no se puede deshacer y borrará su registro de existencias.`,
+        async () => {
+            const res = await mainStore.deleteInventarioItem(item.id_item)
+            if (res.success) {
+                showToast('Ítem del catálogo eliminado con éxito', 'success')
+            } else {
+                showToast(res.error, 'error')
+            }
+        }
+    )
 }
 
 const openBulkImportModal = () => {
@@ -1331,6 +1672,16 @@ const openTransferModal = () => {
     showTransferModal.value = true
 }
 
+const handlePhotoUpload = (field, e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (event) => {
+        activoForm[field] = event.target.result
+    }
+    reader.readAsDataURL(file)
+}
+
 const openNewActivoModal = () => {
     editingActivo.value = null
     Object.keys(activoForm).forEach(k => {
@@ -1338,8 +1689,12 @@ const openNewActivoModal = () => {
     })
     activoForm.estado = 'Bueno'
     activoForm.uso = 'Moderado'
-    activoForm.ubicacion_actual = 'Almacen'
+    activoForm.ubicacion_actual = 'Almacén'
     activoForm.fecha_adquisicion = new Date().toISOString().split('T')[0]
+    activoForm.foto_lateral_anterior = null
+    activoForm.foto_lateral_actual = null
+    activoForm.foto_superior_anterior = null
+    activoForm.foto_superior_actual = null
     showActivoModal.value = true
 }
 
@@ -1420,11 +1775,15 @@ const updateMaintRowTotal = (index) => {
     row.total_bs = qty * price
 }
 
-// Submits
 const submitNewItem = async () => {
-    const res = await mainStore.addInventarioItem(itemForm)
+    let res
+    if (editingItem.value) {
+        res = await mainStore.updateInventarioItem(editingItem.value.id_item, itemForm)
+    } else {
+        res = await mainStore.addInventarioItem(itemForm)
+    }
     if (res.success) {
-        showToast('Ítem de catálogo registrado con éxito', 'success')
+        showToast(editingItem.value ? 'Ítem de catálogo actualizado con éxito' : 'Ítem de catálogo registrado con éxito', 'success')
         showNewItemModal.value = false
     } else {
         showToast(res.error, 'error')
@@ -1644,14 +2003,38 @@ watch(() => transferForm.id_item, (newItemId) => {
 
 .excel-ficha {
     font-family: Arial, Helvetica, sans-serif;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
 }
 
-.excel-ficha th, .excel-ficha td {
+.excel-ficha th {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
     border-color: #0f172a !important;
+}
+
+.excel-ficha td {
+    color: #0f172a !important;
+    border-color: #0f172a !important;
+}
+
+.excel-ficha tr {
+    background-color: #ffffff !important;
+}
+
+.excel-ficha tr:nth-child(even) {
+    background-color: #f8fafc !important;
+}
+
+.excel-ficha tr:hover td {
+    background-color: #e2e8f0 !important;
 }
 
 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+.fade-confirm-enter-active, .fade-confirm-leave-active { transition: opacity 0.2s ease; }
+.fade-confirm-enter-from, .fade-confirm-leave-to { opacity: 0; }
 
 /* Impresion */
 @media print {

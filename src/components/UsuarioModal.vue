@@ -1,6 +1,6 @@
 <template>
     <Teleport to="body">
-    <div class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
+    <div class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
         <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden flex flex-col animate-prime-in">
             
             <!-- Header Institucional -->
@@ -268,11 +268,4 @@ const handleSubmit = async () => {
 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
-/* Theme Adaptive Overrides for colored blocks */
-:global(.theme-black) .bg-emerald-50\/30 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-:global(.theme-black) .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-:global(.theme-black) .border-emerald-100 { border-color: var(--border) !important; }
-:global(.theme-colors) .bg-emerald-50\/30 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
-:global(.theme-colors) .bg-emerald-50 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
-:global(.theme-colors) .border-emerald-100 { border-color: var(--border) !important; }
 </style>

@@ -55,7 +55,7 @@
 
 .theme-colors {
     /* MODO PROFESIONAL (DATOS) - PRIORIZACIÓN VISUAL */
-    --bg-app: #f1f2f6; /* Gris Pizarra Suave */
+    --bg-app: #d2d8e0; /* Gris Pizarra Intermedio */
     --bg-card: #ffffff;
     --bg-card-sec: #f8f9fa;
     --bg-sidebar: #2f3542;
@@ -308,25 +308,82 @@ svg { stroke: currentColor; }
 /* ============================================================
    CONTENEDORES COLOREADOS ADAPTATIVOS POR TEMA
    ============================================================ */
-.theme-black .bg-blue-50 { background-color: rgba(59, 130, 246, 0.12) !important; }
-.theme-black .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.12) !important; }
-.theme-black .bg-amber-50 { background-color: rgba(245, 158, 11, 0.12) !important; }
-.theme-black .bg-purple-50 { background-color: rgba(139, 92, 246, 0.12) !important; }
+/* ============================================================
+   CONTENEDORES COLOREADOS ADAPTATIVOS POR TEMA
+   ============================================================ */
 
-.theme-black .border-blue-100 { border-color: rgba(59, 130, 246, 0.25) !important; }
-.theme-black .border-emerald-100 { border-color: rgba(16, 185, 129, 0.25) !important; }
-.theme-black .border-amber-100 { border-color: rgba(245, 158, 11, 0.25) !important; }
-.theme-black .border-purple-100 { border-color: rgba(139, 92, 246, 0.25) !important; }
+/* default/light theme overrides for text labels inside colored boxes */
+[class~="bg-blue-50"] .text-blue-400, [class~="bg-blue-50/60"] .text-blue-400 { color: #1d4ed8 !important; }
+[class~="bg-blue-50"] .text-blue-800, [class~="bg-blue-50/60"] .text-blue-800 { color: #1e40af !important; }
+[class~="bg-blue-50"] .text-blue-900, [class~="bg-blue-50/60"] .text-blue-900 { color: #1e3a8a !important; }
 
-.theme-colors .bg-blue-50 { background-color: rgba(30, 144, 255, 0.06) !important; }
-.theme-colors .bg-emerald-50 { background-color: rgba(46, 125, 50, 0.06) !important; }
-.theme-colors .bg-amber-50 { background-color: rgba(245, 158, 11, 0.06) !important; }
-.theme-colors .bg-purple-50 { background-color: rgba(139, 92, 246, 0.06) !important; }
+[class~="bg-emerald-50"] .text-emerald-400, [class~="bg-emerald-50/60"] .text-emerald-400 { color: #047857 !important; }
+[class~="bg-emerald-50"] .text-emerald-800, [class~="bg-emerald-50/60"] .text-emerald-800 { color: #065f46 !important; }
 
-.theme-colors .border-blue-100 { border-color: rgba(30, 144, 255, 0.15) !important; }
-.theme-colors .border-emerald-100 { border-color: rgba(46, 125, 50, 0.15) !important; }
-.theme-colors .border-amber-100 { border-color: rgba(245, 158, 11, 0.15) !important; }
-.theme-colors .border-purple-100 { border-color: rgba(139, 92, 246, 0.15) !important; }
+[class~="bg-amber-50"] .text-amber-400, [class~="bg-amber-50/60"] .text-amber-400 { color: #b45309 !important; }
+[class~="bg-amber-50"] .text-amber-800, [class~="bg-amber-50/60"] .text-amber-800 { color: #92400e !important; }
+
+[class~="bg-purple-50"] .text-purple-400, [class~="bg-purple-50/60"] .text-purple-400 { color: #6d28d9 !important; }
+[class~="bg-purple-50"] .text-purple-300, [class~="bg-purple-50/60"] .text-purple-300 { color: #6d28d9 !important; }
+[class~="bg-purple-50"] .text-purple-900, [class~="bg-purple-50/60"] .text-purple-900 { color: #4c1d95 !important; }
+
+/* theme-black (Dark Mode) adaptative overrides */
+.theme-black [class~="bg-blue-50"], .theme-black [class~="bg-blue-50/60"] { background-color: rgba(59, 130, 246, 0.12) !important; }
+.theme-black [class~="bg-emerald-50"], .theme-black [class~="bg-emerald-50/60"], .theme-black [class~="bg-emerald-50/50"], .theme-black [class~="bg-emerald-50/30"] { background-color: rgba(16, 185, 129, 0.12) !important; }
+.theme-black [class~="bg-amber-50"], .theme-black [class~="bg-amber-50/60"] { background-color: rgba(245, 158, 11, 0.12) !important; }
+.theme-black [class~="bg-purple-50"], .theme-black [class~="bg-purple-50/60"] { background-color: rgba(139, 92, 246, 0.12) !important; }
+.theme-black [class~="bg-red-50/30"] { background-color: rgba(239, 68, 68, 0.12) !important; }
+
+.theme-black [class~="border-blue-100"] { border-color: rgba(59, 130, 246, 0.25) !important; }
+.theme-black [class~="border-emerald-100"] { border-color: rgba(16, 185, 129, 0.25) !important; }
+.theme-black [class~="border-amber-100"], .theme-black [class~="border-amber-200"] { border-color: rgba(245, 158, 11, 0.25) !important; }
+.theme-black [class~="border-purple-100"], .theme-black [class~="border-purple-200"] { border-color: rgba(139, 92, 246, 0.25) !important; }
+.theme-black [class~="border-red-100"] { border-color: rgba(239, 68, 68, 0.25) !important; }
+
+.theme-black [class~="bg-blue-50"] .text-blue-400, .theme-black [class~="bg-blue-50/60"] .text-blue-400 { color: #93c5fd !important; }
+.theme-black [class~="bg-blue-50"] .text-blue-800, .theme-black [class~="bg-blue-50/60"] .text-blue-800 { color: #60a5fa !important; }
+.theme-black [class~="bg-blue-50"] .text-blue-900, .theme-black [class~="bg-blue-50/60"] .text-blue-900 { color: #93c5fd !important; }
+
+.theme-black [class~="bg-emerald-50"] .text-emerald-400, .theme-black [class~="bg-emerald-50/60"] .text-emerald-400, .theme-black [class~="bg-emerald-50/50"] .text-emerald-400, .theme-black [class~="bg-emerald-50/30"] .text-emerald-400 { color: #34d399 !important; }
+.theme-black [class~="bg-emerald-50"] .text-emerald-800, .theme-black [class~="bg-emerald-50/60"] .text-emerald-800, .theme-black [class~="bg-emerald-50/50"] .text-emerald-800, .theme-black [class~="bg-emerald-50/30"] .text-emerald-800 { color: #66bb6a !important; }
+
+.theme-black [class~="bg-amber-50"] .text-amber-400, .theme-black [class~="bg-amber-50/60"] .text-amber-400 { color: #fbbf24 !important; }
+.theme-black [class~="bg-amber-50"] .text-amber-800, .theme-black [class~="bg-amber-50/60"] .text-amber-800 { color: #ffb74d !important; }
+
+.theme-black [class~="bg-purple-50"] .text-purple-400, .theme-black [class~="bg-purple-50/60"] .text-purple-400 { color: #c084fc !important; }
+.theme-black [class~="bg-purple-50"] .text-purple-300, .theme-black [class~="bg-purple-50/60"] .text-purple-300 { color: #d8b4fe !important; }
+.theme-black [class~="bg-purple-50"] .text-purple-900, .theme-black [class~="bg-purple-50/60"] .text-purple-900 { color: #e9d5ff !important; }
+
+.theme-black [class~="bg-red-50/30"] .text-red-500, .theme-black [class~="bg-red-50/30"] .text-red-600 { color: #f87171 !important; }
+
+/* theme-colors (Professional Mode) adaptative overrides */
+.theme-colors [class~="bg-blue-50"], .theme-colors [class~="bg-blue-50/60"] { background-color: rgba(30, 144, 255, 0.06) !important; }
+.theme-colors [class~="bg-emerald-50"], .theme-colors [class~="bg-emerald-50/60"], .theme-colors [class~="bg-emerald-50/50"], .theme-colors [class~="bg-emerald-50/30"] { background-color: rgba(46, 125, 50, 0.06) !important; }
+.theme-colors [class~="bg-amber-50"], .theme-colors [class~="bg-amber-50/60"] { background-color: rgba(245, 158, 11, 0.06) !important; }
+.theme-colors [class~="bg-purple-50"], .theme-colors [class~="bg-purple-50/60"] { background-color: rgba(139, 92, 246, 0.06) !important; }
+.theme-colors [class~="bg-red-50/30"] { background-color: rgba(239, 68, 68, 0.06) !important; }
+
+.theme-colors [class~="border-blue-100"] { border-color: rgba(30, 144, 255, 0.15) !important; }
+.theme-colors [class~="border-emerald-100"] { border-color: rgba(46, 125, 50, 0.15) !important; }
+.theme-colors [class~="border-amber-100"], .theme-colors [class~="border-amber-200"] { border-color: rgba(245, 158, 11, 0.15) !important; }
+.theme-colors [class~="border-purple-100"], .theme-colors [class~="border-purple-200"] { border-color: rgba(139, 92, 246, 0.15) !important; }
+.theme-colors [class~="border-red-100"] { border-color: rgba(239, 68, 68, 0.15) !important; }
+
+.theme-colors [class~="bg-blue-50"] .text-blue-400, .theme-colors [class~="bg-blue-50/60"] .text-blue-400 { color: #3b82f6 !important; }
+.theme-colors [class~="bg-blue-50"] .text-blue-800, .theme-colors [class~="bg-blue-50/60"] .text-blue-800 { color: #2563eb !important; }
+.theme-colors [class~="bg-blue-50"] .text-blue-900, .theme-colors [class~="bg-blue-50/60"] .text-blue-900 { color: #1d4ed8 !important; }
+
+.theme-colors [class~="bg-emerald-50"] .text-emerald-400, .theme-colors [class~="bg-emerald-50/60"] .text-emerald-400, .theme-colors [class~="bg-emerald-50/50"] .text-emerald-400, .theme-colors [class~="bg-emerald-50/30"] .text-emerald-400 { color: #10b981 !important; }
+.theme-colors [class~="bg-emerald-50"] .text-emerald-800, .theme-colors [class~="bg-emerald-50/60"] .text-emerald-800, .theme-colors [class~="bg-emerald-50/50"] .text-emerald-800, .theme-colors [class~="bg-emerald-50/30"] .text-emerald-800 { color: #059669 !important; }
+
+.theme-colors [class~="bg-amber-50"] .text-amber-400, .theme-colors [class~="bg-amber-50/60"] .text-amber-400 { color: #f59e0b !important; }
+.theme-colors [class~="bg-amber-50"] .text-amber-800, .theme-colors [class~="bg-amber-50/60"] .text-amber-800 { color: #d97706 !important; }
+
+.theme-colors [class~="bg-purple-50"] .text-purple-400, .theme-colors [class~="bg-purple-50/60"] .text-purple-400 { color: #a78bfa !important; }
+.theme-colors [class~="bg-purple-50"] .text-purple-300, .theme-colors [class~="bg-purple-50/60"] .text-purple-300 { color: #c084fc !important; }
+.theme-colors [class~="bg-purple-50"] .text-purple-900, .theme-colors [class~="bg-purple-50/60"] .text-purple-900 { color: #7c3aed !important; }
+
+.theme-colors [class~="bg-red-50/30"] .text-red-500, .theme-colors [class~="bg-red-50/30"] .text-red-600 { color: #ef4444 !important; }
 
 /* ============================================================
    MICRO-INTERACCIONES EN BOTONES DE ACCIÓN DE TABLAS

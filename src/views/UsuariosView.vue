@@ -197,7 +197,7 @@ const openNew = () => {
 
     <!-- MODAL DE VISTA (DETALLES DE USUARIO) -->
     <Teleport to="body">
-    <div v-if="viewUser" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+    <div v-if="viewUser" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
         <div class="bg-card-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-md overflow-hidden flex flex-col border border-main animate-prime-in">
             
             <!-- Header Institucional -->
@@ -277,7 +277,7 @@ const openNew = () => {
     <!-- Modal de Confirmación de Revocación -->
     <Teleport to="body">
     <Transition name="fade-confirm">
-    <div v-if="confirmDialog.visible" class="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]">
+    <div v-if="confirmDialog.visible" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
         <div class="bg-card-main rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-main scale-in">
             <!-- Icono de advertencia -->
             <div class="modal-header-danger p-8 flex flex-col items-center text-white border-b border-red-900/20">

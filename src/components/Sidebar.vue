@@ -1,12 +1,29 @@
 <template>
     <div :class="['sidebar w-full h-auto md:h-screen flex flex-col relative z-50 shrink-0 transition-all duration-300 ease-in-out', uiState.isSidebarCollapsed ? 'md:w-20' : 'md:w-72']">
-        <!-- Botón Toggle de la Barra Lateral (Solo Desktop) -->
+        <!-- Botón Toggle Flotante Premium de la Barra Lateral (Solo Desktop) -->
         <button 
             @click="toggleSidebar"
-            class="hidden md:flex absolute top-6 -right-3 w-6 h-6 rounded-full bg-accent text-on-accent items-center justify-center border border-white/20 shadow-lg cursor-pointer z-[60] transition-all hover:scale-110"
+            class="hidden md:flex absolute top-8 -right-4 w-8 h-8 rounded-full bg-[#022c22] text-white hover:text-accent items-center justify-center border border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.4)] cursor-pointer z-[60] transition-all duration-300 hover:scale-110 active:scale-95 group toggle-button-custom"
             :title="uiState.isSidebarCollapsed ? 'Expandir menú' : 'Contraer menú'"
         >
-            <component :is="uiState.isSidebarCollapsed ? ChevronRight : ChevronLeft" class="w-4 h-4" />
+            <svg 
+                class="w-4.5 h-4.5"
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2.5" 
+                stroke-linecap="round" 
+                stroke-linejoin="round"
+            >
+                <!-- Borde del panel -->
+                <rect x="3" y="3" width="18" height="18" rx="2" class="opacity-30 group-hover:opacity-60 transition-opacity" />
+                <!-- Línea de la barra lateral -->
+                <line x1="9" y1="3" x2="9" y2="21" class="opacity-40 group-hover:opacity-70 transition-opacity" />
+                <!-- Flecha animada -->
+                <g :class="uiState.isSidebarCollapsed ? 'arrow-container-right' : 'arrow-container-left'">
+                    <path :d="uiState.isSidebarCollapsed ? 'M11 16l4-4-4-4' : 'M16 16l-4-4 4-4'" />
+                </g>
+            </svg>
         </button>
 
         <!-- Logo / Brand -->
@@ -324,5 +341,39 @@ const logout = () => {
 /* Salir - LogOut */
 .nav-item:hover svg.lucide-log-out {
     transform: translateX(-3.5px);
+}
+
+/* ==========================================
+   BOTÓN TOGGLE ANIMADO PERSONALIZADO
+   ========================================== */
+.toggle-button-custom {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-button-custom:hover {
+    border-color: rgba(52, 211, 153, 0.4);
+    box-shadow: 0 0 15px rgba(52, 211, 153, 0.3), 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.arrow-container-left, .arrow-container-right {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-button-custom:hover .arrow-container-left {
+    animation: arrowSlideLeft 0.8s infinite alternate ease-in-out;
+}
+
+.toggle-button-custom:hover .arrow-container-right {
+    animation: arrowSlideRight 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes arrowSlideLeft {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-3px); }
+}
+
+@keyframes arrowSlideRight {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(3px); }
 }
 </style>

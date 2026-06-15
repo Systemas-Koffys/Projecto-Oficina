@@ -599,6 +599,45 @@ export const useMainStore = defineStore('mainStore', () => {
     }
   }
 
+  async function updateInventarioItem(id, item) {
+    try {
+      const response = await fetch(`${API_URL}/inventario/items/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(item)
+      });
+      if (response.ok) {
+        await fetchInventarioItems();
+        await fetchInventarioConsumibles();
+        return { success: true };
+      }
+      const err = await response.json();
+      return { success: false, error: err.error || 'Error al actualizar ítem' };
+    } catch (error) {
+      console.error("Error al actualizar ítem:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async function deleteInventarioItem(id) {
+    try {
+      const response = await fetch(`${API_URL}/inventario/items/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (response.ok) {
+        await fetchInventarioItems();
+        await fetchInventarioConsumibles();
+        return { success: true };
+      }
+      const err = await response.json();
+      return { success: false, error: err.error || 'Error al eliminar ítem' };
+    } catch (error) {
+      console.error("Error al eliminar ítem:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
   async function fetchInventarioActivos() {
     try {
       const response = await fetch(`${API_URL}/inventario/activos`, { headers: getAuthHeaders() });
@@ -787,6 +826,8 @@ export const useMainStore = defineStore('mainStore', () => {
     fetchAuditoria,
     fetchInventarioItems,
     addInventarioItem,
+    updateInventarioItem,
+    deleteInventarioItem,
     fetchInventarioActivos,
     addInventarioActivo,
     updateInventarioActivo,

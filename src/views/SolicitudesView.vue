@@ -495,7 +495,7 @@ const formatLoDeterminado = (sol) => {
         </div>
 
         <!-- Modal de Detalles (Reporte) -->
-        <div v-if="solicitudSeleccionada" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 print:absolute print:inset-auto print:block print:bg-white print:p-0 print:m-0 print:overflow-visible">
+        <div v-if="solicitudSeleccionada" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-50 print:absolute print:inset-auto print:block print:bg-white print:p-0 print:m-0 print:overflow-visible">
             <div class="bg-card-main border border-main rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto relative print-area print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
 
                 <!-- ===== CABECERA FORMAL PARA IMPRESIÓN (A4) ===== -->
@@ -830,7 +830,7 @@ const formatLoDeterminado = (sol) => {
         <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
         <Teleport to="body">
         <Transition name="fade-confirm">
-        <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-[99999]">
+        <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
             <div class="bg-card-main rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-main scale-in">
                 <!-- Cabecera Roja de Peligro -->
                 <div class="modal-header-danger p-8 flex flex-col items-center text-center text-white border-b border-red-900/20">
@@ -1067,14 +1067,4 @@ const formatLoDeterminado = (sol) => {
     background-color: #2d6a4f !important;
 }
 
-/* Theme Adaptive Overrides for colored blocks */
-:global(.theme-black) .bg-blue-50\/60 { background-color: rgba(59, 130, 246, 0.1) !important; border-color: rgba(59, 130, 246, 0.2) !important; }
-:global(.theme-black) .bg-emerald-50\/60 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-:global(.theme-black) .bg-amber-50\/60 { background-color: rgba(245, 158, 11, 0.1) !important; border-color: rgba(245, 158, 11, 0.2) !important; }
-:global(.theme-black) .bg-purple-50\/60 { background-color: rgba(139, 92, 246, 0.1) !important; border-color: rgba(139, 92, 246, 0.2) !important; }
-
-:global(.theme-colors) .bg-blue-50\/60 { background-color: rgba(30, 144, 255, 0.08) !important; border-color: rgba(30, 144, 255, 0.15) !important; }
-:global(.theme-colors) .bg-emerald-50\/60 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
-:global(.theme-colors) .bg-amber-50\/60 { background-color: rgba(245, 158, 11, 0.08) !important; border-color: rgba(245, 158, 11, 0.15) !important; }
-:global(.theme-colors) .bg-purple-50\/60 { background-color: rgba(139, 92, 246, 0.08) !important; border-color: rgba(139, 92, 246, 0.15) !important; }
 </style>

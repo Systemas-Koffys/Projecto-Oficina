@@ -135,7 +135,7 @@
     </div>
 
     <!-- Modal Formulario (Aniversario / Feriado) -->
-    <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+    <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/75 backdrop-blur-md p-4">
       <div class="bg-[#022c22] border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl scale-in">
         <h2 class="text-2xl font-black mb-6">
           {{ currentEvent.id ? (isFeriado ? 'Editar Feriado / Festivo' : 'Editar Aniversario') : (isFeriado ? 'Nuevo Feriado / Festivo' : 'Nuevo Aniversario') }}
@@ -221,7 +221,7 @@
     </div>
 
     <!-- MODAL 2: PLANIFICAR TRÁMITE EN FECHA (DATE CLICK) -->
-    <div v-if="showUnscheduledModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+    <div v-if="showUnscheduledModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/75 backdrop-blur-md p-4">
       <div class="bg-[#022c22] border border-white/10 rounded-3xl p-8 w-full max-w-lg shadow-2xl scale-in flex flex-col max-h-[85vh]">
         <div class="flex justify-between items-start mb-4">
           <div>
@@ -272,7 +272,7 @@
     </div>
 
     <!-- MODAL 3: DETALLE SOLICITUD PROGRAMADA (EVENT CLICK) -->
-    <div v-if="showSolicitudModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+    <div v-if="showSolicitudModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/75 backdrop-blur-md p-4">
       <div class="bg-[#022c22] border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl scale-in">
         <div class="flex justify-between items-start mb-4">
           <div>
@@ -330,7 +330,7 @@
     </div>
 
     <!-- MODAL 4: ASIGNAR FECHA DIRECTO DESDE SIDEBAR -->
-    <div v-if="showSidebarScheduleModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+    <div v-if="showSidebarScheduleModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/75 backdrop-blur-md p-4">
       <div class="bg-[#022c22] border border-white/10 rounded-3xl p-8 w-full max-w-sm shadow-2xl scale-in">
         <div class="flex justify-between items-start mb-4">
           <div>
@@ -412,7 +412,7 @@
     <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
     <Teleport to="body">
       <Transition name="fade-confirm">
-        <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-[99999]">
+        <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
           <div class="bg-card-main rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-main scale-in">
             <!-- Cabecera Roja de Peligro -->
             <div class="modal-header-danger p-8 flex flex-col items-center text-center text-white border-b border-red-900/20">

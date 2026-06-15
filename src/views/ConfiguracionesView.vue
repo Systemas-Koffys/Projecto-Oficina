@@ -488,7 +488,7 @@ const getOptions = (optionKey) => store[optionKey] || []
                                                 : 'bg-accent/10 text-accent border-accent/20',
                                             'text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border whitespace-nowrap'
                                         ]">
-                                            {{ esFeriado(item) ? '🗓 Feriado' : '🏘 Aniversario' }}
+                                            {{ esFeriado(item) ? 'Feriado' : 'Aniversario' }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 border-y border-main">
@@ -580,7 +580,7 @@ const getOptions = (optionKey) => store[optionKey] || []
 
         <!-- MODAL DE ANIVERSARIOS Y FERIADOS (DEDICADO) -->
         <Teleport to="body">
-            <div v-if="showCalendarioModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
+            <div v-if="showCalendarioModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
                 <div class="bg-card-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-lg overflow-hidden flex flex-col border border-main animate-prime-in">
                     
                     <!-- Cabecera -->
@@ -610,16 +610,16 @@ const getOptions = (optionKey) => store[optionKey] || []
                                         : 'text-muted hover:text-main',
                                     'py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all'
                                 ]">
-                                🏘 Aniversario de Barrio
+                                Aniversario de Barrio
                             </button>
                             <button type="button" @click="tipoCalendario = 'feriado'; formCalendario.nombre_barrio = ''"
                                 :class="[
                                     tipoCalendario === 'feriado'
                                         ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
                                         : 'text-muted hover:text-main',
-                                    'py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all'
+                                     'py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all'
                                 ]">
-                                🗓 Feriado / Festivo
+                                Feriado / Festivo
                             </button>
                         </div>
 
@@ -629,7 +629,7 @@ const getOptions = (optionKey) => store[optionKey] || []
                                 esFeriado(editCalendarioData) ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-accent/10 text-accent border-accent/20',
                                 'text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg border'
                             ]">
-                                {{ esFeriado(editCalendarioData) ? '🗓 Feriado' : '🏘 Aniversario de Barrio' }}
+                                {{ esFeriado(editCalendarioData) ? 'Feriado' : 'Aniversario de Barrio' }}
                             </span>
                             <span class="text-xs text-muted font-semibold">El tipo no es editable</span>
                         </div>
@@ -705,7 +705,7 @@ const getOptions = (optionKey) => store[optionKey] || []
 
         <!-- MODAL DE EDICIÓN/NUEVO GENÉRICO (Para catálogos normales) -->
         <Teleport to="body">
-            <div v-if="showModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
+            <div v-if="showModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999]">
                 <div class="bg-card-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-lg overflow-hidden flex flex-col border border-main animate-prime-in">
                     
                     <!-- Cabecera del Modal -->
@@ -761,7 +761,7 @@ const getOptions = (optionKey) => store[optionKey] || []
         <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
         <Teleport to="body">
         <Transition name="fade-confirm">
-        <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-[99999]">
+        <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
             <div class="bg-card-main rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-main scale-in">
                 <!-- Cabecera Roja de Peligro -->
                 <div class="modal-header-danger p-8 flex flex-col items-center text-center text-white border-b border-red-900/20">

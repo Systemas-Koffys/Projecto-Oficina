@@ -797,7 +797,7 @@ const limpiarFiltros = () => {
         <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CUSTOM PREMIUM -->
         <Teleport to="body">
         <Transition name="fade-confirm">
-        <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-[99999]">
+        <div v-if="showConfirmModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[99999]">
             <div class="bg-card-main rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-main scale-in">
                 <!-- Cabecera Roja de Peligro -->
                 <div class="modal-header-danger p-8 flex flex-col items-center text-center text-white border-b border-red-900/20">

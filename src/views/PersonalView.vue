@@ -172,7 +172,7 @@
 
         <!-- MODAL DE VISTA (DETALLES DE PERSONAL) -->
         <Teleport to="body">
-        <div v-if="viewPerson" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+        <div v-if="viewPerson" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
             <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
                 
                 <!-- Header Institucional -->
@@ -278,7 +278,7 @@
 
         <!-- MODAL DE EDICIÓN (Teleport al body para centrado correcto) -->
         <Teleport to="body">
-        <div v-if="showModal" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
+        <div v-if="showModal" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
             <div class="bg-card-main border border-main rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] w-full max-w-4xl overflow-hidden flex flex-col border border-white/20 animate-prime-in">
                 
                 <!-- Header Institucional -->
@@ -467,7 +467,7 @@
         <!-- Modal de Confirmación de Eliminación -->
         <Teleport to="body">
         <Transition name="fade-confirm">
-        <div v-if="confirmDialog.visible" class="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] no-print">
+        <div v-if="confirmDialog.visible" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[9999] no-print">
             <div class="bg-card-main border border-main rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden scale-in animate-prime-in">
                 <!-- Icono de advertencia -->
                 <div class="modal-header-danger p-8 flex flex-col items-center text-white border-b border-red-900/20">
@@ -778,16 +778,4 @@ const saveData = async () => {
 .fade-confirm-enter-active, .fade-confirm-leave-active { transition: opacity 0.2s ease; }
 .fade-confirm-enter-from, .fade-confirm-leave-to { opacity: 0; }
 
-/* Theme Adaptive Overrides for colored blocks */
-:global(.theme-black) .bg-emerald-50\/50 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-:global(.theme-black) .bg-red-50\/30 { background-color: rgba(239, 68, 68, 0.1) !important; border-color: rgba(239, 68, 68, 0.2) !important; }
-:global(.theme-black) .bg-emerald-50\/30 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-:global(.theme-black) .bg-blue-50 { background-color: rgba(59, 130, 246, 0.1) !important; border-color: rgba(59, 130, 246, 0.2) !important; }
-:global(.theme-black) .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-
-:global(.theme-colors) .bg-emerald-50\/50 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
-:global(.theme-colors) .bg-red-50\/30 { background-color: rgba(239, 68, 68, 0.08) !important; border-color: rgba(239, 68, 68, 0.15) !important; }
-:global(.theme-colors) .bg-emerald-50\/30 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
-:global(.theme-colors) .bg-blue-50 { background-color: rgba(30, 144, 255, 0.08) !important; border-color: rgba(30, 144, 255, 0.15) !important; }
-:global(.theme-colors) .bg-emerald-50 { background-color: rgba(46, 125, 50, 0.08) !important; border-color: rgba(46, 125, 50, 0.15) !important; }
 </style>

@@ -69,7 +69,7 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_NAME || 'dboficina',
   port: process.env.DB_PORT || 3306,
-  charset: 'UTF8MB4_UNICODE_CI',
+  charset: 'utf8mb4',
   ssl: {
     rejectUnauthorized: false
   },
@@ -136,6 +136,15 @@ function formatDbDate(val) {
   } catch (e) {
     return null;
   }
+}
+
+// Helper para normalizar nombres de ubicaciones/orígenes/destinos con acentos correctos
+function normalizeUbicacion(val) {
+  if (!val) return val;
+  const str = String(val).trim();
+  if (str === 'Almacen') return 'Almacén';
+  if (str === 'Tecnico') return 'Técnico';
+  return str;
 }
 
 // Ruta de salud
@@ -887,6 +896,65 @@ app.post('/api/inventario/items', async (req, res) => {
   }
 });
 
+// Actualizar ítem en el catálogo
+app.put('/api/inventario/items/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, tipo, descripcion, unidad_medida } = req.body;
+    
+    await pool.query(
+      'UPDATE inventario_items SET nombre = ?, tipo = ?, descripcion = ?, unidad_medida = ? WHERE id_item = ?',
+      [nombre, tipo, descripcion || null, unidad_medida || 'Unidad', id]
+    );
+
+    if (tipo === 'Consumible' || tipo === 'Repuesto') {
+      const [existing] = await pool.query('SELECT * FROM inventario_consumibles WHERE id_item = ?', [id]);
+      if (existing.length === 0) {
+        await pool.query(
+          'INSERT INTO inventario_consumibles (id_item, cantidad_almacen, cantidad_oficina, cantidad_tecnicos) VALUES (?, 0, 0, 0)',
+          [id]
+        );
+      }
+    }
+    
+    await registrarAuditoria(req, 'MODIFICAR', 'inventario_items', id, { nombre, tipo });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error al actualizar ítem de inventario:', error);
+    res.status(500).json({ error: 'Error al actualizar ítem de inventario', detail: error.message });
+  }
+});
+
+// Eliminar ítem del catálogo
+app.delete('/api/inventario/items/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [activos] = await pool.query('SELECT id_activo FROM inventario_activos WHERE id_item = ?', [id]);
+    if (activos.length > 0) {
+      return res.status(400).json({ error: 'No se puede eliminar este ítem porque tiene activos codificados asociados.' });
+    }
+
+    const [movimientos] = await pool.query('SELECT id_movimiento FROM inventario_movimientos WHERE id_item = ?', [id]);
+    if (movimientos.length > 0) {
+      return res.status(400).json({ error: 'No se puede eliminar este ítem porque tiene movimientos de stock registrados.' });
+    }
+
+    await pool.query('DELETE FROM inventario_consumibles WHERE id_item = ?', [id]);
+    const [result] = await pool.query('DELETE FROM inventario_items WHERE id_item = ?', [id]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'El ítem no existe.' });
+    }
+
+    await registrarAuditoria(req, 'ELIMINAR', 'inventario_items', id, { id });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error al eliminar ítem de inventario:', error);
+    res.status(500).json({ error: 'Error al eliminar ítem de inventario', detail: error.message });
+  }
+});
+
 // 2. Obtener lista de activos codificados (motosierras, pértigas, escaleras, etc.)
 app.get('/api/inventario/activos', async (req, res) => {
   try {
@@ -932,10 +1000,14 @@ app.post('/api/inventario/activos', async (req, res) => {
       codigo_activo: data.codigo_activo,
       estado: data.estado || 'Bueno',
       uso: data.uso || 'Moderado',
-      ubicacion_actual: data.ubicacion_actual || 'Almacen',
+      ubicacion_actual: normalizeUbicacion(data.ubicacion_actual) || 'Almacén',
       id_custodio: data.id_custodio || null,
       id_usuario_operario: data.id_usuario_operario || null,
-      observaciones: data.observaciones || null
+      observaciones: data.observaciones || null,
+      foto_lateral_anterior: data.foto_lateral_anterior || null,
+      foto_lateral_actual: data.foto_lateral_actual || null,
+      foto_superior_anterior: data.foto_superior_anterior || null,
+      foto_superior_actual: data.foto_superior_actual || null
     };
 
     const [result] = await pool.query('INSERT INTO inventario_activos SET ?', [insertData]);
@@ -969,10 +1041,14 @@ app.put('/api/inventario/activos/:id', async (req, res) => {
       codigo_activo: data.codigo_activo,
       estado: data.estado || 'Bueno',
       uso: data.uso || 'Moderado',
-      ubicacion_actual: data.ubicacion_actual || 'Almacen',
+      ubicacion_actual: normalizeUbicacion(data.ubicacion_actual) || 'Almacén',
       id_custodio: data.id_custodio || null,
       id_usuario_operario: data.id_usuario_operario || null,
-      observaciones: data.observaciones || null
+      observaciones: data.observaciones || null,
+      foto_lateral_anterior: data.foto_lateral_anterior || null,
+      foto_lateral_actual: data.foto_lateral_actual || null,
+      foto_superior_anterior: data.foto_superior_anterior || null,
+      foto_superior_actual: data.foto_superior_actual || null
     };
 
     await pool.query('UPDATE inventario_activos SET ? WHERE id_activo = ?', [updateData, id]);
@@ -1014,6 +1090,8 @@ app.post('/api/inventario/movimientos', async (req, res) => {
     
     const qty = parseInt(data.cantidad);
     const itemId = parseInt(data.id_item);
+    const origenNorm = normalizeUbicacion(data.origen);
+    const destinoNorm = normalizeUbicacion(data.destino);
     
     const [itemCheck] = await connection.query('SELECT tipo FROM inventario_items WHERE id_item = ?', [itemId]);
     if (itemCheck.length === 0) {
@@ -1026,12 +1104,12 @@ app.post('/api/inventario/movimientos', async (req, res) => {
       if (stockCheck.length > 0) {
         const stock = stockCheck[0];
         let availableStock = 0;
-        if (data.origen === 'Almacén') availableStock = stock.cantidad_almacen;
-        else if (data.origen === 'Oficina') availableStock = stock.cantidad_oficina;
-        else if (data.origen === 'Técnico') availableStock = stock.cantidad_tecnicos;
+        if (origenNorm === 'Almacén') availableStock = stock.cantidad_almacen;
+        else if (origenNorm === 'Oficina') availableStock = stock.cantidad_oficina;
+        else if (origenNorm === 'Técnico') availableStock = stock.cantidad_tecnicos;
         
         if (availableStock < qty) {
-          throw new Error(`Stock insuficiente en ${data.origen}. Disponible: ${availableStock}, Solicitado: ${qty}`);
+          throw new Error(`Stock insuficiente en ${origenNorm}. Disponible: ${availableStock}, Solicitado: ${qty}`);
         }
       } else {
         throw new Error('Stock no inicializado para este ítem.');
@@ -1047,8 +1125,8 @@ app.post('/api/inventario/movimientos', async (req, res) => {
       id_item: itemId,
       cantidad: qty,
       tipo_movimiento: data.tipo_movimiento,
-      origen: data.origen,
-      destino: data.destino,
+      origen: origenNorm,
+      destino: destinoNorm,
       id_recibe: data.id_recibe || null,
       id_activo_destino: data.id_activo_destino || null,
       estado_devolucion: estadoDevolucion,
@@ -1059,21 +1137,21 @@ app.post('/api/inventario/movimientos', async (req, res) => {
     const [result] = await connection.query('INSERT INTO inventario_movimientos SET ?', [insertMov]);
 
     if (data.tipo_movimiento === 'Ingreso') {
-      const targetColumn = data.destino === 'Oficina' ? 'cantidad_oficina' : 'cantidad_almacen';
+      const targetColumn = (destinoNorm === 'Oficina') ? 'cantidad_oficina' : 'cantidad_almacen';
       await connection.query(
         `UPDATE inventario_consumibles SET ${targetColumn} = ${targetColumn} + ? WHERE id_item = ?`,
         [qty, itemId]
       );
     } else {
       let colOrigen = '';
-      if (data.origen === 'Almacén') colOrigen = 'cantidad_almacen';
-      else if (data.origen === 'Oficina') colOrigen = 'cantidad_oficina';
-      else if (data.origen === 'Técnico') colOrigen = 'cantidad_tecnicos';
+      if (origenNorm === 'Almacén') colOrigen = 'cantidad_almacen';
+      else if (origenNorm === 'Oficina') colOrigen = 'cantidad_oficina';
+      else if (origenNorm === 'Técnico') colOrigen = 'cantidad_tecnicos';
       
       let colDestino = '';
-      if (data.destino === 'Almacén') colDestino = 'cantidad_almacen';
-      else if (data.destino === 'Oficina') colDestino = 'cantidad_oficina';
-      else if (data.destino === 'Técnico') colDestino = 'cantidad_tecnicos';
+      if (destinoNorm === 'Almacén') colDestino = 'cantidad_almacen';
+      else if (destinoNorm === 'Oficina') colDestino = 'cantidad_oficina';
+      else if (destinoNorm === 'Técnico') colDestino = 'cantidad_tecnicos';
 
       await connection.query(
         `UPDATE inventario_consumibles SET ${colOrigen} = ${colOrigen} - ? WHERE id_item = ?`,
@@ -1122,24 +1200,51 @@ app.get('/api/inventario/movimientos', async (req, res) => {
   }
 });
 
-// Actualizar estado de devolución de pieza vieja
+// Actualizar estado de devolución de pieza vieja y descontar stock en custodia del técnico
 app.put('/api/inventario/movimientos/:id/devolucion', async (req, res) => {
+  const connection = await pool.getConnection();
   try {
+    await connection.beginTransaction();
     const { id } = req.params;
     const { estado_devolucion, fecha_devolucion } = req.body;
     
     const dateVal = formatDbDate(fecha_devolucion) || new Date().toISOString().split('T')[0];
     
-    await pool.query(
+    const [movCheck] = await connection.query(
+      'SELECT id_item, cantidad, estado_devolucion FROM inventario_movimientos WHERE id_movimiento = ?',
+      [id]
+    );
+    
+    if (movCheck.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ error: 'Movimiento no encontrado' });
+    }
+    
+    const mov = movCheck[0];
+    
+    await connection.query(
       'UPDATE inventario_movimientos SET estado_devolucion = ?, fecha_devolucion = ? WHERE id_movimiento = ?',
       [estado_devolucion, dateVal, id]
     );
     
+    // Si pasa de 'Pendiente devolución' a devuelto, descontar de custodia del técnico
+    if (mov.estado_devolucion === 'Pendiente devolución' && 
+        (estado_devolucion === 'Devuelto a Oficina' || estado_devolucion === 'Devuelto a Almacén')) {
+      await connection.query(
+        'UPDATE inventario_consumibles SET cantidad_tecnicos = GREATEST(0, cantidad_tecnicos - ?) WHERE id_item = ?',
+        [mov.cantidad, mov.id_item]
+      );
+    }
+    
+    await connection.commit();
     await registrarAuditoria(req, 'MODIFICAR', 'inventario_movimientos', id, { estado_devolucion, fecha_devolucion: dateVal });
     res.json({ success: true });
   } catch (error) {
+    await connection.rollback();
     console.error('Error al actualizar estado de devolución:', error);
-    res.status(500).json({ error: 'Error al actualizar estado de devolución' });
+    res.status(500).json({ error: 'Error al actualizar estado de devolución', detail: error.message });
+  } finally {
+    connection.release();
   }
 });
 

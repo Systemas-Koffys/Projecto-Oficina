@@ -21,47 +21,53 @@
           </div>
           
           <div class="flex items-center gap-3 self-end md:self-auto">
-            <!-- Reloj Digital Premium -->
-            <div class="flex items-center h-[52px] gap-2.5 bg-card px-4 rounded-2xl border border-border/60 shadow-sm text-xs font-semibold text-muted select-none">
-              <Calendar size="16" class="text-accent transition-transform duration-300 hover:scale-110" />
-              <span>{{ fechaActual }}</span>
-              <span class="text-slate-300 dark:text-slate-700">|</span>
-              <Clock size="16" class="text-accent transition-transform duration-300 hover:scale-110" />
-              <span class="font-mono tracking-wider text-main font-bold">{{ horaActual }}</span>
+            <!-- Reloj y Calendario Digital Premium -->
+            <div class="flex items-center h-[52px] bg-card px-4 rounded-2xl border border-border/80 shadow-sm hover:border-accent/40 hover:shadow-md transition-all duration-300 select-none group/clock">
+              <!-- Fecha -->
+              <div class="flex items-center gap-2 pr-3 border-r border-border/80">
+                <Calendar size="16" class="text-accent transition-all duration-300 group-hover/clock:scale-110 group-hover/clock:rotate-6" />
+                <span class="text-xs font-semibold text-main whitespace-nowrap tracking-wide uppercase">{{ fechaActual }}</span>
+              </div>
+              
+              <!-- Hora -->
+              <div class="flex items-center gap-2 pl-3">
+                <Clock size="16" class="text-accent transition-all duration-300 group-hover/clock:rotate-12" />
+                <span class="font-mono text-xs font-bold text-main whitespace-nowrap tracking-widest">{{ horaActual }}</span>
+              </div>
             </div>
 
             <!-- Selector de Temas Premium v2.0 -->
             <div class="relative flex bg-card p-1.5 rounded-2xl border border-border/60 shadow-inner overflow-hidden group">
-            <!-- Fondo deslizante dinámico -->
-            <div 
-              class="absolute top-1.5 bottom-1.5 left-1.5 rounded-xl bg-accent shadow-lg shadow-accent/20 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-              :style="{
-                width: '40px',
-                transform: `translateX(${uiState.theme === 'white' ? 0 : uiState.theme === 'black' ? 44 : 88}px)`
-              }"
-            ></div>
+              <!-- Fondo deslizante dinámico -->
+              <div 
+                class="absolute top-1.5 bottom-1.5 left-1.5 rounded-xl bg-accent shadow-lg shadow-accent/20 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                :style="{
+                  width: '40px',
+                  transform: `translateX(${uiState.theme === 'white' ? 0 : uiState.theme === 'black' ? 40 : 80}px)`
+                }"
+              ></div>
 
-            <button 
-              v-for="t in [
-                { id: 'white', icon: Sun }, 
-                { id: 'black', icon: Moon }, 
-                { id: 'colors', icon: Palette }
-              ]" 
-              :key="t.id"
-              @click="setTheme(t.id)"
-              class="relative z-10 w-10 h-10 flex items-center justify-center transition-all duration-300"
-              :title="`Modo ${t.id}`"
-            >
-              <component 
-                :is="t.icon" 
-                size="18" 
-                :class="[
-                  'transition-all duration-300',
-                  uiState.theme === t.id ? 'text-white scale-110' : 'text-muted group-hover:text-accent opacity-60'
-                ]"
-              />
-            </button>
-          </div>
+              <button 
+                v-for="t in [
+                  { id: 'white', icon: Sun }, 
+                  { id: 'black', icon: Moon }, 
+                  { id: 'colors', icon: Palette }
+                ]" 
+                :key="t.id"
+                @click="setTheme(t.id)"
+                class="relative z-10 w-10 h-10 flex items-center justify-center transition-all duration-300 cursor-pointer"
+                :title="`Modo ${t.id}`"
+              >
+                <component 
+                  :is="t.icon" 
+                  size="18" 
+                  :class="[
+                    'transition-all duration-300',
+                    uiState.theme === t.id ? 'text-[color:var(--text-on-accent)] scale-110 font-bold' : 'text-muted group-hover:text-accent opacity-60'
+                  ]"
+                />
+              </button>
+            </div>
           </div>
         </div>
       </header>

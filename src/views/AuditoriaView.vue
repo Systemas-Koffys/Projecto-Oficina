@@ -298,16 +298,16 @@ const abrirDetalle = (log) => {
         </div>
 
         <!-- Modal de Detalles del Log -->
-        <div v-if="auditoriaSeleccionada" class="fixed inset-0 bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 z-[99999] animate-prime-in">
+        <div v-if="auditoriaSeleccionada" class="fixed inset-0 bg-gray-950/75 backdrop-blur-md flex items-center justify-center p-4 z-[99999] animate-prime-in">
             <div class="bg-card-main border border-main rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden relative scale-in">
                 <!-- Header del Modal -->
-                <div class="modal-header-gradient px-6 py-5 flex justify-between items-center bg-accent text-white">
+                <div class="modal-header-gradient px-6 py-5 flex justify-between items-center shadow-lg border-b border-black/10 shrink-0">
                     <div>
-                        <p class="text-green-100 text-xs font-black uppercase tracking-widest mb-1">Detalles de la Operación</p>
-                        <h3 class="text-white text-lg font-black">Registro de Auditoría #{{ auditoriaSeleccionada.id_auditoria }}</h3>
+                        <p class="text-[color:var(--text-on-accent)] opacity-80 text-xs font-black uppercase tracking-widest mb-1">Detalles de la Operación</p>
+                        <h3 class="text-[color:var(--text-on-accent)] text-lg font-black leading-none">Registro de Auditoría #{{ auditoriaSeleccionada.id_auditoria }}</h3>
                     </div>
-                    <button @click="auditoriaSeleccionada = null" class="bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-white/10 cursor-pointer">
-                        <X class="w-5 h-5" />
+                    <button @click="auditoriaSeleccionada = null" class="hover:bg-white/20 p-2 rounded-xl transition-all cursor-pointer flex items-center justify-center">
+                        <X class="w-6 h-6 text-[color:var(--text-on-accent)]" />
                     </button>
                 </div>
 
