@@ -1117,7 +1117,7 @@ app.post('/api/inventario/movimientos', async (req, res) => {
     }
 
     let estadoDevolucion = 'No aplica';
-    if (itemTipo === 'Repuesto' && data.tipo_movimiento === 'Entrega' && data.id_activo_destino) {
+    if (itemTipo === 'Repuesto' && data.tipo_movimiento === 'Entrega') {
       estadoDevolucion = 'Pendiente devolución';
     }
 

@@ -739,6 +739,7 @@ export const useMainStore = defineStore('mainStore', () => {
       });
       if (response.ok) {
         await fetchInventarioMovimientos();
+        await fetchInventarioConsumibles();
         return { success: true };
       }
       return { success: false, error: 'Error al actualizar devolución' };

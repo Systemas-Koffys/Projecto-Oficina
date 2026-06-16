@@ -250,6 +250,51 @@ svg { stroke: currentColor; }
     .print\:hidden {
         display: none !important;
     }
+
+    /* FORZAR ESQUEMA CLARO Y ALTA LEGIBILIDAD EN CUALQUIER TEMA */
+    :root, .theme-black, .theme-colors {
+        --bg-app: #ffffff !important;
+        --bg-card: #ffffff !important;
+        --bg-card-sec: #ffffff !important;
+        --bg-sidebar: #ffffff !important;
+        --bg-header: #ffffff !important;
+        --text-main: #000000 !important;
+        --text-muted: #334155 !important;
+        --text-on-accent: #ffffff !important;
+        --accent: #1e3a8a !important;
+        --accent-hover: #1e3a8a !important;
+        --accent-soft: rgba(30, 41, 59, 0.05) !important;
+        --border: #cbd5e1 !important;
+        --border-sec: #cbd5e1 !important;
+        --input-bg: #ffffff !important;
+        --table-stripe: #f8fafc !important;
+    }
+
+    /* Forzar que las cajas con colores de fondo ligeros sean blancas con bordes de línea delgados en papel */
+    [class~="bg-blue-50"], [class~="bg-blue-50/60"],
+    [class~="bg-emerald-50"], [class~="bg-emerald-50/60"],
+    [class~="bg-amber-50"], [class~="bg-amber-50/60"],
+    [class~="bg-purple-50"], [class~="bg-purple-50/60"],
+    [class~="bg-red-50/30"], [class~="bg-card-sec"], [class~="bg-card-main"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        border-color: #94a3b8 !important;
+        color: #000000 !important;
+    }
+
+    /* Asegurar texto negro en los elementos hijos de las cajas */
+    [class~="bg-blue-50"] *, [class~="bg-blue-50/60"] *,
+    [class~="bg-emerald-50"] *, [class~="bg-emerald-50/60"] *,
+    [class~="bg-amber-50"] *, [class~="bg-amber-50/60"] *,
+    [class~="bg-purple-50"] *, [class~="bg-purple-50/60"] *,
+    [class~="bg-red-50/30"] *, [class~="bg-card-sec"] *, [class~="bg-card-main"] * {
+        color: #000000 !important;
+    }
+
+    /* Forzar visibilidad de bordes de celdas y tablas */
+    .print-table th, .print-table td, table th, table td {
+        border-color: #000000 !important;
+    }
 }
 
 /* Animación de entrada premium para modales */
@@ -516,6 +561,118 @@ svg { stroke: currentColor; }
 .search-input:focus-within ~ .search-icon {
     transform: translateX(3px) rotate(10deg) scale(1.1);
     color: var(--accent) !important;
+}
+
+/* ============================================================
+   GLOBAL PRINT MEDIA OVERRIDES (ANTI-DARK-MODE BLEED)
+   ============================================================ */
+@media print {
+    /* Force white background and dark text globally */
+    html, body, #app, .app-container {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    /* Reset design token CSS variables to their light mode equivalents */
+    :root, .theme-black, .theme-colors {
+        --bg-app: #ffffff !important;
+        --bg-card: #ffffff !important;
+        --bg-card-sec: #ffffff !important;
+        --bg-sidebar: #ffffff !important;
+        --bg-header: #ffffff !important;
+        
+        --text-main: #000000 !important;
+        --text-muted: #4b5563 !important;
+        --text-on-accent: #ffffff !important;
+        
+        --accent: #2e7d32 !important;
+        --accent-hover: #1b5e20 !important;
+        --accent-soft: rgba(46, 125, 50, 0.08) !important;
+        
+        --border: #d1d5db !important;
+        --border-sec: #e5e7eb !important;
+        --input-bg: #ffffff !important;
+        --table-stripe: #ffffff !important;
+        --shadow-sm: none !important;
+        --shadow-md: none !important;
+    }
+
+    /* Reset specific background classes that are overridden in dark themes */
+    .theme-black [class~="bg-blue-50"], .theme-black [class~="bg-blue-50/60"],
+    .theme-colors [class~="bg-blue-50"], .theme-colors [class~="bg-blue-50/60"],
+    [class~="bg-blue-50/60"], [class~="bg-blue-50"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+    }
+    .theme-black [class~="bg-emerald-50"], .theme-black [class~="bg-emerald-50/60"], 
+    .theme-black [class~="bg-emerald-50/50"], .theme-black [class~="bg-emerald-50/30"],
+    .theme-colors [class~="bg-emerald-50"], .theme-colors [class~="bg-emerald-50/60"], 
+    .theme-colors [class~="bg-emerald-50/50"], .theme-colors [class~="bg-emerald-50/30"],
+    [class~="bg-emerald-50/60"], [class~="bg-emerald-50"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+    }
+    .theme-black [class~="bg-amber-50"], .theme-black [class~="bg-amber-50/60"],
+    .theme-colors [class~="bg-amber-50"], .theme-colors [class~="bg-amber-50/60"],
+    [class~="bg-amber-50/60"], [class~="bg-amber-50"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+    }
+    .theme-black [class~="bg-purple-50"], .theme-black [class~="bg-purple-50/60"],
+    .theme-colors [class~="bg-purple-50"], .theme-colors [class~="bg-purple-50/60"],
+    [class~="bg-purple-50/60"], [class~="bg-purple-50"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+    }
+    .theme-black [class~="bg-red-50/30"], .theme-colors [class~="bg-red-50/30"],
+    [class~="bg-red-50/30"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        border-color: #fca5a5 !important;
+    }
+
+    /* Adjust color theme text values for print readability */
+    .theme-black [class~="bg-blue-50"] .text-blue-400, .theme-black [class~="bg-blue-50/60"] .text-blue-400,
+    .theme-black [class~="bg-blue-50"] .text-blue-800, .theme-black [class~="bg-blue-50/60"] .text-blue-800,
+    .theme-black [class~="bg-blue-50"] .text-blue-900, .theme-black [class~="bg-blue-50/60"] .text-blue-900,
+    .theme-colors [class~="bg-blue-50"] .text-blue-400, .theme-colors [class~="bg-blue-50/60"] .text-blue-400,
+    .theme-colors [class~="bg-blue-50"] .text-blue-800, .theme-colors [class~="bg-blue-50/60"] .text-blue-800,
+    .theme-colors [class~="bg-blue-50"] .text-blue-900, .theme-colors [class~="bg-blue-50/60"] .text-blue-900 {
+        color: #1e3a8a !important;
+    }
+    
+    .theme-black [class~="bg-emerald-50"] .text-emerald-400, .theme-black [class~="bg-emerald-50/60"] .text-emerald-400,
+    .theme-black [class~="bg-emerald-50"] .text-emerald-800, .theme-black [class~="bg-emerald-50/60"] .text-emerald-800,
+    .theme-colors [class~="bg-emerald-50"] .text-emerald-400, .theme-colors [class~="bg-emerald-50/60"] .text-emerald-400,
+    .theme-colors [class~="bg-emerald-50"] .text-emerald-800, .theme-colors [class~="bg-emerald-50/60"] .text-emerald-800 {
+        color: #065f46 !important;
+    }
+
+    .theme-black [class~="bg-amber-50"] .text-amber-400, .theme-black [class~="bg-amber-50/60"] .text-amber-400,
+    .theme-black [class~="bg-amber-50"] .text-amber-800, .theme-black [class~="bg-amber-50/60"] .text-amber-800,
+    .theme-colors [class~="bg-amber-50"] .text-amber-400, .theme-colors [class~="bg-amber-50/60"] .text-amber-400,
+    .theme-colors [class~="bg-amber-50"] .text-amber-800, .theme-colors [class~="bg-amber-50/60"] .text-amber-800 {
+        color: #78350f !important;
+    }
+
+    .theme-black [class~="bg-purple-50"] .text-purple-400, .theme-black [class~="bg-purple-50/60"] .text-purple-400,
+    .theme-black [class~="bg-purple-50"] .text-purple-300, .theme-black [class~="bg-purple-50/60"] .text-purple-300,
+    .theme-black [class~="bg-purple-50"] .text-purple-900, .theme-black [class~="bg-purple-50/60"] .text-purple-900,
+    .theme-colors [class~="bg-purple-50"] .text-purple-400, .theme-colors [class~="bg-purple-50/60"] .text-purple-400,
+    .theme-colors [class~="bg-purple-50"] .text-purple-300, .theme-colors [class~="bg-purple-50/60"] .text-purple-300,
+    .theme-colors [class~="bg-purple-50"] .text-purple-900, .theme-colors [class~="bg-purple-50/60"] .text-purple-900 {
+        color: #581c87 !important;
+    }
+
+    .theme-black [class~="bg-red-50/30"] .text-red-500, .theme-black [class~="bg-red-50/30"] .text-red-600,
+    .theme-colors [class~="bg-red-50/30"] .text-red-500, .theme-colors [class~="bg-red-50/30"] .text-red-600 {
+        color: #991b1b !important;
+    }
 }
 
 

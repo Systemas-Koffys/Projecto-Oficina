@@ -1,14 +1,14 @@
 <template>
-    <div class="inventario-view p-6 space-y-6 text-main animate-fade-in">
+    <div class="inventario-view p-6 space-y-6 text-main animate-fade-in" :class="{ 'print:hidden': printTarget !== '' }">
         
         <!-- PANELES DE ESTADÍSTICAS SUPERIORES (no-print) -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 no-print">
             <div class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4 border-l-4 border-l-emerald-500">
                 <div class="w-12 h-12 bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center">
                     <CheckCircle class="w-6 h-6" />
                 </div>
                 <div>
-                    <p class="text-[10px] font-black text-muted uppercase tracking-widest">Motosierras Habilitadas</p>
+                    <p class="text-[10px] font-black text-muted uppercase tracking-widest">Motosierras y/o Telescópicas Habilitadas</p>
                     <p class="text-2xl font-black text-main">{{ motosierrasHabilitadasCount }}</p>
                 </div>
             </div>
@@ -18,7 +18,7 @@
                     <AlertTriangle class="w-6 h-6" />
                 </div>
                 <div>
-                    <p class="text-[10px] font-black text-muted uppercase tracking-widest font-black">Baja Temp. (Motosierras)</p>
+                    <p class="text-[10px] font-black text-muted uppercase tracking-widest font-black">Motosierras y/o Telescópicas con Baja Temporal</p>
                     <p class="text-2xl font-black text-main">{{ motosierrasBajaTempCount }}</p>
                 </div>
             </div>
@@ -33,13 +33,32 @@
                 </div>
             </div>
 
-            <div class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4 border-l-4 border-l-blue-500">
+            <!-- Si no hay deudas, mostrar tarjeta vacía estándar -->
+            <div v-if="deudasPorTecnico.length === 0" class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4 border-l-4 border-l-blue-500">
                 <div class="w-12 h-12 bg-blue-500/10 text-blue-600 rounded-2xl flex items-center justify-center">
-                    <Sliders class="w-6 h-6" />
+                    <User class="w-6 h-6" />
                 </div>
                 <div>
                     <p class="text-[10px] font-black text-muted uppercase tracking-widest">Técnicos con Deudas</p>
-                    <p class="text-2xl font-black text-main">{{ tecnicosConDeudasCount }} técnicos</p>
+                    <p class="text-sm font-black text-main">Ninguno registra deudas</p>
+                </div>
+            </div>
+
+            <!-- Si hay deudas, mostrar tarjeta individual dinámica para cada técnico con deudas -->
+            <div v-else v-for="t in deudasPorTecnico" :key="t.id" class="bg-card-main p-6 rounded-[2rem] shadow-sm border border-main flex items-center gap-4 border-l-4 border-l-blue-500 animate-fade-in">
+                <div class="w-12 h-12 bg-blue-500/10 text-blue-600 rounded-2xl flex items-center justify-center">
+                    <User class="w-6 h-6" />
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-muted uppercase tracking-widest truncate max-w-[150px]" :title="t.cargo || 'Técnico de equipo'">
+                        {{ t.cargo || 'Técnico de equipo' }}
+                    </p>
+                    <p class="text-sm font-black text-main truncate max-w-[150px]" :title="t.nombre">
+                        {{ t.nombre }}
+                    </p>
+                    <p class="text-xs font-bold text-blue-600 mt-1">
+                        Debe {{ t.deuda }} repuestos
+                    </p>
                 </div>
             </div>
         </div>
@@ -67,8 +86,8 @@
         <!-- ========================================== -->
         <!-- TAB 1: STOCK GENERAL Y CATÁLOGO            -->
         <!-- ========================================== -->
-        <div v-if="activeTab === 'stock'" class="space-y-6 no-print">
-            <div class="bg-card-main p-6 rounded-[2.5rem] shadow-sm border border-main flex flex-col md:flex-row justify-between items-center gap-4">
+        <div v-if="activeTab === 'stock'" class="space-y-6">
+            <div class="bg-card-main p-6 rounded-[2.5rem] shadow-sm border border-main flex flex-col md:flex-row justify-between items-center gap-4 no-print">
                 <div>
                     <h2 class="text-xl font-black text-main">Catálogo General de Inventario</h2>
                     <p class="text-xs text-muted font-bold mt-1">Control de consumibles, herramientas manuales y stock por ubicación</p>
@@ -81,6 +100,16 @@
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
                             <Search class="w-4 h-4" />
                         </span>
+                    </div>
+
+                    <!-- Filtro por Tipo de Ítem -->
+                    <div class="relative flex-1 md:w-48 font-bold text-sm">
+                        <select v-model="filterStockTipo" class="w-full bg-card-sec border border-main rounded-2xl px-4 py-3 text-xs font-bold focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+                            <option value="">Todos los Tipos</option>
+                            <option value="Activo">Activos</option>
+                            <option value="Consumible">Consumibles</option>
+                            <option value="Repuesto">Repuestos</option>
+                        </select>
                     </div>
 
                     <button @click="openNewItemModal" class="px-5 py-3 bg-card-sec hover:border-accent text-accent border border-main rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer">
@@ -97,13 +126,24 @@
                         <ArrowRightLeft class="w-4 h-4" />
                         <span>Traslado Stock</span>
                     </button>
+                    <button @click="triggerPrintList('stock')" class="px-5 py-3 bg-card-sec hover:border-accent text-accent border border-main rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer" title="Imprimir catálogo">
+                        <Printer class="w-4 h-4" />
+                        <span>Imprimir Catálogo</span>
+                    </button>
                 </div>
             </div>
 
             <!-- Grilla de Inventario -->
             <div class="bg-card-main rounded-3xl shadow-sm border border-main overflow-hidden">
                 <div class="overflow-x-auto p-4">
-                    <table class="w-full text-left border-separate border-spacing-y-3">
+                    <!-- Título de impresión (se muestra solo al imprimir) -->
+                    <div class="hidden print-only-block mb-4 text-center border-b pb-2 text-slate-900">
+                        <h2 class="text-sm font-black uppercase tracking-widest text-slate-500">Gobierno Autónomo Municipal de Tarija</h2>
+                        <h1 class="text-base font-black uppercase text-slate-900">Reporte de Inventario de Herramientas, Consumibles y Repuestos</h1>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">Dirección de Ornato Público - Unidad de Arboricultura</p>
+                    </div>
+
+                    <table class="w-full text-left border-separate border-spacing-y-3 print-table text-main">
                         <thead>
                             <tr class="text-[10px] font-black uppercase text-muted tracking-widest">
                                 <th class="px-6 py-2">Ítem de Catálogo</th>
@@ -114,7 +154,7 @@
                                 <th class="px-6 py-2 text-center">Stock Total</th>
                                 <th class="px-6 py-2">Unidad</th>
                                 <th class="px-6 py-2">Estado Stock</th>
-                                <th class="px-6 py-2 text-right">Acciones</th>
+                                <th class="px-6 py-2 text-right no-print">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,7 +194,7 @@
                                     <span v-else-if="item.tipo !== 'Activo' && (item.cantidad_almacen + item.cantidad_oficina + item.cantidad_tecnicos) < 5" class="badge bg-amber-500/20 text-amber-600 text-[9px] font-black border border-amber-500/20">Stock Bajo</span>
                                     <span v-else class="badge bg-green-500/20 text-green-600 text-[9px] font-black border border-green-500/20">Disponible</span>
                                 </td>
-                                <td class="px-6 py-4 rounded-r-2xl border-y border-r border-main text-right">
+                                <td class="px-6 py-4 rounded-r-2xl border-y border-r border-main text-right no-print">
                                     <div class="flex justify-end items-center gap-2">
                                         <button @click="openEditItem(item)" class="p-1.5 hover:bg-amber-500/10 text-amber-600 rounded-lg hover:border-amber-500/30 border border-transparent transition-all cursor-pointer" title="Editar ítem">
                                             <Pencil class="w-3.5 h-3.5" />
@@ -197,8 +237,61 @@
                 </div>
             </div>
 
+            <!-- Filtros de Activos (no-print) -->
+            <div class="bg-card-main p-6 rounded-[2rem] border border-main grid grid-cols-1 sm:grid-cols-4 gap-4 no-print">
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-muted mb-1.5 ml-1">Filtrar por Categoría</label>
+                    <select v-model="filterActivosItem" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+                        <option value="">Todas las Categorías</option>
+                        <option v-for="item in store.inventarioItems.filter(i => i.tipo === 'Activo')" :key="item.id_item" :value="item.id_item">
+                            {{ item.nombre }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-muted mb-1.5 ml-1">Filtrar por Responsable (Custodio)</label>
+                    <select v-model="filterActivosCustodio" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+                        <option value="">Todos los Responsables</option>
+                        <option v-for="t in store.tecnicos" :key="t.id" :value="t.id">
+                            {{ t.nombre }} ({{ t.cargo }})
+                        </option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-muted mb-1.5 ml-1">Filtrar por Ubicación</label>
+                    <select v-model="filterActivosUbicacion" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+                        <option value="">Todas las Ubicaciones</option>
+                        <option value="Almacén">Almacén Central</option>
+                        <option value="Oficina">Oficina Técnica</option>
+                        <option value="Técnico">En Cuadrilla (Técnico)</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col justify-end">
+                    <div class="flex gap-2">
+                        <!-- Toggle de modo de vista -->
+                        <div class="flex bg-card-sec border border-main rounded-xl p-1 flex-1">
+                            <button @click="viewModeActivos = 'grid'" :class="['flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer text-center', viewModeActivos === 'grid' ? 'bg-accent text-on-accent' : 'text-muted hover:text-main']">
+                                Mosaico
+                            </button>
+                            <button @click="viewModeActivos = 'table'" :class="['flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer text-center', viewModeActivos === 'table' ? 'bg-accent text-on-accent' : 'text-muted hover:text-main']">
+                                Tabla
+                            </button>
+                        </div>
+                        
+                        <!-- Botón Imprimir Listado (solo si vista es table) -->
+                        <button v-if="viewModeActivos === 'table'" @click="triggerPrintList('activos')" class="px-5 py-3 bg-card-sec hover:border-accent text-accent border border-main rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer" title="Imprimir listado filtrado">
+                            <Printer class="w-4 h-4" />
+                            <span>Imprimir Listado</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Grilla de Activos -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 no-print">
+            <div v-if="viewModeActivos === 'grid' && !selectedActivo" class="grid grid-cols-1 md:grid-cols-3 gap-6 no-print">
                 <div v-if="filteredActivos.length === 0" class="col-span-full bg-card-main p-12 text-center text-muted font-bold rounded-[2rem] border border-main">
                     No se encontraron activos codificados.
                 </div>
@@ -216,7 +309,7 @@
                                 'badge text-[9px]',
                                 act.estado === 'Excelente' || act.estado === 'Bueno' ? 'badge-completed' :
                                 act.estado === 'Regular' ? 'bg-amber-500 text-white' : 'bg-red-600 text-white'
-                            ]">{{ act.estado }}</span>
+                            ]">{{ formatEstado(act.estado) }}</span>
                         </div>
                         
                         <div>
@@ -249,6 +342,81 @@
                             <Pencil class="w-3.5 h-3.5" />
                         </button>
                     </div>
+                </div>
+            </div>
+
+            <!-- Tabla Resumida de Activos -->
+            <div v-if="viewModeActivos === 'table' && !selectedActivo" class="bg-card-main rounded-3xl shadow-sm border border-main overflow-hidden">
+                <div class="overflow-x-auto p-4">
+                    <!-- Título de impresión (se muestra solo al imprimir) -->
+                    <div class="hidden print-only-block mb-4 text-center border-b pb-2 text-slate-900">
+                        <h2 class="text-sm font-black uppercase tracking-widest text-slate-500">Gobierno Autónomo Municipal de Tarija</h2>
+                        <h1 class="text-base font-black uppercase text-slate-900">Reporte Resumido de Activos Codificados</h1>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">Dirección de Ornato Público - Unidad de Arboricultura</p>
+                    </div>
+
+                    <table class="w-full text-left border-separate border-spacing-y-3 print-table text-main">
+                        <thead>
+                            <tr class="text-[10px] font-black uppercase text-muted tracking-widest">
+                                <th class="px-6 py-2">Código Activo</th>
+                                <th class="px-6 py-2">Serie / Chasis</th>
+                                <th class="px-6 py-2">Categoría</th>
+                                <th class="px-6 py-2">Marca / Modelo</th>
+                                <th class="px-6 py-2">Responsable Legal</th>
+                                <th class="px-6 py-2">Operador Designado</th>
+                                <th class="px-6 py-2">Ubicación</th>
+                                <th class="px-6 py-2">Estado</th>
+                                <th class="px-6 py-2 text-right no-print">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-if="filteredActivos.length === 0">
+                                <td colspan="9" class="p-8 text-center text-muted font-bold">
+                                    No se encontraron activos con los filtros actuales.
+                                </td>
+                            </tr>
+                            <tr v-for="act in filteredActivos" :key="act.id_activo" class="bg-card-sec hover:bg-accent-soft transition-all align-middle text-xs">
+                                <td class="px-6 py-4 rounded-l-2xl border-y border-l border-main font-black text-sm text-main font-mono">
+                                    {{ act.codigo_activo }}
+                                </td>
+                                <td class="px-6 py-4 border-y border-main font-semibold text-muted font-mono">
+                                    {{ act.numero_chasis }}
+                                </td>
+                                <td class="px-6 py-4 border-y border-main font-bold text-main">
+                                    {{ act.item_nombre }}
+                                </td>
+                                <td class="px-6 py-4 border-y border-main font-bold text-main">
+                                    {{ act.marca }} {{ act.modelo }}
+                                </td>
+                                <td class="px-6 py-4 border-y border-main font-medium text-main">
+                                    {{ act.custodio_nombre || 'Sin Custodio' }}
+                                </td>
+                                <td class="px-6 py-4 border-y border-main font-medium text-main">
+                                    {{ act.operario_nombre || 'Sin Operario' }}
+                                </td>
+                                <td class="px-6 py-4 border-y border-main font-bold text-main">
+                                    {{ act.ubicacion_actual }}
+                                </td>
+                                <td class="px-6 py-4 border-y border-main">
+                                    <span :class="[
+                                        'badge text-[9px]',
+                                        act.estado === 'Excelente' || act.estado === 'Bueno' ? 'badge-completed' :
+                                        act.estado === 'Regular' ? 'bg-amber-500 text-white' : 'bg-red-600 text-white'
+                                    ]">{{ formatEstado(act.estado) }}</span>
+                                </td>
+                                <td class="px-6 py-4 rounded-r-2xl border-y border-r border-main text-right no-print">
+                                    <div class="flex justify-end items-center gap-2">
+                                        <button @click="openFichaTecnica(act)" class="p-1.5 hover:bg-accent-soft text-accent rounded-lg border border-transparent hover:border-accent/30 transition-all cursor-pointer" title="Ver Ficha">
+                                            <Eye class="w-3.5 h-3.5" />
+                                        </button>
+                                        <button @click="openEditActivo(act)" class="p-1.5 hover:bg-amber-500/10 text-amber-600 rounded-lg border border-transparent hover:border-amber-500/30 transition-all cursor-pointer" title="Editar Ficha">
+                                            <Pencil class="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -287,9 +455,9 @@
                     <div class="grid grid-cols-4 border-b-2 border-slate-900 pb-6 items-center">
                         <div class="col-span-1 flex justify-center">
                             <!-- Logo Institucional Autentico -->
-                            <div class="h-16 w-16 bg-slate-100 flex items-center justify-center border border-slate-300 rounded overflow-hidden">
-                                <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-1">
-                                <span v-else class="text-xl font-black text-slate-800">GAMT</span>
+                            <div class="h-24 w-28 flex items-center justify-center overflow-hidden">
+                                <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain">
+                                <span v-else class="text-2xl font-black text-slate-800">GAMT</span>
                             </div>
                         </div>
                         <div class="col-span-2 text-center space-y-1">
@@ -338,7 +506,7 @@
                             <div class="p-3"><p class="text-[8px] font-black text-slate-500 uppercase">Responsable Legal (Custodio)</p><p class="text-xs font-black text-emerald-800">{{ selectedActivo.custodio_nombre || 'NO ASIGNADO' }}</p></div>
                             <div class="p-3"><p class="text-[8px] font-black text-slate-500 uppercase">Operario Final Designado</p><p class="text-xs font-black text-slate-800">{{ selectedActivo.operario_nombre || 'NO ASIGNADO' }}</p></div>
                             <div class="p-3"><p class="text-[8px] font-black text-slate-500 uppercase">Ubicación Física Actual</p><p class="text-xs font-bold">{{ selectedActivo.ubicacion_actual }}</p></div>
-                            <div class="p-3 bg-slate-50"><p class="text-[8px] font-black text-slate-500 uppercase">Estado Operativo</p><p class="text-xs font-black text-emerald-800">{{ selectedActivo.estado }}</p></div>
+                            <div class="p-3 bg-slate-50"><p class="text-[8px] font-black text-slate-500 uppercase">Estado Operativo</p><p class="text-xs font-black text-emerald-800">{{ formatEstado(selectedActivo.estado) }}</p></div>
                             <div class="p-3"><p class="text-[8px] font-black text-slate-500 uppercase">Intensidad de Trabajo</p><p class="text-xs font-bold">{{ selectedActivo.uso }}</p></div>
                             <div class="p-3"><p class="text-[8px] font-black text-slate-500 uppercase">Observaciones Ficha</p><p class="text-xs font-medium italic">{{ selectedActivo.observaciones || 'Sin observaciones registradas.' }}</p></div>
                         </div>
@@ -497,16 +665,21 @@
                     </div>
 
                     <!-- FIRMAS DE RESPONSABILIDAD -->
-                    <div class="grid grid-cols-2 pt-16 gap-12 text-center text-xs">
+                    <div class="grid grid-cols-3 pt-16 gap-6 text-center text-xs">
                         <div class="space-y-1">
-                            <div class="w-48 border-t border-slate-900 mx-auto"></div>
-                            <p class="font-bold">Firma Custodio Designado</p>
-                            <p class="text-[9px] text-slate-500 uppercase">{{ selectedActivo.custodio_nombre || 'Responsable Legal' }}</p>
+                            <div class="w-40 border-t border-slate-900 mx-auto"></div>
+                            <p class="font-bold">Firma Operario Designado</p>
+                            <p class="text-[9px] text-slate-500 uppercase">{{ selectedActivo.operario_nombre || 'No asignado' }}</p>
                         </div>
                         <div class="space-y-1">
-                            <div class="w-48 border-t border-slate-900 mx-auto"></div>
-                            <p class="font-bold">Firma Encargado de Activos</p>
-                            <p class="text-[9px] text-slate-500 uppercase">Jefe Arboricultura Tarija</p>
+                            <div class="w-40 border-t border-slate-900 mx-auto"></div>
+                            <p class="font-bold">Firma Encargado de Arboricultura</p>
+                            <p class="text-[9px] text-slate-500 uppercase">Ing. Cimar Farfan</p>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="w-40 border-t border-slate-900 mx-auto"></div>
+                            <p class="font-bold">Firma Jefe de Unidad</p>
+                            <p class="text-[9px] text-slate-500 uppercase">Ing. Raul Arteaga</p>
                         </div>
                     </div>
 
@@ -686,12 +859,18 @@
                     <div class="bg-card-main p-6 rounded-[2.5rem] border border-main space-y-4">
                         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                             <h2 class="text-base font-black text-main">Bitácora Reciente de Movimientos</h2>
-                            <div class="relative w-full sm:w-64">
-                                <input v-model="searchMovimiento" type="text" placeholder="Buscar movimientos..." 
-                                    class="w-full pl-9 pr-3 py-2 rounded-xl bg-card-sec border border-main text-main focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none transition-all font-bold text-xs">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
-                                    <Search class="w-3.5 h-3.5" />
-                                </span>
+                            <div class="flex items-center gap-3 w-full sm:w-auto">
+                                <div class="relative flex-1 sm:w-64">
+                                    <input v-model="searchMovimiento" type="text" placeholder="Buscar movimientos..." 
+                                        class="w-full pl-9 pr-3 py-2 rounded-xl bg-card-sec border border-main text-main focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none transition-all font-bold text-xs">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+                                        <Search class="w-3.5 h-3.5" />
+                                    </span>
+                                </div>
+                                <button type="button" @click="triggerPrintList('movimientos')" class="px-4 py-2.5 bg-card-sec hover:border-accent text-accent border border-main rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer" title="Imprimir bitácora">
+                                    <Printer class="w-4 h-4" />
+                                    <span>Imprimir Bitácora</span>
+                                </button>
                             </div>
                         </div>
 
@@ -1011,12 +1190,9 @@
                             <div class="flex flex-col">
                                 <label class="label-prime">Estado Físico Actual</label>
                                 <select v-model="activoForm.estado" class="form-input-prime">
-                                    <option value="Excelente">Excelente</option>
                                     <option value="Bueno">Bueno</option>
-                                    <option value="Regular">Regular</option>
+                                    <option value="De Baja">Baja Temporal</option>
                                     <option value="Malo">Malo (Inoperativo)</option>
-                                    <option value="Mantenimiento">En Mantenimiento</option>
-                                    <option value="De Baja">Dado de Baja</option>
                                 </select>
                             </div>
 
@@ -1120,8 +1296,11 @@
                         </div>
 
                         <div class="flex gap-3 pt-4 bg-card-main">
-                            <button type="button" @click="showActivoModal = false" class="flex-1 py-3 border border-main rounded-xl text-xs font-black uppercase tracking-wider text-muted hover:bg-card-sec transition-all cursor-pointer">Cancelar</button>
-                            <button type="submit" class="flex-1 py-3 bg-accent text-on-accent rounded-xl text-xs font-black uppercase tracking-wider shadow-lg hover:opacity-90 transition-all cursor-pointer">Guardar Activo</button>
+                            <button type="button" :disabled="isSavingActivo" @click="showActivoModal = false" class="flex-1 py-3 border border-main rounded-xl text-xs font-black uppercase tracking-wider text-muted hover:bg-card-sec transition-all cursor-pointer disabled:opacity-50">Cancelar</button>
+                            <button type="submit" :disabled="isSavingActivo" class="flex-1 py-3 bg-accent text-on-accent rounded-xl text-xs font-black uppercase tracking-wider shadow-lg hover:opacity-90 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2">
+                                <span v-if="isSavingActivo" class="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent"></span>
+                                <span>{{ isSavingActivo ? 'Guardando...' : 'Guardar Activo' }}</span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -1310,6 +1489,166 @@
         </Teleport>
 
     </div>
+
+    <!-- ===== REPORTE FORMAL PARA IMPRESIÓN (A4) ===== -->
+    <div v-if="printTarget" class="hidden print:block bulk-print-layout bg-white text-black p-0 m-0">
+        <!-- Membrete oficial G.A.M.T. -->
+        <div class="print-header border-b-2 border-green-800 pb-4 mb-6">
+            <div class="flex items-center gap-6">
+                <div class="w-20 h-20 flex-shrink-0 flex items-center justify-center bg-white">
+                    <img v-if="uiState.logo_institucional" :src="uiState.logo_institucional" class="w-full h-full object-contain">
+                    <div v-else class="text-[8px] font-black text-center text-muted uppercase">Logo Municipal</div>
+                </div>
+                <div class="flex-1 text-center">
+                    <p class="font-black text-base uppercase text-slate-800 leading-tight">Gobierno Autónomo Municipal de Tarija</p>
+                    <p class="font-bold text-xs uppercase text-slate-600">Dirección de Obras Públicas Municipales</p>
+                    <p class="font-bold text-[10px] uppercase text-slate-500">Unidad de Arboricultura y Espacios Verdes</p>
+                </div>
+                <div class="w-20 h-20"></div>
+            </div>
+        </div>
+
+        <!-- Título del Reporte y Metadatos -->
+        <div class="text-center mb-6">
+            <h1 class="text-lg font-black uppercase text-slate-900 tracking-tight">
+                {{ printTarget === 'stock' ? 'Reporte Catálogo General de Inventario' : 
+                   printTarget === 'activos' ? 'Reporte General de Activos Codificados' : 
+                   'Reporte Histórico - Bitácora de Movimientos' }}
+            </h1>
+            <div class="flex justify-center items-center gap-4 mt-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+                <span>Emisión: <strong>{{ new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }) }} ({{ new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) }})</strong></span>
+                <span>|</span>
+                <span>Emitido por: <strong>{{ uiState.user?.nombre || 'Administrador' }}</strong></span>
+            </div>
+        </div>
+
+        <!-- Contenido según el printTarget -->
+        
+        <!-- 1. STOCK GENERAL (CATÁLOGO) -->
+        <div v-if="printTarget === 'stock'">
+            <table class="w-full text-left text-xs border-collapse print-table">
+                <thead>
+                    <tr class="bg-gray-100 text-black font-black border border-black uppercase text-[9px]">
+                        <th class="border border-black p-2">Nombre del Ítem</th>
+                        <th class="border border-black p-2">Tipo</th>
+                        <th class="border border-black p-2 text-center">Almacén</th>
+                        <th class="border border-black p-2 text-center">Oficina</th>
+                        <th class="border border-black p-2 text-center">Técnicos</th>
+                        <th class="border border-black p-2 text-center">Total Stock</th>
+                        <th class="border border-black p-2">Unidad</th>
+                        <th class="border border-black p-2">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in filteredStock" :key="item.id_item" class="text-[10px] border border-black">
+                        <td class="border border-black p-2 font-bold">{{ item.nombre }}</td>
+                        <td class="border border-black p-2 font-medium">{{ item.tipo }}</td>
+                        <td class="border border-black p-2 text-center font-mono font-medium">{{ item.tipo === 'Activo' ? countActivosEnUbicacion(item.id_item, 'Almacén') : item.cantidad_almacen }}</td>
+                        <td class="border border-black p-2 text-center font-mono font-medium">{{ item.tipo === 'Activo' ? countActivosEnUbicacion(item.id_item, 'Oficina') : item.cantidad_oficina }}</td>
+                        <td class="border border-black p-2 text-center font-mono font-medium">{{ item.tipo === 'Activo' ? countActivosEnUbicacion(item.id_item, 'Técnico') : item.cantidad_tecnicos }}</td>
+                        <td class="border border-black p-2 text-center font-mono font-bold text-green-800">{{ item.tipo === 'Activo' ? countActivosEnUbicacion(item.id_item) : (item.cantidad_almacen + item.cantidad_oficina + item.cantidad_tecnicos) }}</td>
+                        <td class="border border-black p-2 font-medium">{{ item.unidad_medida }}</td>
+                        <td class="border border-black p-2 font-bold">
+                            {{ item.tipo !== 'Activo' && (item.cantidad_almacen + item.cantidad_oficina + item.cantidad_tecnicos) === 0 ? 'Agotado' :
+                               item.tipo !== 'Activo' && (item.cantidad_almacen + item.cantidad_oficina + item.cantidad_tecnicos) < 5 ? 'Stock Bajo' : 'Disponible' }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 2. ACTIVOS CODIFICADOS -->
+        <div v-if="printTarget === 'activos'">
+            <table class="w-full text-left text-xs border-collapse print-table">
+                <thead>
+                    <tr class="bg-gray-100 text-black font-black border border-black uppercase text-[9px]">
+                        <th class="border border-black p-2">Código Activo</th>
+                        <th class="border border-black p-2">Marca / Modelo</th>
+                        <th class="border border-black p-2">Ubicación Actual</th>
+                        <th class="border border-black p-2">Responsable Legal (Custodio)</th>
+                        <th class="border border-black p-2">Operario Designado</th>
+                        <th class="border border-black p-2">Serie / Chasis</th>
+                        <th class="border border-black p-2 text-center">Estado Físico</th>
+                        <th class="border border-black p-2 text-center">Uso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="act in filteredActivos" :key="act.id_activo" class="text-[10px] border border-black">
+                        <td class="border border-black p-2 font-mono font-bold">{{ act.codigo_activo }}</td>
+                        <td class="border border-black p-2 font-bold">{{ act.marca }} {{ act.modelo }}</td>
+                        <td class="border border-black p-2 font-medium">{{ act.ubicacion_actual }}</td>
+                        <td class="border border-black p-2 font-medium">{{ act.custodio_nombre || 'Sin Custodio' }}</td>
+                        <td class="border border-black p-2 font-medium">{{ act.operario_nombre || 'Sin Asignar' }}</td>
+                        <td class="border border-black p-2 font-mono font-medium">{{ act.numero_chasis }}</td>
+                        <td class="border border-black p-2 text-center font-bold">{{ formatEstado(act.estado) }}</td>
+                        <td class="border border-black p-2 text-center font-semibold">{{ act.uso }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 3. BITÁCORA DE MOVIMIENTOS -->
+        <div v-if="printTarget === 'movimientos'">
+            <table class="w-full text-left text-xs border-collapse print-table">
+                <thead>
+                    <tr class="bg-gray-100 text-black font-black border border-black uppercase text-[9px]">
+                        <th class="border border-black p-2">Fecha</th>
+                        <th class="border border-black p-2">Ítem Catálogo</th>
+                        <th class="border border-black p-2">Tipo Mov.</th>
+                        <th class="border border-black p-2 text-center">Cantidad</th>
+                        <th class="border border-black p-2">Origen</th>
+                        <th class="border border-black p-2">Destino</th>
+                        <th class="border border-black p-2">Responsable</th>
+                        <th class="border border-black p-2">Observaciones / Detalles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="m in filteredMovimientos" :key="m.id_movimiento" class="text-[10px] border border-black">
+                        <td class="border border-black p-2 font-mono font-medium">{{ formatDateShort(m.fecha_movimiento) }}</td>
+                        <td class="border border-black p-2 font-bold">{{ m.item_nombre }}</td>
+                        <td class="border border-black p-2 font-semibold">{{ m.tipo_movimiento }}</td>
+                        <td class="border border-black p-2 text-center font-mono font-bold">{{ m.cantidad }}</td>
+                        <td class="border border-black p-2 font-medium">{{ m.origen }}</td>
+                        <td class="border border-black p-2 font-medium">{{ m.destino }}</td>
+                        <td class="border border-black p-2 font-medium">{{ m.recibe_nombre || '---' }}</td>
+                        <td class="border border-black p-2 text-slate-700 italic">{{ m.observaciones || '---' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Bloque de Firmas Estructuradas -->
+        <div class="print-firmas mt-16">
+            <div class="border-t border-b border-black py-2 mb-8">
+                <p class="text-[8px] text-slate-500 italic text-center leading-tight uppercase font-semibold">
+                    IMPORTANTE: Este documento es un reporte técnico formal con respaldo íntegro en la base de datos municipal del Módulo de Inventario y Herramientas.
+                    Se ruega verificar los registros antes de proceder con las firmas correspondientes.
+                </p>
+            </div>
+
+            <div class="print-firmas-row flex justify-around mt-8">
+                <div class="print-firma text-center">
+                    <div class="print-firma-linea w-40 border-b border-black mx-auto mb-2 h-16"></div>
+                    <p class="print-firma-nombre font-black text-[9px] uppercase">
+                        {{ printTarget === 'activos' && filterActivosCustodio ? getCustodioName(filterActivosCustodio) : (uiState.user?.nombre || 'Responsable de Inventario') }}
+                    </p>
+                    <p class="print-firma-cargo text-[8px] text-slate-500 uppercase font-bold">
+                        {{ printTarget === 'activos' && filterActivosCustodio ? 'Custodio Designado' : 'Responsable de Registro' }}
+                    </p>
+                </div>
+                <div class="print-firma text-center">
+                    <div class="print-firma-linea w-40 border-b border-black mx-auto mb-2 h-16"></div>
+                    <p class="print-firma-nombre font-black text-[9px] uppercase">Ing. Cimar Farfan</p>
+                    <p class="print-firma-cargo text-[8px] text-slate-500 uppercase font-bold">Encargado de Arboricultura</p>
+                </div>
+                <div class="print-firma text-center">
+                    <div class="print-firma-linea w-40 border-b border-black mx-auto mb-2 h-16"></div>
+                    <p class="print-firma-nombre font-black text-[9px] uppercase">Ing. Raul Arteaga</p>
+                    <p class="print-firma-cargo text-[8px] text-slate-500 uppercase font-bold">Jefe de Unidad</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -1317,7 +1656,7 @@ import { ref, computed, reactive, watch, onMounted } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 import { 
     Boxes, Wrench, Search, Plus, ArrowRightLeft, ArrowDownToLine, Printer, Eye, Pencil, X, History,
-    CheckCircle, Sliders, Trash2, AlertTriangle, Upload
+    CheckCircle, Sliders, Trash2, AlertTriangle, Upload, User, RotateCcw
 } from 'lucide-vue-next'
 
 const mainStore = useMainStore()
@@ -1331,6 +1670,28 @@ const searchStock = ref('')
 const searchActivo = ref('')
 const searchDevolucion = ref('')
 const searchMovimiento = ref('')
+
+// Filtros avanzados
+const filterActivosItem = ref('')
+const filterActivosCustodio = ref('')
+const filterActivosUbicacion = ref('')
+const viewModeActivos = ref('grid') // 'grid' | 'table'
+const filterStockTipo = ref('')
+
+const printTarget = ref('')
+const triggerPrintList = (target) => {
+    printTarget.value = target
+    setTimeout(() => {
+        window.print()
+        printTarget.value = ''
+    }, 150)
+}
+
+const getCustodioName = (id) => {
+    if (!id) return ''
+    const tecnico = store.tecnicos.find(t => t.id === Number(id) || t.id === id)
+    return tecnico ? tecnico.nombre : ''
+}
 
 // Ficha Técnica de activo seleccionado
 const selectedActivo = ref(null)
@@ -1348,6 +1709,7 @@ const showMaintenanceModal = ref(false)
 
 const editingActivo = ref(null)
 const editingItem = ref(null)
+const isSavingActivo = ref(false)
 
 // Confirmación modal custom
 const showConfirmModal = ref(false)
@@ -1465,14 +1827,14 @@ const devolucionesPendientesCount = computed(() => {
 // KPIs de Motosierras y Técnicos
 const motosierrasHabilitadasCount = computed(() => {
     return store.inventarioActivos.filter(a => 
-        a.id_item === 1 && 
+        (a.id_item === 1 || a.id_item === 2) && 
         ['Excelente', 'Bueno', 'Regular'].includes(a.estado)
     ).length
 })
 
 const motosierrasBajaTempCount = computed(() => {
     return store.inventarioActivos.filter(a => 
-        a.id_item === 1 && 
+        (a.id_item === 1 || a.id_item === 2) && 
         ['Malo', 'Mantenimiento', 'De Baja'].includes(a.estado)
     ).length
 })
@@ -1500,8 +1862,32 @@ const deudasPorTecnico = computed(() => {
     return list.sort((a, b) => b.deuda - a.deuda)
 })
 
+const formatEstado = (val) => {
+    if (val === 'De Baja') return 'Baja Temporal'
+    return val
+}
+
+const capitalizeFirstLetter = (val) => {
+    if (typeof val !== 'string' || !val) return val
+    return val.charAt(0).toUpperCase() + val.slice(1)
+}
+
 const filterOnlyTecnicos = computed(() => {
-    return store.tecnicos.filter(t => t.role === 'TECNICO')
+    const allowedCargos = [
+        'tecnico de equipo',
+        'chofer',
+        'tecnico de sistemas',
+        'jefe de unidad',
+        'responsable de area'
+    ]
+    return store.tecnicos.filter(t => {
+        if (!t.cargo) return false
+        const cargoNorm = t.cargo
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+        return allowedCargos.includes(cargoNorm)
+    })
 })
 
 const filteredStock = computed(() => {
@@ -1516,6 +1902,9 @@ const filteredStock = computed(() => {
             cantidad_tecnicos: stockRow ? stockRow.cantidad_tecnicos : 0
         }
     })
+    if (filterStockTipo.value) {
+        list = list.filter(c => c.tipo === filterStockTipo.value)
+    }
     if (searchStock.value) {
         const q = searchStock.value.toLowerCase()
         list = list.filter(c => c.nombre.toLowerCase().includes(q))
@@ -1533,6 +1922,15 @@ const filteredActivos = computed(() => {
             (a.marca && a.marca.toLowerCase().includes(query)) ||
             (a.modelo && a.modelo.toLowerCase().includes(query))
         )
+    }
+    if (filterActivosItem.value) {
+        list = list.filter(a => a.id_item === filterActivosItem.value)
+    }
+    if (filterActivosCustodio.value) {
+        list = list.filter(a => a.id_custodio === filterActivosCustodio.value)
+    }
+    if (filterActivosUbicacion.value) {
+        list = list.filter(a => a.ubicacion_actual === filterActivosUbicacion.value)
     }
     return list
 })
@@ -1776,6 +2174,10 @@ const updateMaintRowTotal = (index) => {
 }
 
 const submitNewItem = async () => {
+    if (itemForm.nombre) itemForm.nombre = capitalizeFirstLetter(itemForm.nombre)
+    if (itemForm.unidad_medida) itemForm.unidad_medida = capitalizeFirstLetter(itemForm.unidad_medida)
+    if (itemForm.descripcion) itemForm.descripcion = capitalizeFirstLetter(itemForm.descripcion)
+
     let res
     if (editingItem.value) {
         res = await mainStore.updateInventarioItem(editingItem.value.id_item, itemForm)
@@ -1791,6 +2193,7 @@ const submitNewItem = async () => {
 }
 
 const submitBulkImport = async () => {
+    if (bulkForm.observaciones) bulkForm.observaciones = capitalizeFirstLetter(bulkForm.observaciones)
     const mov = {
         id_item: bulkForm.id_item,
         cantidad: bulkForm.cantidad,
@@ -1821,6 +2224,7 @@ const submitTransfer = async () => {
         return
     }
 
+    if (transferForm.observaciones) transferForm.observaciones = capitalizeFirstLetter(transferForm.observaciones)
     const mov = {
         id_item: transferForm.id_item,
         cantidad: transferForm.cantidad,
@@ -1841,27 +2245,47 @@ const submitTransfer = async () => {
 }
 
 const submitActivo = async () => {
-    let res
-    if (editingActivo.value) {
-        res = await mainStore.updateInventarioActivo(editingActivo.value.id_activo, activoForm)
-    } else {
-        res = await mainStore.addInventarioActivo(activoForm)
-    }
+    if (isSavingActivo.value) return
+    isSavingActivo.value = true
+    try {
+        const stringFields = [
+            'marca', 'modelo', 'procedencia', 'capacidad', 'potencia_hp',
+            'cilindrada_cm3', 'motor', 'peso_kg', 'longitud_espada', 'cadena',
+            'paso_cadena', 'observaciones', 'codigo_activo', 'numero_chasis'
+        ]
+        stringFields.forEach(field => {
+            if (activoForm[field]) {
+                activoForm[field] = capitalizeFirstLetter(activoForm[field])
+            }
+        })
 
-    if (res.success) {
-        showToast('Ficha técnica de activo guardada', 'success')
-        showActivoModal.value = false
-        if (selectedActivo.value && selectedActivo.value.id_activo === editingActivo.value?.id_activo) {
-            // Recargar ficha activa
-            const updated = store.inventarioActivos.find(a => a.id_activo === selectedActivo.value.id_activo)
-            if (updated) selectedActivo.value = updated
+        let res
+        if (editingActivo.value) {
+            res = await mainStore.updateInventarioActivo(editingActivo.value.id_activo, activoForm)
+        } else {
+            res = await mainStore.addInventarioActivo(activoForm)
         }
-    } else {
-        showToast(res.error, 'error')
+
+        if (res.success) {
+            showToast('Ficha técnica de activo guardada', 'success')
+            showActivoModal.value = false
+            if (selectedActivo.value && selectedActivo.value.id_activo === editingActivo.value?.id_activo) {
+                // Recargar ficha activa
+                const updated = store.inventarioActivos.find(a => a.id_activo === selectedActivo.value.id_activo)
+                if (updated) selectedActivo.value = updated
+            }
+        } else {
+            showToast(res.error, 'error')
+        }
+    } finally {
+        isSavingActivo.value = false
     }
 }
 
 const submitCustodyTransfer = async () => {
+    if (custodyForm.observaciones) {
+        custodyForm.observaciones = capitalizeFirstLetter(custodyForm.observaciones)
+    }
     // 1. Modificar ubicacion y custodios del activo
     const act = store.inventarioActivos.find(a => a.id_activo === custodyForm.id_activo)
     if (!act) return
@@ -1903,6 +2327,12 @@ const submitCustodyTransfer = async () => {
 }
 
 const submitMaintenance = async () => {
+    if (maintForm.observaciones) maintForm.observaciones = capitalizeFirstLetter(maintForm.observaciones)
+    if (maintForm.detalles) {
+        maintForm.detalles.forEach(d => {
+            if (d.detalle) d.detalle = capitalizeFirstLetter(d.detalle)
+        })
+    }
     const res = await mainStore.addMantenimientoActivo(maintForm)
     if (res.success) {
         showToast('Mantenimiento anual oficial registrado con éxito', 'success')
@@ -1917,6 +2347,7 @@ const submitMaintenance = async () => {
 
 const submitMovimiento = async () => {
     if (!movForm.id_item) return
+    if (movForm.observaciones) movForm.observaciones = capitalizeFirstLetter(movForm.observaciones)
     
     const avail = getAvailableStock(movForm.id_item, movForm.origen)
     if (avail < movForm.cantidad) {
@@ -1971,6 +2402,74 @@ watch(() => transferForm.id_item, (newItemId) => {
         }
     }
 })
+
+// Auxiliar para capitalizar el primer carácter de campos reactivos de texto en tiempo real sin perder foco de escritura
+const watchCapitalize = (reactiveObj, key) => {
+    watch(() => reactiveObj[key], (val) => {
+        if (val && typeof val === 'string' && val.length > 0) {
+            const firstChar = val.charAt(0);
+            if (firstChar !== firstChar.toUpperCase()) {
+                reactiveObj[key] = firstChar.toUpperCase() + val.slice(1);
+            }
+        }
+    });
+};
+
+// Watchers para itemForm (Crear/Editar Ítem Catálogo)
+watchCapitalize(itemForm, 'nombre');
+watchCapitalize(itemForm, 'unidad_medida');
+watchCapitalize(itemForm, 'descripcion');
+
+// Watchers para bulkForm (Lotes de Compra/Ingresos)
+watchCapitalize(bulkForm, 'observaciones');
+
+// Watchers para transferForm (Traslado de Stock Interno)
+watchCapitalize(transferForm, 'observaciones');
+
+// Watchers para movForm (Asignar / Entregar Ítem)
+watchCapitalize(movForm, 'observaciones');
+
+// Watchers para custodyForm (Transferir Custodia / Operario)
+watchCapitalize(custodyForm, 'observaciones');
+
+// Watchers para maintForm (Mantenimiento Oficial)
+watchCapitalize(maintForm, 'observaciones');
+
+// Watcher profundo para grilla de detalles de mantenimiento (repuestos/servicios dinámicos)
+watch(() => maintForm.detalles, (detalles) => {
+    if (detalles && Array.isArray(detalles)) {
+        detalles.forEach((det) => {
+            if (det.detalle && typeof det.detalle === 'string' && det.detalle.length > 0) {
+                const firstChar = det.detalle.charAt(0);
+                if (firstChar !== firstChar.toUpperCase()) {
+                    det.detalle = firstChar.toUpperCase() + det.detalle.slice(1);
+                }
+            }
+            if (det.unidad && typeof det.unidad === 'string' && det.unidad.length > 0) {
+                const firstChar = det.unidad.charAt(0);
+                if (firstChar !== firstChar.toUpperCase()) {
+                    det.unidad = firstChar.toUpperCase() + det.unidad.slice(1);
+                }
+            }
+        });
+    }
+}, { deep: true });
+
+// Watchers para activoForm (Registrar/Editar Ficha Técnica de Activo)
+watchCapitalize(activoForm, 'marca');
+watchCapitalize(activoForm, 'modelo');
+watchCapitalize(activoForm, 'procedencia');
+watchCapitalize(activoForm, 'capacidad');
+watchCapitalize(activoForm, 'potencia_hp');
+watchCapitalize(activoForm, 'cilindrada_cm3');
+watchCapitalize(activoForm, 'motor');
+watchCapitalize(activoForm, 'peso_kg');
+watchCapitalize(activoForm, 'longitud_espada');
+watchCapitalize(activoForm, 'cadena');
+watchCapitalize(activoForm, 'paso_cadena');
+watchCapitalize(activoForm, 'numero_chasis');
+watchCapitalize(activoForm, 'codigo_activo');
+watchCapitalize(activoForm, 'observaciones');
 
 </script>
 
@@ -2036,9 +2535,32 @@ watch(() => transferForm.id_item, (newItemId) => {
 .fade-confirm-enter-active, .fade-confirm-leave-active { transition: opacity 0.2s ease; }
 .fade-confirm-enter-from, .fade-confirm-leave-to { opacity: 0; }
 
+.print-only-block { display: none; }
+
 /* Impresion */
 @media print {
     .no-print { display: none !important; }
+    .print-only-block { display: block !important; }
+
+    .print-table {
+        color: #000000 !important;
+        border-collapse: collapse !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    .print-table th, .print-table td {
+        border: 1px solid #000000 !important;
+        padding: 8px !important;
+        color: #000000 !important;
+        background: transparent !important;
+    }
+    .print-table .badge {
+        border: none !important;
+        background: transparent !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        font-weight: bold !important;
+    }
     
     .inventario-view {
         padding: 0 !important;
@@ -2092,6 +2614,92 @@ watch(() => transferForm.id_item, (newItemId) => {
 
     .excel-ficha .divide-slate-900 > * {
         border-color: #000000 !important;
+    }
+}
+</style>
+
+<style>
+@media print {
+    /* Estilos específicos para la impresión masiva de inventarios */
+    .bulk-print-layout {
+        display: block !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        width: 100% !important;
+        font-family: 'Outfit', 'Helvetica Neue', Arial, sans-serif !important;
+        font-size: 8.5pt !important;
+    }
+
+    .bulk-print-layout table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-top: 10pt !important;
+        margin-bottom: 15pt !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    .bulk-print-layout th, .bulk-print-layout td {
+        border: 1px solid #000000 !important;
+        padding: 6pt 8pt !important;
+        font-size: 8pt !important;
+        color: #000000 !important;
+        background: #ffffff !important;
+    }
+
+    .bulk-print-layout th {
+        background-color: #f3f4f6 !important;
+        color: #000000 !important;
+        font-weight: bold !important;
+    }
+
+    .bulk-print-layout .print-header {
+        border-bottom: 2pt solid #15803d !important; /* verde-800 */
+        margin-bottom: 12pt !important;
+        padding-bottom: 8pt !important;
+    }
+
+    .bulk-print-layout .print-header img {
+        height: 55pt !important;
+        width: 55pt !important;
+    }
+
+    .bulk-print-layout .print-firmas {
+        display: block !important;
+        margin-top: 30pt !important;
+        page-break-inside: avoid !important;
+    }
+
+    .bulk-print-layout .print-firmas-row {
+        display: flex !important;
+        justify-content: space-around !important;
+        margin-top: 20pt !important;
+    }
+
+    .bulk-print-layout .print-firma {
+        text-align: center !important;
+        width: 150pt !important;
+    }
+
+    .bulk-print-layout .print-firma-linea {
+        width: 100% !important;
+        border-bottom: 0.8pt solid #000000 !important;
+        margin: 0 auto 5pt !important;
+        height: 40pt !important;
+    }
+
+    .bulk-print-layout .print-firma-nombre {
+        font-size: 8pt !important;
+        font-weight: 800 !important;
+        margin: 0 !important;
+        color: #000000 !important;
+    }
+
+    .bulk-print-layout .print-firma-cargo {
+        font-size: 7.5pt !important;
+        color: #374151 !important; /* gray-700 */
+        margin: 1pt 0 0 !important;
+        text-transform: uppercase !important;
     }
 }
 </style>
