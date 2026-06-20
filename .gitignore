@@ -40,6 +40,7 @@ db/data/
 /*.xlsx
 /*.pdf
 /*.json
+!/firebase.json
 /*.txt
 /*.sql
 !/init.sql
