@@ -65,19 +65,16 @@ const confirmarEliminar = (sol) => {
     );
 }
 
-const imprimirReporte = async () => {
-    if (solicitudSeleccionada.value) {
-        try {
-            await registrarImpresion({
-                nombre_reporte: `Reporte Individual - ${solicitudSeleccionada.value.comunicacion_interna || solicitudSeleccionada.value.id_solicitud}`,
-                id_solicitud: solicitudSeleccionada.value.id_solicitud,
-                tipo_reporte: 'Individual'
-            })
-        } catch (e) {
-            console.error("Error al registrar impresión:", e)
-        }
-    }
+const imprimirReporte = () => {
     window.print();
+    if (solicitudSeleccionada.value) {
+        // Registrar en segundo plano sin bloquear la apertura de la ventana de impresión
+        registrarImpresion({
+            nombre_reporte: `Reporte Individual - ${solicitudSeleccionada.value.comunicacion_interna || solicitudSeleccionada.value.id_solicitud}`,
+            id_solicitud: solicitudSeleccionada.value.id_solicitud,
+            tipo_reporte: 'Individual'
+        }).catch(e => console.error("Error al registrar impresión:", e))
+    }
 }
 
 const imprimirDirecto = (sol) => {
@@ -85,7 +82,7 @@ const imprimirDirecto = (sol) => {
     // Pequeño delay para asegurar que el modal se renderice antes de disparar el print
     setTimeout(() => {
         imprimirReporte();
-    }, 150);
+    }, 300);
 }
 
 const filtroBusqueda = ref('')
@@ -930,6 +927,8 @@ const formatLoDeterminado = (sol) => {
         width: 100% !important;
         height: auto !important;
         overflow: visible !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
     }
 
     .print-area {

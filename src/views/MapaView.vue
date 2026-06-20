@@ -986,6 +986,8 @@ watch([() => geolocalizadas.value, mapMode], () => {
         width: 100% !important;
         height: auto !important;
         overflow: visible !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
     }
 
     .print-area {

@@ -220,7 +220,7 @@ const formatLoDeterminado = (sol) => {
     return uniqueAcc.length > 0 ? uniqueAcc.join(', ') : 'Pendiente'
 }
 
-const imprimirHojaRuta = async () => {
+const imprimirHojaRuta = () => {
     if (solicitudesFiltradas.value.length === 0) {
         showToast('No hay solicitudes que coincidan con los filtros.', 'error')
         return
@@ -235,20 +235,20 @@ const imprimirHojaRuta = async () => {
 
     const nombreFinal = nombreHojaRuta.value || `Hoja de Ruta - ${getBarrio(filtroBarrio.value)} (${new Date().toLocaleDateString()})`
 
-    // Registrar en el historial ANTES de imprimir
-    const ok = await registrarImpresion({
-        nombre_reporte: nombreFinal,
-        tipo_reporte: 'Hoja de Ruta',
-        filtros_aplicados: filtrosTxt,
-        detalles: `Consolidado de ${solicitudesFiltradas.value.length} trámites.`
-    })
+    // Disparar la impresión con un pequeño delay para asegurar la reactividad
+    setTimeout(() => {
+        window.print()
+        
+        // Registrar en el historial en segundo plano una vez cerrado el diálogo de impresión
+        registrarImpresion({
+            nombre_reporte: nombreFinal,
+            tipo_reporte: 'Hoja de Ruta',
+            filtros_aplicados: filtrosTxt,
+            detalles: `Consolidado de ${solicitudesFiltradas.value.length} trámites.`
+        }).catch(e => console.error("Error al registrar impresión:", e))
 
-    if (ok) {
-        setTimeout(() => {
-            window.print()
-            nombreHojaRuta.value = ''
-        }, 500)
-    }
+        nombreHojaRuta.value = ''
+    }, 300)
 }
 
 const exportarExcel = () => {

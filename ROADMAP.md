@@ -26,7 +26,9 @@ Este documento refleja el plan de crecimiento estratégico y arquitectónico del
 
 ## Fase 4: Gobierno Digital y Automatización
 - **Notificaciones Proactivas:** Alertas automáticas para mantenimientos preventivos y notificaciones Push/WhatsApp a los ciudadanos sobre el avance de su solicitud.
-- **Portal de Transparencia Ciudadana:** Un link público donde el vecino puede colocar su número de trámite y ver si su solicitud está en curso, sin ver el resto del sistema administrativo.
+- **[Propuesta 1] Portal de Transparencia y Seguimiento de Trámites:** Un link público donde el vecino puede colocar su número de trámite y ver si su solicitud está en curso en tiempo real (línea de tiempo).
+- **[Propuesta 2] Censo y Catastro Maestro de Árboles Urbanos:** Mapa y catálogo interactivo de especies patrimoniales e importantes de plazas/avenidas (indicador de salud y riesgo de caída).
+- **[Propuesta 4] Vivero Municipal y Compensación Ambiental:** Control de stock de plantines municipales y actas de reforestación obligatorias ligadas a las órdenes de derribo de árboles secos.
 - **Firmas y Reportes Digitales:** Reemplazar el papel al 100% integrando firmas en pantalla táctil y reportes con código QR de verificación de autenticidad.
 - **Asistente Virtual de Reportes (WhatsApp Bot):** Permite a los ciudadanos reportar incidentes enviando una foto y ubicación por WhatsApp, creando automáticamente un borrador en el sistema.
 
