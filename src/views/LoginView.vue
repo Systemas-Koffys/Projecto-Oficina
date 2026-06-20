@@ -48,9 +48,8 @@ const handleLogin = async () => {
     <div class="login-aurora min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
         <div class="w-full max-w-md relative z-10">
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-24 h-24 bg-white/10 rounded-[2.5rem] backdrop-blur-xl border border-white/20 mb-6 shadow-2xl overflow-hidden" :class="uiState.logo_app ? 'p-1.5' : 'p-4'">
-                    <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain" alt="Logo Institucional">
-                    <span v-else class="text-4xl">🌳</span>
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-white/10 rounded-[2.5rem] backdrop-blur-xl border border-white/20 mb-6 shadow-2xl overflow-hidden p-1.5">
+                    <img :src="uiState.logo_app || '/logo-dopm.png'" class="w-full h-full object-contain" alt="Logo Institucional">
                 </div>
                 <h1 class="text-4xl font-black text-white tracking-tighter mb-2">SISTEMA DE GESTIÓN DE ARBORICULTURA</h1>
                 <p class="text-emerald-300 font-medium text-sm uppercase tracking-widest opacity-80">OBRAS PUBLICAS MUNICIPALES</p>
