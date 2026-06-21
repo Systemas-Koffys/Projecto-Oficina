@@ -94,6 +94,45 @@ export const useMainStore = defineStore('mainStore', () => {
     _toastTimer = setTimeout(() => { toast.visible = false; }, durationMs);
   }
 
+  // --- Helper para comprimir una imagen Base64 usando Canvas ---
+  function compressImage(base64Data, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+    return new Promise((resolve) => {
+      if (!base64Data || !base64Data.startsWith('data:image')) {
+        return resolve(base64Data);
+      }
+      const img = new Image();
+      img.src = base64Data;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressed = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressed);
+      };
+      img.onerror = () => {
+        resolve(base64Data); // Fallback: retornar original si hay error
+      };
+    });
+  }
+
   // --- Helper para subir imágenes a Firebase Storage ---
   // Las fotos de usuarios, logos, activos e inspecciones se suben a Storage y se
   // guarda solo la URL pública en Firestore (ahorra espacio en documentos Firestore).
@@ -101,14 +140,18 @@ export const useMainStore = defineStore('mainStore', () => {
     if (!base64Data || !base64Data.startsWith('data:image')) {
       return base64Data; // Si ya es una URL pública, retornarla tal cual
     }
+    
+    // Comprimir automáticamente antes de procesar/subir
+    const compressed = await compressImage(base64Data, 1000, 1000, 0.7);
+
     try {
       const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.jpg`;
       const fileRef = storageRef(storage, fileName);
-      await uploadString(fileRef, base64Data, 'data_url');
+      await uploadString(fileRef, compressed, 'data_url');
       return await getDownloadURL(fileRef);
     } catch (error) {
-      console.warn('No se pudo subir la foto a Storage, usando base64 temporal:', error);
-      return base64Data; // fallback offline: guarda base64 localmente en caché
+      console.warn('No se pudo subir la foto a Storage, usando base64 temporal comprimida:', error);
+      return compressed; // fallback offline: guarda base64 localmente en caché
     }
   }
 
@@ -1027,7 +1070,15 @@ export const useMainStore = defineStore('mainStore', () => {
   async function addCatalogo(tabla, datos) {
     try {
       if (tabla === 'personal' || tabla === 'tecnicos') {
-        const id = String(datos.id || Date.now());
+        let id = String(datos.id || Date.now());
+        
+        if (datos.username && datos.password) {
+          const email = datos.email || `${datos.username.toLowerCase().replace(/\s+/g, '')}@sistemaskoffys.com`;
+          const authUid = await registerUserInSecondaryApp(email, datos.password);
+          id = authUid;
+          datos.email = email;
+        }
+
         const docRef = doc(db, 'personal', id);
         
         if (datos.foto) {
@@ -1035,7 +1086,7 @@ export const useMainStore = defineStore('mainStore', () => {
         }
 
         const formatted = {
-          id: Number(id),
+          id: Number(id) || id,
           nombre: datos.nombre,
           cedula_id: datos.cedula_id || `GEN_${Date.now()}`,
           cargo: datos.cargo || 'Técnico',
@@ -1078,7 +1129,19 @@ export const useMainStore = defineStore('mainStore', () => {
     try {
       if (tabla === 'personal' || tabla === 'tecnicos') {
         const docRef = doc(db, 'personal', String(id));
-        
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) return false;
+        const existingData = docSnap.data();
+
+        if (datos.username && !existingData.username) {
+          if (!datos.password) {
+            throw new Error('La contraseña es requerida para habilitar el acceso.');
+          }
+          const email = datos.email || `${datos.username.toLowerCase().replace(/\s+/g, '')}@sistemaskoffys.com`;
+          await registerUserInSecondaryApp(email, datos.password);
+          datos.email = email;
+        }
+
         if (datos.foto) {
           datos.foto = await uploadImage(datos.foto, 'profiles');
         }
@@ -1753,6 +1816,7 @@ export const useMainStore = defineStore('mainStore', () => {
     fetchCatalogos,
     fetchConfig,
     updateConfig,
+    compressImage,
     fetchImpresiones,
     registrarImpresion,
     deleteImpresion,

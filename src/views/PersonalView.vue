@@ -419,10 +419,10 @@
                             <!-- Contraseña -->
                             <div class="col-span-1 flex flex-col">
                                 <label class="label-prime text-emerald-800 dark:text-emerald-400">Contraseña
-                                    <span v-if="editingPerson" class="text-emerald-500 normal-case text-[10px] font-medium">(vacío = mantener)</span>
+                                    <span v-if="editingPerson && editingPerson.username" class="text-emerald-500 normal-case text-[10px] font-medium">(vacío = mantener)</span>
                                     <span v-else class="text-red-500 font-black">*</span>
                                 </label>
-                                <input v-model="formData.password" type="password" :required="formData.habilitarAcceso && !editingPerson" class="form-input-prime border-emerald-100 focus:border-emerald-500" placeholder="••••••••">
+                                <input v-model="formData.password" type="password" :required="formData.habilitarAcceso && (!editingPerson || !editingPerson.username)" class="form-input-prime border-emerald-100 focus:border-emerald-500" placeholder="••••••••">
                             </div>
                             <!-- Nivel de acceso -->
                             <div class="col-span-1 flex flex-col">
@@ -706,6 +706,18 @@ const saveData = async () => {
         // El username siempre es el nombre completo
         payload.username = payload.nombre
         
+        if (formData.habilitarAcceso) {
+            const isNewAccount = !editingPerson.value || !editingPerson.value.username;
+            if (isNewAccount && (!payload.password || payload.password.trim() === '')) {
+                showToast('La contraseña es obligatoria para habilitar el acceso', 'error')
+                return
+            }
+            if (payload.password && payload.password.length < 6) {
+                showToast('La contraseña debe tener al menos 6 caracteres', 'error')
+                return
+            }
+        }
+
         if (!payload.habilitarAcceso) {
             payload.username = null
             payload.password = null

@@ -80,16 +80,23 @@ const handleLogoUpload = (e, type) => {
     const reader = new FileReader()
     reader.onload = async (event) => {
         const base64 = event.target.result
-        if (type === 'app') {
-            uiState.logo_app = base64
-            localStorage.setItem('logo_app', base64)
-            await updateConfig({ logo_app: base64 })
-        } else {
-            uiState.logo_institucional = base64
-            localStorage.setItem('logo_institucional', base64)
-            await updateConfig({ logo_institucional: base64 })
+        try {
+            // Comprimir la imagen antes de guardarla para evitar llenar la cuota de localStorage (5MB)
+            const compressed = await compressImage(base64, 800, 800, 0.7)
+            if (type === 'app') {
+                uiState.logo_app = compressed
+                localStorage.setItem('logo_app', compressed)
+                await updateConfig({ logo_app: compressed })
+            } else {
+                uiState.logo_institucional = compressed
+                localStorage.setItem('logo_institucional', compressed)
+                await updateConfig({ logo_institucional: compressed })
+            }
+            showToast('Logo guardado en servidor con éxito', 'success')
+        } catch (error) {
+            console.error('Error al comprimir/subir el logo:', error)
+            showToast('No se pudo procesar la imagen', 'error')
         }
-        showToast('Logo guardado en servidor con éxito', 'success')
     }
     reader.readAsDataURL(file)
 }
@@ -110,7 +117,7 @@ const removeLogo = async (type) => {
 // Datos y acciones del store
 const { 
     store, uiState, 
-    addCatalogo, updateCatalogo, deleteCatalogo, showToast, updateConfig,
+    addCatalogo, updateCatalogo, deleteCatalogo, showToast, updateConfig, compressImage,
     fetchCalendario, addCalendarioEvento, updateCalendarioEvento, deleteCalendarioEvento
 } = mainStore
 
