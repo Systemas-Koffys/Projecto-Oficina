@@ -5,7 +5,7 @@ const mainStore = useMainStore()
 
 import { 
     Trees, Wrench, Home, Map, Landmark, Building, Palette, Settings, Calendar,
-    Plus, Pencil, Trash2, X, AlertTriangle, Database, Server, Lock
+    Plus, Pencil, Trash2, X, AlertTriangle, Database, Server, Lock, Eye, EyeOff
 } from 'lucide-vue-next'
 
 // Mapa de color por número de distrito
@@ -321,6 +321,9 @@ const passwordCurrent = ref('')
 const passwordNew = ref('')
 const passwordConfirm = ref('')
 const passwordChanging = ref(false)
+const showPasswordCurrent = ref(false)
+const showPasswordNew = ref(false)
+const showPasswordConfirm = ref(false)
 
 const handlePasswordChange = async () => {
     if (!passwordCurrent.value || !passwordNew.value || !passwordConfirm.value) {
@@ -567,19 +570,37 @@ const handlePasswordChange = async () => {
                             <!-- Contraseña Actual -->
                             <div class="space-y-2">
                                 <label class="label-prime text-xs font-black uppercase tracking-wider">Contraseña Actual</label>
-                                <input type="password" v-model="passwordCurrent" required class="form-input-prime" placeholder="Ingrese su contraseña actual">
+                                <div class="relative flex items-center">
+                                    <input :type="showPasswordCurrent ? 'text' : 'password'" v-model="passwordCurrent" required class="form-input-prime pr-12" placeholder="Ingrese su contraseña actual">
+                                    <button type="button" @click="showPasswordCurrent = !showPasswordCurrent" class="absolute right-4 text-muted hover:text-main transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
+                                        <Eye v-if="!showPasswordCurrent" class="w-4 h-4" />
+                                        <EyeOff v-else class="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Nueva Contraseña -->
                             <div class="space-y-2">
                                 <label class="label-prime text-xs font-black uppercase tracking-wider">Nueva Contraseña</label>
-                                <input type="password" v-model="passwordNew" required class="form-input-prime" placeholder="Al menos 6 caracteres">
+                                <div class="relative flex items-center">
+                                    <input :type="showPasswordNew ? 'text' : 'password'" v-model="passwordNew" required class="form-input-prime pr-12" placeholder="Al menos 6 caracteres">
+                                    <button type="button" @click="showPasswordNew = !showPasswordNew" class="absolute right-4 text-muted hover:text-main transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
+                                        <Eye v-if="!showPasswordNew" class="w-4 h-4" />
+                                        <EyeOff v-else class="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Confirmar Nueva Contraseña -->
                             <div class="space-y-2">
                                 <label class="label-prime text-xs font-black uppercase tracking-wider">Confirmar Nueva Contraseña</label>
-                                <input type="password" v-model="passwordConfirm" required class="form-input-prime" placeholder="Repita la nueva contraseña">
+                                <div class="relative flex items-center">
+                                    <input :type="showPasswordConfirm ? 'text' : 'password'" v-model="passwordConfirm" required class="form-input-prime pr-12" placeholder="Repita la nueva contraseña">
+                                    <button type="button" @click="showPasswordConfirm = !showPasswordConfirm" class="absolute right-4 text-muted hover:text-main transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
+                                        <Eye v-if="!showPasswordConfirm" class="w-4 h-4" />
+                                        <EyeOff v-else class="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Botón de Guardar -->
