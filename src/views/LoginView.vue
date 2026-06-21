@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
-const { login, fetchPublicUsuarios, uiState, showToast } = mainStore
+const { login, loginWithGoogle, fetchPublicUsuarios, uiState, showToast } = mainStore
 
 const router = useRouter()
 const username = ref('')
@@ -12,6 +12,20 @@ const error = ref('')
 const loading = ref(false)
 const publicUsers = ref([])
 const showPassword = ref(false)
+
+const handleGoogleLogin = async () => {
+    loading.value = true
+    error.value = ''
+    const result = await loginWithGoogle()
+    if (result.success) {
+        showToast('¡Sesión iniciada correctamente!', 'success')
+        router.push('/')
+    } else {
+        error.value = result.error
+        showToast(result.error, 'error')
+    }
+    loading.value = false
+}
 
 onMounted(async () => {
     document.title = 'Iniciar Sesión | Sistema de Gestión de Arboricultura'
@@ -82,6 +96,28 @@ const handleLogin = async () => {
                             <h2 class="text-2xl font-bold text-gray-800 mt-4 mb-1 text-center">Bienvenido al Sistema</h2>
                             <p class="text-gray-500 text-sm text-center">Por favor, identifíquese para continuar</p>
                         </template>
+                    </div>
+
+                    <!-- Botón de Google Sign-In -->
+                    <div class="mb-6">
+                        <button type="button" @click="handleGoogleLogin" :disabled="loading"
+                            class="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white border-2 border-gray-100 hover:bg-gray-50 hover:border-gray-250 rounded-2xl shadow-sm font-bold text-gray-700 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                                <path fill="#EA4335" d="M12 5.04c1.7 0 3.23.58 4.43 1.73l3.3-3.3C17.75 1.58 15.08 1 12 1 7.24 1 3.2 3.73 1.24 7.73l3.86 3C6.01 7.73 8.78 5.04 12 5.04z" />
+                                <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.28 1.48-1.11 2.73-2.36 3.57l3.66 2.84c2.14-1.97 3.39-4.88 3.39-8.56z" />
+                                <path fill="#FBBC05" d="M5.1 14.27c-.24-.73-.37-1.5-.37-2.3s.13-1.57.37-2.3L1.24 6.67C.45 8.27 0 10.08 0 12s.45 3.73 1.24 5.33l3.86-3.06z" />
+                                <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.66-2.84c-1.01.68-2.31 1.09-3.9 1.09-3.22 0-5.99-2.69-6.96-5.69l-3.86 3C3.2 20.27 7.24 23 12 23z" />
+                            </svg>
+                            <span>Continuar con Google</span>
+                        </button>
+                    </div>
+
+                    <!-- Divisor Visual -->
+                    <div class="relative flex items-center justify-center my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-200"></div>
+                        </div>
+                        <span class="relative px-4 bg-white text-[10px] font-black text-gray-400 uppercase tracking-widest">o ingresar con contraseña</span>
                     </div>
 
                     <form @submit.prevent="handleLogin" class="space-y-6" id="login-form">

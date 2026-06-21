@@ -6,7 +6,11 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged, 
-  updatePassword 
+  updatePassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from 'firebase/auth';
 import { 
   doc, 
@@ -215,6 +219,115 @@ export const useMainStore = defineStore('mainStore', () => {
         errMsg = 'Contraseña incorrecta. Intente de nuevo.';
       } else if (error.message) {
         errMsg = error.message;
+      }
+      return { success: false, error: errMsg };
+    }
+  }
+
+  async function loginWithGoogle() {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      if (!user.email) {
+        await signOut(auth);
+        return { success: false, error: 'No se pudo obtener el correo de su cuenta Google.' };
+      }
+
+      let userDoc = null;
+      const q = query(collection(db, 'personal'), where('email', '==', user.email.toLowerCase().trim()));
+      const querySnap = await getDocs(q);
+      
+      if (!querySnap.empty) {
+        userDoc = querySnap.docs[0].data();
+      } else {
+        const q2 = query(collection(db, 'personal'), where('email', '==', user.email.trim()));
+        const querySnap2 = await getDocs(q2);
+        if (!querySnap2.empty) {
+          userDoc = querySnap2.docs[0].data();
+        }
+      }
+
+      if (!userDoc) {
+        await signOut(auth);
+        return { success: false, error: `El correo de Google (${user.email}) no está registrado en el sistema. Contacte al Administrador.` };
+      }
+
+      if (userDoc.estado !== 'Activo') {
+        await signOut(auth);
+        return { success: false, error: 'Su cuenta ha sido suspendida por el administrador.' };
+      }
+
+      const formattedUser = {
+        id: userDoc.id,
+        nombre: userDoc.nombre,
+        username: userDoc.username,
+        role: userDoc.role,
+        cargo: userDoc.cargo,
+        email: userDoc.email,
+        estado: userDoc.estado,
+        foto: userDoc.foto
+      };
+
+      uiState.user = formattedUser;
+      uiState.token = await user.getIdToken();
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      uiState.loginTime = now;
+
+      const userToSave = { ...formattedUser };
+      delete userToSave.foto;
+      localStorage.setItem('user', JSON.stringify(userToSave));
+      localStorage.setItem('token', uiState.token);
+      localStorage.setItem('loginTime', now);
+      localStorage.setItem('loginTimeFull', new Date().toISOString());
+
+      initFirebaseSync();
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error en Google Login:', error);
+      let errMsg = 'Error al iniciar sesión con Google.';
+      if (error.code === 'auth/network-request-failed') {
+        errMsg = 'Error de conexión: El servidor no responde.';
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        errMsg = 'El inicio de sesión fue cancelado por el usuario.';
+      } else if (error.message) {
+        errMsg = error.message;
+      }
+      return { success: false, error: errMsg };
+    }
+  }
+
+  async function changeOwnPassword(currentPassword, newPassword) {
+    try {
+      if (!auth.currentUser || !auth.currentUser.email) {
+        throw new Error("No hay una sesión activa de usuario.");
+      }
+      if (!newPassword || newPassword.length < 6) {
+        throw new Error("La nueva contraseña debe tener al menos 6 caracteres.");
+      }
+      const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+      await reauthenticateWithCredential(auth.currentUser, credential);
+      await updatePassword(auth.currentUser, newPassword);
+      
+      await registrarAuditoria({
+        accion: 'MODIFICAR_CONTRASEÑA',
+        tabla_afectada: 'personal',
+        registro_id: auth.currentUser.uid,
+        detalles: { usuario: uiState.user?.username }
+      });
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Error al cambiar contraseña propia:", error);
+      let errMsg = error.message || "Error al actualizar contraseña.";
+      if (error.code === 'auth/wrong-password') {
+        errMsg = "La contraseña actual es incorrecta.";
+      } else if (error.code === 'auth/weak-password') {
+        errMsg = "La contraseña debe tener al menos 6 caracteres.";
+      } else if (error.code === 'auth/network-request-failed') {
+        errMsg = "Error de conexión con el servidor.";
       }
       return { success: false, error: errMsg };
     }
@@ -526,7 +639,7 @@ export const useMainStore = defineStore('mainStore', () => {
       const list = [];
       querySnap.forEach(docSnap => {
         const p = docSnap.data();
-        if (p.estado === 'Activo') {
+        if (p.estado === 'Activo' && p.username && p.username.trim() !== '') {
           list.push({
             nombre: p.nombre,
             username: p.username || '',
@@ -1634,6 +1747,8 @@ export const useMainStore = defineStore('mainStore', () => {
     getAuthHeaders,
     showToast,
     login,
+    loginWithGoogle,
+    changeOwnPassword,
     logout,
     fetchCatalogos,
     fetchConfig,
