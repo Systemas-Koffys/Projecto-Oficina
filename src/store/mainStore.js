@@ -30,7 +30,8 @@ import {
 import { 
   ref as storageRef, 
   getDownloadURL, 
-  uploadString 
+  uploadString,
+  uploadBytes
 } from 'firebase/storage';
 import { initializeApp } from 'firebase/app';
 import { getAuth as getSecondaryAuth, createUserWithEmailAndPassword } from 'firebase/auth';
@@ -134,24 +135,41 @@ export const useMainStore = defineStore('mainStore', () => {
   }
 
   // --- Helper para subir imágenes a Firebase Storage ---
-  // Las fotos de usuarios, logos, activos e inspecciones se suben a Storage y se
-  // guarda solo la URL pública en Firestore (ahorra espacio en documentos Firestore).
+  // Intenta subir a Storage para obtener una URL pública.
+  // Si Firebase Storage está bloqueado por CORS, guarda la imagen comprimida
+  // directamente como Base64 en Firestore (las imágenes comprimidas pesan ~80-150KB,
+  // bien dentro del límite de 1MB de Firestore).
   async function uploadImage(base64Data, folder = 'images') {
     if (!base64Data || !base64Data.startsWith('data:image')) {
       return base64Data; // Si ya es una URL pública, retornarla tal cual
     }
     
-    // Comprimir automáticamente antes de procesar/subir
-    const compressed = await compressImage(base64Data, 1000, 1000, 0.7);
+    // Comprimir la imagen (max 800x800, 70% calidad JPEG → ~80-150KB)
+    const compressed = await compressImage(base64Data, 800, 800, 0.7);
 
     try {
+      // Convertir base64 a Blob para uploadBytes (más compatible con CORS)
+      const base64Content = compressed.split(',')[1];
+      const contentType = compressed.split(';')[0].split(':')[1] || 'image/jpeg';
+      const byteChars = atob(base64Content);
+      const byteNumbers = new Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) {
+        byteNumbers[i] = byteChars.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: contentType });
+
       const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.jpg`;
       const fileRef = storageRef(storage, fileName);
-      await uploadString(fileRef, compressed, 'data_url');
-      return await getDownloadURL(fileRef);
+      await uploadBytes(fileRef, blob, { contentType });
+      const downloadURL = await getDownloadURL(fileRef);
+      return downloadURL;
     } catch (error) {
-      console.warn('No se pudo subir la foto a Storage, usando base64 temporal comprimida:', error);
-      return compressed; // fallback offline: guarda base64 localmente en caché
+      // Fallback: si Storage está bloqueado por CORS u otra razón,
+      // guardar el Base64 comprimido directamente en Firestore.
+      // A 800x800/70% la imagen cabe perfectamente dentro del límite de 1MB.
+      console.warn('Firebase Storage no disponible (posible CORS). Usando Base64 en Firestore:', error.code || error.message);
+      return compressed;
     }
   }
 
@@ -500,18 +518,31 @@ export const useMainStore = defineStore('mainStore', () => {
         const config = docSnap.data();
         store.config = config;
         
-        if (config.logo_app) {
+        // Solo actualizar el logo si Firestore tiene un valor definido
+        // (puede ser una URL pública o un Base64 comprimido como fallback CORS)
+        if (config.logo_app !== undefined && config.logo_app !== null && config.logo_app !== '') {
           uiState.logo_app = config.logo_app;
-          localStorage.setItem('logo_app', config.logo_app);
-        } else {
+          try {
+            localStorage.setItem('logo_app', config.logo_app);
+          } catch (e) {
+            console.warn('localStorage lleno, logo_app solo en memoria:', e.message);
+          }
+        } else if (config.logo_app === '') {
+          // Solo borrar si explícitamente se guardó cadena vacía (acción "Remover")
           uiState.logo_app = null;
           localStorage.removeItem('logo_app');
         }
+        // Si config.logo_app es undefined, mantener lo que ya hay en uiState (que puede ser del localStorage inicial)
         
-        if (config.logo_institucional) {
+        if (config.logo_institucional !== undefined && config.logo_institucional !== null && config.logo_institucional !== '') {
           uiState.logo_institucional = config.logo_institucional;
-          localStorage.setItem('logo_institucional', config.logo_institucional);
-        } else {
+          try {
+            localStorage.setItem('logo_institucional', config.logo_institucional);
+          } catch (e) {
+            console.warn('localStorage lleno, logo_institucional solo en memoria:', e.message);
+          }
+        } else if (config.logo_institucional === '') {
+          // Solo borrar si explícitamente se guardó cadena vacía (acción "Remover")
           uiState.logo_institucional = null;
           localStorage.removeItem('logo_institucional');
         }
