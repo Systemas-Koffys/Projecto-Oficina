@@ -139,9 +139,13 @@ export const useMainStore = defineStore('mainStore', () => {
     }
     
     try {
+      // Comprimir antes de subir: máx 1200x1200px al 82% JPEG → ~150-300KB
+      // (las fotos de celular sin comprimir pesan 5-10MB, esto reduce el consumo ~30x)
+      const compressed = await compressImage(base64Data, 1200, 1200, 0.82);
+
       // Subir directamente a Cloudinary via API REST (sin dependencias npm)
       const formData = new FormData();
-      formData.append('file', base64Data);
+      formData.append('file', compressed);
       formData.append('upload_preset', 'sistema-gamt-uploads');
       formData.append('folder', `sistema-arboricultura/${folder}`);
 
