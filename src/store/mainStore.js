@@ -447,6 +447,15 @@ export const useMainStore = defineStore('mainStore', () => {
         tipo_contrato: p.tipo_contrato || ''
       }));
       store.usuarios = allPersonal.filter(p => p.username && p.username.trim() !== '');
+
+      // Cerrar sesión en tiempo real si el administrador desactiva su cuenta
+      if (uiState.user) {
+        const matchingProfile = allPersonal.find(p => p.id === uiState.user.id);
+        if (matchingProfile && matchingProfile.estado !== 'Activo') {
+          logout();
+          showToast("Su cuenta ha sido suspendida por el administrador.", "error");
+        }
+      }
     }, (error) => {
       console.error("Error sync personal:", error);
     });
@@ -622,6 +631,11 @@ export const useMainStore = defineStore('mainStore', () => {
       getDoc(userRef).then((docSnap) => {
         if (docSnap.exists()) {
           const profile = docSnap.data();
+          if (profile.estado !== 'Activo') {
+            logout();
+            showToast("Su cuenta ha sido suspendida por el administrador.", "error");
+            return;
+          }
           const formattedUser = {
             id: profile.id,
             nombre: profile.nombre,
