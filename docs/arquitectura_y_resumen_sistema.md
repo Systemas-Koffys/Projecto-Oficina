@@ -131,3 +131,53 @@ Este es el plan de desarrollo estructurado en fases para el crecimiento futuro d
 * **Calculadora de Beneficios Ambientales:** Algoritmo para estimar la captura de CO₂ y retención de agua de lluvia del arbolado de Tarija.
 * **Comparador de Fotos (Antes y Después):** Registro de fotos históricas de la evolución de las podas.
 * **Alerta Climática Integrada:** Integración con servicios meteorológicos para priorizar despachos de cuadrillas ante emergencias por vientos fuertes.
+
+---
+
+## 🚫 Reglas y Normas Estrictas de Desarrollo (¡Prohibiciones!)
+
+> [!IMPORTANT]
+> Estas normas han sido impuestas rigurosamente por el usuario y deben respetarse en cualquier intervención en el código.
+
+1. **PROHIBIDO el uso del Navegador del Agente**:
+   * Está terminantemente prohibido utilizar el subagente de navegación interactiva (`browser_subagent`) para testear la aplicación. Se debe verificar la corrección del código mediante compilaciones de producción (`npm run build`), pruebas de consola o herramientas similares.
+2. **PROHIBIDO el uso de `docker-compose down -v`**:
+   * Está terminantemente prohibido ejecutar `docker-compose down -v` (o `docker compose down -v`) en entornos de desarrollo o producción, ya que destruye permanentemente el volumen `db_data` de MySQL, eliminando todas las imágenes, registros y configuraciones almacenadas. Utilice únicamente `docker-compose stop` o `docker-compose down`.
+3. **PROHIBIDO realizar cambios drásticos sin consulta previa**:
+   * Está prohibido realizar modificaciones estructurales o de gran envergadura en el sistema sin antes consultar e informar detalladamente sobre las posibles consecuencias, a menos que sean cambios mínimos.
+4. **PROHIBIDO modificar otras partes del sistema sin consentimiento**:
+   * Está prohibido hacer cambios en el frontend, backend o base de datos en áreas ajenas a las solicitudes específicas del usuario. La fase actual debe mantenerse pulida y estable.
+5. **PROHIBIDO el uso autónomo de comandos Git**:
+   * Está prohibido ejecutar comandos Git (`git add`, `git commit`, `git checkout`, etc.) de forma autónoma. Solo se ejecutarán comandos de control de versiones cuando el usuario lo solicite de manera expresa.
+6. **Preservación de Impresiones Existentes**:
+   * Las impresiones de los otros módulos (Solicitudes, Historial, Reportes) **no deben modificarse en letra, tamaño, ni estructura**. La única excepción es asegurar su legibilidad de contraste de color bajo impresión (fondo claro).
+7. **Legibilidad de Impresión Libre de Modo Oscuro (Anti-Bleed)**:
+   * Al imprimir, las variables de color CSS del tema (incluyendo el tema nocturno `.theme-black` y `.theme-colors`) se deben forzar siempre a fondo blanco y texto oscuro a través de `@media print` en `src/style.css`.
+8. **Sin Placeholders**:
+   * No se deben dejar imágenes rotas ni placeholders genéricos. Si se requiere un recurso, se debe programar el flujo con fallbacks limpios o renderizaciones SVG integradas.
+9. **PROHIBIDO actualizar respaldos sin orden expresa**:
+   * Está terminantemente prohibido modificar, sobrescribir o generar los archivos de respaldo del sistema o base de datos (`respaldo_sistema.zip` y `respaldo_db.sql`) de forma autónoma. Solo se deben generar cuando el usuario lo solicite expresamente tras validar el correcto funcionamiento.
+
+---
+
+## 📊 Parámetros Técnicos y Datos Clave
+
+### Temas del Sistema
+* `.theme-white`: Modo Claro (por defecto).
+* `.theme-black`: Modo Oscuro (Charcoal profuso y Verde Lima).
+* `.theme-colors`: Modo Profesional (Fondo gris pizarra `#d2d8e0`, Azul Data-Driven).
+
+### Cargos del Personal Habilitados (Dropdowns de Inventario)
+Únicamente el personal con los siguientes roles normalizados en la base de datos es visible en la asignación de responsables legales (custodios) y operarios:
+* `tecnico de equipo`
+* `chofer`
+* `tecnico de sistemas`
+* `jefe de unidad`
+* `responsable de area`
+
+### Firmas Oficiales para Reportes y Listados
+Los reportes impresos de la institución deben terminar con el bloque de firmas compuesto por:
+1. **Firma Responsable** (Dinámico: Operario asignado al activo en Fichas, o el usuario logueado en listados generales).
+2. **Ing. Cimar Farfán** (Encargado de Arboricultura).
+3. **Ing. Raúl Arteaga** (Jefe de Unidad).
+
