@@ -1,10 +1,12 @@
 {
   "name": "my-project",
   "private": true,
-  "version": "3.25.120",
+  "version": "3.25.23",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/update-version.js",
     "dev": "vite --host",
+    "prebuild": "node scripts/update-version.js",
     "build": "vite build",
     "preview": "vite preview"
   },
