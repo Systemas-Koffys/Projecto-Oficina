@@ -37,10 +37,10 @@
           </svg>
 
           <!-- Círculo de fondo central / Contenedor del Logo -->
-          <div :class="['relative z-10 w-32 h-32 shadow-2xl flex items-center justify-center overflow-hidden transition-all duration-300', 
+          <div :class="['relative z-10 shadow-2xl flex items-center justify-center overflow-hidden transition-all duration-300', 
             uiState.logo_app 
-              ? 'rounded-[2rem] bg-white border-2 border-emerald-500/30 p-4' 
-              : 'rounded-full bg-gradient-to-br from-emerald-900/80 to-emerald-950/90 backdrop-blur-sm border border-emerald-500/20'
+              ? 'w-24 h-24 rounded-3xl bg-white border-2 border-emerald-500/30 p-3' 
+              : 'w-32 h-32 rounded-full bg-gradient-to-br from-emerald-900/80 to-emerald-950/90 backdrop-blur-sm border border-emerald-500/20'
           ]">
 
             <!-- Logo de la aplicación (si existe) -->
