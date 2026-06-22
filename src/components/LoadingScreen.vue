@@ -36,14 +36,18 @@
             <circle class="orbit-dot" cx="100" cy="12" r="4" fill="#6ee7b7" style="filter: drop-shadow(0 0 6px #6ee7b7);"/>
           </svg>
 
-          <!-- Círculo de fondo central -->
-          <div class="relative z-10 w-32 h-32 rounded-full bg-gradient-to-br from-emerald-900/80 to-emerald-950/90 backdrop-blur-sm border border-emerald-500/20 shadow-2xl flex items-center justify-center overflow-hidden">
+          <!-- Círculo de fondo central / Contenedor del Logo -->
+          <div :class="['relative z-10 w-32 h-32 shadow-2xl flex items-center justify-center overflow-hidden transition-all duration-300', 
+            uiState.logo_app 
+              ? 'rounded-[2rem] bg-white border-2 border-emerald-500/30 p-4' 
+              : 'rounded-full bg-gradient-to-br from-emerald-900/80 to-emerald-950/90 backdrop-blur-sm border border-emerald-500/20'
+          ]">
 
             <!-- Logo de la aplicación (si existe) -->
             <img
               v-if="uiState.logo_app"
               :src="uiState.logo_app"
-              class="w-20 h-20 object-contain tree-sway drop-shadow-lg"
+              class="w-full h-full object-contain tree-sway"
               alt="Logo"
             />
 

@@ -29,8 +29,8 @@
         <!-- Logo / Brand -->
         <div class="p-4 md:p-8 mb-0 md:mb-4 hidden md:block transition-all duration-300" :class="uiState.isSidebarCollapsed ? 'md:p-4' : 'md:p-8'">
             <div class="flex items-center" :class="uiState.isSidebarCollapsed ? 'justify-center gap-0' : 'gap-4'">
-                <div class="rounded-2xl flex items-center justify-center shadow-lg overflow-hidden border border-white/20 shrink-0 transition-all duration-300" :class="[uiState.logo_app ? 'bg-transparent' : 'bg-accent text-on-accent', uiState.isSidebarCollapsed ? 'w-12 h-12' : 'w-20 h-20']">
-                    <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain p-0">
+                <div class="rounded-2xl flex items-center justify-center shadow-lg overflow-hidden border border-white/20 shrink-0 transition-all duration-300" :class="[uiState.logo_app ? 'bg-white p-1.5' : 'bg-accent text-on-accent p-0', uiState.isSidebarCollapsed ? 'w-12 h-12' : 'w-20 h-20']">
+                    <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain">
                     <span v-else class="font-black" :class="uiState.isSidebarCollapsed ? 'text-xl' : 'text-4xl'">A</span>
                 </div>
                 <div v-show="!uiState.isSidebarCollapsed" class="overflow-hidden transition-all duration-300">

@@ -62,8 +62,11 @@ const handleLogin = async () => {
     <div class="login-aurora min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
         <div class="w-full max-w-md relative z-10">
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-24 h-24 bg-white/10 rounded-[2.5rem] backdrop-blur-xl border border-white/20 mb-6 shadow-2xl overflow-hidden" :class="uiState.logo_app ? 'p-1.5' : 'p-4'">
-                    <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain" alt="Logo Institucional">
+                <div class="inline-flex items-center justify-center mb-6 shadow-2xl overflow-hidden transition-all duration-300" 
+                    :class="uiState.logo_app 
+                        ? 'w-28 h-28 bg-white rounded-3xl p-3 border-2 border-emerald-500/20' 
+                        : 'w-24 h-24 bg-white/10 rounded-[2.5rem] backdrop-blur-xl border border-white/20 p-4'">
+                    <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain rounded-2xl" alt="Logo Institucional">
                     <span v-else class="text-4xl">🌳</span>
                 </div>
                 <h1 class="text-5xl font-black text-white tracking-tighter mb-1.5">ArborGest</h1>
