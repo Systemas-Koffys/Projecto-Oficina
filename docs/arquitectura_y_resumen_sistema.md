@@ -36,7 +36,9 @@ El sistema está construido como una aplicación web moderna, serverless e insta
 
 Originalmente, el sistema funcionaba sobre un entorno local de contenedores Docker (`db_oficina` para MySQL, `api_oficina` para un backend Node/Express local y `web_oficina` para el frontend). Esta arquitectura presentaba limitaciones de acceso remoto para los técnicos en campo.
 
-Se realizó una migración estructural completa:
+Este código base original de la **Fase 1** (con el backend Node.js/Express, scripts SQL de base de datos MySQL, Dockerfiles y `docker-compose.yml`) se ha conservado y archivado de forma íntegra en la rama de Git **`legacy-mysql-docker`** (y también en `respaldo-local-funcional`). Cualquier desarrollador o agente que necesite referenciar o restaurar el entorno local original de la Fase 1 puede hacer checkout a esas ramas.
+
+Se realizó una migración estructural completa en la rama principal (`main`):
 1. **Eliminación del Backend Local:** Toda la lógica de negocio y consultas SQL se tradujeron a peticiones nativas a través del SDK de Firebase en el cliente.
 2. **Migración MySQL a Firestore:** Las tablas relacionales se estructuraron en colecciones NoSQL de Firestore, simplificando las consultas mediante documentos embebidos (por ejemplo, el array de árboles dentro de cada solicitud).
 3. **Conversión a PWA:** Se implementó una cola de sincronización en IndexedDB y almacenamiento de catálogos locales en `localStorage` de modo que los formularios funcionen sin conexión y se sincronicen de manera diferida al recuperar señal.
