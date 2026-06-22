@@ -144,8 +144,9 @@ export const useMainStore = defineStore('mainStore', () => {
       return base64Data; // Si ya es una URL pública, retornarla tal cual
     }
     
-    // Comprimir la imagen (max 800x800, 70% calidad JPEG → ~80-150KB)
-    const compressed = await compressImage(base64Data, 800, 800, 0.7);
+    // Comprimir la imagen (max 500x500, 60% calidad JPEG → ~30-80KB en Base64)
+    // Esto garantiza que siempre quepa dentro del límite de 1MB de Firestore
+    const compressed = await compressImage(base64Data, 500, 500, 0.6);
 
     try {
       // Convertir base64 a Blob para uploadBytes (más compatible con CORS)
@@ -1112,8 +1113,13 @@ export const useMainStore = defineStore('mainStore', () => {
 
         const docRef = doc(db, 'personal', id);
         
-        if (datos.foto) {
-          datos.foto = await uploadImage(datos.foto, 'profiles');
+        if (datos.foto && datos.foto.startsWith('data:image')) {
+          try {
+            datos.foto = await uploadImage(datos.foto, 'profiles');
+          } catch (fotoError) {
+            console.error('Error al procesar foto en addCatalogo:', fotoError);
+            datos.foto = null;
+          }
         }
 
         const formatted = {
@@ -1173,8 +1179,14 @@ export const useMainStore = defineStore('mainStore', () => {
           datos.email = email;
         }
 
-        if (datos.foto) {
-          datos.foto = await uploadImage(datos.foto, 'profiles');
+        // Procesar foto de forma independiente: si falla, el resto del guardado continúa
+        if (datos.foto && datos.foto.startsWith('data:image')) {
+          try {
+            datos.foto = await uploadImage(datos.foto, 'profiles');
+          } catch (fotoError) {
+            console.error('Error al procesar foto, se guardará sin actualizar la foto:', fotoError);
+            datos.foto = existingData.foto || null; // Mantener la foto anterior
+          }
         }
 
         const formatted = {
