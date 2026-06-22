@@ -34,7 +34,7 @@
                     <span v-else class="font-black" :class="uiState.isSidebarCollapsed ? 'text-xl' : 'text-4xl'">A</span>
                 </div>
                 <div v-show="!uiState.isSidebarCollapsed" class="overflow-hidden transition-all duration-300">
-                    <h1 class="text-base font-black text-white leading-tight whitespace-normal tracking-tight">Sistema de Gestión de<br><span class="text-emerald-400 text-lg">Arboricultura</span></h1>
+                    <h1 class="text-base font-black text-white leading-none whitespace-normal tracking-tight"><span class="text-emerald-400 text-xl block mb-1">ArborGest</span><span class="text-[9px] text-white/65 font-bold uppercase tracking-wider block leading-tight">Arboricultura G.A.M.T.</span></h1>
                 </div>
             </div>
         </div>

@@ -28,7 +28,7 @@ const handleGoogleLogin = async () => {
 }
 
 onMounted(async () => {
-    document.title = 'Iniciar Sesión | Sistema de Gestión de Arboricultura'
+    document.title = 'Iniciar Sesión | ArborGest — Sistema de Gestión de Arboricultura G.A.M.T.'
     publicUsers.value = await fetchPublicUsuarios()
 })
 
@@ -66,8 +66,9 @@ const handleLogin = async () => {
                     <img v-if="uiState.logo_app" :src="uiState.logo_app" class="w-full h-full object-contain" alt="Logo Institucional">
                     <span v-else class="text-4xl">🌳</span>
                 </div>
-                <h1 class="text-4xl font-black text-white tracking-tighter mb-2">SISTEMA DE GESTIÓN DE ARBORICULTURA</h1>
-                <p class="text-emerald-300 font-medium text-sm uppercase tracking-widest opacity-80">OBRAS PUBLICAS MUNICIPALES</p>
+                <h1 class="text-5xl font-black text-white tracking-tighter mb-1.5">ArborGest</h1>
+                <p class="text-emerald-300 font-black text-[10px] uppercase tracking-widest opacity-90 mb-1">Sistema de Gestión de Arboricultura — G.A.M.T.</p>
+                <p class="text-emerald-400/60 font-bold text-[9px] uppercase tracking-wider">Obras Públicas Municipales</p>
             </div>
 
             <!-- Card de Login -->

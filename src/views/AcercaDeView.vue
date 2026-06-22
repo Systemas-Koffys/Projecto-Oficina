@@ -4,11 +4,12 @@
     <div class="bg-card-main p-8 rounded-[2rem] shadow-sm border border-main flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.05),transparent)] pointer-events-none"></div>
       <div class="relative z-10">
-        <div class="flex flex-wrap items-center gap-3">
-          <h1 class="text-3xl font-black text-main">Sistema de Gestión de Arboricultura</h1>
-          <span class="px-3 py-1 bg-accent-soft border border-accent/20 rounded-full font-black text-xs text-accent tracking-wider">v{{ packageInfo.version }}</span>
+        <div class="flex flex-wrap items-baseline gap-3">
+          <h1 class="text-3.5xl font-black text-main">ArborGest</h1>
+          <span class="text-xs font-black text-accent uppercase tracking-widest">Sistema de Gestión de Arboricultura G.A.M.T.</span>
+          <span class="px-2.5 py-0.5 bg-accent-soft border border-accent/20 rounded-full font-black text-[10px] text-accent tracking-wider">v{{ packageInfo.version }}</span>
         </div>
-        <p class="text-muted font-semibold mt-1">Plataforma de Control, Planificación y Seguimiento Técnico</p>
+        <p class="text-muted font-semibold mt-1.5">Plataforma de Control, Planificación y Seguimiento Técnico</p>
       </div>
       <div class="text-right shrink-0 relative z-10">
         <p class="text-xs font-black text-accent uppercase tracking-widest">Gobierno Autónomo Municipal</p>
