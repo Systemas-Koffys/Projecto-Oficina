@@ -1,7 +1,7 @@
 import { defineStore, setActivePinia } from 'pinia';
 import { reactive } from 'vue';
 import { pinia } from './pinia.js';
-import { auth, db, storage, firebaseConfig } from '../firebase/config.js';
+import { auth, db, firebaseConfig } from '../firebase/config.js';
 import { 
   signInWithEmailAndPassword, 
   signOut, 
@@ -27,12 +27,7 @@ import {
   runTransaction,
   serverTimestamp 
 } from 'firebase/firestore';
-import { 
-  ref as storageRef, 
-  getDownloadURL, 
-  uploadString,
-  uploadBytes
-} from 'firebase/storage';
+// Firebase Storage ya no se usa - las imágenes se suben a Cloudinary
 import { initializeApp } from 'firebase/app';
 import { getAuth as getSecondaryAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
@@ -134,42 +129,40 @@ export const useMainStore = defineStore('mainStore', () => {
     });
   }
 
-  // --- Helper para subir imágenes a Firebase Storage ---
-  // Intenta subir a Storage para obtener una URL pública.
-  // Si Firebase Storage está bloqueado por CORS, guarda la imagen comprimida
-  // directamente como Base64 en Firestore (las imágenes comprimidas pesan ~80-150KB,
-  // bien dentro del límite de 1MB de Firestore).
+  // --- Helper para subir imágenes a Cloudinary (CDN gratuito) ---
+  // Usa un upload preset "Unsigned" que no requiere API Key ni CORS especial.
+  // Si Cloudinary falla por alguna razón, cae al fallback de Base64 comprimido en Firestore.
+  // Cloud: dlabhoodm | Preset: sistema-gamt-uploads
   async function uploadImage(base64Data, folder = 'images') {
     if (!base64Data || !base64Data.startsWith('data:image')) {
-      return base64Data; // Si ya es una URL pública, retornarla tal cual
+      return base64Data; // Ya es una URL pública, retornarla tal cual
     }
     
-    // Comprimir la imagen (max 500x500, 60% calidad JPEG → ~30-80KB en Base64)
-    // Esto garantiza que siempre quepa dentro del límite de 1MB de Firestore
-    const compressed = await compressImage(base64Data, 500, 500, 0.6);
-
     try {
-      // Convertir base64 a Blob para uploadBytes (más compatible con CORS)
-      const base64Content = compressed.split(',')[1];
-      const contentType = compressed.split(';')[0].split(':')[1] || 'image/jpeg';
-      const byteChars = atob(base64Content);
-      const byteNumbers = new Array(byteChars.length);
-      for (let i = 0; i < byteChars.length; i++) {
-        byteNumbers[i] = byteChars.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: contentType });
+      // Subir directamente a Cloudinary via API REST (sin dependencias npm)
+      const formData = new FormData();
+      formData.append('file', base64Data);
+      formData.append('upload_preset', 'sistema-gamt-uploads');
+      formData.append('folder', `sistema-arboricultura/${folder}`);
 
-      const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.jpg`;
-      const fileRef = storageRef(storage, fileName);
-      await uploadBytes(fileRef, blob, { contentType });
-      const downloadURL = await getDownloadURL(fileRef);
-      return downloadURL;
+      const response = await fetch(
+        'https://api.cloudinary.com/v1_1/dlabhoodm/image/upload',
+        { method: 'POST', body: formData }
+      );
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error?.message || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Imagen subida a Cloudinary:', data.secure_url);
+      return data.secure_url;
     } catch (error) {
-      // Fallback: si Storage está bloqueado por CORS u otra razón,
-      // guardar el Base64 comprimido directamente en Firestore.
-      // A 800x800/70% la imagen cabe perfectamente dentro del límite de 1MB.
-      console.warn('Firebase Storage no disponible (posible CORS). Usando Base64 en Firestore:', error.code || error.message);
+      // Fallback: comprimir agresivamente y guardar como Base64 en Firestore
+      // (solo si Cloudinary no está disponible temporalmente)
+      console.warn('⚠️ Cloudinary no disponible, usando Base64 comprimido en Firestore:', error.message);
+      const compressed = await compressImage(base64Data, 500, 500, 0.6);
       return compressed;
     }
   }

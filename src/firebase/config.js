@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+// Firebase Storage no se usa - las imágenes se gestionan mediante Cloudinary CDN
 
 // Configuración de Firebase alimentada por variables de entorno de Vite (.env)
 const firebaseConfig = {
@@ -16,7 +16,7 @@ const firebaseConfig = {
 // Inicializar Firebase App
 const app = initializeApp(firebaseConfig);
 
-// Obtener e instanciar servicios oficiales
+// Servicios de Firebase
 const auth = getAuth(app);
 
 // Inicializar Firestore habilitando PERSISTENCIA LOCAL MULTIPESTAÑA (IndexedDB)
@@ -27,7 +27,4 @@ const db = initializeFirestore(app, {
   })
 });
 
-// Firebase Storage para subir fotos de personal, logos, activos e inspecciones
-const storage = getStorage(app);
-
-export { app, auth, db, storage, firebaseConfig };
+export { app, auth, db, firebaseConfig };
