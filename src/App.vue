@@ -75,9 +75,9 @@
       <!-- Área de Contenido Principal -->
       <main class="flex-1 overflow-y-auto p-6 scroll-smooth">
         <div class="max-w-[1600px] mx-auto h-full">
-          <router-view v-slot="{ Component }">
+          <router-view v-slot="{ Component, route }">
             <transition name="fade" mode="out-in">
-              <component :is="Component" />
+              <component :is="Component" :key="route.fullPath" />
             </transition>
           </router-view>
         </div>
