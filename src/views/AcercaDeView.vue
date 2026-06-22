@@ -1,15 +1,16 @@
 <template>
   <div class="acerca-view p-6 space-y-8 animate-fade-in">
     <!-- Encabezado Principal -->
-    <div class="bg-card-main p-8 rounded-[2rem] shadow-sm border border-main flex flex-col md:flex-row justify-between items-center gap-6">
-      <div>
-        <div class="flex items-center gap-3">
+    <div class="bg-card-main p-8 rounded-[2rem] shadow-sm border border-main flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.05),transparent)] pointer-events-none"></div>
+      <div class="relative z-10">
+        <div class="flex flex-wrap items-center gap-3">
           <h1 class="text-3xl font-black text-main">Sistema de Gestión de Arboricultura</h1>
-          <span class="px-3 py-1 bg-accent-soft border border-accent/20 rounded-full font-black text-xs text-accent tracking-wider">v3.25</span>
+          <span class="px-3 py-1 bg-accent-soft border border-accent/20 rounded-full font-black text-xs text-accent tracking-wider">v{{ packageInfo.version }}</span>
         </div>
         <p class="text-muted font-semibold mt-1">Plataforma de Control, Planificación y Seguimiento Técnico</p>
       </div>
-      <div class="text-right shrink-0">
+      <div class="text-right shrink-0 relative z-10">
         <p class="text-xs font-black text-accent uppercase tracking-widest">Gobierno Autónomo Municipal</p>
         <p class="text-xs text-muted font-bold">de Tarija</p>
       </div>
@@ -20,7 +21,7 @@
       <!-- Columna Principal (Izquierda) -->
       <div class="lg:col-span-2 space-y-8">
         <!-- Sobre la Plataforma -->
-        <div class="bg-card-main p-8 rounded-[2rem] shadow-sm border border-main">
+        <div class="bg-card-main p-8 rounded-[2rem] shadow-sm border border-main relative overflow-hidden">
           <h2 class="text-lg font-black text-main mb-4 flex items-center gap-3">
             <div class="w-8 h-8 bg-accent-soft text-accent rounded-xl flex items-center justify-center">
               <Info size="18" />
@@ -31,62 +32,88 @@
             El <strong>Sistema de Seguimiento de Arboricultura</strong> ha sido desarrollado a medida para digitalizar, organizar y optimizar el flujo de trabajo operativo de podas, talas y mantenimiento de áreas verdes urbanas en la ciudad de Tarija.
           </p>
           <p class="text-muted leading-relaxed text-sm">
-            Este ecosistema unifica el control de solicitudes, la ubicación satelital de los trámites, la diagramación de equipos técnicos y el registro histórico, sustituyendo las planillas de datos manuales por una base de datos centralizada que asegura rapidez, transparencia e integridad en la atención ciudadana.
+            Tras la gran migración a la nube, la plataforma opera de manera serverless con sincronización en tiempo real y soporte para Progressive Web App (PWA). Esto permite a los técnicos registrar trabajos y consultar catálogos en campo directamente desde dispositivos móviles, incluso en zonas sin señal de internet, sincronizando los datos automáticamente al recuperar conexión.
           </p>
         </div>
 
         <!-- Módulos Clave del Sistema -->
         <div class="space-y-4">
-          <h3 class="text-xs font-black text-main uppercase tracking-widest">Módulos Integrados del Sistema</h3>
+          <h3 class="text-xs font-black text-main uppercase tracking-widest ml-2">Módulos Integrados del Sistema</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Módulo 1: Gestión de Trámites -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md">
-              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0">
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <FileText size="22" />
               </div>
               <div>
                 <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Gestión de Trámites</h4>
                 <p class="text-[11px] text-muted leading-relaxed font-semibold">
-                  Control unificado de solicitudes, estados de verificación, detalles técnicos de árboles y reportes listos para imprimir en formato A4 compacto.
+                  Control unificado de expedientes, estados de verificación, detalles técnicos de árboles y reportes listos para imprimir en formato A4 compacto.
                 </p>
               </div>
             </div>
 
             <!-- Módulo 2: Georreferenciación -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md">
-              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0">
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <MapPin size="22" />
               </div>
               <div>
-                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Georreferenciación Leaflet</h4>
+                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Georreferenciación Satelital</h4>
                 <p class="text-[11px] text-muted leading-relaxed font-semibold">
-                  Mapeo satelital en tiempo real con marcadores interactivos, extractor automático de coordenadas desde enlaces de Google Maps y enlace directo a rutas.
+                  Mapeo en tiempo real (Leaflet) con clusters interactivos, mapas de calor para identificar solicitudes críticas y enrutamiento directo.
                 </p>
               </div>
             </div>
 
             <!-- Módulo 3: Tablero Canvas -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md">
-              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0">
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Users size="22" />
               </div>
               <div>
-                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Tablero de Equipos</h4>
+                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Tablero de Cuadrillas</h4>
                 <p class="text-[11px] text-muted leading-relaxed font-semibold">
-                  Organización ágil de cuadrillas mediante Drag and Drop, asignación automática inteligente a equipos con menor carga de personal y control de roles.
+                  Organización ágil de equipos técnicos en campo mediante arrastre directo (Drag & Drop) y balance inteligente de cargas operativas.
                 </p>
               </div>
             </div>
 
             <!-- Módulo 4: Seguridad y Cuentas -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md">
-              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0">
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <ShieldCheck size="22" />
               </div>
               <div>
-                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Control de Acceso</h4>
+                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Autenticación Firebase</h4>
                 <p class="text-[11px] text-muted leading-relaxed font-semibold">
-                  Base de datos de personal unificada con cuentas de acceso cifradas (Bcrypt + JWT) y roles jerárquicos (Superusuario, Administrador, Técnico).
+                  Inicio de sesión unificado con Google Sign-In, gestión segura de perfiles de personal y niveles de roles (Superuser, Admin, Técnico).
+                </p>
+              </div>
+            </div>
+
+            <!-- Módulo 5: Inventario y Activos -->
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Wrench size="22" />
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Inventario y Activos Fijos</h4>
+                <p class="text-[11px] text-muted leading-relaxed font-semibold">
+                  Control de stock de repuestos, fichas técnicas de maquinaria (motosierras) con fotos de inspección y flujo de retorno de piezas usadas.
+                </p>
+              </div>
+            </div>
+
+            <!-- Módulo 6: Sincronización Offline -->
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <CloudLightning size="22" />
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Soporte PWA e IndexedDB</h4>
+                <p class="text-[11px] text-muted leading-relaxed font-semibold">
+                  Cola de sincronización en localstorage/IndexedDB para formularios ininterrumpidos sin señal de red y descarga local de catálogos base.
                 </p>
               </div>
             </div>
@@ -201,7 +228,7 @@
     <div class="bg-card-main p-8 rounded-[2rem] border border-main shadow-sm">
       <h3 class="text-sm font-black text-main uppercase tracking-widest mb-5 flex items-center gap-2">
         <Code size="16" class="text-accent" />
-        Stack Tecnológico e Infraestructura Base
+        Stack Tecnológico Serverless & PWA
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div v-for="tech in techs" :key="tech.n" class="bg-card-sec p-4 rounded-xl border border-main flex flex-col gap-2 hover:border-accent/30 transition-colors">
@@ -253,21 +280,22 @@
 
 <script setup>
 import { useMainStore } from '../store/mainStore.js'
-import { Info, FileText, MapPin, Users, ShieldCheck, Code, Phone, Mail, Linkedin, Github, CheckCircle, Book, Scale } from 'lucide-vue-next'
+import { Info, FileText, MapPin, Users, ShieldCheck, Code, Phone, Mail, Linkedin, Github, Book, Scale, Wrench, CloudLightning } from 'lucide-vue-next'
 import logoKoffys from '../assets/logo-koffys.png'
+import packageInfo from '../../package.json'
 
 const mainStore = useMainStore()
 const { uiState } = mainStore
 
 const techs = [
-    { n: 'Vue.js 3 + Composition API', d: 'Framework web reactivo para interfaces ultra rápidas sin recargar página.', c: 'bg-emerald-500' },
-    { n: 'Tailwind CSS v4', d: 'Motor de diseño utility-first para lograr acabados estéticos premium.', c: 'bg-cyan-500' },
-    { n: 'Pinia Store', d: 'Gestor de estado global y memoria caché local (Arquitectura SPA).', c: 'bg-indigo-500' },
-    { n: 'Node.js + Express', d: 'Motor de servidor backend rápido, ligero y altamente escalable.', c: 'bg-green-600' },
-    { n: 'MySQL 8.0', d: 'Motor de base de datos relacional para integridad financiera e histórica.', c: 'bg-slate-700' },
-    { n: 'Docker Compose', d: 'Virtualización y orquestación para garantizar despliegues a prueba de fallos.', c: 'bg-sky-500' },
-    { n: 'Leaflet.js', d: 'Georreferenciación matemática y visualización satelital de coordenadas.', c: 'bg-emerald-400' },
-    { n: 'Bcrypt + JWT', d: 'Cifrado de grado militar para proteger las contraseñas y sesiones.', c: 'bg-yellow-500' }
+    { n: 'Vue.js 3 + Composition API', d: 'Framework web reactivo para interfaces dinámicas de alto rendimiento en SPA.', c: 'bg-emerald-500' },
+    { n: 'Tailwind CSS v4', d: 'Motor de diseño utility-first para lograr interfaces premium, responsivas y consistentes.', c: 'bg-cyan-500' },
+    { n: 'Pinia Store', d: 'Gestión de estados globales reactivos del sistema y comunicación con la nube.', c: 'bg-indigo-500' },
+    { n: 'Firebase Firestore', d: 'Base de datos NoSQL ultra rápida en la nube con sincronización reactiva en tiempo real.', c: 'bg-amber-500' },
+    { n: 'Firebase Authentication', d: 'Gestión segura de cuentas de usuario con soporte de login Google Sign-In integrado.', c: 'bg-amber-600' },
+    { n: 'Cloudinary CDN', d: 'Servidor y CDN de imágenes optimizadas con compresión local en Canvas client-side.', c: 'bg-sky-500' },
+    { n: 'PWA (vite-plugin-pwa)', d: 'Transformación en Web App instalable offline con service worker y persistencia en IndexedDB.', c: 'bg-purple-500' },
+    { n: 'Leaflet.js Mapas', d: 'Cartografía interactiva para distritos, geolocalización por marcadores y mapas térmicos.', c: 'bg-emerald-400' }
 ]
 </script>
 
