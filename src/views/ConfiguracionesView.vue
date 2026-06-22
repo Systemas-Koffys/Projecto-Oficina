@@ -476,7 +476,7 @@ const handlePasswordChange = async () => {
                                 <div class="mt-4 space-y-2">
                                     <div class="flex justify-between items-center text-sm">
                                         <span class="text-muted font-medium">Versión Frontend</span>
-                                        <span class="font-black text-accent">v3.25.0</span>
+                                        <span class="font-black text-accent">v3.25.120</span>
                                     </div>
                                     <div class="flex justify-between items-center text-sm">
                                         <span class="text-muted font-medium">Base de Datos</span>
