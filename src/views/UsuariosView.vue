@@ -1,8 +1,39 @@
 <script setup>
-import { computed, ref, reactive } from 'vue'
+import { computed, ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, deleteUsuario, showToast } = mainStore
+
+const now = ref(Date.now())
+let nowInterval = null
+
+onMounted(() => {
+    nowInterval = setInterval(() => {
+        now.value = Date.now()
+    }, 30000)
+})
+
+onUnmounted(() => {
+    if (nowInterval) clearInterval(nowInterval)
+})
+
+const isUserOnline = (user) => {
+    if (!user) return false
+    if (user.id === uiState.user?.id) return true
+    if (!user.online) return false
+    if (!user.lastActive) return false
+    
+    let lastActiveMs = 0
+    if (user.lastActive && typeof user.lastActive.toDate === 'function') {
+        lastActiveMs = user.lastActive.toDate().getTime()
+    } else if (user.lastActive && user.lastActive.seconds) {
+        lastActiveMs = user.lastActive.seconds * 1000
+    } else {
+        lastActiveMs = new Date(user.lastActive).getTime()
+    }
+    
+    return (now.value - lastActiveMs) < 150000 // 2.5 minutos
+}
 import UsuarioModal from '../components/UsuarioModal.vue'
 import { 
     Users, User, ShieldCheck, Crown, Plus, 
@@ -165,12 +196,12 @@ const openNew = () => {
                         <!-- Estado -->
                         <td class="px-6 py-4 border-y border-main">
                             <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border transition-all"
-                                :class="user.id === uiState.user?.id
+                                :class="isUserOnline(user)
                                     ? 'text-emerald-600 bg-emerald-50 border-emerald-200 shadow-sm'
                                     : 'text-muted bg-card-main border-main'">
                                 <span class="w-1.5 h-1.5 rounded-full"
-                                    :class="user.id === uiState.user?.id ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'"></span>
-                                {{ user.id === uiState.user?.id ? 'En Línea (Tú)' : 'Desconectado' }}
+                                    :class="isUserOnline(user) ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300'"></span>
+                                {{ user.id === uiState.user?.id ? 'En Línea (Tú)' : (isUserOnline(user) ? 'En Línea' : 'Desconectado') }}
                             </span>
                         </td>
                         <!-- Acciones -->

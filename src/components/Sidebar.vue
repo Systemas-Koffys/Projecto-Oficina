@@ -171,8 +171,8 @@ const actualizarReloj = () => {
     // El loginTime se guarda como HH:mm string. 
     // Para calcular duración real, necesitamos la fecha de login original.
     // Como simplificación usaremos el tiempo desde que cargó el componente si no hay Date real
-    const storedLogin = localStorage.getItem('loginTimeFull') || new Date().toISOString()
-    if (!localStorage.getItem('loginTimeFull')) localStorage.setItem('loginTimeFull', storedLogin)
+    const storedLogin = sessionStorage.getItem('loginTimeFull') || new Date().toISOString()
+    if (!sessionStorage.getItem('loginTimeFull')) sessionStorage.setItem('loginTimeFull', storedLogin)
     
     const loginDate = new Date(storedLogin)
     const now = new Date()
@@ -227,7 +227,7 @@ const filteredMenuItems = computed(() => {
 
 const logout = () => {
     mainStore.logout()
-    localStorage.removeItem('loginTimeFull')
+    sessionStorage.removeItem('loginTimeFull')
     router.push('/')
 }
 </script>

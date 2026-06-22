@@ -60,7 +60,7 @@ export const useMainStore = defineStore('mainStore', () => {
     theme: 'colors',
     user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
-    loginTime: localStorage.getItem('loginTime') || null,
+    loginTime: sessionStorage.getItem('loginTime') || null,
     logo_app: localStorage.getItem('logo_app') || null,
     logo_institucional: localStorage.getItem('logo_institucional') || null,
     isLoading: false,
@@ -263,8 +263,8 @@ export const useMainStore = defineStore('mainStore', () => {
       delete userToSave.foto;
       localStorage.setItem('user', JSON.stringify(userToSave));
       localStorage.setItem('token', uiState.token);
-      localStorage.setItem('loginTime', now);
-      localStorage.setItem('loginTimeFull', new Date().toISOString());
+      sessionStorage.setItem('loginTime', now);
+      sessionStorage.setItem('loginTimeFull', new Date().toISOString());
 
       initFirebaseSync();
 
@@ -338,8 +338,8 @@ export const useMainStore = defineStore('mainStore', () => {
       delete userToSave.foto;
       localStorage.setItem('user', JSON.stringify(userToSave));
       localStorage.setItem('token', uiState.token);
-      localStorage.setItem('loginTime', now);
-      localStorage.setItem('loginTimeFull', new Date().toISOString());
+      sessionStorage.setItem('loginTime', now);
+      sessionStorage.setItem('loginTimeFull', new Date().toISOString());
 
       initFirebaseSync();
 
@@ -392,7 +392,20 @@ export const useMainStore = defineStore('mainStore', () => {
     }
   }
 
-  function logout() {
+  async function logout() {
+    stopPresenceHeartbeat();
+    if (auth.currentUser) {
+      try {
+        const uid = auth.currentUser.uid;
+        const userRef = doc(db, 'personal', String(uid));
+        await updateDoc(userRef, {
+          online: false,
+          lastActive: serverTimestamp()
+        });
+      } catch (err) {
+        console.error("Error al desconectar usuario en logout:", err);
+      }
+    }
     signOut(auth).catch(err => console.error("Error signing out:", err));
     uiState.user = null;
     uiState.token = null;
@@ -400,6 +413,8 @@ export const useMainStore = defineStore('mainStore', () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('loginTime');
+    sessionStorage.removeItem('loginTime');
+    sessionStorage.removeItem('loginTimeFull');
     unsubscribeList.forEach(unsub => unsub());
     unsubscribeList = [];
   }
@@ -553,6 +568,52 @@ export const useMainStore = defineStore('mainStore', () => {
     unsubscribeList.push(unsubConfig);
   }
 
+  let presenceInterval = null;
+
+  async function updatePresence(isOnline) {
+    if (!auth.currentUser) return;
+    try {
+      const uid = auth.currentUser.uid;
+      const userRef = doc(db, 'personal', String(uid));
+      await updateDoc(userRef, {
+        online: isOnline,
+        lastActive: serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Error actualizando presencia:", error);
+    }
+  }
+
+  const handleUnload = () => {
+    if (auth.currentUser) {
+      const uid = auth.currentUser.uid;
+      const userRef = doc(db, 'personal', String(uid));
+      updateDoc(userRef, {
+        online: false,
+        lastActive: serverTimestamp()
+      }).catch(() => {});
+    }
+  };
+
+  function startPresenceHeartbeat() {
+    stopPresenceHeartbeat();
+    updatePresence(true);
+    presenceInterval = setInterval(() => {
+      updatePresence(true);
+    }, 60000);
+    window.addEventListener('beforeunload', handleUnload);
+    window.addEventListener('pagehide', handleUnload);
+  }
+
+  function stopPresenceHeartbeat() {
+    if (presenceInterval) {
+      clearInterval(presenceInterval);
+      presenceInterval = null;
+    }
+    window.removeEventListener('beforeunload', handleUnload);
+    window.removeEventListener('pagehide', handleUnload);
+  }
+
   // Escuchar el estado de Firebase Auth para persistencia automática offline/online
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -577,7 +638,19 @@ export const useMainStore = defineStore('mainStore', () => {
           localStorage.setItem('user', JSON.stringify(userToSave));
         }
       });
+
+      // Inicializar el temporizador de sesión si no existe en sessionStorage
+      if (!sessionStorage.getItem('loginTime')) {
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        uiState.loginTime = now;
+        sessionStorage.setItem('loginTime', now);
+        sessionStorage.setItem('loginTimeFull', new Date().toISOString());
+      } else {
+        uiState.loginTime = sessionStorage.getItem('loginTime');
+      }
+
       initFirebaseSync();
+      startPresenceHeartbeat();
     } else {
       logout();
     }
