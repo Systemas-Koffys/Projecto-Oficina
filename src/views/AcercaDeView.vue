@@ -41,7 +41,7 @@
           <h3 class="text-xs font-black text-main uppercase tracking-widest ml-2">Módulos Integrados del Sistema</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Módulo 1: Gestión de Trámites -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-accent/40 group">
               <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <FileText size="22" />
               </div>
@@ -54,7 +54,7 @@
             </div>
 
             <!-- Módulo 2: Georreferenciación -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-accent/40 group">
               <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <MapPin size="22" />
               </div>
@@ -67,7 +67,7 @@
             </div>
 
             <!-- Módulo 3: Tablero Canvas -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-accent/40 group">
               <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Users size="22" />
               </div>
@@ -80,7 +80,7 @@
             </div>
 
             <!-- Módulo 4: Seguridad y Cuentas -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-accent/40 group">
               <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <ShieldCheck size="22" />
               </div>
@@ -93,7 +93,7 @@
             </div>
 
             <!-- Módulo 5: Inventario y Activos -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-accent/40 group">
               <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Wrench size="22" />
               </div>
@@ -106,7 +106,7 @@
             </div>
 
             <!-- Módulo 6: Sincronización Offline -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:border-accent/30 hover:shadow-md group">
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-accent/40 group">
               <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <CloudLightning size="22" />
               </div>
@@ -125,7 +125,7 @@
       <!-- Columna Lateral (Derecha) -->
       <div class="space-y-6">
         <!-- Ficha del Desarrollador Premium -->
-        <div class="bg-card-main border border-main rounded-[2.5rem] shadow-md overflow-hidden flex flex-col relative group transition-all duration-300 hover:shadow-xl hover:border-accent/20">
+        <div class="bg-card-main border border-main rounded-[2.5rem] shadow-md overflow-hidden flex flex-col relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-accent/30">
           <!-- Banner Superior Premium con Degradado y Brillo -->
           <div class="relative h-32 dev-header-gradient flex items-center px-8 overflow-hidden shrink-0">
             <!-- Capas decorativas de fondo -->
@@ -231,7 +231,7 @@
         Stack Tecnológico Serverless & PWA
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div v-for="tech in techs" :key="tech.n" class="bg-card-sec p-4 rounded-xl border border-main flex flex-col gap-2 hover:border-accent/30 transition-colors">
+        <div v-for="tech in techs" :key="tech.n" class="bg-card-sec p-4 rounded-xl border border-main flex flex-col gap-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-accent/40">
            <div class="flex items-center gap-2">
              <div class="w-2.5 h-2.5 rounded-full shrink-0" :class="tech.c"></div>
              <p class="text-xs font-black text-main uppercase tracking-wider">{{ tech.n }}</p>
