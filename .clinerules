@@ -1,0 +1,6 @@
+# Reglas del Proyecto
+
+## Resolución de Errores de CI/CD (GitHub Actions / Despliegues)
+- **Analizar antes de actuar**: Antes de intentar realizar reinstalaciones complejas, cambios de dependencias nativas o modificar configuraciones del proyecto, analiza exhaustivamente el origen del error.
+- **Solicitar información al usuario**: Si el error ocurre en un entorno externo (como GitHub Actions, Vercel, Firebase, etc.) donde no se tiene acceso directo a los logs completos, detente y pídele al usuario que proporcione los logs detallados del paso fallido (o capturas de pantalla de la consola).
+- **Descartar errores transitorios**: Comprueba si el fallo es de red o de autenticación temporal antes de asumir fallos en el código o en las dependencias. Si es necesario, sugiere reintentar el trabajo (Re-run) de inmediato.
