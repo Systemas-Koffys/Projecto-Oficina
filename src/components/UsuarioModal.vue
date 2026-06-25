@@ -104,34 +104,51 @@
                         <p class="text-[10px] text-emerald-600 font-bold mt-1 ml-1">⚡ El nombre completo es el identificador de inicio de sesión.</p>
                     </div>
 
-                    <!-- Contraseña -->
-                    <div v-if="userData" class="grid grid-cols-2 gap-5">
-                        <div class="flex flex-col">
-                            <label class="label-prime text-emerald-800">Nueva Contraseña
-                                <span class="text-emerald-500 normal-case text-[10px] font-medium">(vacío = no cambiar)</span>
-                            </label>
-                            <input v-model="form.password" type="password" class="form-input-prime border-emerald-100 focus:border-emerald-500" placeholder="••••••••">
+                    <!-- Botón de Restablecimiento para usuarios existentes (Editar) -->
+                    <div v-if="userData" class="p-4 bg-white/50 border border-emerald-100 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="text-left">
+                            <p class="text-xs font-black text-emerald-800 uppercase tracking-wide">Acceso de Seguridad Activo</p>
+                            <p class="text-[10px] text-muted font-bold mt-1">
+                                Las contraseñas están protegidas por Firebase. Puede enviar un correo seguro para que el usuario elija su nueva contraseña.
+                            </p>
                         </div>
-                        <div class="flex flex-col">
-                            <label class="label-prime text-emerald-800">Confirmar Nueva Contraseña</label>
-                            <input v-model="form.passwordConfirm" type="password" 
-                                class="form-input-prime border-emerald-100 focus:border-emerald-500"
-                                :class="{ 'border-red-400 focus:border-red-400': passwordMismatch }"
-                                placeholder="••••••••">
-                            <p v-if="passwordMismatch" class="text-[10px] text-red-500 font-bold mt-1 ml-1">⚠ Las contraseñas no coinciden.</p>
-                        </div>
+                        <button type="button" @click="handleResetPassword" :disabled="enviandoCorreo"
+                            class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-md transition-all shrink-0 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            <span v-if="!enviandoCorreo">Restablecer por Correo</span>
+                            <span v-else class="flex items-center gap-1.5">
+                                <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                Enviando...
+                            </span>
+                        </button>
                     </div>
-                    <div v-else class="grid grid-cols-2 gap-5">
+
+                    <!-- Campos de Contraseña para nuevos accesos (Crear) -->
+                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="flex flex-col">
                             <label class="label-prime text-emerald-800">Contraseña <span class="text-red-500 font-black">*</span></label>
-                            <input v-model="form.password" type="password" required class="form-input-prime border-emerald-100 focus:border-emerald-500" placeholder="Crea una clave segura">
+                            <div class="relative flex items-center w-full">
+                                <input v-model="form.password" :type="showPassword ? 'text' : 'password'" required 
+                                    class="form-input-prime border-emerald-100 focus:border-emerald-500 pr-12 w-full" placeholder="Crea una clave segura">
+                                <button type="button" @click="showPassword = !showPassword" 
+                                    class="absolute right-4 text-muted hover:text-emerald-700 transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
+                                    <Eye v-if="!showPassword" class="w-4 h-4" />
+                                    <EyeOff v-else class="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
                         <div class="flex flex-col">
                             <label class="label-prime text-emerald-800">Confirmar Contraseña <span class="text-red-500 font-black">*</span></label>
-                            <input v-model="form.passwordConfirm" type="password" required
-                                class="form-input-prime border-emerald-100 focus:border-emerald-500"
-                                :class="{ 'border-red-400 focus:border-red-400': passwordMismatch }"
-                                placeholder="Repite la clave">
+                            <div class="relative flex items-center w-full">
+                                <input v-model="form.passwordConfirm" :type="showPasswordConfirm ? 'text' : 'password'" required
+                                    class="form-input-prime border-emerald-100 focus:border-emerald-500 pr-12 w-full"
+                                    :class="{ 'border-red-400 focus:border-red-400': passwordMismatch }"
+                                    placeholder="Repite la clave">
+                                <button type="button" @click="showPasswordConfirm = !showPasswordConfirm" 
+                                    class="absolute right-4 text-muted hover:text-emerald-700 transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
+                                    <Eye v-if="!showPasswordConfirm" class="w-4 h-4" />
+                                    <EyeOff v-else class="w-4 h-4" />
+                                </button>
+                            </div>
                             <p v-if="passwordMismatch" class="text-[10px] text-red-500 font-bold mt-1 ml-1">⚠ Las contraseñas no coinciden.</p>
                         </div>
                     </div>
@@ -153,16 +170,21 @@
 </template>
 
 <script setup>
-import { reactive, computed, onMounted } from 'vue'
+import { reactive, ref, computed, onMounted } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
-const { addUsuario, updateUsuario, showToast, store } = mainStore
+const { addUsuario, updateUsuario, restablecerPasswordPorCorreo, showToast, store } = mainStore
+import { Eye, EyeOff } from 'lucide-vue-next'
 
 const props = defineProps({
     userData: { type: Object, default: null }
 })
 
 const emit = defineEmits(['close'])
+
+const showPassword = ref(false)
+const showPasswordConfirm = ref(false)
+const enviandoCorreo = ref(false)
 
 const form = reactive({
     personalId: '',
@@ -212,8 +234,23 @@ onMounted(() => {
     }
 })
 
+const handleResetPassword = async () => {
+    if (!form.email) {
+        showToast('El usuario debe tener un correo electrónico institucional registrado.', 'error')
+        return
+    }
+    enviandoCorreo.value = true
+    const res = await restablecerPasswordPorCorreo(form.email)
+    enviandoCorreo.value = false
+    if (res === true) {
+        showToast(`Se envió el correo de restablecimiento a: ${form.email}`, 'success')
+    } else {
+        showToast(res || 'Error al enviar el correo de restablecimiento', 'error')
+    }
+}
+
 const handleSubmit = async () => {
-    if (passwordMismatch.value) {
+    if (!props.userData && passwordMismatch.value) {
         showToast('Las contraseñas no coinciden', 'error')
         return
     }
@@ -226,8 +263,10 @@ const handleSubmit = async () => {
         username: form.nombre,   // siempre el nombre completo
         estado:   form.estado,
     }
-    // Solo incluir contraseña si se escribió algo
-    if (form.password) payload.password = form.password
+    // Solo incluir contraseña si se escribió algo (crear usuario)
+    if (!props.userData && form.password) {
+        payload.password = form.password
+    }
 
     let success = false
     if (props.userData?.id) {

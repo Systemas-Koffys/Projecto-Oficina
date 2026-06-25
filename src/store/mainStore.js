@@ -7,6 +7,7 @@ import {
   signOut, 
   onAuthStateChanged, 
   updatePassword,
+  sendPasswordResetEmail,
   GoogleAuthProvider,
   signInWithPopup,
   EmailAuthProvider,
@@ -948,11 +949,6 @@ export const useMainStore = defineStore('mainStore', () => {
 
       await updateDoc(docRef, updates);
 
-      // Si modifica su propia contraseña
-      if (auth.currentUser && auth.currentUser.uid === String(id) && usuario.password) {
-        await updatePassword(auth.currentUser, usuario.password);
-      }
-
       await registrarAuditoria({
         accion: 'MODIFICAR',
         tabla_afectada: 'personal',
@@ -963,6 +959,16 @@ export const useMainStore = defineStore('mainStore', () => {
       return true;
     } catch (error) {
       console.error('Error al actualizar usuario:', error);
+      return error.message || 'Error en el servidor';
+    }
+  }
+
+  async function restablecerPasswordPorCorreo(email) {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return true;
+    } catch (error) {
+      console.error("Error al enviar correo de restablecimiento:", error);
       return error.message || 'Error en el servidor';
     }
   }
@@ -1220,6 +1226,11 @@ export const useMainStore = defineStore('mainStore', () => {
           foto: datos.foto || null,
           id_equipo: datos.id_equipo || null,
           rol_equipo: datos.rol_equipo || null,
+          fecha_ingreso: datos.fecha_ingreso || null,
+          fecha_nacimiento: datos.fecha_nacimiento || null,
+          tipo_sangre: datos.tipo_sangre || null,
+          contacto_emergencia: datos.contacto_emergencia || null,
+          celular_emergencia: datos.celular_emergencia || null,
           createdAt: serverTimestamp()
         };
         await setDoc(docRef, formatted);
@@ -1284,7 +1295,12 @@ export const useMainStore = defineStore('mainStore', () => {
           email: datos.email || '',
           estado: datos.estado || 'Activo',
           id_equipo: datos.id_equipo || null,
-          rol_equipo: datos.rol_equipo || null
+          rol_equipo: datos.rol_equipo || null,
+          fecha_ingreso: datos.fecha_ingreso || null,
+          fecha_nacimiento: datos.fecha_nacimiento || null,
+          tipo_sangre: datos.tipo_sangre || null,
+          contacto_emergencia: datos.contacto_emergencia || null,
+          celular_emergencia: datos.celular_emergencia || null
         };
 
         if (datos.foto !== undefined) {
@@ -1953,6 +1969,7 @@ export const useMainStore = defineStore('mainStore', () => {
     addUsuario,
     deleteUsuario,
     updateUsuario,
+    restablecerPasswordPorCorreo,
     fetchSolicitudes,
     addSolicitud,
     deleteSolicitud,
