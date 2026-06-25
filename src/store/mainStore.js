@@ -395,10 +395,10 @@ export const useMainStore = defineStore('mainStore', () => {
 
   async function logout() {
     stopPresenceHeartbeat();
-    if (auth.currentUser) {
+    if (auth.currentUser && uiState.user) {
       try {
-        const uid = auth.currentUser.uid;
-        const userRef = doc(db, 'personal', String(uid));
+        const docId = uiState.user.id;
+        const userRef = doc(db, 'personal', String(docId));
         await updateDoc(userRef, {
           online: false,
           lastActive: serverTimestamp()
@@ -581,10 +581,10 @@ export const useMainStore = defineStore('mainStore', () => {
   let presenceInterval = null;
 
   async function updatePresence(isOnline) {
-    if (!auth.currentUser) return;
+    if (!auth.currentUser || !uiState.user) return;
     try {
-      const uid = auth.currentUser.uid;
-      const userRef = doc(db, 'personal', String(uid));
+      const docId = uiState.user.id;
+      const userRef = doc(db, 'personal', String(docId));
       await updateDoc(userRef, {
         online: isOnline,
         lastActive: serverTimestamp()
@@ -595,9 +595,9 @@ export const useMainStore = defineStore('mainStore', () => {
   }
 
   const handleUnload = () => {
-    if (auth.currentUser) {
-      const uid = auth.currentUser.uid;
-      const userRef = doc(db, 'personal', String(uid));
+    if (auth.currentUser && uiState.user) {
+      const docId = uiState.user.id;
+      const userRef = doc(db, 'personal', String(docId));
       updateDoc(userRef, {
         online: false,
         lastActive: serverTimestamp()
@@ -628,10 +628,25 @@ export const useMainStore = defineStore('mainStore', () => {
   onAuthStateChanged(auth, (user) => {
     if (user) {
       uiState.token = 'firebase-auth-active';
-      const userRef = doc(db, 'personal', String(user.uid));
-      getDoc(userRef).then((docSnap) => {
-        if (docSnap.exists()) {
-          const profile = docSnap.data();
+      
+      const email = user.email ? user.email.toLowerCase().trim() : '';
+      const q = query(collection(db, 'personal'), where('email', '==', email));
+      
+      getDocs(q).then((querySnap) => {
+        if (!querySnap.empty) {
+          return querySnap.docs[0].data();
+        } else {
+          // Fallback: buscar por uid
+          const userRef = doc(db, 'personal', String(user.uid));
+          return getDoc(userRef).then((docSnap) => {
+            if (docSnap.exists()) {
+              return docSnap.data();
+            }
+            return null;
+          });
+        }
+      }).then((profile) => {
+        if (profile) {
           if (profile.estado !== 'Activo') {
             logout();
             showToast("Su cuenta ha sido suspendida por el administrador.", "error");
@@ -651,7 +666,17 @@ export const useMainStore = defineStore('mainStore', () => {
           const userToSave = { ...formattedUser };
           delete userToSave.foto;
           localStorage.setItem('user', JSON.stringify(userToSave));
+          
+          initFirebaseSync();
+          startPresenceHeartbeat();
+        } else {
+          initFirebaseSync();
+          startPresenceHeartbeat();
         }
+      }).catch((error) => {
+        console.error("Error al restaurar sesión en onAuthStateChanged:", error);
+        initFirebaseSync();
+        startPresenceHeartbeat();
       });
 
       // Inicializar el temporizador de sesión si no existe en sessionStorage
@@ -663,9 +688,6 @@ export const useMainStore = defineStore('mainStore', () => {
       } else {
         uiState.loginTime = sessionStorage.getItem('loginTime');
       }
-
-      initFirebaseSync();
-      startPresenceHeartbeat();
     } else {
       logout();
     }
