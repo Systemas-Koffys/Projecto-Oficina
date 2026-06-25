@@ -67,15 +67,15 @@
                     <div class="grid grid-cols-2 gap-5">
                         <div class="flex flex-col">
                             <label class="label-prime">Nivel de Acceso <span class="text-red-500 font-black">*</span></label>
-                            <select v-model="form.role" required class="form-input-prime" :disabled="userData && userData.role === 'ROOT'">
+                            <select v-model="form.role" required class="form-input-prime" :disabled="(userData && userData.role === 'ROOT') || (userData && userData.id === uiState.user?.id)">
                                 <option value="USER">Usuario (Acceso básico)</option>
                                 <option value="ADMIN">Administrador</option>
-                                <option v-if="userData && userData.role === 'ROOT'" value="ROOT">Superusuario (ROOT)</option>
+                                <option v-if="(userData && userData.role === 'ROOT') || (userData && userData.id === uiState.user?.id)" value="ROOT">Superusuario (ROOT)</option>
                             </select>
                         </div>
                         <div class="flex flex-col">
                             <label class="label-prime">Estado de Cuenta <span class="text-red-500 font-black">*</span></label>
-                            <select v-model="form.estado" required class="form-input-prime">
+                            <select v-model="form.estado" required class="form-input-prime" :disabled="userData && userData.id === uiState.user?.id">
                                 <option value="Activo">Activo (Habilitado)</option>
                                 <option value="Inactivo">Inactivo (Suspendido)</option>
                             </select>
@@ -102,28 +102,8 @@
                             {{ form.nombre || 'Selecciona un funcionario primero...' }}
                         </div>
                         <p class="text-[10px] text-emerald-600 font-bold mt-1 ml-1">⚡ El nombre completo es el identificador de inicio de sesión.</p>
-                    </div>
-
-                    <!-- Botón de Restablecimiento para usuarios existentes (Editar) -->
-                    <div v-if="userData" class="p-4 bg-white/50 border border-emerald-100 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div class="text-left">
-                            <p class="text-xs font-black text-emerald-800 uppercase tracking-wide">Acceso de Seguridad Activo</p>
-                            <p class="text-[10px] text-muted font-bold mt-1">
-                                Las contraseñas están protegidas por Firebase. Puede enviar un correo seguro para que el usuario elija su nueva contraseña.
-                            </p>
-                        </div>
-                        <button type="button" @click="handleResetPassword" :disabled="enviandoCorreo"
-                            class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-md transition-all shrink-0 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                            <span v-if="!enviandoCorreo">Restablecer por Correo</span>
-                            <span v-else class="flex items-center gap-1.5">
-                                <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                Enviando...
-                            </span>
-                        </button>
-                    </div>
-
-                    <!-- Campos de Contraseña para nuevos accesos (Crear) -->
-                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <!-- CASO A: NUEVA CUENTA (Crear) -->
+                    <div v-if="!userData" class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="flex flex-col">
                             <label class="label-prime text-emerald-800">Contraseña <span class="text-red-500 font-black">*</span></label>
                             <div class="relative flex items-center w-full">
@@ -142,7 +122,7 @@
                                 <input v-model="form.passwordConfirm" :type="showPasswordConfirm ? 'text' : 'password'" required
                                     class="form-input-prime border-emerald-100 focus:border-emerald-500 pr-12 w-full"
                                     :class="{ 'border-red-400 focus:border-red-400': passwordMismatch }"
-                                    placeholder="Repite la clave">
+                                    placeholder="Repita la clave">
                                 <button type="button" @click="showPasswordConfirm = !showPasswordConfirm" 
                                     class="absolute right-4 text-muted hover:text-emerald-700 transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
                                     <Eye v-if="!showPasswordConfirm" class="w-4 h-4" />
@@ -152,6 +132,74 @@
                             <p v-if="passwordMismatch" class="text-[10px] text-red-500 font-bold mt-1 ml-1">⚠ Las contraseñas no coinciden.</p>
                         </div>
                     </div>
+
+                    <!-- CASO B: EDICIÓN DE OTRO USUARIO -->
+                    <div v-else-if="userData.id !== uiState.user?.id" class="p-4 bg-white/50 border border-emerald-100 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="text-left">
+                            <p class="text-xs font-black text-emerald-800 uppercase tracking-wide">Acceso de Seguridad Activo</p>
+                            <p class="text-[10px] text-muted font-bold mt-1">
+                                Las contraseñas están protegidas por Firebase. Puede enviar un correo seguro para que el usuario elija su nueva contraseña.
+                            </p>
+                        </div>
+                        <button type="button" @click="handleResetPassword" :disabled="enviandoCorreo"
+                            class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-md transition-all shrink-0 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            <span v-if="!enviandoCorreo">Restablecer por Correo</span>
+                            <span v-else class="flex items-center gap-1.5">
+                                <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                Enviando...
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- CASO C: EDICIÓN DE UNO MISMO -->
+                    <div v-else class="space-y-4">
+                        <h5 class="text-xs font-black text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <Lock class="w-4 h-4" />
+                            <span>Cambiar mi Contraseña</span>
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div class="flex flex-col">
+                                <label class="label-prime text-emerald-800">Contraseña Actual</label>
+                                <div class="relative flex items-center w-full">
+                                    <input v-model="passwordCurrent" :type="showPasswordCurrent ? 'text' : 'password'"
+                                        class="form-input-prime border-emerald-100 focus:border-emerald-500 pr-12 w-full" placeholder="Clave actual">
+                                    <button type="button" @click="showPasswordCurrent = !showPasswordCurrent" 
+                                        class="absolute right-4 text-muted hover:text-emerald-700 transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
+                                        <Eye v-if="!showPasswordCurrent" class="w-4 h-4" />
+                                        <EyeOff v-else class="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="label-prime text-emerald-800">Nueva Contraseña</label>
+                                <div class="relative flex items-center w-full">
+                                    <input v-model="passwordNew" :type="showPassword ? 'text' : 'password'"
+                                        class="form-input-prime border-emerald-100 focus:border-emerald-500 pr-12 w-full" placeholder="Mínimo 6 caracteres">
+                                    <button type="button" @click="showPassword = !showPassword" 
+                                        class="absolute right-4 text-muted hover:text-emerald-700 transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
+                                        <Eye v-if="!showPassword" class="w-4 h-4" />
+                                        <EyeOff v-else class="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="label-prime text-emerald-800">Confirmar Nueva Clave</label>
+                                <div class="relative flex items-center w-full">
+                                    <input v-model="passwordNewConfirm" :type="showPasswordConfirm ? 'text' : 'password'"
+                                        class="form-input-prime border-emerald-100 focus:border-emerald-500 pr-12 w-full"
+                                        :class="{ 'border-red-400 focus:border-red-400': passwordNewConfirm && passwordNew !== passwordNewConfirm }"
+                                        placeholder="Repita la clave">
+                                    <button type="button" @click="showPasswordConfirm = !showPasswordConfirm" 
+                                        class="absolute right-4 text-muted hover:text-emerald-700 transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
+                                        <Eye v-if="!showPasswordConfirm" class="w-4 h-4" />
+                                        <EyeOff v-else class="w-4 h-4" />
+                                    </button>
+                                </div>
+                                <p v-if="passwordNewConfirm && passwordNew !== passwordNewConfirm" class="text-[10px] text-red-500 font-bold mt-1 ml-1">⚠ Las contraseñas no coinciden.</p>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-muted font-bold italic">Llene estos campos únicamente si desea actualizar su contraseña.</p>
+                    </div>                </div>
                 </div>
 
                 <!-- Botones -->
@@ -173,8 +221,8 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
-const { addUsuario, updateUsuario, restablecerPasswordPorCorreo, showToast, store } = mainStore
-import { Eye, EyeOff } from 'lucide-vue-next'
+const { addUsuario, updateUsuario, restablecerPasswordPorCorreo, showToast, store, uiState } = mainStore
+import { Eye, EyeOff, Lock } from 'lucide-vue-next'
 
 const props = defineProps({
     userData: { type: Object, default: null }
@@ -184,6 +232,11 @@ const emit = defineEmits(['close'])
 
 const showPassword = ref(false)
 const showPasswordConfirm = ref(false)
+const showPasswordCurrent = ref(false)
+const passwordConfirm = ref('')
+const passwordCurrent = ref('')
+const passwordNew = ref('')
+const passwordNewConfirm = ref('')
 const enviandoCorreo = ref(false)
 
 const form = reactive({
@@ -231,6 +284,15 @@ onMounted(() => {
         form.estado   = props.userData.estado  || 'Activo'
         form.password = ''
         form.passwordConfirm = ''
+
+        // Reset password variables
+        passwordConfirm.value = ''
+        passwordCurrent.value = ''
+        passwordNew.value = ''
+        passwordNewConfirm.value = ''
+        showPassword.value = false
+        showPasswordConfirm.value = false
+        showPasswordCurrent.value = false
     }
 })
 
@@ -266,6 +328,29 @@ const handleSubmit = async () => {
     // Solo incluir contraseña si se escribió algo (crear usuario)
     if (!props.userData && form.password) {
         payload.password = form.password
+    }
+
+    // Si es su propio perfil y llenó campos de cambio de clave
+    if (props.userData && props.userData.id === uiState.user?.id && passwordNew.value) {
+        if (!passwordCurrent.value) {
+            showToast('Debe ingresar su contraseña actual para cambiarla', 'error')
+            return
+        }
+        if (passwordNew.value !== passwordNewConfirm.value) {
+            showToast('La nueva contraseña y su confirmación no coinciden', 'error')
+            return
+        }
+        if (passwordNew.value.length < 6) {
+            showToast('La nueva contraseña debe tener al menos 6 caracteres', 'error')
+            return
+        }
+        
+        // Cambiar contraseña propia
+        const resPass = await mainStore.changeOwnPassword(passwordCurrent.value, passwordNew.value)
+        if (!resPass.success) {
+            showToast(resPass.error, 'error')
+            return
+        }
     }
 
     let success = false

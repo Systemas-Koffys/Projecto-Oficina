@@ -42,7 +42,6 @@ const categorias = [
     { id: 'tipos_institucion', nombre: 'Tipos de Institución', icono: Building, campos: [{ key: 'nombre', label: 'Categoría', type: 'text' }] },
     { id: 'personalizacion', nombre: 'Identidad Visual', icono: Palette, tipo: 'especial_logos' },
     { id: 'mantenimiento', nombre: 'Mantenimiento', icono: Settings, tipo: 'especial' },
-    { id: 'seguridad', nombre: 'Seguridad de Cuenta', icono: Lock, tipo: 'especial_seguridad' },
 ]
 
 const categoriaActiva = ref(categorias[0])
@@ -323,42 +322,6 @@ const eliminarCalendario = (id) => {
 
 // Helpers para selects genéricos
 const getOptions = (optionKey) => store[optionKey] || []
-
-// --- GESTIÓN ESPECIAL: CAMBIO DE CONTRASEÑA ---
-const passwordCurrent = ref('')
-const passwordNew = ref('')
-const passwordConfirm = ref('')
-const passwordChanging = ref(false)
-const showPasswordCurrent = ref(false)
-const showPasswordNew = ref(false)
-const showPasswordConfirm = ref(false)
-
-const handlePasswordChange = async () => {
-    if (!passwordCurrent.value || !passwordNew.value || !passwordConfirm.value) {
-        showToast('Complete todos los campos del formulario', 'error')
-        return
-    }
-    if (passwordNew.value !== passwordConfirm.value) {
-        showToast('La nueva contraseña y su confirmación no coinciden', 'error')
-        return
-    }
-    if (passwordNew.value.length < 6) {
-        showToast('La nueva contraseña debe tener al menos 6 caracteres', 'error')
-        return
-    }
-
-    passwordChanging.value = true
-    const result = await mainStore.changeOwnPassword(passwordCurrent.value, passwordNew.value)
-    if (result.success) {
-        showToast('¡Contraseña cambiada exitosamente!', 'success')
-        passwordCurrent.value = ''
-        passwordNew.value = ''
-        passwordConfirm.value = ''
-    } else {
-        showToast(result.error, 'error')
-    }
-    passwordChanging.value = false
-}
 </script>
 
 <template>
@@ -566,63 +529,7 @@ const handlePasswordChange = async () => {
                     </div>
                 </div>
 
-                <!-- VISTA DE SEGURIDAD DE CUENTA -->
-                <div v-else-if="categoriaActiva.tipo === 'especial_seguridad'" class="p-10 space-y-8 overflow-y-auto custom-scrollbar">
-                    <div class="border-b border-main pb-6">
-                        <h3 class="text-2xl font-black text-main">Seguridad de la Cuenta</h3>
-                        <p class="text-muted">Administre su contraseña de acceso personal al sistema.</p>
-                    </div>
 
-                    <div class="max-w-md bg-card-sec border border-main p-8 rounded-[2rem] shadow-sm">
-                        <form @submit.prevent="handlePasswordChange" class="space-y-6">
-                            <!-- Contraseña Actual -->
-                            <div class="space-y-2">
-                                <label class="label-prime text-xs font-black uppercase tracking-wider">Contraseña Actual</label>
-                                <div class="relative flex items-center">
-                                    <input :type="showPasswordCurrent ? 'text' : 'password'" v-model="passwordCurrent" required class="form-input-prime pr-12" placeholder="Ingrese su contraseña actual">
-                                    <button type="button" @click="showPasswordCurrent = !showPasswordCurrent" class="absolute right-4 text-muted hover:text-main transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
-                                        <Eye v-if="!showPasswordCurrent" class="w-4 h-4" />
-                                        <EyeOff v-else class="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Nueva Contraseña -->
-                            <div class="space-y-2">
-                                <label class="label-prime text-xs font-black uppercase tracking-wider">Nueva Contraseña</label>
-                                <div class="relative flex items-center">
-                                    <input :type="showPasswordNew ? 'text' : 'password'" v-model="passwordNew" required class="form-input-prime pr-12" placeholder="Al menos 6 caracteres">
-                                    <button type="button" @click="showPasswordNew = !showPasswordNew" class="absolute right-4 text-muted hover:text-main transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
-                                        <Eye v-if="!showPasswordNew" class="w-4 h-4" />
-                                        <EyeOff v-else class="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Confirmar Nueva Contraseña -->
-                            <div class="space-y-2">
-                                <label class="label-prime text-xs font-black uppercase tracking-wider">Confirmar Nueva Contraseña</label>
-                                <div class="relative flex items-center">
-                                    <input :type="showPasswordConfirm ? 'text' : 'password'" v-model="passwordConfirm" required class="form-input-prime pr-12" placeholder="Repita la nueva contraseña">
-                                    <button type="button" @click="showPasswordConfirm = !showPasswordConfirm" class="absolute right-4 text-muted hover:text-main transition-colors flex items-center justify-center cursor-pointer focus:outline-none" style="background: none; border: none; padding: 0;">
-                                        <Eye v-if="!showPasswordConfirm" class="w-4 h-4" />
-                                        <EyeOff v-else class="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Botón de Guardar -->
-                            <button type="submit" :disabled="passwordChanging"
-                                class="w-full bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-accent/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span v-if="!passwordChanging">Actualizar Contraseña</span>
-                                <span v-else class="flex items-center justify-center gap-2">
-                                    <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                    PROCESANDO...
-                                </span>
-                            </button>
-                        </form>
-                    </div>
-                </div>
 
                 <!-- VISTA DE CATÁLOGOS GENÉRICOS -->
                 <template v-else>
