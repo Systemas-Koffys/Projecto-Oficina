@@ -449,12 +449,12 @@ export const useMainStore = defineStore('mainStore', () => {
       }));
       store.usuarios = allPersonal.filter(p => p.username && p.username.trim() !== '');
 
-      // Cerrar sesión en tiempo real si el administrador desactiva su cuenta
+      // Cerrar sesión en tiempo real si el administrador desactiva su cuenta, le quita el acceso o se elimina su perfil
       if (uiState.user) {
         const matchingProfile = allPersonal.find(p => p.id === uiState.user.id);
-        if (matchingProfile && matchingProfile.estado !== 'Activo') {
+        if (!matchingProfile || matchingProfile.estado !== 'Activo' || !matchingProfile.username) {
           logout();
-          showToast("Su cuenta ha sido suspendida por el administrador.", "error");
+          showToast("Su acceso ha sido revocado por el administrador.", "error");
         }
       }
     }, (error) => {
@@ -647,9 +647,9 @@ export const useMainStore = defineStore('mainStore', () => {
         }
       }).then((profile) => {
         if (profile) {
-          if (profile.estado !== 'Activo') {
+          if (profile.estado !== 'Activo' || !profile.username) {
             logout();
-            showToast("Su cuenta ha sido suspendida por el administrador.", "error");
+            showToast("Su acceso ha sido revocado por el administrador.", "error");
             return;
           }
           const formattedUser = {
@@ -1292,7 +1292,15 @@ export const useMainStore = defineStore('mainStore', () => {
             throw new Error('La contraseña es requerida para habilitar el acceso.');
           }
           const email = datos.email || `${datos.username.toLowerCase().replace(/\s+/g, '')}@sistemaskoffys.com`;
-          await registerUserInSecondaryApp(email, datos.password);
+          try {
+            await registerUserInSecondaryApp(email, datos.password);
+          } catch (authError) {
+            if (authError.code === 'auth/email-already-in-use') {
+              console.warn("User already exists in Firebase Auth. Re-using existing auth account.");
+            } else {
+              throw authError;
+            }
+          }
           datos.email = email;
         }
 

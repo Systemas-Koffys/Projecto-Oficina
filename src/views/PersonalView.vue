@@ -435,8 +435,8 @@
                             </div>
                             <!-- Correo -->
                             <div class="col-span-3 flex flex-col">
-                                <label class="label-prime text-emerald-800 dark:text-emerald-400">Correo Institucional</label>
-                                <input v-model="formData.email" type="email" class="form-input-prime border-emerald-100 focus:border-emerald-500" placeholder="correo@tarija.bo">
+                                <label class="label-prime text-emerald-800 dark:text-emerald-400">Correo Institucional <span class="text-red-500 font-black">*</span></label>
+                                <input v-model="formData.email" type="email" required class="form-input-prime border-emerald-100 focus:border-emerald-500" placeholder="correo@tarija.bo">
                             </div>
 
                             <!-- CASO A: NUEVA CUENTA (Crear) -->

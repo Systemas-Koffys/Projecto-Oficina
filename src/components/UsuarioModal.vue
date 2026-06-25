@@ -81,8 +81,8 @@
                             </select>
                         </div>
                         <div class="col-span-2 flex flex-col">
-                            <label class="label-prime">Correo Institucional</label>
-                            <input v-model="form.email" type="email" class="form-input-prime" placeholder="correo@tarija.bo">
+                            <label class="label-prime">Correo Institucional <span class="text-red-500 font-black">*</span></label>
+                            <input v-model="form.email" type="email" required class="form-input-prime" placeholder="correo@tarija.bo">
                         </div>
                     </div>
                 </div>
@@ -356,6 +356,10 @@ const handleSubmit = async () => {
     let success = false
     if (props.userData?.id) {
         success = await updateUsuario(props.userData.id, payload)
+    } else if (form.personalId) {
+        // Habilitar acceso a personal existente sin duplicar el registro
+        payload.password = form.password
+        success = await mainStore.updateCatalogo('tecnicos', form.personalId, payload)
     } else {
         success = await addUsuario(payload)
     }
