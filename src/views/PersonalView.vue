@@ -607,7 +607,7 @@
 import { ref, computed, reactive, watch } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
-const { store, uiState, updateCatalogo, deleteCatalogo, addCatalogo, showToast } = mainStore
+const { store, uiState, updateCatalogo, deleteCatalogo, addCatalogo, showToast, restablecerPasswordPorCorreo } = mainStore
 
 import { 
     Users, HardHat, Truck, Trees, Search, Plus, 
