@@ -18,5 +18,25 @@ jobs:
         run: |
           echo "$FIREBASE_KEY" > service-account.json
           export GOOGLE_APPLICATION_CREDENTIALS=service-account.json
-          npx firebase-tools deploy --only hosting --project sistema-arboricultura-tarija
-          rm service-account.json
+          
+          # Ejecutar deploy y capturar salida
+          set +e
+          npx firebase-tools deploy --only hosting --project sistema-arboricultura-tarija > deploy_output.log 2>&1
+          DEPLOY_EXIT_CODE=$?
+          set -e
+          
+          # Mostrar la salida en la consola
+          cat deploy_output.log
+          
+          # Verificar si falló pero es por la versión activa
+          if [ $DEPLOY_EXIT_CODE -ne 0 ]; then
+            if grep -q "is the current active version" deploy_output.log; then
+              echo "✅ Despliegue completado con éxito (la versión ya está activa en Firebase)."
+              DEPLOY_EXIT_CODE=0
+            else
+              echo "❌ Error real durante el despliegue."
+            fi
+          fi
+          
+          rm service-account.json deploy_output.log
+          exit $DEPLOY_EXIT_CODE
