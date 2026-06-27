@@ -261,7 +261,7 @@ const submitPortal = async () => {
 
   const res = await addSolicitud({ ...form })
   if (res.success) {
-    ticketId.value = `SOL-${Math.floor(1000 + Math.random() * 9000)}`
+    ticketId.value = res.codigo_anual ? `SOL-${res.codigo_anual}` : `SOL-${Math.floor(1000 + Math.random() * 9000)}`
     submitted.value = true
   }
   loading.value = false

@@ -1110,7 +1110,7 @@ export const useMainStore = defineStore('mainStore', () => {
         detalles: { codigo_anual, solicitante: docData.solicitante_nombre }
       });
 
-      return { success: true, id_solicitud };
+      return { success: true, id_solicitud, codigo_anual };
     } catch (error) {
       console.error("Error al guardar solicitud:", error);
       return { success: false, error: error.message || 'Error de conexión' };
