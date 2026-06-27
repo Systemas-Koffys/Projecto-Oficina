@@ -70,8 +70,35 @@ const ejecutarConfirmacion = async () => {
 }
 
 const handleBackup = () => {
-    window.location.href = `/api/backup?token=${uiState.token}`
-    showToast('Iniciando descarga del respaldo...', 'success')
+    try {
+        // Exportar todos los catálogos del store como JSON descargable
+        const backup = {
+            exported_at: new Date().toISOString(),
+            version: packageInfo.version,
+            sistema: 'ArborGest - G.A.M.T.',
+            catalogs: {
+                especies: store.especies,
+                acciones: store.acciones,
+                barrios: store.barrios,
+                distritos: store.distritos,
+                instituciones: store.instituciones,
+                tipos_institucion: store.tipos_institucion,
+                tecnicos: store.tecnicos,
+                solicitudes_total: store.solicitudes.length,
+            }
+        }
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `respaldo-arborgest-${new Date().toISOString().split('T')[0]}.json`
+        a.click()
+        URL.revokeObjectURL(url)
+        showToast('Respaldo de catálogos descargado correctamente', 'success')
+    } catch (e) {
+        console.error('Error al generar respaldo:', e)
+        showToast('No se pudo generar el respaldo', 'error')
+    }
 }
 
 const handleLogoUpload = (e, type) => {
@@ -337,13 +364,18 @@ const getOptions = (optionKey) => store[optionKey] || []
                 <button v-for="cat in categorias" :key="cat.id" 
                     @click="cambiarCategoria(cat)"
                     :class="[
-                        'flex items-center gap-4 p-5 rounded-[1.5rem] font-bold transition-all border shadow-sm',
+                        'group flex items-center gap-4 p-5 rounded-[1.5rem] font-bold transition-all duration-200 border shadow-sm',
                         categoriaActiva.id === cat.id 
-                            ? 'bg-accent text-[color:var(--text-on-accent)] border-accent shadow-accent/20 translate-x-2' 
-                            : 'bg-card-main text-main border-main hover:border-accent/50 hover:bg-accent/5'
+                            ? 'bg-accent text-[color:var(--text-on-accent)] border-accent shadow-accent/20 translate-x-2 shadow-lg' 
+                            : 'bg-card-main text-main border-main hover:border-accent/60 hover:bg-accent/8 hover:translate-x-1 hover:shadow-md hover:shadow-accent/10'
                     ]"
                 >
-                    <component :is="cat.icono" class="w-6 h-6 shrink-0 select-none" />
+                    <component :is="cat.icono" 
+                        :class="[
+                            'w-6 h-6 shrink-0 select-none transition-all duration-200',
+                            categoriaActiva.id === cat.id ? 'scale-110' : 'group-hover:scale-110 group-hover:rotate-6'
+                        ]" 
+                    />
                     <span class="text-xs uppercase tracking-widest text-left">{{ cat.nombre }}</span>
                 </button>
             </div>
@@ -423,11 +455,11 @@ const getOptions = (optionKey) => store[optionKey] || []
                                 <Database class="w-8 h-8" />
                             </div>
                             <div>
-                                <h4 class="text-xl font-black text-main">Copia de Seguridad</h4>
-                                <p class="text-sm text-muted mt-2">Genera un respaldo completo de la base de datos MySQL en formato SQL.</p>
+                                <h4 class="text-xl font-black text-main">Exportar Catálogos</h4>
+                                <p class="text-sm text-muted mt-2">Descarga un respaldo en formato JSON con todos los catálogos del sistema (especies, acciones, barrios, distritos, etc.) almacenados en Firebase Firestore.</p>
                             </div>
                             <button @click="handleBackup" class="w-full bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-accent/20 active:scale-95">
-                                Descargar Respaldo
+                                Descargar Respaldo JSON
                             </button>
                         </div>
 
