@@ -67,15 +67,15 @@
                     <div class="grid grid-cols-2 gap-5">
                         <div class="flex flex-col">
                             <label class="label-prime">Nivel de Acceso <span class="text-red-500 font-black">*</span></label>
-                            <select v-model="form.role" required class="form-input-prime" :disabled="(userData && userData.role === 'ROOT') || (userData && userData.id === uiState.user?.id)">
+                            <select v-model="form.role" required class="form-input-prime" :disabled="userData && (userData.role === 'ROOT' || userData.id === uiState.user?.id)">
                                 <option value="USER">Usuario (Acceso básico)</option>
                                 <option value="ADMIN">Administrador</option>
-                                <option v-if="(userData && userData.role === 'ROOT') || (userData && userData.id === uiState.user?.id)" value="ROOT">Superusuario (ROOT)</option>
+                                <option v-if="uiState.user?.role === 'ROOT' || (userData && userData.role === 'ROOT')" value="ROOT">Superusuario (ROOT)</option>
                             </select>
                         </div>
                         <div class="flex flex-col">
                             <label class="label-prime">Estado de Cuenta <span class="text-red-500 font-black">*</span></label>
-                            <select v-model="form.estado" required class="form-input-prime" :disabled="userData && userData.id === uiState.user?.id">
+                            <select v-model="form.estado" required class="form-input-prime" :disabled="userData && (userData.id === uiState.user?.id || userData.role === 'ROOT')">
                                 <option value="Activo">Activo (Habilitado)</option>
                                 <option value="Inactivo">Inactivo (Suspendido)</option>
                             </select>
@@ -83,6 +83,9 @@
                         <div class="col-span-2 flex flex-col">
                             <label class="label-prime">Correo Institucional <span class="text-red-500 font-black">*</span></label>
                             <input v-model="form.email" type="email" required class="form-input-prime" placeholder="correo@tarija.bo">
+                            <p v-if="form.email && form.email.endsWith('@sistemaskoffys.com')" class="text-[10px] text-amber-600 font-bold mt-1.5 ml-1 flex items-center gap-1.5 animate-pulse">
+                                <span>⚠️ El correo es ficticio (@sistemaskoffys.com). Este usuario no recibirá correos de restablecimiento de contraseña.</span>
+                            </p>
                         </div>
                     </div>
                 </div>

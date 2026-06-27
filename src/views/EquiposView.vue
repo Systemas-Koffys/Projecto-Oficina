@@ -221,12 +221,12 @@ const assignToAny = async (p) => {
 
 const assignToTeam = async (p, teamId) => {
     const ok = await updateCatalogo('tecnicos', p.id, { id_equipo: teamId, rol_equipo: p.cargo || 'Sin Rol' })
-    if (ok) showToast(`${p.nombre} asignado al Equipo ${teamId}`, 'success')
+    if (ok === true) showToast(`${p.nombre} asignado al Equipo ${teamId}`, 'success')
 }
 
 const removeFromTeam = async (p) => {
     const ok = await updateCatalogo('tecnicos', p.id, { id_equipo: null, rol_equipo: null })
-    if (ok) showToast(`${p.nombre} liberado del equipo`, 'success')
+    if (ok === true) showToast(`${p.nombre} liberado del equipo`, 'success')
 }
 </script>
 

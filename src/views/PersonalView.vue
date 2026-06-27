@@ -419,16 +419,16 @@
                             <!-- Nivel de acceso -->
                             <div class="col-span-1 flex flex-col">
                                 <label class="label-prime text-emerald-800 dark:text-emerald-400">Nivel de Acceso <span class="text-red-500 font-black">*</span></label>
-                                <select v-model="formData.role" :disabled="editingPerson && editingPerson.id === uiState.user?.id" required class="form-input-prime border-emerald-100 focus:border-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed">
+                                <select v-model="formData.role" :disabled="editingPerson && (editingPerson.id === uiState.user?.id || editingPerson.role === 'ROOT')" required class="form-input-prime border-emerald-100 focus:border-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed">
                                     <option value="USER">Usuario (Acceso básico)</option>
                                     <option value="ADMIN">Administrador</option>
-                                    <option value="ROOT">Superusuario (ROOT)</option>
+                                    <option v-if="uiState.user?.role === 'ROOT' || (editingPerson && editingPerson.role === 'ROOT')" value="ROOT">Superusuario (ROOT)</option>
                                 </select>
                             </div>
                             <!-- Estado -->
                             <div class="col-span-1 flex flex-col">
                                 <label class="label-prime text-emerald-800 dark:text-emerald-400">Estado de Cuenta <span class="text-red-500 font-black">*</span></label>
-                                <select v-model="formData.estado" :disabled="editingPerson && editingPerson.id === uiState.user?.id" required class="form-input-prime border-emerald-100 focus:border-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed">
+                                <select v-model="formData.estado" :disabled="editingPerson && (editingPerson.id === uiState.user?.id || editingPerson.role === 'ROOT')" required class="form-input-prime border-emerald-100 focus:border-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed">
                                     <option value="Activo">Activo (Habilitado)</option>
                                     <option value="Inactivo">Inactivo (Suspendido)</option>
                                 </select>
@@ -437,6 +437,9 @@
                             <div class="col-span-3 flex flex-col">
                                 <label class="label-prime text-emerald-800 dark:text-emerald-400">Correo Institucional <span class="text-red-500 font-black">*</span></label>
                                 <input v-model="formData.email" type="email" required class="form-input-prime border-emerald-100 focus:border-emerald-500" placeholder="correo@tarija.bo">
+                                <p v-if="formData.email && formData.email.endsWith('@sistemaskoffys.com')" class="text-[10px] text-amber-600 dark:text-amber-400 font-bold mt-1.5 ml-1 flex items-center gap-1.5 animate-pulse">
+                                    <span>⚠️ El correo es ficticio (@sistemaskoffys.com). Este usuario no recibirá correos de restablecimiento de contraseña.</span>
+                                </p>
                             </div>
 
                             <!-- CASO A: NUEVA CUENTA (Crear) -->
@@ -900,11 +903,11 @@ const saveData = async () => {
             ? await updateCatalogo('tecnicos', editingPerson.value.id, payload) 
             : await addCatalogo('tecnicos', payload)
         
-        if (ok) {
+        if (ok === true) {
             showToast('Datos guardados correctamente', 'success')
             showModal.value = false
         } else {
-            showToast('Error al guardar: Verifique los datos', 'error')
+            showToast(ok || 'Error al guardar: Verifique los datos', 'error')
         }
     } catch (e) {
         console.error(e)

@@ -165,11 +165,11 @@ const guardar = async () => {
     } else {
         ok = await addCatalogo(tabla, formData.value)
     }
-    if (ok) {
+    if (ok === true) {
         showToast('Guardado correctamente', 'success')
         showModal.value = false
     } else {
-        showToast('Error al guardar', 'error')
+        showToast(ok || 'Error al guardar', 'error')
     }
 }
 

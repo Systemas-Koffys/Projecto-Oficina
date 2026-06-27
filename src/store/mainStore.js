@@ -1275,7 +1275,7 @@ export const useMainStore = defineStore('mainStore', () => {
       return true;
     } catch (error) {
       console.error(`Error al agregar en catalogo ${tabla}:`, error);
-      return false;
+      return error.message || 'Error al agregar en catálogo';
     }
   }
 
@@ -1356,7 +1356,7 @@ export const useMainStore = defineStore('mainStore', () => {
       return false;
     } catch (error) {
       console.error(`Error al actualizar en catalogo ${tabla}:`, error);
-      return false;
+      return error.message || 'Error al actualizar en catálogo';
     }
   }
 

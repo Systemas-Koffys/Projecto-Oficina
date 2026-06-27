@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashboardView from '../views/DashboardView.vue'
+import { useMainStore } from '../store/mainStore.js'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,4 +21,41 @@ const router = createRouter({
     { path: '/acerca', name: 'acerca', component: () => import('../views/AcercaDeView.vue') }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  const mainStore = useMainStore()
+  const user = mainStore.uiState.user
+
+  if (to.meta.public) {
+    next()
+    return
+  }
+
+  if (!user) {
+    next()
+    return
+  }
+
+  const role = user.role
+  const path = to.path
+
+  if (role === 'USER') {
+    const allowed = ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/acerca']
+    if (!allowed.includes(path)) {
+      mainStore.showToast('No tiene permisos para acceder a esta sección.', 'error')
+      next('/')
+      return
+    }
+  } else if (role === 'ADMIN') {
+    const allowed = ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/personal', '/equipos', '/inventario', '/acerca']
+    if (!allowed.includes(path)) {
+      mainStore.showToast('No tiene permisos para acceder a esta sección.', 'error')
+      next('/')
+      return
+    }
+  }
+
+  next()
+})
+
 export default router
