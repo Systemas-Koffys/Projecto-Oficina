@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
 const { store, uiState, registrarImpresion, deleteImpresion, updateImpresionName, showToast, fetchImpresiones } = mainStore
-import { Printer, History, Trash2, Edit3, Eye, FileText, Filter, ChevronRight, Search, Download } from 'lucide-vue-next'
+import { Printer, History, Trash2, Edit3, Eye, FileText, Filter, ChevronRight, Search, Download, AlertTriangle } from 'lucide-vue-next'
 
 const activeTab = ref('generador')
 const editId = ref(null)
@@ -351,10 +351,11 @@ const handleReimprimir = (imp) => {
         }
     }
     // Esperar un tick para que Vue aplique los filtros antes de imprimir
+    activeTab.value = 'generador'
     setTimeout(() => {
         showToast('Re-generando vista de impresión para: ' + imp.nombre_reporte, 'success')
         window.print()
-    }, 100)
+    }, 200)
 }
 
 const confirmarEliminar = (imp) => {
