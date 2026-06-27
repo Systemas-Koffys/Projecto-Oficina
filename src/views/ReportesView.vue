@@ -233,6 +233,29 @@ const imprimirHojaRuta = () => {
         filtroEstado.value ? `Estado: ${filtroEstado.value}` : null
     ].filter(Boolean).join(' | ')
 
+    // Snapshot completo de todos los filtros para poder re-generar el reporte exacto
+    const filtrosSnapshot = JSON.stringify({
+        filtroEstado: filtroEstado.value,
+        filtroDistrito: filtroDistrito.value,
+        filtroBarrio: filtroBarrio.value,
+        filtroTecnico: filtroTecnico.value,
+        filtroTipoInstitucion: filtroTipoInstitucion.value,
+        filtroAccion: filtroAccion.value,
+        filtroUrgencia: filtroUrgencia.value,
+        filtroEspecie: filtroEspecie.value,
+        filtroFechaIngresoDesde: filtroFechaIngresoDesde.value,
+        filtroFechaIngresoHasta: filtroFechaIngresoHasta.value,
+        filtroFechaVerifDesde: filtroFechaVerifDesde.value,
+        filtroFechaVerifHasta: filtroFechaVerifHasta.value,
+        filtroSetar: filtroSetar.value,
+        filtroPlataforma: filtroPlataforma.value,
+        filtroArbolSeco: filtroArbolSeco.value,
+        filtroEmergencia: filtroEmergencia.value,
+        filtroSegundaNota: filtroSegundaNota.value,
+        filtroFichaTecnica: filtroFichaTecnica.value,
+        filtroProcede: filtroProcede.value,
+    })
+
     const nombreFinal = nombreHojaRuta.value || `Hoja de Ruta - ${getBarrio(filtroBarrio.value)} (${new Date().toLocaleDateString()})`
 
     // Disparar la impresión con un pequeño delay para asegurar la reactividad
@@ -244,6 +267,7 @@ const imprimirHojaRuta = () => {
             nombre_reporte: nombreFinal,
             tipo_reporte: 'Hoja de Ruta',
             filtros_aplicados: filtrosTxt,
+            filtros_snapshot: filtrosSnapshot,
             detalles: `Consolidado de ${solicitudesFiltradas.value.length} trámites.`
         }).catch(e => console.error("Error al registrar impresión:", e))
 
@@ -299,8 +323,38 @@ const exportarExcel = () => {
 }
 
 const handleReimprimir = (imp) => {
-    showToast('Re-generando vista de impresión para: ' + imp.nombre_reporte, 'success')
-    window.print()
+    // Restaurar todos los filtros guardados al momento de generar el reporte
+    if (imp.filtros_snapshot) {
+        try {
+            const snap = JSON.parse(imp.filtros_snapshot)
+            filtroEstado.value = snap.filtroEstado ?? 'En espera'
+            filtroDistrito.value = snap.filtroDistrito ?? ''
+            filtroBarrio.value = snap.filtroBarrio ?? ''
+            filtroTecnico.value = snap.filtroTecnico ?? ''
+            filtroTipoInstitucion.value = snap.filtroTipoInstitucion ?? ''
+            filtroAccion.value = snap.filtroAccion ?? ''
+            filtroUrgencia.value = snap.filtroUrgencia ?? ''
+            filtroEspecie.value = snap.filtroEspecie ?? ''
+            filtroFechaIngresoDesde.value = snap.filtroFechaIngresoDesde ?? ''
+            filtroFechaIngresoHasta.value = snap.filtroFechaIngresoHasta ?? ''
+            filtroFechaVerifDesde.value = snap.filtroFechaVerifDesde ?? ''
+            filtroFechaVerifHasta.value = snap.filtroFechaVerifHasta ?? ''
+            filtroSetar.value = snap.filtroSetar ?? ''
+            filtroPlataforma.value = snap.filtroPlataforma ?? ''
+            filtroArbolSeco.value = snap.filtroArbolSeco ?? ''
+            filtroEmergencia.value = snap.filtroEmergencia ?? ''
+            filtroSegundaNota.value = snap.filtroSegundaNota ?? ''
+            filtroFichaTecnica.value = snap.filtroFichaTecnica ?? ''
+            filtroProcede.value = snap.filtroProcede ?? ''
+        } catch (e) {
+            console.warn('No se pudo restaurar filtros del reporte:', e)
+        }
+    }
+    // Esperar un tick para que Vue aplique los filtros antes de imprimir
+    setTimeout(() => {
+        showToast('Re-generando vista de impresión para: ' + imp.nombre_reporte, 'success')
+        window.print()
+    }, 100)
 }
 
 const confirmarEliminar = (imp) => {
@@ -329,9 +383,19 @@ const guardarNuevoNombre = async () => {
     }
 }
 
-const formatFecha = (str) => {
-    if (!str) return '—'
-    const f = new Date(str)
+const formatFecha = (val) => {
+    if (!val) return '—'
+    // Firestore Timestamp object (tiene método toDate())
+    let f
+    if (val && typeof val.toDate === 'function') {
+        f = val.toDate()
+    } else if (val && typeof val === 'object' && val.seconds) {
+        // Formato plano { seconds, nanoseconds }
+        f = new Date(val.seconds * 1000)
+    } else {
+        f = new Date(val)
+    }
+    if (isNaN(f.getTime())) return '—'
     return f.toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 

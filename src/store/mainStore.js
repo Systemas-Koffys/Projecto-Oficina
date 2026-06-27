@@ -119,6 +119,10 @@ export const useMainStore = defineStore('mainStore', () => {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
+        // Rellenar con fondo blanco para que la transparencia de PNGs
+        // no se convierta en negro al exportar como JPEG
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
 
         const compressed = canvas.toDataURL('image/jpeg', quality);
@@ -802,6 +806,7 @@ export const useMainStore = defineStore('mainStore', () => {
         usuario: uiState.user?.nombre || 'Desconocido',
         fecha_impresion: serverTimestamp(),
         filtros_aplicados: datos.filtros_aplicados || null,
+        filtros_snapshot: datos.filtros_snapshot || null,
         detalles: datos.detalles || null,
         comunicacion_interna: datos.comunicacion_interna || null
       };
