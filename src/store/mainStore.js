@@ -666,10 +666,42 @@ export const useMainStore = defineStore('mainStore', () => {
           const userToSave = { ...formattedUser };
           delete userToSave.foto;
           localStorage.setItem('user', JSON.stringify(userToSave));
+
+          // Calcular desconexión previa por tiempo o clock skew
+          let lastActiveMs = 0;
+          if (profile.lastActive) {
+            if (typeof profile.lastActive.toDate === 'function') {
+              lastActiveMs = profile.lastActive.toDate().getTime();
+            } else if (profile.lastActive.seconds) {
+              lastActiveMs = profile.lastActive.seconds * 1000;
+            } else {
+              lastActiveMs = new Date(profile.lastActive).getTime();
+            }
+          }
+          const nowMs = Date.now();
+          const wasDisconnected = !lastActiveMs || Math.abs(nowMs - lastActiveMs) > 300000; // 5 minutos
+
+          if (!sessionStorage.getItem('loginTime') || wasDisconnected) {
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            uiState.loginTime = now;
+            sessionStorage.setItem('loginTime', now);
+            sessionStorage.setItem('loginTimeFull', new Date().toISOString());
+          } else {
+            uiState.loginTime = sessionStorage.getItem('loginTime');
+          }
           
           initFirebaseSync();
           startPresenceHeartbeat();
         } else {
+          // Fallback if profile doesn't exist yet in personal collection
+          if (!sessionStorage.getItem('loginTime')) {
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            uiState.loginTime = now;
+            sessionStorage.setItem('loginTime', now);
+            sessionStorage.setItem('loginTimeFull', new Date().toISOString());
+          } else {
+            uiState.loginTime = sessionStorage.getItem('loginTime');
+          }
           initFirebaseSync();
           startPresenceHeartbeat();
         }
@@ -678,16 +710,6 @@ export const useMainStore = defineStore('mainStore', () => {
         initFirebaseSync();
         startPresenceHeartbeat();
       });
-
-      // Inicializar el temporizador de sesión si no existe en sessionStorage
-      if (!sessionStorage.getItem('loginTime')) {
-        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        uiState.loginTime = now;
-        sessionStorage.setItem('loginTime', now);
-        sessionStorage.setItem('loginTimeFull', new Date().toISOString());
-      } else {
-        uiState.loginTime = sessionStorage.getItem('loginTime');
-      }
     } else {
       logout();
     }

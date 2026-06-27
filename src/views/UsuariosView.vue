@@ -32,7 +32,7 @@ const isUserOnline = (user) => {
         lastActiveMs = new Date(user.lastActive).getTime()
     }
     
-    return (now.value - lastActiveMs) < 150000 // 2.5 minutos
+    return Math.abs(now.value - lastActiveMs) < 300000 // 5 minutos (tolerancia a clock-skew)
 }
 import UsuarioModal from '../components/UsuarioModal.vue'
 import { 
