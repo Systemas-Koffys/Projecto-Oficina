@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import * as XLSX from 'xlsx'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
-const { store, uiState, registrarImpresion, deleteImpresion, updateImpresionName, showToast, fetchImpresiones } = mainStore
+const { store, uiState, registrarImpresion, deleteImpresion, updateImpresionName, showToast, fetchImpresiones, responsableArea, jefeUnidad } = mainStore
 import { Printer, History, Trash2, Edit3, Eye, FileText, Filter, ChevronRight, Search, Download, AlertTriangle } from 'lucide-vue-next'
 
 const activeTab = ref('generador')
@@ -845,11 +845,11 @@ const limpiarFiltros = () => {
                     <p class="text-[8px] text-gray-400">Firma y Sello</p>
                 </div>
                 <div class="border-t border-black pt-2">
-                    <p class="text-[10px] font-black uppercase">Ing. Cimar Farfan</p>
-                    <p class="text-[8px] text-gray-400">Encargado de Arboricultura</p>
+                    <p class="text-[10px] font-black uppercase">{{ responsableArea }}</p>
+                    <p class="text-[8px] text-gray-400">Responsable de Área</p>
                 </div>
                 <div class="border-t border-black pt-2">
-                    <p class="text-[10px] font-black uppercase">Ing. Raul Arteaga</p>
+                    <p class="text-[10px] font-black uppercase">{{ jefeUnidad }}</p>
                     <p class="text-[8px] text-gray-400">Jefe de Unidad</p>
                 </div>
             </div>

@@ -473,12 +473,12 @@
               </div>
               <div class="print-firma">
                 <div class="print-firma-linea"></div>
-                <p class="print-firma-nombre">Ing. Cimar Farfan</p>
-                <p class="print-firma-cargo">Encargado de Arboricultura</p>
+                <p class="print-firma-nombre">{{ responsableArea }}</p>
+                <p class="print-firma-cargo">Responsable de Área</p>
               </div>
               <div class="print-firma">
                 <div class="print-firma-linea"></div>
-                <p class="print-firma-nombre">Ing. Raul Arteaga</p>
+                <p class="print-firma-nombre">{{ jefeUnidad }}</p>
                 <p class="print-firma-cargo">Jefe de Unidad</p>
               </div>
             </div>
@@ -501,7 +501,7 @@ import { onMounted, onUnmounted, reactive, computed, ref, watch } from 'vue'
 import { MapPin, Filter, X } from 'lucide-vue-next'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
-const { store, uiState } = mainStore
+const { store, uiState, responsableArea, jefeUnidad } = mainStore
 
 const solicitudSeleccionada = ref(null)
 

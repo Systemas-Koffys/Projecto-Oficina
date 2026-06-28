@@ -673,13 +673,13 @@
                         </div>
                         <div class="space-y-1">
                             <div class="w-40 border-t border-slate-900 mx-auto"></div>
-                            <p class="font-bold">Firma Encargado de Arboricultura</p>
-                            <p class="text-[9px] text-slate-500 uppercase">Ing. Cimar Farfan</p>
+                            <p class="font-bold">Firma Responsable de Área</p>
+                            <p class="text-[9px] text-slate-500 uppercase">{{ responsableArea }}</p>
                         </div>
                         <div class="space-y-1">
                             <div class="w-40 border-t border-slate-900 mx-auto"></div>
                             <p class="font-bold">Firma Jefe de Unidad</p>
-                            <p class="text-[9px] text-slate-500 uppercase">Ing. Raul Arteaga</p>
+                            <p class="text-[9px] text-slate-500 uppercase">{{ jefeUnidad }}</p>
                         </div>
                     </div>
 
@@ -1638,12 +1638,12 @@
                 </div>
                 <div class="print-firma text-center">
                     <div class="print-firma-linea w-40 border-b border-black mx-auto mb-2 h-16"></div>
-                    <p class="print-firma-nombre font-black text-[9px] uppercase">Ing. Cimar Farfan</p>
-                    <p class="print-firma-cargo text-[8px] text-slate-500 uppercase font-bold">Encargado de Arboricultura</p>
+                    <p class="print-firma-nombre font-black text-[9px] uppercase">{{ responsableArea }}</p>
+                    <p class="print-firma-cargo text-[8px] text-slate-500 uppercase font-bold">Responsable de Área</p>
                 </div>
                 <div class="print-firma text-center">
                     <div class="print-firma-linea w-40 border-b border-black mx-auto mb-2 h-16"></div>
-                    <p class="print-firma-nombre font-black text-[9px] uppercase">Ing. Raul Arteaga</p>
+                    <p class="print-firma-nombre font-black text-[9px] uppercase">{{ jefeUnidad }}</p>
                     <p class="print-firma-cargo text-[8px] text-slate-500 uppercase font-bold">Jefe de Unidad</p>
                 </div>
             </div>
@@ -1660,7 +1660,7 @@ import {
 } from 'lucide-vue-next'
 
 const mainStore = useMainStore()
-const { store, uiState, showToast } = mainStore
+const { store, uiState, showToast, responsableArea, jefeUnidad } = mainStore
 
 // Tabs
 const activeTab = ref('stock')

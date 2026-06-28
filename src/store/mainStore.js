@@ -1,5 +1,5 @@
 import { defineStore, setActivePinia } from 'pinia';
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import { pinia } from './pinia.js';
 import { auth, db, firebaseConfig } from '../firebase/config.js';
 import { 
@@ -53,6 +53,18 @@ export const useMainStore = defineStore('mainStore', () => {
     inventarioActivos: [],
     inventarioConsumibles: [],
     inventarioMovimientos: []
+  });
+
+  const responsableArea = computed(() => {
+    const p = store.tecnicos.find(t => t.cargo === 'Responsable de Área');
+    if (!p) return 'Ing. Cimar Farfan';
+    return p.nombre.startsWith('Ing.') || p.nombre.startsWith('Lic.') ? p.nombre : `Ing. ${p.nombre}`;
+  });
+
+  const jefeUnidad = computed(() => {
+    const p = store.tecnicos.find(t => t.cargo === 'Jefe de Unidad');
+    if (!p) return 'Ing. Raul Arteaga';
+    return p.nombre.startsWith('Ing.') || p.nombre.startsWith('Lic.') ? p.nombre : `Ing. ${p.nombre}`;
   });
 
   const uiState = reactive({
@@ -1241,6 +1253,14 @@ export const useMainStore = defineStore('mainStore', () => {
   async function addCatalogo(tabla, datos) {
     try {
       if (tabla === 'personal' || tabla === 'tecnicos') {
+        const UNIQUE_CARGOS = ['Responsable de Área', 'Jefe de Unidad', 'Técnico de sistemas'];
+        if (datos.cargo && UNIQUE_CARGOS.includes(datos.cargo)) {
+          const existente = store.tecnicos.find(t => t.cargo === datos.cargo);
+          if (existente) {
+            return `Ya existe un funcionario asignado como "${datos.cargo}" (${existente.nombre}). Este cargo es único e indivisible.`;
+          }
+        }
+
         let id = String(datos.id || Date.now());
         
         if (datos.username && datos.password) {
@@ -1328,6 +1348,14 @@ export const useMainStore = defineStore('mainStore', () => {
   async function updateCatalogo(tabla, id, datos) {
     try {
       if (tabla === 'personal' || tabla === 'tecnicos') {
+        const UNIQUE_CARGOS = ['Responsable de Área', 'Jefe de Unidad', 'Técnico de sistemas'];
+        if (datos.cargo && UNIQUE_CARGOS.includes(datos.cargo)) {
+          const existente = store.tecnicos.find(t => t.cargo === datos.cargo && String(t.id) !== String(id));
+          if (existente) {
+            return `Ya existe un funcionario asignado como "${datos.cargo}" (${existente.nombre}). Este cargo es único e indivisible.`;
+          }
+        }
+
         const docRef = doc(db, 'personal', String(id));
         const docSnap = await getDoc(docRef);
         if (!docSnap.exists()) return false;
@@ -2081,6 +2109,8 @@ export const useMainStore = defineStore('mainStore', () => {
     updateEstadoDevolucion,
     addMantenimientoActivo,
     fetchMantenimientosActivo,
-    fetchRepuestosActivo
+    fetchRepuestosActivo,
+    responsableArea,
+    jefeUnidad
   };
 });
