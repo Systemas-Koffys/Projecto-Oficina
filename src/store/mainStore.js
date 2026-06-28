@@ -1389,26 +1389,28 @@ export const useMainStore = defineStore('mainStore', () => {
         }
 
         const formatted = {
-          nombre: datos.nombre,
-          cedula_id: datos.cedula_id,
-          cargo: datos.cargo,
-          celular: datos.celular || null,
-          tipo_contrato: datos.tipo_contrato || null,
-          username: datos.username || null,
-          role: datos.role || 'TECNICO',
-          email: datos.email || '',
-          estado: datos.estado || 'Activo',
-          id_equipo: datos.id_equipo || null,
-          rol_equipo: datos.rol_equipo || null,
-          fecha_ingreso: datos.fecha_ingreso || null,
-          fecha_nacimiento: datos.fecha_nacimiento || null,
-          tipo_sangre: datos.tipo_sangre || null,
-          contacto_emergencia: datos.contacto_emergencia || null,
-          celular_emergencia: datos.celular_emergencia || null
+          nombre: datos.nombre !== undefined ? datos.nombre : existingData.nombre,
+          cedula_id: datos.cedula_id !== undefined ? datos.cedula_id : existingData.cedula_id,
+          cargo: datos.cargo !== undefined ? datos.cargo : existingData.cargo,
+          celular: datos.celular !== undefined ? datos.celular : (existingData.celular || null),
+          tipo_contrato: datos.tipo_contrato !== undefined ? datos.tipo_contrato : (existingData.tipo_contrato || null),
+          username: datos.username !== undefined ? datos.username : (existingData.username || null),
+          role: datos.role !== undefined ? datos.role : (existingData.role || 'TECNICO'),
+          email: datos.email !== undefined ? datos.email : (existingData.email || ''),
+          estado: datos.estado !== undefined ? datos.estado : (existingData.estado || 'Activo'),
+          id_equipo: datos.id_equipo !== undefined ? datos.id_equipo : (existingData.id_equipo || null),
+          rol_equipo: datos.rol_equipo !== undefined ? datos.rol_equipo : (existingData.rol_equipo || null),
+          fecha_ingreso: datos.fecha_ingreso !== undefined ? datos.fecha_ingreso : (existingData.fecha_ingreso || null),
+          fecha_nacimiento: datos.fecha_nacimiento !== undefined ? datos.fecha_nacimiento : (existingData.fecha_nacimiento || null),
+          tipo_sangre: datos.tipo_sangre !== undefined ? datos.tipo_sangre : (existingData.tipo_sangre || null),
+          contacto_emergencia: datos.contacto_emergencia !== undefined ? datos.contacto_emergencia : (existingData.contacto_emergencia || null),
+          celular_emergencia: datos.celular_emergencia !== undefined ? datos.celular_emergencia : (existingData.celular_emergencia || null)
         };
 
         if (datos.foto !== undefined) {
           formatted.foto = datos.foto;
+        } else if (existingData.foto !== undefined) {
+          formatted.foto = existingData.foto;
         }
 
         await updateDoc(docRef, formatted);

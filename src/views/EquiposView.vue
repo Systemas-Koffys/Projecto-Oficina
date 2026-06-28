@@ -163,7 +163,7 @@ const activeDragOverSidebar = ref(false)
 const iniciarArrastre = (event, personId) => {
     event.dataTransfer.dropEffect = 'move'
     event.dataTransfer.effectAllowed = 'move'
-    event.dataTransfer.setData('personId', personId)
+    event.dataTransfer.setData('personId', String(personId))
 }
 
 const procesarSoltado = async (event, targetTeamId) => {
@@ -173,8 +173,9 @@ const procesarSoltado = async (event, targetTeamId) => {
     // Si no tiene permisos, no hacer nada
     if (uiState.user?.role === 'USER') return
 
-    const personId = parseInt(event.dataTransfer.getData('personId'))
-    const p = store.tecnicos.find(t => t.id === personId)
+    const personId = event.dataTransfer.getData('personId')
+    if (!personId) return
+    const p = store.tecnicos.find(t => String(t.id) === String(personId))
     if (!p) return
 
     // Si se arrastra al sidebar (targetTeamId === null)
@@ -186,7 +187,7 @@ const procesarSoltado = async (event, targetTeamId) => {
     }
 
     // Si el equipo destino es el mismo, no hacer nada
-    if (p.id_equipo == targetTeamId) return
+    if (String(p.id_equipo) === String(targetTeamId)) return
 
     await assignToTeam(p, targetTeamId)
 }
@@ -202,7 +203,7 @@ const filteredAvailablePersonnel = computed(() => {
 })
 
 const getTeamPersonnel = (teamId) => {
-    return store.tecnicos.filter(p => p.id_equipo == teamId)
+    return store.tecnicos.filter(p => String(p.id_equipo) === String(teamId))
 }
 
 const assignToAny = async (p) => {
