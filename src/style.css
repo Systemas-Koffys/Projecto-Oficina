@@ -224,7 +224,7 @@ svg { stroke: currentColor; }
 }
 
 @media print {
-    .no-print { display: none !important; }
+    .no-print, .toast-container { display: none !important; }
     body { background: white !important; color: black !important; }
 
     /* REGLA MAESTRA DE LAYOUT PARA IMPRESIÓN */
