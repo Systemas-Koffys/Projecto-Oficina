@@ -91,6 +91,13 @@
                         </div>
                     </div>
 
+                    <!-- Desglose por Cargo -->
+                    <div v-if="getTeamPersonnel(n).length > 0" class="px-6 py-2.5 bg-card-main border-b border-main flex flex-wrap gap-1.5 items-center">
+                        <span v-for="b in getTeamBreakdownList(n)" :key="b.cargo" class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-accent/10 text-accent border border-accent/20">
+                            {{ b.cant }} {{ b.cargo }}{{ b.cant > 1 ? (b.cargo.endsWith('r') || b.cargo.endsWith('n') ? 'es' : 's') : '' }}
+                        </span>
+                    </div>
+
                     <!-- Lista de Integrantes (Con scroll interno y max-h para solucionar el bug de desbordamiento) -->
                     <div class="p-6 flex-1 space-y-3 min-h-[400px] overflow-y-auto custom-scrollbar max-h-[480px] transition-all"
                         @dragover.prevent
@@ -204,6 +211,20 @@ const filteredAvailablePersonnel = computed(() => {
 
 const getTeamPersonnel = (teamId) => {
     return store.tecnicos.filter(p => String(p.id_equipo) === String(teamId))
+}
+
+const getTeamBreakdownList = (teamId) => {
+    const members = getTeamPersonnel(teamId)
+    if (members.length === 0) return []
+    
+    const counts = {}
+    members.forEach(m => {
+        let cargo = m.cargo || 'Sin Cargo'
+        if (cargo.startsWith('Técnico')) cargo = 'Técnico'
+        counts[cargo] = (counts[cargo] || 0) + 1
+    })
+    
+    return Object.entries(counts).map(([cargo, cant]) => ({ cargo, cant }))
 }
 
 const assignToAny = async (p) => {
