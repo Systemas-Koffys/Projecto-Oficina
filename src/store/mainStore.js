@@ -1245,8 +1245,17 @@ export const useMainStore = defineStore('mainStore', () => {
         
         if (datos.username && datos.password) {
           const email = datos.email || `${datos.username.toLowerCase().replace(/\s+/g, '')}@sistemaskoffys.com`;
-          const authUid = await registerUserInSecondaryApp(email, datos.password);
-          id = authUid;
+          try {
+            const authUid = await registerUserInSecondaryApp(email, datos.password);
+            id = authUid;
+          } catch (authErr) {
+            const errStr = authErr.code || authErr.message || '';
+            if (errStr.includes('auth/email-already-in-use')) {
+              console.warn("User already exists in Firebase Auth. Re-using existing auth account.");
+            } else {
+              throw authErr;
+            }
+          }
           datos.email = email;
         }
 
@@ -1302,6 +1311,16 @@ export const useMainStore = defineStore('mainStore', () => {
       return true;
     } catch (error) {
       console.error(`Error al agregar en catalogo ${tabla}:`, error);
+      const errStr = error.code || error.message || '';
+      if (errStr.includes('auth/email-already-in-use')) {
+        return 'El correo institucional o usuario ya se encuentra registrado en el sistema.';
+      }
+      if (errStr.includes('auth/weak-password')) {
+        return 'La contraseña es muy débil (debe tener al menos 6 caracteres).';
+      }
+      if (errStr.includes('auth/invalid-email')) {
+        return 'El formato del correo electrónico no es válido.';
+      }
       return error.message || 'Error al agregar en catálogo';
     }
   }
@@ -1383,6 +1402,16 @@ export const useMainStore = defineStore('mainStore', () => {
       return false;
     } catch (error) {
       console.error(`Error al actualizar en catalogo ${tabla}:`, error);
+      const errStr = error.code || error.message || '';
+      if (errStr.includes('auth/email-already-in-use')) {
+        return 'El correo institucional o usuario ya se encuentra registrado en el sistema.';
+      }
+      if (errStr.includes('auth/weak-password')) {
+        return 'La contraseña es muy débil (debe tener al menos 6 caracteres).';
+      }
+      if (errStr.includes('auth/invalid-email')) {
+        return 'El formato del correo electrónico no es válido.';
+      }
       return error.message || 'Error al actualizar en catálogo';
     }
   }
