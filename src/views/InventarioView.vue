@@ -140,7 +140,7 @@
                     <div class="hidden print-only-block mb-4 text-center border-b pb-2 text-slate-900">
                         <h2 class="text-sm font-black uppercase tracking-widest text-slate-500">Gobierno Autónomo Municipal de Tarija</h2>
                         <h1 class="text-base font-black uppercase text-slate-900">Reporte de Inventario de Herramientas, Consumibles y Repuestos</h1>
-                        <p class="text-[9px] font-bold text-slate-500 uppercase">Dirección de Ornato Público - Unidad de Arboricultura</p>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura</p>
                     </div>
 
                     <table class="w-full text-left border-separate border-spacing-y-3 print-table text-main">
@@ -352,7 +352,7 @@
                     <div class="hidden print-only-block mb-4 text-center border-b pb-2 text-slate-900">
                         <h2 class="text-sm font-black uppercase tracking-widest text-slate-500">Gobierno Autónomo Municipal de Tarija</h2>
                         <h1 class="text-base font-black uppercase text-slate-900">Reporte Resumido de Activos Codificados</h1>
-                        <p class="text-[9px] font-bold text-slate-500 uppercase">Dirección de Ornato Público - Unidad de Arboricultura</p>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura</p>
                     </div>
 
                     <table class="w-full text-left border-separate border-spacing-y-3 print-table text-main">
@@ -463,7 +463,7 @@
                         <div class="col-span-2 text-center space-y-1">
                             <h2 class="text-sm font-black tracking-widest uppercase text-slate-500">Gobierno Autónomo Municipal de Tarija</h2>
                             <h1 class="text-lg font-black uppercase text-slate-900 tracking-tight leading-tight">Ficha Técnica de Control de Activo</h1>
-                            <p class="text-[10px] font-bold text-slate-500 uppercase">Dirección de Ornato Público - Unidad de Arboricultura</p>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase">Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura</p>
                         </div>
                         <div class="col-span-1 text-right border-l border-slate-300 pl-4">
                             <p class="text-[9px] font-black text-slate-500 uppercase">Código de Activo</p>
@@ -1501,8 +1501,8 @@
                 </div>
                 <div class="flex-1 text-center">
                     <p class="font-black text-base uppercase text-slate-800 leading-tight">Gobierno Autónomo Municipal de Tarija</p>
-                    <p class="font-bold text-xs uppercase text-slate-600">Dirección de Obras Públicas Municipales</p>
-                    <p class="font-bold text-[10px] uppercase text-slate-500">Unidad de Arboricultura y Espacios Verdes</p>
+                    <p class="font-bold text-xs uppercase text-slate-600">Dirección de Obras Públicas Municipales de Tarija</p>
+                    <p class="font-bold text-[10px] uppercase text-slate-500">Unidad de Mantenimiento de Ornato Público • Área de Arboricultura</p>
                 </div>
                 <div class="w-20 h-20"></div>
             </div>

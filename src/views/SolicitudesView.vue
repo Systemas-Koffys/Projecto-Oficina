@@ -506,8 +506,8 @@ const formatLoDeterminado = (sol) => {
                         </div>
                         <div class="print-institution-text flex-1 text-center">
                             <p class="print-gov font-black text-lg">Gobierno Autónomo Municipal de Tarija</p>
-                            <p class="print-sec font-bold text-sm">DIRECCION DE OBRAS PUBLICAS MUNICIPALES</p>
-                            <p class="print-unit text-sm font-medium">Unidad de Arboricultura y Espacios Verdes</p>
+                            <p class="print-sec font-bold text-sm">DIRECCIÓN DE OBRAS PÚBLICAS MUNICIPALES DE TARIJA</p>
+                            <p class="print-unit text-sm font-medium">Unidad de Mantenimiento de Ornato Público • Área de Arboricultura</p>
                         </div>
                     </div>
                     <div class="print-doc-title text-center">
