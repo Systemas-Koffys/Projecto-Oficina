@@ -29,7 +29,7 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 // Firebase Storage ya no se usa - las imágenes se suben a Cloudinary
-import { initializeApp } from 'firebase/app';
+import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth as getSecondaryAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
 setActivePinia(pinia);
@@ -207,12 +207,12 @@ export const useMainStore = defineStore('mainStore', () => {
       const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
       const newUid = userCredential.user.uid;
       await tempAuth.signOut();
-      await tempApp.delete();
+      await deleteApp(tempApp);
       return newUid;
     } catch (error) {
       console.error("Error in secondary auth app:", error);
       try {
-        await tempApp.delete();
+        await deleteApp(tempApp);
       } catch (e) {}
       throw error;
     }
