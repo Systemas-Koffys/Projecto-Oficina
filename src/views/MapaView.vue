@@ -827,7 +827,7 @@ const renderMarkers = () => {
       
       const popupContent = `
         <div style="font-family: 'Outfit', sans-serif; padding: 5px; min-width: 220px;">
-          <p style="margin: 0; font-size: 10px; font-weight: 800; color: #666; text-transform: uppercase;">Trámite: ${sol.comunicacion_interna || 'S/N'}</p>
+          <p style="margin: 0; font-size: 10px; font-weight: 800; color: #666; text-transform: uppercase;">Trámite: ${sol.comunicacion_interna || (sol.codigo_anual ? (sol.codigo_anual.startsWith('SOL-') ? sol.codigo_anual : 'SOL-' + sol.codigo_anual) : '#' + sol.id_solicitud)}</p>
           <p style="margin: 5px 0; font-size: 14px; font-weight: 900; color: #333;">${formatLoSolicitado(sol)}</p>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
           <p style="margin: 0; font-size: 11px; color: #444;"><b>📍 Ubicación:</b> ${sol.calle || 'No especificada'}</p>

@@ -47,7 +47,7 @@ const ejecutarConfirmacion = async () => {
 // Confirmar y eliminar
 const confirmarEliminar = (sol) => {
     const nombre = sol.solicitante_nombre || `#${sol.id_solicitud}`;
-    const cod    = sol.comunicacion_interna || `#${sol.id_solicitud}`;
+    const cod    = getCodigoTramite(sol);
     
     mostrarConfirmacion(
         'Confirmar Eliminación',
@@ -109,7 +109,7 @@ const exportarExcel = () => {
     // Mapear los datos de las solicitudes filtradas a columnas legibles
     const data = solicitudesFiltradas.value.map((sol, idx) => ({
         "Nº": idx + 1,
-        "Código/Com. Interna": sol.comunicacion_interna || `#${sol.id_solicitud}`,
+        "Código/Com. Interna": getCodigoTramite(sol),
         "Fecha Ingreso": formatFecha(sol.fecha_ingreso),
         "Solicitante": sol.solicitante_nombre,
         "Teléfono": sol.solicitante_telefono || '—',
@@ -191,9 +191,9 @@ const solicitudesFiltradas = computed(() => {
 
         return coincideBusqueda && coincideBarrio && coincideAccion && coincideFecha;
     }).sort((a, b) => {
-        const dateA = new Date(a.fecha_ingreso || 0)
-        const dateB = new Date(b.fecha_ingreso || 0)
-        return ordenAsc.value ? dateA - dateB : dateB - dateA
+        const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.fecha_ingreso ? new Date(a.fecha_ingreso).getTime() : 0);
+        const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.fecha_ingreso ? new Date(b.fecha_ingreso).getTime() : 0);
+        return ordenAsc.value ? timeA - timeB : timeB - timeA;
     })
 })
 
@@ -277,6 +277,15 @@ const getTipoInstitucion = (idTipo) => {
     if (!idTipo) return 'Particular'
     const t = store.tipos_institucion.find(x => x.id == idTipo)
     return t ? t.nombre : 'Particular'
+}
+
+const getCodigoTramite = (sol) => {
+    if (!sol) return '—';
+    if (sol.comunicacion_interna) return sol.comunicacion_interna;
+    if (sol.codigo_anual) {
+        return sol.codigo_anual.startsWith('SOL-') ? sol.codigo_anual : `SOL-${sol.codigo_anual}`;
+    }
+    return `#${sol.id_solicitud}`;
 }
 
 const formatLoSolicitado = (sol) => {
@@ -426,7 +435,7 @@ const formatLoDeterminado = (sol) => {
                                 <td class="text-center font-bold text-muted bg-card-sec/30">
                                     {{ ordenAsc ? (paginaActual - 1) * itemsPorPagina + idx + 1 : solicitudesFiltradas.length - ((paginaActual - 1) * itemsPorPagina + idx) }}
                                 </td>
-                                <td class="font-bold text-accent">{{ sol.comunicacion_interna || `#${sol.id_solicitud}` }}</td>
+                                <td class="font-bold text-accent">{{ getCodigoTramite(sol) }}</td>
                                 <td>{{ formatFecha(sol.fecha_ingreso) }}</td>
                                 <td>{{ sol.solicitante_nombre }}</td>
                                 <td class="font-bold text-xs">{{ getDistritoByBarrio(sol.id_barrio) }}</td>
