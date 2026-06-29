@@ -398,12 +398,12 @@ const stats = computed(() => {
     const data = solicitudesFiltradas.value;
     const total = data.length;
     const completadas = data.filter(s => s.estado_tramite === 'Terminado').length;
-    const enProceso = data.filter(s => s.estado_tramite === 'En espera').length;
-    const urgentes = data.filter(s => s.nivel_urgencia === 'Alta' && s.estado_tramite === 'En espera').length;
+    const enProceso = data.filter(s => s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente').length;
+    const urgentes = data.filter(s => s.nivel_urgencia === 'Alta' && (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente')).length;
     const efectividad = total > 0 ? Math.round((completadas / total) * 100) : 0;
     
     // Alertas de Campo (Filtro por solicitudes pendientes)
-    const pendientes = data.filter(s => s.estado_tramite === 'En espera');
+    const pendientes = data.filter(s => s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente');
     const reqSetar = pendientes.filter(s => s.requiere_setar).length;
     const reqPlataforma = pendientes.filter(s => s.requiere_plataforma).length;
     const reqFicha = pendientes.filter(s => s.requiere_ficha_tecnica).length;

@@ -149,8 +149,8 @@ const exportarExcel = () => {
 
 const solicitudesFiltradas = computed(() => {
     return store.solicitudes.filter(sol => {
-        // Solo mostrar solicitudes EN ESPERA
-        if (sol.estado_tramite !== 'En espera') return false;
+        // Solo mostrar solicitudes EN ESPERA o PENDIENTES
+        if (sol.estado_tramite !== 'En espera' && sol.estado_tramite !== 'Pendiente') return false;
 
         // 1. Búsqueda de texto global
         let coincideBusqueda = true;
