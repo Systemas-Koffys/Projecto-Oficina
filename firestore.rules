@@ -1,0 +1,180 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ══════════════════════════════════════════════════════════════
+    // FUNCIONES AUXILIARES DE SEGURIDAD
+    // Sistema de Gestión de Arboricultura - G.A.M.T.
+    // Dirección de Obras Públicas Municipales de Tarija
+    // Unidad de Mantenimiento de Ornato Público - Área de Arboricultura
+    // ══════════════════════════════════════════════════════════════
+
+    // Verifica que la petición tenga un token JWT válido de Firebase Auth
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Obtiene los datos del funcionario autenticado desde la colección 'personal'
+    function getUserData() {
+      return get(/databases/$(database)/documents/personal/$(request.auth.uid)).data;
+    }
+
+    // Obtiene el rol del usuario autenticado
+    function getUserRole() {
+      return getUserData().role;
+    }
+
+    // Verifica que el usuario tenga rol ADMIN o ROOT
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() in ['ADMIN', 'ROOT'];
+    }
+
+    // Verifica que el usuario tenga rol ROOT exclusivamente
+    function isRoot() {
+      return isAuthenticated() && getUserRole() == 'ROOT';
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // PERSONAL (Directorio de Funcionarios Municipales)
+    // Lectura: cualquier autenticado
+    // Creación: solo ADMIN o ROOT
+    // Actualización: el propio usuario (su perfil) o ADMIN/ROOT
+    // Eliminación: solo ROOT
+    // ══════════════════════════════════════════════════════════════
+    match /personal/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAuthenticated()
+        && (request.auth.uid == userId || isAdmin());
+      allow delete: if isRoot();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // SOLICITUDES (Trámites de Poda, Tala, Emergencias)
+    // Lectura: cualquier autenticado
+    // Creación: autenticados O portal público (ciudadanos sin sesión)
+    //   → Portal público requiere campos obligatorios
+    // Actualización: cualquier autenticado
+    // Eliminación: solo ADMIN o ROOT
+    // ══════════════════════════════════════════════════════════════
+    match /solicitudes/{docId} {
+      allow read: if isAuthenticated();
+      // Autenticados pueden crear libremente
+      // Ciudadanos sin sesión pueden crear SOLO si envían los campos requeridos
+      allow create: if isAuthenticated()
+        || (request.resource.data.keys().hasAll([
+            'solicitante_nombre', 'fecha_ingreso', 'estado_tramite'
+           ])
+           && request.resource.data.estado_tramite == 'Pendiente');
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // CATÁLOGOS (Barrios, Distritos, Especies, Acciones, etc.)
+    // Lectura: cualquier autenticado
+    // Escritura: solo ADMIN o ROOT
+    // ══════════════════════════════════════════════════════════════
+    match /catalogos/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // CONFIGURACIÓN DEL SISTEMA (Logos, metadata, preferencias)
+    // Lectura: cualquier autenticado
+    // Escritura: solo ROOT
+    // ══════════════════════════════════════════════════════════════
+    match /config/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isRoot();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // AUDITORÍA — CAJA NEGRA (Registro de actividades del sistema)
+    // Lectura: cualquier autenticado
+    // Creación: cualquier autenticado (el sistema registra acciones)
+    // Actualización: ❌ PROHIBIDO — Inmutabilidad total
+    // Eliminación: ❌ PROHIBIDO — Inmutabilidad total
+    // ══════════════════════════════════════════════════════════════
+    match /auditoria/{docId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // IMPRESIONES (Historial de reportes impresos / reimpresos)
+    // Acceso completo para cualquier autenticado
+    // ══════════════════════════════════════════════════════════════
+    match /impresiones/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // CALENDARIO (Programación de trabajos por barrio)
+    // Acceso completo para cualquier autenticado
+    // ══════════════════════════════════════════════════════════════
+    match /calendario/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // INVENTARIO — ÍTEMS DE CATÁLOGO (Herramientas y Repuestos)
+    // Lectura: cualquier autenticado
+    // Escritura: solo ADMIN o ROOT
+    // ══════════════════════════════════════════════════════════════
+    match /inventario_items/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // INVENTARIO — ACTIVOS CODIFICADOS (Motosierras, Vehículos, etc.)
+    // Lectura: cualquier autenticado
+    // Escritura: solo ADMIN o ROOT
+    // ══════════════════════════════════════════════════════════════
+    match /inventario_activos/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // INVENTARIO — CONSUMIBLES (Stock de insumos con cantidades)
+    // Acceso completo para cualquier autenticado
+    // ══════════════════════════════════════════════════════════════
+    match /inventario_consumibles/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // INVENTARIO — MOVIMIENTOS (Entradas, salidas, transferencias)
+    // Acceso completo para cualquier autenticado
+    // ══════════════════════════════════════════════════════════════
+    match /inventario_movimientos/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // INVENTARIO — MANTENIMIENTOS (Registros de servicio técnico)
+    // Lectura: cualquier autenticado
+    // Creación: cualquier autenticado
+    // Actualización y eliminación: ❌ PROHIBIDO (registro inmutable)
+    // ══════════════════════════════════════════════════════════════
+    match /inventario_mantenimientos/{docId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // REGLA POR DEFECTO — DENEGAR TODO LO DEMÁS
+    // Cualquier colección no listada arriba queda completamente
+    // bloqueada para lectura y escritura.
+    // ══════════════════════════════════════════════════════════════
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

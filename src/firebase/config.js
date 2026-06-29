@@ -4,14 +4,21 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 // Firebase Storage no se usa - las imágenes se gestionan mediante Cloudinary CDN
 
 // Configuración de Firebase alimentada por variables de entorno de Vite (.env)
+// IMPORTANTE: Las credenciales NO deben estar hardcodeadas en el código fuente.
+// Si alguna variable falta, el sistema mostrará un error controlado.
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDCFhP4dl2eJDOcxo6jfeYhBDZL48vITiE",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "sistema-arboricultura-tarija.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "sistema-arboricultura-tarija",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "sistema-arboricultura-tarija.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "577237867493",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:577237867493:web:62d13f968caff2c9f2ed0c"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
+
+// Validación de seguridad: verificar que las variables de entorno estén definidas
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  console.error('❌ ERROR CRÍTICO: Las variables de entorno de Firebase no están configuradas. Revise el archivo .env');
+}
 
 // Inicializar Firebase App
 const app = initializeApp(firebaseConfig);
