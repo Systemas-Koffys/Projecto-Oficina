@@ -12,18 +12,23 @@
 
 El usuario sigue una metodología rigurosa de desarrollo y control. **El asistente DEBE respetar estas reglas sin excepción:**
 
-1. ⚠️ **"NO TOCAR SIN AVISARME" (Consultar y explicar antes de codificar):**
+1. ⚠️ **"NO TOCAR SIN AVISARME" (Consultar y explicar efectos colaterales antes de codificar):**
    - Jamás modificar arquitectura, archivos de configuración (`firebase.json`, `vite.config.js`, `config.js`), lógica de autenticación ni estructuras de la base de datos sin explicar el plan técnico detallado en español sencillo.
+   - **Explicación de Efectos Colaterales:** Antes de realizar cualquier cambio, el asistente DEBE advertir explícitamente qué archivos se tocarán y TODOS los posibles efectos secundarios o colaterales que dicho cambio podría causar en otras partes del sistema o en la nube de producción.
    - Presentar el plan al usuario y **esperar su autorización explícita ("dale", "ok", "adelante")** antes de modificar código o crear artefactos modificatorios.
-2. 🔢 **Sistema Dinámico de Control de Versión (`update-version.js`):**
+2. 🚫 **PROHIBIDO INICIAR EL NAVEGADOR AUTOMATIZADO (`browser_subagent`):**
+   - El asistente tiene **estrictamente prohibido** invocar o lanzar la herramienta del subagente de navegador (`browser_subagent`) por iniciativa propia. El usuario realiza y verifica sus propias pruebas manualmente en su pantalla. Solo se usará si el usuario lo solicita explícitamente.
+3. 🛑 **CONTROL DE GIT Y COMMITS:**
+   - No realizar commits o pushes de manera apresurada. Asegurarse de que el código esté 100% probado y verificado antes de confirmar los cambios en la rama principal.
+4. 🔢 **Sistema Dinámico de Control de Versión (`update-version.js`):**
    - Cada proceso de `npm run build` o commit ejecuta automáticamente `node scripts/update-version.js` (`prebuild` hook).
    - Este script calcula la versión `v3.minor.patch` leyendo el conteo total de commits de Git (`git rev-list --count HEAD`) y actualiza `package.json`.
    - **Regla:** Al confirmar cambios al usuario, siempre mencionar la versión generada (ej: `v3.26.6`) y el commit hash.
-3. 💼 **Jerarquía de Cargos Institucionales Únicos:**
+5. 💼 **Jerarquía de Cargos Institucionales Únicos:**
    - `Responsable de Área`, `Jefe de Unidad` y `Técnico de sistemas` son cargos únicos e indivisibles en el municipio (máximo 1 persona activa por cargo en la base de datos).
    - El sistema valida esta unicidad al crear o actualizar funcionarios en `mainStore.js`.
    - Las firmas de documentos e informes impresos (PDFs) se calculan dinámicamente en `mainStore.js` buscando a las personas asignadas a estos cargos (`responsableArea` y `jefeUnidad`). Nunca poner nombres estáticos.
-4. 🛡️ **Estándar Firebase Modular SDK v9+:**
+6. 🛡️ **Estándar Firebase Modular SDK v9+:**
    - Utilizar funciones modulares como `deleteApp(app)` de `'firebase/app'` (evitar `app.delete()` porque lanza runtime TypeError).
    - En actualizaciones parciales de `updateCatalogo('tecnicos', id, datos)`, siempre hacer *merge* o fallback con `existingData` para evitar sobreescribir nombres o cargos con `undefined`.
 
