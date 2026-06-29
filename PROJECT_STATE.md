@@ -1,0 +1,92 @@
+# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.6)
+
+> **DOCUMENTO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**  
+> **Fecha de Actualización:** 29 de Junio de 2026  
+> **Versión Actual:** `v3.26.6` (Commit `97f148b` en repositorio GitHub `origin/main`)  
+> **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)  
+> **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura  
+
+---
+
+## 🛑 REGLAS ESTRICTAS DE TRABAJO Y METODOLOGÍA DEL USUARIO ("REGLAS DE ORO")
+
+El usuario sigue una metodología rigurosa de desarrollo y control. **El asistente DEBE respetar estas reglas sin excepción:**
+
+1. ⚠️ **"NO TOCAR SIN AVISARME" (Consultar y explicar antes de codificar):**
+   - Jamás modificar arquitectura, archivos de configuración (`firebase.json`, `vite.config.js`, `config.js`), lógica de autenticación ni estructuras de la base de datos sin explicar el plan técnico detallado en español sencillo.
+   - Presentar el plan al usuario y **esperar su autorización explícita ("dale", "ok", "adelante")** antes de modificar código o crear artefactos modificatorios.
+2. 🔢 **Sistema Dinámico de Control de Versión (`update-version.js`):**
+   - Cada proceso de `npm run build` o commit ejecuta automáticamente `node scripts/update-version.js` (`prebuild` hook).
+   - Este script calcula la versión `v3.minor.patch` leyendo el conteo total de commits de Git (`git rev-list --count HEAD`) y actualiza `package.json`.
+   - **Regla:** Al confirmar cambios al usuario, siempre mencionar la versión generada (ej: `v3.26.6`) y el commit hash.
+3. 💼 **Jerarquía de Cargos Institucionales Únicos:**
+   - `Responsable de Área`, `Jefe de Unidad` y `Técnico de sistemas` son cargos únicos e indivisibles en el municipio (máximo 1 persona activa por cargo en la base de datos).
+   - El sistema valida esta unicidad al crear o actualizar funcionarios en `mainStore.js`.
+   - Las firmas de documentos e informes impresos (PDFs) se calculan dinámicamente en `mainStore.js` buscando a las personas asignadas a estos cargos (`responsableArea` y `jefeUnidad`). Nunca poner nombres estáticos.
+4. 🛡️ **Estándar Firebase Modular SDK v9+:**
+   - Utilizar funciones modulares como `deleteApp(app)` de `'firebase/app'` (evitar `app.delete()` porque lanza runtime TypeError).
+   - En actualizaciones parciales de `updateCatalogo('tecnicos', id, datos)`, siempre hacer *merge* o fallback con `existingData` para evitar sobreescribir nombres o cargos con `undefined`.
+
+---
+
+## 🛠️ ARQUITECTURA TÉCNICA DEL SISTEMA
+
+- **Framework Frontend:** Vue 3 (Composition API `<script setup>`), Vue Router (`src/router/index.js`), Vite (`vite.config.js`).
+- **Estado Global:** Pinia Store (`src/store/mainStore.js`).
+- **Diseño & UI:** Vanilla CSS + Tailwind CSS utilities (`src/style.css`), Lucide Vue Icons (`lucide-vue-next`), Leaflet.js para mapas geográficos, Chart.js para gráficos analíticos.
+- **Backend & Nube:**
+  - **Firebase Firestore:** Base de datos NoSQL en tiempo real con persistencia offline en IndexedDB (`persistentLocalCache`).
+  - **Firebase Auth:** Autenticación con email/password y Google Sign-In con verificación previa contra el directorio municipal.
+  - **Cloudinary CDN:** Gestión y compresión de imágenes/fotografías client-side vía Canvas (fallback Base64 si falla la red).
+  - **Firestore Security Rules:** Archivo [firestore.rules](file:///c:/Users/Personal/Documents/Projecto-Oficina/firestore.rules) desplegado oficialmente en los servidores de Google Firebase.
+
+---
+
+## 📊 ESTRUCTURA DE LA BASE DE DATOS FIRESTORE (COLECCIONES)
+
+1. `personal`: Directorio de funcionarios municipales (roles: `ROOT`, `ADMIN`, `TECNICO`, `USER`).
+2. `solicitudes`: Expedientes de trámites de poda/tala/emergencias enviados por la oficina o el portal ciudadano (estados: `En espera`, `Pendiente`, `En proceso`, `Terminado`).
+3. `catalogos`: Documentos maestros (`barrios`, `distritos`, `especies`, `acciones`, `tipos_institucion`, `instituciones`).
+4. `config`: Metadata global del sistema (`docId: 'sistema'` con logos institucionales).
+5. `auditoria`: **Caja Negra inmutable** que registra todas las acciones (`CREAR`, `MODIFICAR`, `ELIMINAR`).
+6. `impresiones`: Historial de reportes y hojas de ruta impresos con snapshot de filtros.
+7. `calendario`: Programación e hitos de trabajos en barrios.
+8. `inventario_items`: Catálogo maestro de herramientas y repuestos.
+9. `inventario_activos`: Activos codificados con número de chasis/serie y responsable legal.
+10. `inventario_consumibles`: Stock físico de insumos por almacén/oficina.
+11. `inventario_movimientos`: Entradas, salidas y transferencias de herramientas.
+12. `inventario_mantenimientos`: Fichas de servicio técnico de equipos.
+
+---
+
+## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.6`)
+
+- ✅ **Membrete Oficial Estandarizado:** Actualizado en todas las vistas de impresión (Ficha Técnica de Activos, Reportes de Inventario, Hoja de Ruta, Solicitudes, Historial, Mapa Geográfico) con la jerarquía:
+  1. *Gobierno Autónomo Municipal de Tarija*
+  2. *Dirección de Obras Públicas Municipales de Tarija*
+  3. *Unidad de Mantenimiento de Ornato Público*
+  4. *Área de Arboricultura*
+- ✅ **Módulo de Equipos Operativos (`EquiposView.vue`):** Drag & drop reparado para UIDs alfanuméricos de Firebase. Incorporada barra de resumen con insignias dinámicas por cargo (`1 Técnico`, `2 Choferes`, `3 Trepadores`, etc.) y pluralización gramatical automática.
+- ✅ **Portal Ciudadano (`PublicPortalView.vue`):** Conectado en tiempo real con `solicitudes` (estados `En espera` / `Pendiente`). Generación de código de ticket público `SOL-017/26`, soporte para visualización de códigos públicos en tablas/mapas y ordenamiento cronológico exacto por `createdAt` en primera página.
+- ✅ **Blindaje de Seguridad Nube (`firestore.rules`):** Desplegado en la nube de Google Firebase. Inmutabilidad estricta de auditoría (`allow update, delete: if false;`), restricción de escritura de catálogos y personal a `ADMIN`/`ROOT`, y aislamiento de privacidad para el portal ciudadano.
+- ✅ **Configuración de Conexión:** Restaurados valores de respaldo en [src/firebase/config.js](file:///c:/Users/Personal/Documents/Projecto-Oficina/src/firebase/config.js) para evitar pantallas blancas en el bundle web de producción de Firebase Hosting.
+
+---
+
+## 🎯 PRÓXIMA FASE Y TAREAS PENDIENTES (HOJA DE RUTA)
+
+### 📌 Fase Inmediata: Conexión con Podarapp (AppSheet + Google Sheets)
+El usuario tiene una aplicación móvil de campo llamada **Podarapp** construida en AppSheet y respaldada por una base de datos en Google Sheets en su Google Drive.
+
+**Objetivo de la siguiente sesión:**
+1. Diseñar e implementar el flujo de integración/sincronización entre **ArborGest** (sistema web de oficina en Firebase) y **Podarapp** (app de campo en AppSheet / Google Sheets).
+2. Permitir que los trabajos ejecutados por los técnicos en la calle usando Podarapp se reflejen automáticamente en las solicitudes e inventario de ArborGest.
+
+### 📌 Fase Siguiente: Módulo de Documentación e Informes
+Desarrollar la vista de "Documentación / Informes" para plantillas oficiales antes de pasar al despliegue total de herramientas de campo.
+
+---
+
+## 💡 NOTA FINAL PARA EL SIGUIENTE AGENTE IA
+
+Al iniciar el nuevo chat, saluda cordialmente al usuario, confirma que has leído este manual de traspaso (`PROJECT_STATE.md`), menciona que el sistema está estable en la versión `v3.26.6` con su blindaje de seguridad activo, y pregunta si desea comenzar directamente con el análisis y diseño de la **integración con Podarapp (AppSheet + Google Sheets)**.
