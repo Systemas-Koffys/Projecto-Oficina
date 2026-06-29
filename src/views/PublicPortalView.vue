@@ -212,7 +212,7 @@ const form = reactive({
   lat: -21.5355,
   lng: -64.7327,
   fecha_ingreso: new Date().toISOString().split('T')[0],
-  estado_tramite: 'Pendiente'
+  estado_tramite: 'En espera'
 })
 
 let map = null

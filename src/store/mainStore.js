@@ -1056,10 +1056,17 @@ export const useMainStore = defineStore('mainStore', () => {
       // Generar código anual secuencial
       const currentYear = new Date().getFullYear();
       const yearSuffix = String(currentYear).slice(-2);
-      const yearStart = new Date(currentYear, 0, 1).toISOString().split('T')[0];
-      const qYear = query(collection(db, 'solicitudes'), where('fecha_ingreso', '>=', yearStart));
-      const querySnapYear = await getDocs(qYear);
-      const nextNum = querySnapYear.size + 1;
+      let nextNum = Math.floor(100 + Math.random() * 900);
+      if (auth.currentUser) {
+        try {
+          const yearStart = new Date(currentYear, 0, 1).toISOString().split('T')[0];
+          const qYear = query(collection(db, 'solicitudes'), where('fecha_ingreso', '>=', yearStart));
+          const querySnapYear = await getDocs(qYear);
+          nextNum = querySnapYear.size + 1;
+        } catch (errSnap) {
+          console.warn('⚠️ No se pudo consultar el correlativo anual, usando fallback:', errSnap);
+        }
+      }
       const codigo_anual = `${String(nextNum).padStart(3, '0')}/${yearSuffix}`;
 
       let lat = null;
@@ -1120,12 +1127,14 @@ export const useMainStore = defineStore('mainStore', () => {
 
       await setDoc(docRef, docData);
 
-      await registrarAuditoria({
-        accion: 'CREAR',
-        tabla_afectada: 'solicitudes_poda',
-        registro_id: id_solicitud,
-        detalles: { codigo_anual, solicitante: docData.solicitante_nombre }
-      });
+      if (auth.currentUser) {
+        await registrarAuditoria({
+          accion: 'CREAR',
+          tabla_afectada: 'solicitudes_poda',
+          registro_id: id_solicitud,
+          detalles: { codigo_anual, solicitante: docData.solicitante_nombre }
+        });
+      }
 
       return { success: true, id_solicitud, codigo_anual };
     } catch (error) {

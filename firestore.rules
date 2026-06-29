@@ -65,7 +65,7 @@ service cloud.firestore {
         || (request.resource.data.keys().hasAll([
             'solicitante_nombre', 'fecha_ingreso', 'estado_tramite'
            ])
-           && request.resource.data.estado_tramite == 'Pendiente');
+           && (request.resource.data.estado_tramite == 'En espera' || request.resource.data.estado_tramite == 'Pendiente'));
       allow update: if isAuthenticated();
       allow delete: if isAdmin();
     }
