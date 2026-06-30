@@ -1,8 +1,13 @@
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+
+// Endpoint de Groq (compatible con la API de OpenAI)
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+// Modelo de Groq: LLaMA 3.3 70B — versión actual estable
+const MODEL = 'llama-3.3-70b-versatile';
 
 /**
- * Llama a la API de Gemini usando fetch nativo con el token OAuth2 (AQ.) de Google AI Studio.
- * Esto es necesario ya que el SDK @google/generative-ai no soporta tokens de tipo AQ.
+ * Consulta al asistente IA de ArborGest usando la API de Groq (LLaMA 3.1).
  * 
  * @param {string} pregunta Pregunta del usuario por voz o texto.
  * @param {object} contexto Contexto de la base de datos (solicitudes, tecnicos, catalogos).
@@ -37,83 +42,81 @@ export async function askGemini(pregunta, contexto = {}) {
     estado: t.estado
   }));
 
-  const promptCompleto = `Eres "ArborGest AI", el asistente inteligente oficial del área de Arboricultura del Gobierno Autónomo Municipal de Tarija (G.A.M.T.). Responde siempre en español, de forma clara y concisa.
+  // Simplificar inventario para el prompt
+  const inventarioSimplificado = (contexto.inventarioItems || []).map(item => {
+    const stock = (contexto.inventarioConsumibles || []).find(c => c.id_item === item.id_item);
+    return {
+      nombre: item.nombre,
+      tipo: item.tipo,
+      categoria: item.categoria || 'Sin categoría',
+      stock_almacen: stock?.cantidad_almacen ?? (item.tipo === 'Activo' ? 'N/A' : 0),
+      unidad: item.unidad || ''
+    };
+  });
 
-CONTEXTO DEL SISTEMA:
-- Total solicitudes: ${(contexto.solicitudes || []).length}
-- Solicitudes (últimas 80): ${JSON.stringify(solicitudesSimplificadas)}
-- Personal: ${JSON.stringify(personalSimplificado)}
+  const activosSimplificados = (contexto.inventarioActivos || []).map(a => ({
+    nombre: (contexto.inventarioItems || []).find(i => i.id_item === a.id_item)?.nombre || `Item ${a.id_item}`,
+    codigo: a.codigo_activo,
+    estado: a.estado,
+    custodio: (contexto.tecnicos || []).find(t => t.id_tecnico === a.id_custodio)?.nombre || a.id_custodio || 'Sin custodio'
+  }));
 
-PREGUNTA: "${pregunta}"`;
-
-  // Detectar si es una clave OAuth2 (AQ.) o una API Key tradicional (AIzaSy)
-  const isOAuthToken = apiKey.startsWith('AQ.');
+  const movimientosPendientes = (contexto.inventarioMovimientos || [])
+    .filter(m => m.estado_devolucion === 'Pendiente devolución')
+    .slice(0, 30)
+    .map(m => ({
+      item: (contexto.inventarioItems || []).find(i => i.id_item === m.id_item)?.nombre || `Item ${m.id_item}`,
+      cantidad: m.cantidad,
+      responsable: (contexto.tecnicos || []).find(t => t.id_tecnico === m.id_tecnico_responsable)?.nombre || m.id_tecnico_responsable
+    }));
 
   try {
-    let responseText = '';
-
-    if (isOAuthToken) {
-      // --- Ruta OAuth2: fetch directo con Bearer token ---
-      const url = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [{
+    const response = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: `Eres "ArborGest AI", el asistente inteligente oficial de la Unidad de Mantenimiento de Ornato Público y Área de Arboricultura del Gobierno Autónomo Municipal de Tarija (G.A.M.T.).
+Tu objetivo es ayudar a los funcionarios municipales a consultar el estado de solicitudes de poda, tala y emergencias arbóreas, además de información sobre el personal y catálogos del sistema.
+Responde SIEMPRE en español. Sé claro, conciso y profesional. Usa viñetas cuando sea útil para organizar la información.
+Usa ÚNICAMENTE el contexto del sistema como fuente de verdad. No inventes datos.`
+          },
+          {
             role: 'user',
-            parts: [{ text: promptCompleto }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 800
+            content: `CONTEXTO DEL SISTEMA (datos reales de la base de datos):
+- Total de solicitudes registradas: ${(contexto.solicitudes || []).length}
+- Solicitudes (últimas 80): ${JSON.stringify(solicitudesSimplificadas)}
+- Personal y cuadrillas: ${JSON.stringify(personalSimplificado)}
+- Catálogo de herramientas e inventario (${inventarioSimplificado.length} ítems): ${JSON.stringify(inventarioSimplificado)}
+- Activos fijos con custodio (${activosSimplificados.length} activos): ${JSON.stringify(activosSimplificados)}
+- Préstamos pendientes de devolución (${movimientosPendientes.length}): ${JSON.stringify(movimientosPendientes)}
+
+PREGUNTA DEL FUNCIONARIO: "${pregunta}"`
           }
-        })
-      });
+        ],
+        temperature: 0.5,
+        max_tokens: 800,
+        stream: false
+      })
+    });
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        console.error('Error API Gemini OAuth:', errData);
-        throw new Error(`HTTP ${res.status}: ${errData?.error?.message || res.statusText}`);
-      }
-
-      const data = await res.json();
-      responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta del servidor.';
-
-    } else {
-      // --- Ruta API Key tradicional: URL con key param ---
-      const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            role: 'user',
-            parts: [{ text: promptCompleto }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 800
-          }
-        })
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        console.error('Error API Gemini Key:', errData);
-        throw new Error(`HTTP ${res.status}: ${errData?.error?.message || res.statusText}`);
-      }
-
-      const data = await res.json();
-      responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta del servidor.';
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      console.error('Error API Groq:', errData);
+      throw new Error(`HTTP ${response.status}: ${errData?.error?.message || response.statusText}`);
     }
 
-    return responseText;
+    const data = await response.json();
+    return data?.choices?.[0]?.message?.content || 'No se pudo obtener una respuesta.';
 
   } catch (error) {
-    console.error('Error al consultar Gemini:', error);
+    console.error('Error al consultar Groq:', error);
     throw error;
   }
 }

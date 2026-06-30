@@ -6,7 +6,7 @@
       <div class="w-16 h-16 bg-amber-500/20 text-amber-500 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-inner">⚠️</div>
       <h2 class="text-xl font-black text-amber-400">Falta la API Key de Gemini</h2>
       <p class="text-xs text-amber-200/70 leading-relaxed font-medium">
-        Para activar el asistente inteligente de Arboricultura, debes configurar la variable <code class="bg-black/30 px-2 py-0.5 rounded font-mono text-amber-300">VITE_GEMINI_API_KEY</code> en tu archivo <code class="bg-black/30 px-2 py-0.5 rounded font-mono text-amber-300">.env</code> en el servidor local.
+        Para activar el asistente inteligente de Arboricultura, debes configurar la variable <code class="bg-black/30 px-2 py-0.5 rounded font-mono text-amber-300">VITE_GROQ_API_KEY</code> en tu archivo <code class="bg-black/30 px-2 py-0.5 rounded font-mono text-amber-300">.env</code> en el servidor local.
       </p>
       <div class="pt-2">
         <a href="https://aistudio.google.com" target="_blank" class="inline-block px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg hover:scale-105 active:scale-95">
@@ -180,7 +180,7 @@ import { askGemini } from '../services/gemini.js'
 
 const mainStore = useMainStore()
 
-const isApiKeyMissing = ref(!import.meta.env.VITE_GEMINI_API_KEY)
+const isApiKeyMissing = ref(!import.meta.env.VITE_GROQ_API_KEY)
 const voiceEnabled = ref(false)
 const isListening = ref(false)
 const inputQuery = ref('')
@@ -301,7 +301,11 @@ const handleSend = async () => {
       barrios: mainStore.store.barrios || [],
       distritos: mainStore.store.distritos || [],
       especies: mainStore.store.especies || [],
-      acciones: mainStore.store.acciones || []
+      acciones: mainStore.store.acciones || [],
+      inventarioItems: mainStore.store.inventarioItems || [],
+      inventarioActivos: mainStore.store.inventarioActivos || [],
+      inventarioConsumibles: mainStore.store.inventarioConsumibles || [],
+      inventarioMovimientos: mainStore.store.inventarioMovimientos || []
     }
 
     // Consultar a Gemini
@@ -317,7 +321,7 @@ const handleSend = async () => {
     console.error('Error al consultar al asistente:', err)
     let msg = 'Lo siento, no pude procesar tu consulta. Revisa tu conexión a internet.'
     if (err.message === 'API_KEY_MISSING') {
-      msg = 'Falta la API Key en el servidor local. Configura VITE_GEMINI_API_KEY en tu archivo .env.'
+      msg = 'Falta la API Key en el servidor local. Configura VITE_GROQ_API_KEY en tu archivo .env.'
     }
     messages.value.push({ role: 'assistant', content: msg })
   } finally {
