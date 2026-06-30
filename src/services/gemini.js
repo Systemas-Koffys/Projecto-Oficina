@@ -16,7 +16,7 @@ export async function askGemini(pregunta, contexto = {}) {
 
   const genAI = new GoogleGenerativeAI(apiKey);
   
-  // Usamos gemini-1.5-flash por su velocidad y gratuidad
+  // Usamos gemini-1.5-flash por su velocidad y gratuidad, forzando la versión estable v1 de la API
   const model = genAI.getGenerativeModel({ 
     model: 'gemini-1.5-flash',
     systemInstruction: `Eres "ArborGest AI", el asistente inteligente oficial de la Unidad de Mantenimiento de Ornato Público y Área de Arboricultura del Gobierno Autónomo Municipal de Tarija (G.A.M.T.).
@@ -24,6 +24,8 @@ Tu objetivo es ayudar a los funcionarios a consultar y entender el estado de las
 Responde de forma clara, profesional, con calidez y sumamente concisa. Usa un formato limpio con viñetas si es necesario.
 Recibirás en el prompt el contexto real de la base de datos en formato JSON. Usa esta información como tu única fuente de verdad para responder preguntas específicas sobre solicitudes, barrios, distritos y técnicos asignados.
 Si te preguntan por voz, responde con oraciones cortas fáciles de escuchar.`
+  }, {
+    apiVersion: 'v1'
   });
 
   // Simplificamos las solicitudes para optimizar los tokens y enviar la mayor cantidad posible
