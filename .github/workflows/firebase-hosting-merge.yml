@@ -21,7 +21,7 @@ jobs:
           
           # Ejecutar deploy y capturar salida
           set +e
-          npx firebase-tools deploy --only hosting,firestore:rules --project sistema-arboricultura-tarija > deploy_output.log 2>&1
+          npx firebase-tools deploy --only hosting --project sistema-arboricultura-tarija > deploy_output.log 2>&1
           DEPLOY_EXIT_CODE=$?
           set -e
           
