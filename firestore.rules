@@ -76,7 +76,7 @@ service cloud.firestore {
     // Escritura: solo ADMIN o ROOT
     // ══════════════════════════════════════════════════════════════
     match /catalogos/{docId} {
-      allow read: if isAuthenticated();
+      allow read: if docId == 'usuarios_login' || isAuthenticated();
       allow write: if isAdmin();
     }
 
