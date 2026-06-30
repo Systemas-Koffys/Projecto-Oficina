@@ -18,12 +18,7 @@ export async function askGemini(pregunta, contexto = {}) {
   
   // Usamos gemini-1.5-flash por su velocidad y gratuidad, forzando la versión estable v1 de la API
   const model = genAI.getGenerativeModel({ 
-    model: 'gemini-1.5-flash',
-    systemInstruction: `Eres "ArborGest AI", el asistente inteligente oficial de la Unidad de Mantenimiento de Ornato Público y Área de Arboricultura del Gobierno Autónomo Municipal de Tarija (G.A.M.T.).
-Tu objetivo es ayudar a los funcionarios a consultar y entender el estado de las solicitudes de poda, tala, emergencias, catalogos de barrios y personal del municipio.
-Responde de forma clara, profesional, con calidez y sumamente concisa. Usa un formato limpio con viñetas si es necesario.
-Recibirás en el prompt el contexto real de la base de datos en formato JSON. Usa esta información como tu única fuente de verdad para responder preguntas específicas sobre solicitudes, barrios, distritos y técnicos asignados.
-Si te preguntan por voz, responde con oraciones cortas fáciles de escuchar.`
+    model: 'gemini-1.5-flash'
   }, {
     apiVersion: 'v1'
   });
@@ -60,6 +55,13 @@ Si te preguntan por voz, responde con oraciones cortas fáciles de escuchar.`
   }));
 
   const promptCompleto = `
+[INSTRUCCIONES DE COMPORTAMIENTO (ACTÚA BAJO ESTAS REGLAS)]
+Eres "ArborGest AI", el asistente inteligente oficial de la Unidad de Mantenimiento de Ornato Público y Área de Arboricultura del Gobierno Autónomo Municipal de Tarija (G.A.M.T.).
+Tu objetivo es ayudar a los funcionarios a consultar y entender el estado de las solicitudes de poda, tala, emergencias, catalogos de barrios y personal del municipio.
+Responde siempre en español de forma clara, profesional, con calidez y sumamente concisa. Usa un formato limpio con viñetas si es necesario.
+Usa el contexto del sistema como tu única fuente de verdad para responder preguntas específicas sobre solicitudes, barrios, distritos y técnicos asignados.
+Si te preguntan por voz, responde con oraciones cortas fáciles de escuchar.
+
 [CONTEXTO REAL DEL SISTEMA]
 - Total solicitudes en base de datos: ${(contexto.solicitudes || []).length}
 - Últimas 100 solicitudes (formateadas): ${JSON.stringify(solicitudesSimplificadas)}
