@@ -136,7 +136,9 @@ onMounted(async () => {
     actualizarReloj()
     intervalId = setInterval(actualizarReloj, 1000)
     
-    await fetchCatalogos()
+    if (uiState.user) {
+        await fetchCatalogos()
+    }
 })
 
 onUnmounted(() => {

@@ -284,6 +284,7 @@ export const useMainStore = defineStore('mainStore', () => {
       sessionStorage.setItem('loginTimeFull', new Date().toISOString());
 
       initFirebaseSync();
+      await fetchCatalogos();
 
       return { success: true };
     } catch (error) {
@@ -359,6 +360,7 @@ export const useMainStore = defineStore('mainStore', () => {
       sessionStorage.setItem('loginTimeFull', new Date().toISOString());
 
       initFirebaseSync();
+      await fetchCatalogos();
 
       return { success: true };
     } catch (error) {
