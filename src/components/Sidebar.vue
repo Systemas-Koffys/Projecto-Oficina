@@ -142,7 +142,8 @@ import {
     ChevronLeft,
     ChevronRight,
     ShieldAlert,
-    Wrench
+    Wrench,
+    Sparkles
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -207,6 +208,7 @@ const menuItems = [
     { path: '/usuarios', label: 'Usuarios', icon: ShieldCheck },
     { path: '/configuraciones', label: 'Configuraciones', icon: Settings },
     { path: '/auditoria', label: 'Caja Negra', icon: ShieldAlert },
+    { path: '/ai-arboricultura', label: 'AI Arboricultura', icon: Sparkles },
     { path: '/acerca', label: 'Acerca de', icon: Info },
 ]
 
@@ -214,11 +216,11 @@ const filteredMenuItems = computed(() => {
     const role = uiState.user?.role
     return menuItems.filter(item => {
         if (role === 'USER') {
-            // USER ve: Dashboard, Trámites Pendientes, Mapa, Historial, Reportes, Calendario, Acerca de
-            return ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/acerca'].includes(item.path)
+            // USER ve: Dashboard, Trámites Pendientes, Mapa, Historial, Reportes, Calendario, Acerca de, IA
+            return ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/acerca', '/ai-arboricultura'].includes(item.path)
         } else if (role === 'ADMIN') {
             // ADMIN ve todo excepto Usuarios y Configuraciones
-            return ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/personal', '/equipos', '/inventario', '/acerca'].includes(item.path)
+            return ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/personal', '/equipos', '/inventario', '/acerca', '/ai-arboricultura'].includes(item.path)
         }
         // ROOT ve todo
         return true

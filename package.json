@@ -1,7 +1,7 @@
 {
   "name": "my-project",
   "private": true,
-  "version": "3.26.13",
+  "version": "3.26.14",
   "type": "module",
   "scripts": {
     "predev": "node scripts/update-version.js",
@@ -15,6 +15,7 @@
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/interaction": "^6.1.20",
     "@fullcalendar/vue3": "^6.1.20",
+    "@google/generative-ai": "^0.24.1",
     "@tailwindcss/vite": "^4.2.4",
     "firebase": "^12.15.0",
     "html2pdf.js": "^0.14.0",

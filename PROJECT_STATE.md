@@ -1,8 +1,8 @@
-# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.6)
+# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.13)
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**  
 > **Fecha de Actualización:** 29 de Junio de 2026  
-> **Versión Actual:** `v3.26.6` (Commit `ec8d496` en repositorio GitHub `origin/main`)  
+> **Versión Actual:** `v3.26.13` (Commit `66646a3` en repositorio GitHub `origin/main`)  
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)  
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura  
 
@@ -81,8 +81,9 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 
 ---
 
-## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.6`)
+## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.13`)
 
+- ✅ **Selector Tradicional Restaurado:** Habilitada la lectura pública de la colección `personal` en Firestore para cargar de inmediato los nombres, cargos y fotos de los técnicos activos al abrir la pantalla de login sin errores de consola.
 - ✅ **Membrete Oficial Estandarizado:** Implementado en todas las vistas de impresión.
 - ✅ **Módulo de Equipos Operativos (`EquiposView.vue`):** Drag & drop reparado para UIDs alfanuméricos de Firebase. Incorporada barra de resumen con insignias dinámicas por cargo (`1 Técnico`, `2 Choferes`, `3 Trepadores`, etc.) y pluralización gramatical automática.
 - ✅ **Portal Ciudadano (`PublicPortalView.vue`):** Conectado en tiempo real con `solicitudes` (estados `En espera` / `Pendiente`). Generación de código de ticket público `SOL-017/26`, soporte para visualización de códigos públicos en tablas/mapas y ordenamiento cronológico exacto por `createdAt` en primera página.
