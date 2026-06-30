@@ -106,6 +106,15 @@ Desarrollar la vista de "Documentación / Informes" para plantillas oficiales an
 
 ---
 
+## 💡 NOTAS DE CONTINUIDAD E INTEGRACIÓN DE IA
+
+### 🌳 Módulo AI Arboricultura (`v3.26.14`)
+* Se desarrolló en la rama `feature-ai-assistant` una vista de Asistente IA Conversacional por Voz y Texto (`AIAssistantView.vue`).
+* Utiliza el SDK de Google Gemini (`@google/generative-ai`) para consultar de forma inteligente el estado de solicitudes y técnicos en tiempo real de Firestore.
+* **Origen de la API Key de Gemini:** La clave API configurada en `.env` proviene de la cuenta de correo limpia del usuario: **`koffy61862629@gmail.com`**. Se debe mantener esta cuenta/clave para evitar bloqueos por políticas de facturación de Google Cloud que tiene la cuenta principal de Firebase.
+
+---
+
 ## 💡 NOTA FINAL PARA EL SIGUIENTE AGENTE IA
 
-Al iniciar el nuevo chat, saluda cordialmente al usuario, confirma que has leído este manual maestro de traspaso (`PROJECT_STATE.md`), menciona que el sistema está estable en la versión `v3.26.6` con su blindaje de seguridad activo y reglas de trabajo comprendidas al 100%, y pregunta si desea comenzar directamente con el análisis y diseño de la **integración con Podarapp (AppSheet + Google Sheets)**.
+Al iniciar el nuevo chat, saluda cordialmente al usuario, confirma que has leído este manual maestro de traspaso (`PROJECT_STATE.md`), menciona que el sistema está estable en la versión `v3.26.14` en su rama `feature-ai-assistant` con el asistente de IA configurado, y pregunta si desea comenzar directamente con el análisis y diseño de la **integración con Podarapp (AppSheet + Google Sheets)**.
