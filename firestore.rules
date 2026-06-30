@@ -42,7 +42,7 @@ service cloud.firestore {
     // Eliminación: solo ROOT
     // ══════════════════════════════════════════════════════════════
     match /personal/{userId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow create: if isAdmin();
       allow update: if isAuthenticated()
         && (request.auth.uid == userId || isAdmin());

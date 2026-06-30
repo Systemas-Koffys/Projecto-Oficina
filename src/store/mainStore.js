@@ -473,11 +473,6 @@ export const useMainStore = defineStore('mainStore', () => {
           showToast("Su acceso ha sido revocado por el administrador.", "error");
         }
       }
-
-      // Sincronizar catálogo de login público si somos ADMIN o ROOT
-      if (uiState.user && ['ADMIN', 'ROOT'].includes(uiState.user.role)) {
-        updatePublicUsuariosList();
-      }
     }, (error) => {
       console.error("Error sync personal:", error);
     });
@@ -860,12 +855,22 @@ export const useMainStore = defineStore('mainStore', () => {
   // --- GESTIÓN DE USUARIOS ---
   async function fetchPublicUsuarios() {
     try {
-      const docRef = doc(db, 'catalogos', 'usuarios_login');
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        return docSnap.data().items || [];
-      }
-      return [];
+      const collRef = collection(db, 'personal');
+      const querySnap = await getDocs(collRef);
+      const list = [];
+      querySnap.forEach(docSnap => {
+        const p = docSnap.data();
+        if (p.estado === 'Activo' && p.username && p.username.trim() !== '') {
+          list.push({
+            nombre: p.nombre,
+            username: p.username || '',
+            role: p.role,
+            cargo: p.cargo,
+            foto: p.foto
+          });
+        }
+      });
+      return list;
     } catch (error) {
       console.error("Error al cargar usuarios públicos:", error);
       return [];
@@ -1316,7 +1321,6 @@ export const useMainStore = defineStore('mainStore', () => {
           createdAt: serverTimestamp()
         };
         await setDoc(docRef, formatted);
-        updatePublicUsuariosList();
         return true;
       }
 
@@ -1419,7 +1423,6 @@ export const useMainStore = defineStore('mainStore', () => {
         }
 
         await updateDoc(docRef, formatted);
-        updatePublicUsuariosList();
         return true;
       }
 
@@ -1464,7 +1467,6 @@ export const useMainStore = defineStore('mainStore', () => {
           }
         }
         await deleteDoc(docRef);
-        updatePublicUsuariosList();
         return true;
       }
 
@@ -2069,33 +2071,6 @@ export const useMainStore = defineStore('mainStore', () => {
     }
   }
 
-  async function updatePublicUsuariosList() {
-    try {
-      const collRef = collection(db, 'personal');
-      const querySnap = await getDocs(collRef);
-      const list = [];
-      querySnap.forEach(docSnap => {
-        const p = docSnap.data();
-        if (p.estado === 'Activo' && p.username && p.username.trim() !== '') {
-          list.push({
-            nombre: p.nombre,
-            username: p.username || '',
-            role: p.role,
-            cargo: p.cargo,
-            foto: p.foto || null
-          });
-        }
-      });
-      const docRef = doc(db, 'catalogos', 'usuarios_login');
-      await setDoc(docRef, { items: list, lastUpdated: serverTimestamp() });
-      console.log('✅ Catálogo de login público actualizado.');
-      return true;
-    } catch (error) {
-      console.error('❌ Error al actualizar catálogo de login público:', error);
-      return false;
-    }
-  }
-
   return {
     store,
     uiState,
@@ -2146,7 +2121,6 @@ export const useMainStore = defineStore('mainStore', () => {
     addMantenimientoActivo,
     fetchMantenimientosActivo,
     fetchRepuestosActivo,
-    updatePublicUsuariosList,
     responsableArea,
     jefeUnidad
   };
