@@ -106,7 +106,6 @@
                     <div class="relative flex-1 md:w-48 font-bold text-sm">
                         <select v-model="filterStockTipo" class="w-full bg-card-sec border border-main rounded-2xl px-4 py-3 text-xs font-bold focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
                             <option value="">Todos los Tipos</option>
-                            <option value="Activo">Activos</option>
                             <option value="Consumible">Consumibles</option>
                             <option value="Repuesto">Repuestos</option>
                         </select>
@@ -1892,16 +1891,18 @@ const filterOnlyTecnicos = computed(() => {
 
 const filteredStock = computed(() => {
     // Merge inventarioItems with consumibles stock data for a unified catalog view
-    let list = store.inventarioItems.map(item => {
-        const stockRow = store.inventarioConsumibles.find(c => c.id_item === item.id_item)
-        return {
-            ...item,
-            item_nombre: item.nombre,
-            cantidad_almacen: stockRow ? stockRow.cantidad_almacen : 0,
-            cantidad_oficina: stockRow ? stockRow.cantidad_oficina : 0,
-            cantidad_tecnicos: stockRow ? stockRow.cantidad_tecnicos : 0
-        }
-    })
+    let list = store.inventarioItems
+        .filter(item => item.tipo !== 'Activo')
+        .map(item => {
+            const stockRow = store.inventarioConsumibles.find(c => c.id_item === item.id_item)
+            return {
+                ...item,
+                item_nombre: item.nombre,
+                cantidad_almacen: stockRow ? stockRow.cantidad_almacen : 0,
+                cantidad_oficina: stockRow ? stockRow.cantidad_oficina : 0,
+                cantidad_tecnicos: stockRow ? stockRow.cantidad_tecnicos : 0
+            }
+        })
     if (filterStockTipo.value) {
         list = list.filter(c => c.tipo === filterStockTipo.value)
     }

@@ -1,8 +1,8 @@
-# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.25)
+# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.26)
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**  
 > **Fecha de Actualización:** 3 de Julio de 2026  
-> **Versión Actual:** `v3.26.25` (Desarrollo en rama `feature-ai-assistant`)  
+> **Versión Actual:** `v3.26.26` (Desarrollo en rama `feature-ai-assistant`)  
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)  
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura  
 
@@ -81,8 +81,9 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 
 ---
 
-## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.25`)
+## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.26`)
 
+- ✅ **Exclusión de Activos Fijos del Stock e Inventario (`v3.26.26`):** Filtrados y excluidos globalmente todos los ítems de tipo `"Activo"` (como Motosierras y Podadoras de altura) de la subpestaña **Stock General y Catálogo**, centralizando su control de forma exclusiva bajo **Fichas Técnicas Activos**.
 - ✅ **Reimpresión de Reportes Individuales y Corrección de Estados (`v3.26.25`):** Solucionado el bug en el historial del Centro de Reportes que impedía visualizar/reimprimir reportes individuales (redirigiendo dinámicamente a la vista de origen para abrir la ficha e imprimir). Estandarizada la etiqueta del mapa de `"Solo Ejecutados"` a `"Solo Terminados"`.
 - ✅ **Iconos Vectoriales Lucide en Mapa (`v3.26.24`):** Se rediseñaron los marcadores del mapa utilizando pines de geolocalización de alta nitidez que integran en su interior el icono vectorial oficial `tree-deciduous` de Lucide, centrado y escalado de forma matemática.
 - ✅ **Unificación de Estados y Rediseño de Mapa (`v3.26.23`):** Se normalizó el campo `estado_tramite` a `'En espera'` al cargar solicitudes de Firestore. Se actualizó el filtro predeterminado en `MapaView.vue` a `'En espera'`.
