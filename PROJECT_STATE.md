@@ -1,8 +1,8 @@
-# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.27)
+# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.28)
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**  
 > **Fecha de Actualización:** 3 de Julio de 2026  
-> **Versión Actual:** `v3.26.27` (Desarrollo en rama `feature-ai-assistant`)  
+> **Versión Actual:** `v3.26.28` (Desarrollo en rama `feature-ai-assistant`)  
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)  
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura  
 
@@ -81,8 +81,9 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 
 ---
 
-## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.27`)
+## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.28`)
 
+- ✅ **Control de Voz y Rediseño Adaptativo del Asistente IA (`v3.26.28`):** Rediseñada la pantalla del Asistente IA utilizando clases semánticas de tema para perfecta adaptación en modo día, nocturno y colors. Removido el avatar de emoji/círculo en la tarjeta izquierda e implementado un botón de detención de reproducción de voz (`⏹ Detener Voz`) para silenciar locuciones en tiempo real.
 - ✅ **Widget de Lenguajes, Módulo IA y Ajustes de Base de Datos (`v3.26.27`):** Agregada tarjeta de lenguajes estilo GitHub en **Acerca de** junto con el módulo **Asistente IA** en la cuadrícula oficial. Clarificada la terminología de base de datos en **Configuraciones** (especificando respaldo NoSQL/JSON). Estandarizados textos de la API key de "Gemini" a "Groq".
 - ✅ **Exclusión de Activos Fijos del Stock e Inventario (`v3.26.26`):** Filtrados y excluidos globalmente todos los ítems de tipo `"Activo"` (como Motosierras y Podadoras de altura) de la subpestaña **Stock General y Catálogo**, centralizando su control de forma exclusiva bajo **Fichas Técnicas Activos**.
 - ✅ **Reimpresión de Reportes Individuales y Corrección de Estados (`v3.26.25`):** Solucionado el bug en el historial del Centro de Reportes que impedía visualizar/reimprimir reportes individuales (redirigiendo dinámicamente a la vista de origen para abrir la ficha e imprimir). Estandarizada la etiqueta del mapa de `"Solo Ejecutados"` a `"Solo Terminados"`.

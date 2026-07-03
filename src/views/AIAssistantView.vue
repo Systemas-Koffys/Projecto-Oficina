@@ -21,33 +21,33 @@
       <!-- Panel de Control y Sugerencias Izquierdo -->
       <div class="w-full md:w-80 flex flex-col gap-4 shrink-0">
         <!-- Tarjeta del Asistente -->
-        <div class="bg-emerald-950/40 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-xl flex flex-col items-center text-center">
-          <div class="relative mb-3">
-            <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-3xl flex items-center justify-center text-4xl shadow-lg border border-white/10 animate-pulse-slow">
-              🌳
-            </div>
-            <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-4 border-[#042f24] rounded-full"></div>
-          </div>
-          <h2 class="text-lg font-black text-white">ArborGest AI</h2>
-          <p class="text-[10px] text-emerald-400 font-black uppercase tracking-widest mt-0.5">Asistente por Voz Activo</p>
+        <div class="bg-card-main border border-main p-6 rounded-3xl shadow-sm flex flex-col items-center text-center">
+          <h2 class="text-lg font-black text-main leading-tight">ArborGest AI</h2>
+          <p class="text-[10px] text-accent font-black uppercase tracking-widest mt-1">Asistente de Voz Activo</p>
           
-          <div class="w-full border-t border-white/10 my-4"></div>
+          <div class="w-full border-t border-main my-4"></div>
           
           <!-- Control de Voz Activo (Síntesis) -->
           <div class="flex items-center justify-between w-full px-2 text-xs">
-            <span class="text-white/60 font-semibold flex items-center gap-1.5">
+            <span class="text-muted font-bold flex items-center gap-1.5">
               🔊 Hablar respuesta
             </span>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="voiceEnabled" class="sr-only peer">
-              <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+              <div class="w-9 h-5 bg-card-sec border border-main peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
             </label>
           </div>
+
+          <!-- Botón para detener la voz si está hablando -->
+          <button v-if="isSpeaking" @click="stopSpeaking" class="mt-4 w-full py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all animate-pulse flex items-center justify-center gap-2 cursor-pointer">
+            <span class="w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></span>
+            <span>⏹ Detener Voz</span>
+          </button>
         </div>
 
         <!-- Tarjeta de Sugerencias -->
-        <div class="flex-1 bg-emerald-950/20 backdrop-blur-lg border border-white/5 p-5 rounded-3xl shadow-xl flex flex-col overflow-hidden">
-          <h3 class="text-xs font-black text-white/50 uppercase tracking-widest mb-3 flex items-center gap-2">
+        <div class="flex-1 bg-card-main border border-main p-5 rounded-3xl shadow-sm flex flex-col overflow-hidden">
+          <h3 class="text-xs font-black text-muted uppercase tracking-widest mb-3 flex items-center gap-2">
             💡 Sugerencias de consulta
           </h3>
           <div class="flex-1 overflow-y-auto space-y-2.5 pr-1 custom-scrollbar">
@@ -55,7 +55,7 @@
               v-for="(suggestion, idx) in suggestions" 
               :key="idx" 
               @click="sendSuggestion(suggestion)"
-              class="w-full text-left p-3.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-emerald-500/20 rounded-2xl text-xs text-white/80 hover:text-white font-medium transition-all hover:translate-x-1 active:scale-[0.98] cursor-pointer"
+              class="w-full text-left p-3.5 bg-card-sec hover:bg-accent-soft border border-main rounded-2xl text-xs text-main font-bold transition-all hover:translate-x-1 active:scale-[0.98] cursor-pointer"
             >
               {{ suggestion }}
             </button>
@@ -64,21 +64,21 @@
       </div>
 
       <!-- Panel de Mensajes y Entrada Derecho -->
-      <div class="flex-1 flex flex-col bg-emerald-950/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden relative">
+      <div class="flex-1 flex flex-col bg-card-main border border-main rounded-3xl shadow-sm overflow-hidden relative">
         
         <!-- Historial del Chat -->
         <div ref="chatContainer" class="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth custom-scrollbar">
           <!-- Mensaje de Bienvenida Inicial -->
           <div class="flex gap-3 max-w-[85%]">
-            <div class="w-9 h-9 shrink-0 bg-emerald-500/20 border border-emerald-500/20 rounded-xl flex items-center justify-center text-lg select-none">🤖</div>
-            <div class="p-4 bg-emerald-900/30 border border-white/5 text-white/90 rounded-2xl rounded-tl-none shadow-md space-y-2">
+            <div class="w-9 h-9 shrink-0 bg-accent-soft text-accent border border-accent/20 rounded-xl flex items-center justify-center text-lg select-none">🤖</div>
+            <div class="p-4 bg-card-sec border border-main text-main rounded-2xl rounded-tl-none shadow-sm space-y-2">
               <p class="text-xs font-bold leading-relaxed">
                 ¡Hola! Soy **ArborGest AI**, tu asistente inteligente del área de Arboricultura de Tarija. 
               </p>
-              <p class="text-[11px] text-white/70 leading-relaxed font-medium">
+              <p class="text-[11px] text-muted leading-relaxed font-semibold">
                 Tengo acceso en tiempo real a las solicitudes de poda, tala y los catálogos del sistema. Puedes hacerme preguntas por voz o escribir en el chat. 
               </p>
-              <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
+              <p class="text-[10px] text-accent font-bold uppercase tracking-wider">
                 Prueba diciendo: "¿Cuántas podas activas hay?" o "¿Quién es el Responsable de Área?"
               </p>
             </div>
@@ -93,17 +93,17 @@
             <!-- Avatar -->
             <div :class="['w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-lg select-none border', 
               msg.role === 'user' 
-                ? 'bg-emerald-500 text-white border-emerald-400' 
-                : 'bg-emerald-500/20 border-emerald-500/20'
+                ? 'bg-accent text-on-accent border-accent' 
+                : 'bg-accent-soft text-accent border-accent/20'
             ]">
               {{ msg.role === 'user' ? '👤' : '🤖' }}
             </div>
 
             <!-- Burbuja de Mensaje -->
-            <div :class="['p-4 rounded-2xl shadow-md text-xs font-medium leading-relaxed whitespace-pre-line',
+            <div :class="['p-4 rounded-2xl shadow-sm text-xs font-medium leading-relaxed whitespace-pre-line',
               msg.role === 'user' 
-                ? 'bg-emerald-600 text-white rounded-tr-none' 
-                : 'bg-emerald-900/30 border border-white/5 text-white/90 rounded-tl-none'
+                ? 'bg-accent text-on-accent rounded-tr-none' 
+                : 'bg-card-sec border border-main text-main rounded-tl-none'
             ]">
               {{ msg.content }}
             </div>
@@ -111,17 +111,17 @@
 
           <!-- Indicador de Escribiendo / Pensando -->
           <div v-if="loading" class="flex gap-3 max-w-[85%] animate-pulse">
-            <div class="w-9 h-9 shrink-0 bg-emerald-500/20 border border-emerald-500/20 rounded-xl flex items-center justify-center text-lg">🤖</div>
-            <div class="p-4 bg-emerald-900/30 border border-white/5 rounded-2xl rounded-tl-none flex items-center gap-1.5">
-              <div class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
-              <div class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
-              <div class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+            <div class="w-9 h-9 shrink-0 bg-accent-soft text-accent border border-accent/20 rounded-xl flex items-center justify-center text-lg">🤖</div>
+            <div class="p-4 bg-card-sec border border-main rounded-2xl rounded-tl-none flex items-center gap-1.5">
+              <div class="w-2.5 h-2.5 bg-accent rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+              <div class="w-2.5 h-2.5 bg-accent rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+              <div class="w-2.5 h-2.5 bg-accent rounded-full animate-bounce" style="animation-delay: 300ms"></div>
             </div>
           </div>
         </div>
 
         <!-- Área de Entrada de Voz / Texto -->
-        <div class="p-4 bg-[#032119]/80 border-t border-white/10 backdrop-blur-md flex items-center gap-3">
+        <div class="p-4 bg-card-sec border-t border-main flex items-center gap-3">
           
           <!-- Botón de Micrófono con Reconocimiento de Voz -->
           <button 
@@ -129,8 +129,8 @@
             :class="[
               'w-14 h-14 rounded-2xl shrink-0 flex items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden group shadow-lg',
               isListening 
-                ? 'bg-red-600 hover:bg-red-500 text-white ring-4 ring-red-600/30 scale-105' 
-                : 'bg-emerald-500 hover:bg-emerald-400 text-black active:scale-[0.98]'
+                ? 'bg-red-500 hover:bg-red-600 text-white ring-4 ring-red-500/30 scale-105' 
+                : 'bg-accent text-on-accent hover:opacity-90 active:scale-[0.98]'
             ]"
             :title="isListening ? 'Detener micrófono' : 'Preguntar por voz'"
           >
@@ -147,19 +147,19 @@
           </button>
 
           <!-- Input de Texto -->
-          <div class="flex-1 relative flex items-center bg-white/5 border border-white/10 rounded-2xl focus-within:border-emerald-500/40 focus-within:bg-white/10 transition-all px-4 py-3 text-white">
+          <div class="flex-1 relative flex items-center bg-card-main border border-main rounded-2xl focus-within:border-accent/40 focus-within:ring-4 focus-within:ring-accent/10 transition-all px-4 py-3 text-main">
             <input 
               v-model="inputQuery" 
               @keyup.enter="handleSend"
               placeholder="Escribe o habla tu consulta sobre podas..."
-              class="flex-1 bg-transparent border-0 outline-none text-xs font-semibold py-1 min-w-0 pr-10 text-white placeholder-white/35"
+              class="flex-1 bg-transparent border-0 outline-none text-xs font-semibold py-1 min-w-0 pr-10 text-main placeholder-muted"
               id="ai-query-input"
             />
             
             <button 
               @click="handleSend" 
               :disabled="!inputQuery.trim() || loading"
-              class="absolute right-3 text-emerald-400 hover:text-emerald-300 transition-colors disabled:opacity-30 disabled:hover:text-emerald-400 cursor-pointer flex items-center justify-center"
+              class="absolute right-3 text-accent hover:text-accent-hover transition-colors disabled:opacity-30 disabled:hover:text-accent cursor-pointer flex items-center justify-center"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
             </button>
@@ -183,10 +183,16 @@ const mainStore = useMainStore()
 const isApiKeyMissing = ref(!import.meta.env.VITE_GROQ_API_KEY)
 const voiceEnabled = ref(false)
 const isListening = ref(false)
+const isSpeaking = ref(false)
 const inputQuery = ref('')
 const loading = ref(false)
 const messages = ref([])
 const chatContainer = ref(null)
+
+const stopSpeaking = () => {
+  window.speechSynthesis.cancel()
+  isSpeaking.value = false
+}
 
 // Sugerencias de preguntas dinámicas y contextualizadas
 const suggestions = [
@@ -276,12 +282,26 @@ const speakResponse = (text) => {
   const utterance = new SpeechSynthesisUtterance(cleanText)
   utterance.lang = 'es-ES' // Español
   utterance.rate = 1.05 // Velocidad un poquito más ágil
+  
+  utterance.onstart = () => {
+    isSpeaking.value = true
+  }
+  utterance.onend = () => {
+    isSpeaking.value = false
+  }
+  utterance.onerror = () => {
+    isSpeaking.value = false
+  }
+
   window.speechSynthesis.speak(utterance)
 }
 
 const handleSend = async () => {
   const query = inputQuery.value.trim()
   if (!query || loading.value) return
+
+  // Detener la reproducción de voz anterior
+  stopSpeaking()
 
   // Agregar mensaje de usuario al chat
   messages.value.push({ role: 'user', content: query })
