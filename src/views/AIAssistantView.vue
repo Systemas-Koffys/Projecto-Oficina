@@ -4,7 +4,7 @@
     <!-- Aviso si no está configurada la API Key -->
     <div v-if="isApiKeyMissing" class="m-auto max-w-md p-8 bg-amber-500/10 border border-amber-500/25 rounded-3xl backdrop-blur-md text-center space-y-4 animate-fade-in shadow-lg">
       <div class="w-16 h-16 bg-amber-500/20 text-amber-500 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-inner">⚠️</div>
-      <h2 class="text-xl font-black text-amber-400">Falta la API Key de Gemini</h2>
+      <h2 class="text-xl font-black text-amber-400">Falta la API Key de Groq</h2>
       <p class="text-xs text-amber-200/70 leading-relaxed font-medium">
         Para activar el asistente inteligente de Arboricultura, debes configurar la variable <code class="bg-black/30 px-2 py-0.5 rounded font-mono text-amber-300">VITE_GROQ_API_KEY</code> en tu archivo <code class="bg-black/30 px-2 py-0.5 rounded font-mono text-amber-300">.env</code> en el servidor local.
       </p>
@@ -308,7 +308,7 @@ const handleSend = async () => {
       inventarioMovimientos: mainStore.store.inventarioMovimientos || []
     }
 
-    // Consultar a Gemini
+    // Consultar a Groq (LLaMA)
     const answer = await askGemini(query, contexto)
 
     // Agregar mensaje del bot

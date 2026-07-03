@@ -455,11 +455,11 @@ const getOptions = (optionKey) => store[optionKey] || []
                                 <Database class="w-8 h-8" />
                             </div>
                             <div>
-                                <h4 class="text-xl font-black text-main">Exportar Catálogos</h4>
-                                <p class="text-sm text-muted mt-2">Descarga un respaldo en formato JSON con todos los catálogos del sistema (especies, acciones, barrios, distritos, etc.) almacenados en Firebase Firestore.</p>
+                                <h4 class="text-xl font-black text-main">Respaldar Base de Datos (NoSQL)</h4>
+                                <p class="text-sm text-muted mt-2">Descarga un respaldo de seguridad en formato de documentos JSON con todos los catálogos del sistema (especies, acciones, barrios, distritos, etc.) almacenados en la base de datos NoSQL (Firebase Firestore).</p>
                             </div>
                             <button @click="handleBackup" class="w-full bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] py-4 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-accent/20 active:scale-95">
-                                Descargar Respaldo JSON
+                                Descargar Respaldo NoSQL (JSON)
                             </button>
                         </div>
 

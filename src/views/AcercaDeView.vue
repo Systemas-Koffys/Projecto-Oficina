@@ -112,9 +112,22 @@
                 <CloudLightning size="22" />
               </div>
               <div>
-                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Soporte PWA e IndexedDB</h4>
+                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Sincronización Offline</h4>
                 <p class="text-[11px] text-muted leading-relaxed font-semibold">
                   Cola de sincronización en localstorage/IndexedDB para formularios ininterrumpidos sin señal de red y descarga local de catálogos base.
+                </p>
+              </div>
+            </div>
+
+            <!-- Módulo 7: Asistente IA Arboricultura -->
+            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-accent/40 group">
+              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Sparkles size="22" />
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Asistente IA Arboricultura</h4>
+                <p class="text-[11px] text-muted leading-relaxed font-semibold">
+                  Módulo de inteligencia artificial (Groq LLM) para soporte en diagnósticos de poda y tala, y consultas especializadas en arboricultura.
                 </p>
               </div>
             </div>
@@ -222,6 +235,39 @@
           </div>
         </div>
 
+        <!-- Caja de Lenguajes de Programación (Estilo GitHub) -->
+        <div class="bg-card-main border border-main rounded-[2.5rem] shadow-sm p-6 space-y-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-accent/30">
+          <h3 class="text-xs font-black text-main uppercase tracking-widest flex items-center gap-2">
+            <Code size="14" class="text-accent" />
+            Lenguajes del Proyecto
+          </h3>
+          <!-- Barra de Progreso Multi-segmento -->
+          <div class="w-full h-3 rounded-full overflow-hidden flex bg-card-sec">
+            <div class="bg-yellow-500 h-full" style="width: 82.4%" title="JavaScript: 82.4%"></div>
+            <div class="bg-emerald-500 h-full" style="width: 11.8%" title="Vue: 11.8%"></div>
+            <div class="bg-cyan-500 h-full" style="width: 5.8%" title="CSS: 5.8%"></div>
+          </div>
+          <!-- Leyenda de Porcentajes -->
+          <div class="grid grid-cols-3 gap-2 pt-2 text-[10px] font-bold">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-yellow-500 shrink-0"></span>
+              <span class="text-main">JavaScript</span>
+              <span class="text-muted ml-auto">82.4%</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+              <span class="text-main">Vue</span>
+              <span class="text-muted ml-auto">11.8%</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-500 shrink-0"></span>
+              <span class="text-main">CSS</span>
+              <span class="text-muted ml-auto">5.8%</span>
+            </div>
+          </div>
+          <p class="text-[9px] text-muted leading-tight mt-2 font-bold uppercase tracking-tight">Estadísticas compiladas a partir de la estructura del codebase en GitHub.</p>
+        </div>
+
       </div>
     </div>
 
@@ -281,7 +327,7 @@
 
 <script setup>
 import { useMainStore } from '../store/mainStore.js'
-import { Info, FileText, MapPin, Users, ShieldCheck, Code, Phone, Mail, Linkedin, Github, Book, Scale, Wrench, CloudLightning } from 'lucide-vue-next'
+import { Info, FileText, MapPin, Users, ShieldCheck, Code, Phone, Mail, Linkedin, Github, Book, Scale, Wrench, CloudLightning, Sparkles } from 'lucide-vue-next'
 import logoKoffys from '../assets/logo-koffys.png'
 import packageInfo from '../../package.json'
 
