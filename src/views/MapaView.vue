@@ -58,7 +58,7 @@
 
           <div class="bg-card-main px-4 py-2 rounded-xl border border-main flex items-center gap-3 shadow-sm">
             <span class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></span>
-            <span class="text-xs font-black text-main">{{ stats.pendientes }} Pend.</span>
+            <span class="text-xs font-black text-main">{{ stats.pendientes }} En Espera</span>
           </div>
           <div class="bg-card-main px-4 py-2 rounded-xl border border-main flex items-center gap-3 shadow-sm">
             <span class="w-3 h-3 rounded-full bg-green-500"></span>
@@ -87,7 +87,7 @@
           <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Estado del Trámite</label>
           <select v-model="filtros.estado" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
             <option value="todos">Todos los Estados</option>
-            <option value="Pendiente">Solo Pendientes</option>
+            <option value="En espera">Solo en espera</option>
             <option value="Terminado">Solo Ejecutados</option>
           </select>
         </div>
@@ -601,7 +601,7 @@ const formatLoSolicitado = (sol) => {
 
 const mostrarFiltros = ref(false)
 const filtros = reactive({
-  estado: 'todos',
+  estado: 'En espera',
   distrito: 'todos',
   barrio: 'todos',
   accion: 'todos',
@@ -635,7 +635,7 @@ const geolocalizadas = computed(() => {
 
     // 1. Filtro Estado
     if (filtros.estado !== 'todos') {
-      if (filtros.estado === 'Pendiente' && s.estado_tramite === 'Terminado') return false
+      if (filtros.estado === 'En espera' && s.estado_tramite === 'Terminado') return false
       if (filtros.estado === 'Terminado' && s.estado_tramite !== 'Terminado') return false
     }
 
@@ -815,8 +815,10 @@ const renderMarkers = () => {
       const customIcon = L.divIcon({
         className: 'custom-div-icon',
         html: `
-          <svg viewBox="0 0 24 24" width="30" height="30" fill="${color}" stroke="#ffffff" stroke-width="1.5" class="map-tree-marker">
-            <path d="M12 2 L8 8 H10 L6 13 H9 L4 18 H11 V22 H13 V18 H20 L15 13 H18 L14 8 H16 Z" />
+          <svg viewBox="0 0 24 24" width="30" height="30" class="map-tree-marker">
+            <path d="M12 18v4M8 22h8" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M12 18c-3.3 0-6-2.7-6-6 0-1.8.8-3.4 2-4.5A4.5 4.5 0 0 1 12 3a4.5 4.5 0 0 1 6 4.5c1.2 1.1 2 2.7 2 4.5 0 3.3-2.7 6-6 6z" fill="${color}" stroke="#ffffff" stroke-width="1.5" />
+            <path d="M12 9v5M12 11l-2-1.5M12 12.5l2-1.5" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
           </svg>
         `,
         iconSize: [30, 30],

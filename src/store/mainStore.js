@@ -484,7 +484,11 @@ export const useMainStore = defineStore('mainStore', () => {
     const unsubSolicitudes = onSnapshot(query(collection(db, 'solicitudes'), orderBy('createdAt', 'desc')), (snapshot) => {
       const allSolicitudes = [];
       snapshot.forEach(doc => {
-        allSolicitudes.push(doc.data());
+        const data = doc.data();
+        if (data.estado_tramite === 'Pendiente' || !data.estado_tramite) {
+          data.estado_tramite = 'En espera';
+        }
+        allSolicitudes.push(data);
       });
       store.solicitudes = allSolicitudes;
     }, (error) => {
