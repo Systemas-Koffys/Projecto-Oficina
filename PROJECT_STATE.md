@@ -1,8 +1,8 @@
-# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.24)
+# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.25)
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**  
 > **Fecha de Actualización:** 3 de Julio de 2026  
-> **Versión Actual:** `v3.26.24` (Desarrollo en rama `feature-ai-assistant`)  
+> **Versión Actual:** `v3.26.25` (Desarrollo en rama `feature-ai-assistant`)  
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)  
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura  
 
@@ -81,8 +81,9 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 
 ---
 
-## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.24`)
+## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.25`)
 
+- ✅ **Reimpresión de Reportes Individuales y Corrección de Estados (`v3.26.25`):** Solucionado el bug en el historial del Centro de Reportes que impedía visualizar/reimprimir reportes individuales (redirigiendo dinámicamente a la vista de origen para abrir la ficha e imprimir). Estandarizada la etiqueta del mapa de `"Solo Ejecutados"` a `"Solo Terminados"`.
 - ✅ **Iconos Vectoriales Lucide en Mapa (`v3.26.24`):** Se rediseñaron los marcadores del mapa utilizando pines de geolocalización de alta nitidez que integran en su interior el icono vectorial oficial `tree-deciduous` de Lucide, centrado y escalado de forma matemática.
 - ✅ **Unificación de Estados y Rediseño de Mapa (`v3.26.23`):** Se normalizó el campo `estado_tramite` a `'En espera'` al cargar solicitudes de Firestore. Se actualizó el filtro predeterminado en `MapaView.vue` a `'En espera'`.
 - ✅ **Optimización de Visualización de Tablas (`v3.26.22`):** Se compactaron las tablas en `SolicitudesView.vue` y `HistorialView.vue` mediante una cuadrícula de 2x2 para las acciones (botones cuadrados), truncado inteligente a 140px en columnas largas con tooltip en hover, reducción de paddings en celdas a la mitad, y barra de desplazamiento horizontal pegada al contenedor visible de la tabla.

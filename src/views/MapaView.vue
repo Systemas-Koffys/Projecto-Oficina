@@ -62,7 +62,7 @@
           </div>
           <div class="bg-card-main px-4 py-2 rounded-xl border border-main flex items-center gap-3 shadow-sm">
             <span class="w-3 h-3 rounded-full bg-green-500"></span>
-            <span class="text-xs font-black text-main">{{ stats.ejecutadas }} Ejec.</span>
+            <span class="text-xs font-black text-main">{{ stats.ejecutadas }} Terminados</span>
           </div>
           
           <!-- Botón Limpiar (Premium) -->
@@ -88,7 +88,7 @@
           <select v-model="filtros.estado" class="bg-card-sec border border-main rounded-xl px-3 py-2.5 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
             <option value="todos">Todos los Estados</option>
             <option value="En espera">Solo en espera</option>
-            <option value="Terminado">Solo Ejecutados</option>
+            <option value="Terminado">Solo Terminados</option>
           </select>
         </div>
         <!-- Select: Distrito -->

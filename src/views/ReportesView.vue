@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import * as XLSX from 'xlsx'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
+const router = useRouter()
 const { store, uiState, registrarImpresion, deleteImpresion, updateImpresionName, showToast, fetchImpresiones, responsableArea, jefeUnidad } = mainStore
 import { Printer, History, Trash2, Edit3, Eye, FileText, Filter, ChevronRight, Search, Download, AlertTriangle } from 'lucide-vue-next'
 
@@ -323,6 +325,22 @@ const exportarExcel = () => {
 }
 
 const handleReimprimir = (imp) => {
+    if (imp.tipo_reporte === 'Individual') {
+        const sol = store.solicitudes.find(s => s.id_solicitud === imp.id_solicitud || s.comunicacion_interna === imp.id_solicitud)
+        if (sol) {
+            uiState.autoVerSolicitudId = sol.id_solicitud
+            uiState.autoImprimirSolicitud = true
+            if (sol.estado_tramite === 'Terminado') {
+                router.push('/historial')
+            } else {
+                router.push('/solicitudes')
+            }
+        } else {
+            showToast('No se encontró la solicitud original en el sistema.', 'error')
+        }
+        return
+    }
+
     // Restaurar todos los filtros guardados al momento de generar el reporte
     if (imp.filtros_snapshot) {
         try {

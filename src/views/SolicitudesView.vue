@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import * as XLSX from 'xlsx'
 import { useMainStore } from '../store/mainStore.js'
 const mainStore = useMainStore()
@@ -17,6 +17,42 @@ const solicitudSeleccionada = ref(null)
 const abrirDetalle = (sol) => {
     solicitudSeleccionada.value = sol;
 }
+
+onMounted(() => {
+    if (uiState.autoVerSolicitudId) {
+        const sol = store.solicitudes.find(s => s.id_solicitud === uiState.autoVerSolicitudId)
+        if (sol) {
+            solicitudSeleccionada.value = sol
+            if (uiState.autoImprimirSolicitud) {
+                uiState.autoImprimirSolicitud = false
+                setTimeout(() => {
+                    imprimirReporte()
+                    uiState.autoVerSolicitudId = null
+                }, 400)
+            } else {
+                uiState.autoVerSolicitudId = null
+            }
+        }
+    }
+})
+
+watch(() => uiState.autoVerSolicitudId, (newId) => {
+    if (newId) {
+        const sol = store.solicitudes.find(s => s.id_solicitud === newId)
+        if (sol) {
+            solicitudSeleccionada.value = sol
+            if (uiState.autoImprimirSolicitud) {
+                uiState.autoImprimirSolicitud = false
+                setTimeout(() => {
+                    imprimirReporte()
+                    uiState.autoVerSolicitudId = null
+                }, 400)
+            } else {
+                uiState.autoVerSolicitudId = null
+            }
+        }
+    }
+})
 
 // Abrir modal en modo edición
 const abrirEdicion = (sol) => {
