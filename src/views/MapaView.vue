@@ -815,14 +815,18 @@ const renderMarkers = () => {
       const customIcon = L.divIcon({
         className: 'custom-div-icon',
         html: `
-          <svg viewBox="0 0 24 24" width="30" height="30" class="map-tree-marker">
-            <path d="M12 18v4M8 22h8" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
-            <path d="M12 18c-3.3 0-6-2.7-6-6 0-1.8.8-3.4 2-4.5A4.5 4.5 0 0 1 12 3a4.5 4.5 0 0 1 6 4.5c1.2 1.1 2 2.7 2 4.5 0 3.3-2.7 6-6 6z" fill="${color}" stroke="#ffffff" stroke-width="1.5" />
-            <path d="M12 9v5M12 11l-2-1.5M12 12.5l2-1.5" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
+          <svg viewBox="0 0 24 24" width="36" height="36" style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.35));">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="${color}" stroke="#ffffff" stroke-width="1.5" />
+            <circle cx="12" cy="9" r="4.5" fill="#ffffff" />
+            <g transform="translate(8.5, 5.5) scale(0.29)" stroke="${color}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 22h8" />
+              <path d="M12 18v4" />
+              <path d="M12 18c-3.3 0-6-2.7-6-6 0-1.8.8-3.4 2-4.5A4.5 4.5 0 0 1 12 3a4.5 4.5 0 0 1 6 4.5c1.2 1.1 2 2.7 2 4.5 0 3.3-2.7 6-6 6z" />
+            </g>
           </svg>
         `,
-        iconSize: [30, 30],
-        iconAnchor: [15, 30]
+        iconSize: [36, 36],
+        iconAnchor: [18, 36]
       })
 
       const marker = L.marker([lat, lng], { icon: customIcon })
