@@ -137,7 +137,16 @@ h1, h2, h3, h4, .font-black { font-weight: 900; letter-spacing: -0.03em; }
     background-color: var(--bg-card);
     border-radius: 2rem;
     overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 340px);
     border: 1px solid var(--border);
+}
+
+.col-truncate-custom {
+    max-width: 140px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
 }
 
 table { border-collapse: separate; border-spacing: 0; width: 100%; }
@@ -149,12 +158,12 @@ th {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    padding: 1rem 1.5rem;
+    padding: 1rem 0.75rem;
     border-bottom: 2px solid var(--border);
 }
 
 td {
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 0.75rem;
     border-bottom: 1px solid var(--border);
     font-size: 0.9rem;
     color: var(--text-main);
@@ -434,8 +443,10 @@ svg { stroke: currentColor; }
    MICRO-INTERACCIONES EN BOTONES DE ACCIÓN DE TABLAS
    ============================================================ */
 .action-buttons {
-    display: flex;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, min-content);
+    gap: 6px;
+    justify-content: center;
     align-items: center;
 }
 

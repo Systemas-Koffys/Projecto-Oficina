@@ -1,8 +1,8 @@
-# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.13)
+# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.22)
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**  
-> **Fecha de Actualización:** 29 de Junio de 2026  
-> **Versión Actual:** `v3.26.13` (Commit `66646a3` en repositorio GitHub `origin/main`)  
+> **Fecha de Actualización:** 3 de Julio de 2026  
+> **Versión Actual:** `v3.26.22` (Desarrollo en rama `feature-ai-assistant`)  
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)  
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura  
 
@@ -81,8 +81,9 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 
 ---
 
-## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.13`)
+## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.22`)
 
+- ✅ **Optimización de Visualización de Tablas (`v3.26.22`):** Se compactaron las tablas en `SolicitudesView.vue` y `HistorialView.vue` mediante una cuadrícula de 2x2 para las acciones (botones cuadrados), truncado inteligente a 140px en columnas largas con tooltip en hover, reducción de paddings en celdas a la mitad, y barra de desplazamiento horizontal pegada al contenedor visible de la tabla.
 - ✅ **Selector Tradicional Restaurado:** Habilitada la lectura pública de la colección `personal` en Firestore para cargar de inmediato los nombres, cargos y fotos de los técnicos activos al abrir la pantalla de login sin errores de consola.
 - ✅ **Membrete Oficial Estandarizado:** Implementado en todas las vistas de impresión.
 - ✅ **Módulo de Equipos Operativos (`EquiposView.vue`):** Drag & drop reparado para UIDs alfanuméricos de Firebase. Incorporada barra de resumen con insignias dinámicas por cargo (`1 Técnico`, `2 Choferes`, `3 Trepadores`, etc.) y pluralización gramatical automática.

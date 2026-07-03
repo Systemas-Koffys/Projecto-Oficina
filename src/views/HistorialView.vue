@@ -418,8 +418,8 @@ const formatLoDeterminado = (sol) => {
                                 <td>{{ sol.solicitante_nombre }}</td>
                                 <td class="font-bold text-xs">{{ getDistritoByBarrio(sol.id_barrio) }}</td>
                                 <td>{{ getBarrio(sol.id_barrio) }}</td>
-                                <td class="truncate max-w-xs" :title="formatLoSolicitado(sol)">{{ formatLoSolicitado(sol) }}</td>
-                                <td class="truncate max-w-xs" :title="formatLoDeterminado(sol)">{{ formatLoDeterminado(sol) }}</td>
+                                <td class="col-truncate-custom" :title="formatLoSolicitado(sol)">{{ formatLoSolicitado(sol) }}</td>
+                                <td class="col-truncate-custom" :title="formatLoDeterminado(sol)">{{ formatLoDeterminado(sol) }}</td>
                                 <td>
                                     <span class="badge badge-completed">
                                         {{ sol.estado_tramite }}
