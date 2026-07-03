@@ -23,14 +23,16 @@
       <!-- Panel de Control y Sugerencias Izquierdo -->
       <div class="w-full md:w-80 flex flex-col gap-4 shrink-0">
         <!-- Tarjeta del Asistente -->
-        <div class="bg-card-main border border-main p-6 rounded-3xl shadow-sm flex flex-col items-center text-center">
-          <h2 class="text-lg font-black text-main leading-tight">ArborGest AI</h2>
-          <p class="text-[10px] text-accent font-black uppercase tracking-widest mt-1">Asistente de Voz Activo</p>
+        <div class="bg-card-main border border-main p-6 rounded-2xl shadow-sm flex flex-col gap-4 text-center">
+          <div>
+            <h2 class="text-base font-black text-main tracking-tight">ArborGest AI</h2>
+            <p class="text-[9px] font-black text-accent uppercase tracking-[0.2em] mt-1.5">Asistente de Voz Activo</p>
+          </div>
           
-          <div class="w-full border-t border-main my-4"></div>
+          <div class="border-t border-main"></div>
           
           <!-- Control de Voz Activo (Síntesis) -->
-          <div class="flex items-center justify-between w-full px-2 text-xs">
+          <div class="flex items-center justify-between w-full px-1 text-xs">
             <span class="text-muted font-bold flex items-center gap-2">
               <Volume2 class="w-4 h-4 text-accent shrink-0" />
               <span>Hablar respuesta</span>
@@ -42,7 +44,7 @@
           </div>
 
           <!-- Botón para detener la voz si está hablando -->
-          <button v-if="isSpeaking" @click="stopSpeaking" class="mt-4 w-full py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all animate-pulse flex items-center justify-center gap-2 cursor-pointer">
+          <button v-if="isSpeaking" @click="stopSpeaking" class="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all animate-pulse flex items-center justify-center gap-2 cursor-pointer">
             <Square class="w-3 h-3 fill-current text-current" />
             <span>Detener Voz</span>
           </button>
@@ -135,7 +137,7 @@
           <button 
             @click="toggleSpeechRecognition"
             :class="[
-              'w-14 h-14 rounded-2xl shrink-0 flex items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden group shadow-lg',
+              'w-12 h-12 rounded-xl shrink-0 flex items-center justify-center cursor-pointer transition-all duration-300 relative overflow-hidden group shadow-md',
               isListening 
                 ? 'bg-red-500 hover:bg-red-600 text-white ring-4 ring-red-500/30 scale-105' 
                 : 'bg-accent text-on-accent hover:opacity-90 active:scale-[0.98]'
@@ -146,11 +148,11 @@
             <span v-if="isListening" class="absolute inset-0 bg-red-500/20 animate-ping"></span>
             <span v-if="isListening" class="pulse-ring"></span>
             
-            <Mic class="w-6 h-6 text-current transition-transform group-hover:scale-110" />
+            <Mic class="w-5 h-5 text-current transition-transform group-hover:scale-110" />
           </button>
 
           <!-- Input de Texto -->
-          <div class="flex-1 relative flex items-center bg-card-main border border-main rounded-2xl focus-within:border-accent/40 focus-within:ring-4 focus-within:ring-accent/10 transition-all px-4 py-3 text-main">
+          <div class="flex-1 h-12 relative flex items-center bg-card-main border border-main rounded-xl focus-within:border-accent/40 focus-within:ring-2 focus-within:ring-accent/10 transition-all px-4 text-main">
             <input 
               v-model="inputQuery" 
               @keyup.enter="handleSend"
@@ -162,7 +164,7 @@
             <button 
               @click="handleSend" 
               :disabled="!inputQuery.trim() || loading"
-              class="absolute right-3 text-accent hover:text-accent-hover transition-colors disabled:opacity-30 disabled:hover:text-accent cursor-pointer flex items-center justify-center"
+              class="absolute right-4 text-accent hover:text-accent-hover transition-colors disabled:opacity-30 disabled:hover:text-accent cursor-pointer flex items-center justify-center"
             >
               <Send class="w-4.5 h-4.5" />
             </button>
