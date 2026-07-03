@@ -3,7 +3,9 @@
     
     <!-- Aviso si no está configurada la API Key -->
     <div v-if="isApiKeyMissing" class="m-auto max-w-md p-8 bg-amber-500/10 border border-amber-500/25 rounded-3xl backdrop-blur-md text-center space-y-4 animate-fade-in shadow-lg">
-      <div class="w-16 h-16 bg-amber-500/20 text-amber-500 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-inner">⚠️</div>
+      <div class="w-16 h-16 bg-amber-500/20 text-amber-500 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+        <AlertTriangle class="w-8 h-8" />
+      </div>
       <h2 class="text-xl font-black text-amber-400">Falta la API Key de Groq</h2>
       <p class="text-xs text-amber-200/70 leading-relaxed font-medium">
         Para activar el asistente inteligente de Arboricultura, debes configurar la variable <code class="bg-black/30 px-2 py-0.5 rounded font-mono text-amber-300">VITE_GROQ_API_KEY</code> en tu archivo <code class="bg-black/30 px-2 py-0.5 rounded font-mono text-amber-300">.env</code> en el servidor local.
@@ -29,8 +31,9 @@
           
           <!-- Control de Voz Activo (Síntesis) -->
           <div class="flex items-center justify-between w-full px-2 text-xs">
-            <span class="text-muted font-bold flex items-center gap-1.5">
-              🔊 Hablar respuesta
+            <span class="text-muted font-bold flex items-center gap-2">
+              <Volume2 class="w-4 h-4 text-accent shrink-0" />
+              <span>Hablar respuesta</span>
             </span>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="voiceEnabled" class="sr-only peer">
@@ -40,15 +43,16 @@
 
           <!-- Botón para detener la voz si está hablando -->
           <button v-if="isSpeaking" @click="stopSpeaking" class="mt-4 w-full py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all animate-pulse flex items-center justify-center gap-2 cursor-pointer">
-            <span class="w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></span>
-            <span>⏹ Detener Voz</span>
+            <Square class="w-3 h-3 fill-current text-current" />
+            <span>Detener Voz</span>
           </button>
         </div>
 
         <!-- Tarjeta de Sugerencias -->
         <div class="flex-1 bg-card-main border border-main p-5 rounded-3xl shadow-sm flex flex-col overflow-hidden">
           <h3 class="text-xs font-black text-muted uppercase tracking-widest mb-3 flex items-center gap-2">
-            💡 Sugerencias de consulta
+            <Lightbulb class="w-4 h-4 text-accent shrink-0" />
+            <span>Sugerencias de consulta</span>
           </h3>
           <div class="flex-1 overflow-y-auto space-y-2.5 pr-1 custom-scrollbar">
             <button 
@@ -70,7 +74,9 @@
         <div ref="chatContainer" class="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth custom-scrollbar">
           <!-- Mensaje de Bienvenida Inicial -->
           <div class="flex gap-3 max-w-[85%]">
-            <div class="w-9 h-9 shrink-0 bg-accent-soft text-accent border border-accent/20 rounded-xl flex items-center justify-center text-lg select-none">🤖</div>
+            <div class="w-9 h-9 shrink-0 bg-accent-soft text-accent border border-accent/20 rounded-xl flex items-center justify-center select-none">
+              <Bot class="w-5 h-5" />
+            </div>
             <div class="p-4 bg-card-sec border border-main text-main rounded-2xl rounded-tl-none shadow-sm space-y-2">
               <p class="text-xs font-bold leading-relaxed">
                 ¡Hola! Soy **ArborGest AI**, tu asistente inteligente del área de Arboricultura de Tarija. 
@@ -91,12 +97,12 @@
             :class="['flex gap-3 max-w-[85%] animate-fade-in', msg.role === 'user' ? 'ml-auto flex-row-reverse' : '']"
           >
             <!-- Avatar -->
-            <div :class="['w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-lg select-none border', 
+            <div :class="['w-9 h-9 shrink-0 rounded-xl flex items-center justify-center select-none border', 
               msg.role === 'user' 
                 ? 'bg-accent text-on-accent border-accent' 
                 : 'bg-accent-soft text-accent border-accent/20'
             ]">
-              {{ msg.role === 'user' ? '👤' : '🤖' }}
+              <component :is="msg.role === 'user' ? User : Bot" class="w-5 h-5" />
             </div>
 
             <!-- Burbuja de Mensaje -->
@@ -111,7 +117,9 @@
 
           <!-- Indicador de Escribiendo / Pensando -->
           <div v-if="loading" class="flex gap-3 max-w-[85%] animate-pulse">
-            <div class="w-9 h-9 shrink-0 bg-accent-soft text-accent border border-accent/20 rounded-xl flex items-center justify-center text-lg">🤖</div>
+            <div class="w-9 h-9 shrink-0 bg-accent-soft text-accent border border-accent/20 rounded-xl flex items-center justify-center">
+              <Bot class="w-5 h-5" />
+            </div>
             <div class="p-4 bg-card-sec border border-main rounded-2xl rounded-tl-none flex items-center gap-1.5">
               <div class="w-2.5 h-2.5 bg-accent rounded-full animate-bounce" style="animation-delay: 0ms"></div>
               <div class="w-2.5 h-2.5 bg-accent rounded-full animate-bounce" style="animation-delay: 150ms"></div>
@@ -138,12 +146,7 @@
             <span v-if="isListening" class="absolute inset-0 bg-red-500/20 animate-ping"></span>
             <span v-if="isListening" class="pulse-ring"></span>
             
-            <svg v-if="isListening" class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
-            </svg>
-            <svg v-else class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
-            </svg>
+            <Mic class="w-6 h-6 text-current transition-transform group-hover:scale-110" />
           </button>
 
           <!-- Input de Texto -->
@@ -161,7 +164,7 @@
               :disabled="!inputQuery.trim() || loading"
               class="absolute right-3 text-accent hover:text-accent-hover transition-colors disabled:opacity-30 disabled:hover:text-accent cursor-pointer flex items-center justify-center"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+              <Send class="w-4.5 h-4.5" />
             </button>
           </div>
 
@@ -177,6 +180,9 @@
 import { ref, onMounted, nextTick, watch } from 'vue'
 import { useMainStore } from '../store/mainStore.js'
 import { askGemini } from '../services/gemini.js'
+import { 
+  Bot, User, Lightbulb, Volume2, Square, Mic, Send, AlertTriangle 
+} from 'lucide-vue-next'
 
 const mainStore = useMainStore()
 
