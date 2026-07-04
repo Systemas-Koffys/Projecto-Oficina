@@ -153,6 +153,21 @@
                                 <option value="Alta">🔴 Alta</option>
                             </select>
                         </div>
+                        <!-- Campo Verificado (sincronizado con PodarApp) -->
+                        <div class="col-span-3 flex items-center gap-4 pt-1">
+                            <label class="relative flex items-center gap-3 cursor-pointer select-none group"
+                                :class="form.verificado ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted'">
+                                <div class="w-10 h-6 rounded-full transition-all duration-300 flex items-center px-1"
+                                    :class="form.verificado ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600'"
+                                    @click="form.verificado = !form.verificado">
+                                    <div class="w-4 h-4 rounded-full bg-white shadow transition-all duration-300"
+                                        :class="form.verificado ? 'translate-x-4' : 'translate-x-0'"></div>
+                                </div>
+                                <span class="text-[11px] font-black uppercase tracking-wider">
+                                    {{ form.verificado ? '✅ Verificado en Campo' : '⏳ Pendiente de Verificación' }}
+                                </span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Listado Dinámico de Árboles -->
@@ -200,6 +215,21 @@
                                     <label class="label-prime">Observaciones Específicas del Árbol</label>
                                     <input v-model="arb.observaciones_arbol" @input="capFirst($event, arb, 'observaciones_arbol')" type="text" class="form-input-prime" 
                                         placeholder="Ej: Ramas secas colgando, dañado por hongos, etc.">
+                                </div>
+                                <!-- Campo Realizado por árbol (sincronizado con PodarApp) -->
+                                <div class="col-span-3 flex items-center gap-3 pt-1">
+                                    <label class="relative flex items-center gap-3 cursor-pointer select-none"
+                                        :class="arb.realizado ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted'">
+                                        <div class="w-8 h-5 rounded-full transition-all duration-300 flex items-center px-0.5"
+                                            :class="arb.realizado ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600'"
+                                            @click="arb.realizado = !arb.realizado">
+                                            <div class="w-4 h-4 rounded-full bg-white shadow transition-all duration-300"
+                                                :class="arb.realizado ? 'translate-x-3' : 'translate-x-0'"></div>
+                                        </div>
+                                        <span class="text-[10px] font-black uppercase tracking-wider">
+                                            {{ arb.realizado ? '✅ Árbol Ejecutado' : 'Pendiente' }}
+                                        </span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -330,6 +360,7 @@ const form = ref({
     id_accion_solicitada: null,
     id_accion: null,
     id_tecnico_verificacion: null,
+    verificado: false,
     requiere_plataforma: false,
     requiere_setar: false,
     requiere_ficha_tecnica: false,
@@ -351,7 +382,8 @@ const form = ref({
             id_accion_solicitada: null,
             id_accion_realizar: null,
             observaciones_arbol: '',
-            url_foto: null
+            url_foto: null,
+            realizado: false
         }
     ]
 })
@@ -455,7 +487,8 @@ const addArbol = () => {
         id_accion_solicitada: null,
         id_accion_realizar: null,
         observaciones_arbol: '',
-        url_foto: null
+        url_foto: null,
+        realizado: false
     })
 }
 
