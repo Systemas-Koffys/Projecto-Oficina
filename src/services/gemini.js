@@ -121,6 +121,14 @@ export async function askGemini(pregunta, contexto = {}, historial = []) {
     .map(a => `${a.usuario_nombre || 'Sistema'} realizó ${a.accion} (${a.detalles}) el ${a.fecha_hora_formateada || a.fecha_hora}`);
 
   try {
+    // Normalizar la pregunta para detectar palabras clave y filtrar contexto
+    const qNormal = pregunta.toLowerCase();
+    const necPersonal = qNormal.includes('tecnic') || qNormal.includes('personal') || qNormal.includes('responsable') || qNormal.includes('jefe') || qNormal.includes('online') || qNormal.includes('cuadrilla') || qNormal.includes('quien es') || qNormal.includes('cargo');
+    const necInventario = qNormal.includes('inventario') || qNormal.includes('herramienta') || qNormal.includes('motosierra') || qNormal.includes('stock') || qNormal.includes('almacen') || qNormal.includes('consumible') || qNormal.includes('activo') || qNormal.includes('prestado') || qNormal.includes('equipo');
+    const necCalendario = qNormal.includes('calendario') || qNormal.includes('feriado') || qNormal.includes('aniversario') || qNormal.includes('fiesta') || qNormal.includes('contacto') || qNormal.includes('presidente');
+    const necUsuarios = qNormal.includes('usuario') || qNormal.includes('rol') || qNormal.includes('root') || qNormal.includes('admin') || qNormal.includes('permiso') || qNormal.includes('cuenta');
+    const necAuditoria = qNormal.includes('auditoria') || qNormal.includes('caja negra') || qNormal.includes('historial') || qNormal.includes('hizo') || qNormal.includes('modifico') || qNormal.includes('creo') || qNormal.includes('elimino') || qNormal.includes('reporte') || qNormal.includes('impres');
+
     // 1. Mensaje de sistema básico
     const apiMessages = [
       {
@@ -142,20 +150,35 @@ Usa ÚNICAMENTE el contexto del sistema como fuente de verdad. No inventes datos
       });
     }
 
-    // 3. Pregunta actual concatenada con el contexto real enriquecido
+    // 3. Pregunta actual concatenada con el contexto real dinámico
+    let contextContent = `CONTEXTO DEL SISTEMA (datos reales de la base de datos):
+- Total de solicitudes en el sistema: ${totalSolicitudes} (En espera: ${porEstado['En espera']}, En proceso: ${porEstado['En proceso']}, Terminadas: ${porEstado['Terminado']})
+- Solicitudes relevantes o recientes analizadas: ${JSON.stringify(solicitudesSimplificadas)}`;
+
+    if (necPersonal) {
+      contextContent += `\n- Personal municipal y estado de presencia: ${JSON.stringify(personalSimplificado)}`;
+    }
+    if (necInventario) {
+      contextContent += `\n- Inventario general y stock en almacén: ${JSON.stringify(inventarioSimplificado)}`;
+      contextContent += `\n- Activos fijos y asignación de custodios: ${JSON.stringify(activosSimplificados)}`;
+      contextContent += `\n- Préstamos de herramientas pendientes: ${JSON.stringify(movimientosPendientes)}`;
+    }
+    if (necCalendario) {
+      contextContent += `\n- Calendario festivo (aniversarios de barrios y feriados): ${JSON.stringify(calendarioSimplificado)}`;
+    }
+    if (necUsuarios) {
+      contextContent += `\n- Usuarios registrados en el sistema y sus roles: ${JSON.stringify(usuariosSimplificados)}`;
+    }
+    if (necAuditoria) {
+      contextContent += `\n- Historial de reportes impresos recientemente: ${JSON.stringify(impresionesSimplificadas)}`;
+      if (contexto.auditoria) {
+        contextContent += `\n- Auditoría (últimas acciones del sistema): ${JSON.stringify(auditoriaSimplificada)}`;
+      }
+    }
+
     apiMessages.push({
       role: 'user',
-      content: `CONTEXTO DEL SISTEMA (datos reales de la base de datos):
-- Total de solicitudes en el sistema: ${totalSolicitudes} (En espera: ${porEstado['En espera']}, En proceso: ${porEstado['En proceso']}, Terminadas: ${porEstado['Terminado']})
-- Solicitudes relevantes o recientes analizadas (máx. 120): ${JSON.stringify(solicitudesSimplificadas)}
-- Personal municipal y estado de presencia: ${JSON.stringify(personalSimplificado)}
-- Inventario general y stock en almacén: ${JSON.stringify(inventarioSimplificado)}
-- Activos fijos y asignación de custodios: ${JSON.stringify(activosSimplificados)}
-- Préstamos de herramientas pendientes de devolución: ${JSON.stringify(movimientosPendientes)}
-- Calendario festivo (aniversarios de barrios y feriados): ${JSON.stringify(calendarioSimplificado)}
-- Usuarios registrados en el sistema y sus roles: ${JSON.stringify(usuariosSimplificados)}
-- Historial de reportes impresos recientemente: ${JSON.stringify(impresionesSimplificadas)}
-${contexto.auditoria ? `- Auditoría (últimas acciones del sistema): ${JSON.stringify(auditoriaSimplificada)}` : ''}
+      content: `${contextContent}
 
 PREGUNTA DEL FUNCIONARIO: "${pregunta}"`
     });
