@@ -205,7 +205,8 @@ const stopSpeaking = () => {
 
 // Helper para realizar búsqueda inteligente (RAG Local) en memoria de solicitudes
 const obtenerSolicitudesRelevantes = (queryText, todasLasSolicitudes) => {
-  if (!queryText) return todasLasSolicitudes.slice(0, 80);
+  const listaValida = (todasLasSolicitudes || []).filter(s => s != null);
+  if (!queryText) return listaValida.slice(0, 80);
   
   // Normalizar consulta (minúsculas, sin acentos)
   const normQuery = queryText.toLowerCase()
@@ -213,7 +214,7 @@ const obtenerSolicitudesRelevantes = (queryText, todasLasSolicitudes) => {
     .trim();
 
   // Si la consulta es muy corta, no filtrar por relevancia, solo usar las más recientes
-  if (normQuery.length < 3) return todasLasSolicitudes.slice(0, 80);
+  if (normQuery.length < 3) return listaValida.slice(0, 80);
 
   // Extraer palabras clave de búsqueda (filtrando artículos y conectores comunes)
   const ignorarPalabras = new Set([
@@ -228,10 +229,10 @@ const obtenerSolicitudesRelevantes = (queryText, todasLasSolicitudes) => {
     .filter(p => p.length >= 3 && !ignorarPalabras.has(p));
 
   // Si no quedan palabras clave útiles, devolver las últimas 80
-  if (palabrasClave.length === 0) return todasLasSolicitudes.slice(0, 80);
+  if (palabrasClave.length === 0) return listaValida.slice(0, 80);
 
   // Puntuación de coincidencia por cada solicitud
-  const solicitudesPuntuadas = todasLasSolicitudes.map(s => {
+  const solicitudesPuntuadas = listaValida.map(s => {
     let puntos = 0;
     
     // Normalizar campos de la solicitud
@@ -461,7 +462,7 @@ const handleSend = async () => {
 
   } catch (err) {
     console.error('Error al consultar al asistente:', err)
-    let msg = 'Lo siento, no pude procesar tu consulta. Revisa tu conexión a internet.'
+    let msg = `Lo siento, no pude procesar tu consulta. Detalle: ${err.message || err}`
     if (err.message === 'API_KEY_MISSING') {
       msg = 'Falta la API Key en el servidor local. Configura VITE_GROQ_API_KEY en tu archivo .env.'
     }
