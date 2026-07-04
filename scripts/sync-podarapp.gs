@@ -172,7 +172,8 @@ function procesarFila(fila, headers, arbolesAdicionales, catalogos, token) {
     arboles: arboles,
     usuario_podar: getVal(fila, headers, 'USUARIO') || '',
     _fuente_sync: 'podarapp',
-    _ultima_sync: new Date().toISOString()
+    _ultima_sync: new Date(),
+    createdAt: new Date()
   };
 
   // Verificar si ya existe en Firestore (Caso A o B)
@@ -415,6 +416,8 @@ function toFirestoreFields(obj) {
     var val = obj[key];
     if (val === null || val === undefined) {
       fields[key] = { nullValue: null };
+    } else if (val instanceof Date) {
+      fields[key] = { timestampValue: val.toISOString() };
     } else if (typeof val === 'boolean') {
       fields[key] = { booleanValue: val };
     } else if (typeof val === 'number') {
@@ -444,3 +447,4 @@ function guardarLog(log) {
     Logger.log('No se pudo guardar el log: ' + e.message);
   }
 }
+
