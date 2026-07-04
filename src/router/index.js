@@ -18,8 +18,7 @@ const router = createRouter({
     { path: '/configuraciones', name: 'configuraciones', component: () => import('../views/ConfiguracionesView.vue') },
     { path: '/auditoria', name: 'auditoria', component: () => import('../views/AuditoriaView.vue') },
     { path: '/inventario', name: 'inventario', component: () => import('../views/InventarioView.vue') },
-    { path: '/acerca', name: 'acerca', component: () => import('../views/AcercaDeView.vue') },
-    { path: '/ai-arboricultura', name: 'ai-arboricultura', component: () => import('../views/AIAssistantView.vue') }
+    { path: '/acerca', name: 'acerca', component: () => import('../views/AcercaDeView.vue') }
   ]
 })
 
@@ -41,14 +40,14 @@ router.beforeEach((to, from, next) => {
   const path = to.path
 
   if (role === 'USER') {
-    const allowed = ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/acerca', '/ai-arboricultura']
+    const allowed = ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/acerca']
     if (!allowed.includes(path)) {
       mainStore.showToast('No tiene permisos para acceder a esta sección.', 'error')
       next('/')
       return
     }
   } else if (role === 'ADMIN') {
-    const allowed = ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/personal', '/equipos', '/inventario', '/acerca', '/ai-arboricultura']
+    const allowed = ['/', '/solicitudes', '/mapa', '/historial', '/reportes', '/calendario', '/personal', '/equipos', '/inventario', '/acerca']
     if (!allowed.includes(path)) {
       mainStore.showToast('No tiene permisos para acceder a esta sección.', 'error')
       next('/')
