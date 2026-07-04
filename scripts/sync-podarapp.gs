@@ -263,7 +263,7 @@ function crearEnFirestore(token, projectId, docId, data) {
 }
 
 function actualizarEnFirestore(token, projectId, docId, data) {
-  var campos = ['estado_tramite','verificado','requiere_plataforma','requiere_setar','requiere_ficha_tecnica','procede','nivel_urgencia','observacion_verificacion','observaciones_finales','id_tecnico_verificacion','id_tecnico_ejecucion','fecha_ejecucion','arboles','usuario_podar','_fuente_sync','_ultima_sync','lat','lng','barrio_texto_podar','createdAt'];
+  var campos = ['estado_tramite','verificado','requiere_plataforma','requiere_setar','requiere_ficha_tecnica','procede','nivel_urgencia','observacion_verificacion','observaciones_finales','id_tecnico_verificacion','id_tecnico_ejecucion','fecha_ejecucion','arboles','usuario_podar','_fuente_sync','_ultima_sync','lat','lng','barrio_texto_podar','createdAt','id_barrio'];
   var updateMask = campos.map(function(f) { return 'updateMask.fieldPaths=' + encodeURIComponent(f); }).join('&');
   var url = 'https://firestore.googleapis.com/v1/projects/' + projectId + '/databases/(default)/documents/solicitudes/' + docId + '?' + updateMask;
   UrlFetchApp.fetch(url, {
@@ -485,6 +485,7 @@ function guardarLog(log) {
     Logger.log('No se pudo guardar el log: ' + e.message);
   }
 }
+
 
 
 
