@@ -267,16 +267,39 @@ function actualizarEnFirestore(token, projectId, docId, data) {
 // =============================================================================
 function cargarCatalogos(token) {
   return {
-    barrios: cargarColeccion(token, 'barrios'),
-    especies: cargarColeccion(token, 'especies'),
-    acciones: cargarColeccion(token, 'acciones'),
-    tecnicos: cargarColeccion(token, 'usuarios')
+    barrios: cargarCatalogoDocumento(token, 'barrios'),
+    especies: cargarCatalogoDocumento(token, 'especies'),
+    acciones: cargarCatalogoDocumento(token, 'acciones'),
+    tecnicos: cargarColeccionPersonal(token)
   };
 }
 
-function cargarColeccion(token, coleccion) {
+function cargarCatalogoDocumento(token, docId) {
   var cfg = getConfig();
-  var url = 'https://firestore.googleapis.com/v1/projects/' + cfg.projectId + '/databases/(default)/documents/' + coleccion + '?pageSize=300';
+  var url = 'https://firestore.googleapis.com/v1/projects/' + cfg.projectId + '/databases/(default)/documents/catalogos/' + docId;
+  var response = UrlFetchApp.fetch(url, { headers: { Authorization: 'Bearer ' + token }, muteHttpExceptions: true });
+  var data = JSON.parse(response.getContentText());
+  if (!data.fields || !data.fields.items || !data.fields.items.arrayValue || !data.fields.items.arrayValue.values) {
+    return [];
+  }
+  
+  return data.fields.items.arrayValue.values.map(function(item) {
+    var fields = item.mapValue && item.mapValue.fields ? item.mapValue.fields : {};
+    var obj = {};
+    Object.keys(fields).forEach(function(key) {
+      var valObj = fields[key];
+      obj[key] = valObj.stringValue !== undefined ? valObj.stringValue : 
+                (valObj.integerValue !== undefined ? parseInt(valObj.integerValue) : 
+                (valObj.booleanValue !== undefined ? valObj.booleanValue : 
+                (valObj.doubleValue !== undefined ? parseFloat(valObj.doubleValue) : null)));
+    });
+    return obj;
+  });
+}
+
+function cargarColeccionPersonal(token) {
+  var cfg = getConfig();
+  var url = 'https://firestore.googleapis.com/v1/projects/' + cfg.projectId + '/databases/(default)/documents/personal?pageSize=300';
   var response = UrlFetchApp.fetch(url, { headers: { Authorization: 'Bearer ' + token }, muteHttpExceptions: true });
   var data = JSON.parse(response.getContentText());
   if (!data.documents) return [];
@@ -285,7 +308,9 @@ function cargarColeccion(token, coleccion) {
     var fields = {};
     Object.keys(doc.fields || {}).forEach(function(key) {
       var val = doc.fields[key];
-      fields[key] = val.stringValue !== undefined ? val.stringValue : (val.integerValue !== undefined ? val.integerValue : (val.booleanValue !== undefined ? val.booleanValue : null));
+      fields[key] = val.stringValue !== undefined ? val.stringValue : 
+                    (val.integerValue !== undefined ? parseInt(val.integerValue) : 
+                    (val.booleanValue !== undefined ? val.booleanValue : null));
     });
     return Object.assign({ id: id }, fields);
   });
@@ -447,5 +472,6 @@ function guardarLog(log) {
     Logger.log('No se pudo guardar el log: ' + e.message);
   }
 }
+
 
 
