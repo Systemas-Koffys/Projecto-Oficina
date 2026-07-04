@@ -3,8 +3,8 @@ const apiKey = import.meta.env.VITE_GROQ_API_KEY;
 // Endpoint de Groq (compatible con la API de OpenAI)
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-// Modelo de Groq: LLaMA 3.3 70B — versión actual estable
-const MODEL = 'llama-3.3-70b-versatile';
+// Modelo de Groq: LLaMA 3.1 8B — alta velocidad y mayores límites de cuota gratis
+const MODEL = 'llama-3.1-8b-instant';
 
 /**
  * Obtiene el código del trámite priorizando la comunicación interna
