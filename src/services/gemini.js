@@ -17,23 +17,21 @@ export async function askGemini(pregunta, contexto = {}, historial = []) {
     throw new Error('API_KEY_MISSING');
   }
 
-  // Se priorizan las solicitudes relevantes filtradas por el buscador local
-  const solicitudesOrigen = (contexto.solicitudesRelevantes || contexto.solicitudes || []).filter(s => s != null);
-  const solicitudesSimplificadas = solicitudesOrigen.slice(0, 120).map(s => {
-    const barrioNombre = (contexto.barrios || []).find(b => b && String(b.id) === String(s.id_barrio))?.nombre || `ID: ${s.id_barrio}`;
+  // Se priorizan las solicitudes relevantes filtradas por el buscador local (máximo 40 para conservar tokens)
+  const solicitudesOrigen = (contexto.solicitudesRelevantes || contexto.solicitudes || [])
+    .filter(s => s != null)
+    .slice(0, 40);
+
+  const solicitudesSimplificadas = solicitudesOrigen.map(s => {
+    const barrioNombre = (contexto.barrios || []).find(b => b && String(b.id) === String(s.id_barrio))?.nombre || `Barrio ID: ${s.id_barrio}`;
     const distritoNombre = (contexto.distritos || []).find(d => d && String(d.id) === String(s.id_distrito))?.nombre || `D-${s.id_distrito}`;
-    return {
-      codigo: s.codigo_anual || s.id_solicitud,
-      solicitante: s.solicitante_nombre,
-      barrio: barrioNombre,
-      distrito: distritoNombre,
-      calle: s.calle,
-      estado: s.estado_tramite,
-      arboles: (s.arboles || []).filter(a => a != null).map(a => ({
-        especie: (contexto.especies || []).find(e => e && String(e.id) === String(a.id_especie))?.nombre || 'N/A',
-        accion: (contexto.acciones || []).find(ac => ac && String(ac.id) === String(a.id_accion_realizar))?.nombre || 'N/A'
-      }))
-    };
+    const arbolesTexto = (s.arboles || []).filter(a => a != null).map(a => {
+      const esp = (contexto.especies || []).find(e => e && String(e.id) === String(a.id_especie))?.nombre || 'N/A';
+      const acc = (contexto.acciones || []).find(ac => ac && String(ac.id) === String(a.id_accion_realizar))?.nombre || 'N/A';
+      return `${esp} (${acc})`;
+    }).join(', ');
+
+    return `${s.codigo_anual || s.id_solicitud} | Solicitante: ${s.solicitante_nombre || 'N/A'} | Barrio: ${barrioNombre} (${distritoNombre}) | Calle: ${s.calle || 'N/A'} | Estado: ${s.estado_tramite || 'En espera'} | Trabajos: ${arbolesTexto || 'Sin detalle'}`;
   });
 
   // Estadísticas globales de solicitudes para respuestas estadísticas completas
@@ -44,70 +42,63 @@ export async function askGemini(pregunta, contexto = {}, historial = []) {
     'Terminado': (contexto.solicitudes || []).filter(s => s && s.estado_tramite === 'Terminado').length
   };
 
-  const personalSimplificado = (contexto.tecnicos || []).filter(t => t != null).map(t => ({
-    nombre: t.nombre,
-    cargo: t.cargo,
-    estado: t.estado,
-    celular: t.celular || 'N/A',
-    en_linea: t.online ? 'Sí' : 'No'
-  }));
+  // Personal municipal (Strings planos)
+  const personalSimplificado = (contexto.tecnicos || [])
+    .filter(t => t != null)
+    .map(t => `${t.nombre} (${t.cargo || 'Técnico'}) | Estado: ${t.estado} | Cel: ${t.celular || 'N/A'} | En línea: ${t.online ? 'Sí' : 'No'}`);
 
-  const inventarioSimplificado = (contexto.inventarioItems || []).filter(item => item != null).map(item => {
-    const stock = (contexto.inventarioConsumibles || []).find(c => c && c.id_item === item.id_item);
-    return {
-      nombre: item.nombre,
-      tipo: item.tipo,
-      categoria: item.categoria || 'Sin categoría',
-      stock_almacen: stock?.cantidad_almacen ?? (item.tipo === 'Activo' ? 'N/A' : 0),
-      unidad: item.unidad || ''
-    };
-  });
+  // Catálogo de herramientas e inventario (Strings planos)
+  const inventarioSimplificado = (contexto.inventarioItems || [])
+    .filter(item => item != null)
+    .slice(0, 40)
+    .map(item => {
+      const stock = (contexto.inventarioConsumibles || []).find(c => c && c.id_item === item.id_item);
+      const cant = stock?.cantidad_almacen ?? 0;
+      return `${item.nombre} (${item.tipo}) | Categoría: ${item.categoria || 'Sin categoría'} | Stock: ${cant} ${item.unidad || ''}`;
+    });
 
-  const activosSimplificados = (contexto.inventarioActivos || []).filter(a => a != null).map(a => ({
-    nombre: (contexto.inventarioItems || []).find(i => i && i.id_item === a.id_item)?.nombre || `Item ${a.id_item}`,
-    codigo: a.codigo_activo,
-    estado: a.estado,
-    custodio: (contexto.tecnicos || []).find(t => t && t.id_tecnico === a.id_custodio)?.nombre || a.id_custodio || 'Sin custodio'
-  }));
+  // Activos fijos (Strings planos)
+  const activosSimplificados = (contexto.inventarioActivos || [])
+    .filter(a => a != null)
+    .slice(0, 30)
+    .map(a => {
+      const nombre = (contexto.inventarioItems || []).find(i => i && i.id_item === a.id_item)?.nombre || `Item ${a.id_item}`;
+      const custodio = (contexto.tecnicos || []).find(t => t && t.id_tecnico === a.id_custodio)?.nombre || 'Sin custodio';
+      return `${a.codigo_activo} - ${nombre} (Estado: ${a.estado}) | Custodio: ${custodio}`;
+    });
 
+  // Préstamos pendientes (Strings planos)
   const movimientosPendientes = (contexto.inventarioMovimientos || [])
     .filter(m => m != null && m.estado_devolucion === 'Pendiente devolución')
-    .slice(0, 20)
-    .map(m => ({
-      item: (contexto.inventarioItems || []).find(i => i && i.id_item === m.id_item)?.nombre || `Item ${m.id_item}`,
-      cantidad: m.cantidad,
-      responsable: (contexto.tecnicos || []).find(t => t && t.id_tecnico === m.id_tecnico_responsable)?.nombre || m.id_tecnico_responsable
-    }));
+    .slice(0, 15)
+    .map(m => {
+      const item = (contexto.inventarioItems || []).find(i => i && i.id_item === m.id_item)?.nombre || `Item ${m.id_item}`;
+      const responsable = (contexto.tecnicos || []).find(t => t && t.id_tecnico === m.id_tecnico_responsable)?.nombre || 'N/A';
+      return `${item} (${m.cantidad} uds) prestado a ${responsable}`;
+    });
 
   // --- NUEVAS FUENTES DE DATOS ---
   // Usuarios del sistema (seguro: sin datos de autenticación sensibles)
-  const usuariosSimplificados = (contexto.usuarios || []).filter(u => u != null).map(u => ({
-    nombre: u.nombre || u.username,
-    rol: u.role || 'USER',
-    estado: u.estado || 'Activo'
-  }));
+  const usuariosSimplificados = (contexto.usuarios || [])
+    .filter(u => u != null)
+    .map(u => `${u.nombre || u.username} (Rol: ${u.role || 'USER'}) | Estado: ${u.estado || 'Activo'}`);
 
   // Historial de reportes impresos recientemente
-  const impresionesSimplificadas = (contexto.impresiones || []).filter(i => i != null).slice(0, 15).map(i => ({
-    tipo: i.tipo_reporte,
-    fecha: i.fecha_impresion,
-    usuario: i.usuario_nombre
-  }));
+  const impresionesSimplificadas = (contexto.impresiones || [])
+    .filter(i => i != null)
+    .slice(0, 10)
+    .map(i => `${i.tipo_reporte} por ${i.usuario_nombre} el ${i.fecha_impresion}`);
 
   // Calendario festivo y aniversarios con contacto
-  const calendarioSimplificado = (contexto.calendario || []).filter(c => c != null).map(c => ({
-    titulo: c.nombre_barrio,
-    fecha: c.fecha_aniversario || c.fecha,
-    contacto: c.presidente_barrio ? `${c.presidente_barrio} (Tel: ${c.telefono_presidente || 'N/A'})` : 'N/A'
-  }));
+  const calendarioSimplificado = (contexto.calendario || [])
+    .filter(c => c != null)
+    .map(c => `${c.nombre_barrio} (Fecha: ${c.fecha_aniversario || c.fecha}) | Contacto: ${c.presidente_barrio || 'N/A'} (Tel: ${c.telefono_presidente || 'N/A'})`);
 
   // Logs de auditoría reciente (usuario, acción, fecha)
-  const auditoriaSimplificada = (contexto.auditoria || []).filter(a => a != null).slice(0, 20).map(a => ({
-    usuario: a.usuario_nombre || a.usuario_email || 'Sistema',
-    accion: a.accion,
-    detalles: a.detalles,
-    fecha: a.fecha_hora_formateada || a.fecha_hora
-  }));
+  const auditoriaSimplificada = (contexto.auditoria || [])
+    .filter(a => a != null)
+    .slice(0, 15)
+    .map(a => `${a.usuario_nombre || 'Sistema'} realizó ${a.accion} (${a.detalles}) el ${a.fecha_hora_formateada || a.fecha_hora}`);
 
   try {
     // 1. Mensaje de sistema básico
