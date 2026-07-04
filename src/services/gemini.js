@@ -4,7 +4,24 @@ const apiKey = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // Modelo de Groq: LLaMA 3.3 70B — versión actual estable
-const MODEL = 'llama-3.3-70b-versatile'/**
+const MODEL = 'llama-3.3-70b-versatile';
+
+/**
+ * Obtiene el código del trámite priorizando la comunicación interna
+ * (tal como se muestra en la interfaz del sistema).
+ */
+const getCodigoTramite = (s) => {
+  if (!s) return '—';
+  if (s.comunicacion_interna && s.comunicacion_interna.trim() !== '') {
+    return s.comunicacion_interna.trim();
+  }
+  if (s.codigo_anual) {
+    return s.codigo_anual.startsWith('SOL-') ? s.codigo_anual : `SOL-${s.codigo_anual}`;
+  }
+  return `#${s.id_solicitud}`;
+};
+
+/**
  * Consulta al asistente IA de ArborGest usando la API de Groq (LLaMA 3.3).
  * 
  * @param {string} pregunta Pregunta del usuario por voz o texto.
@@ -31,7 +48,8 @@ export async function askGemini(pregunta, contexto = {}, historial = []) {
       return `${esp} (${acc})`;
     }).join(', ');
 
-    return `${s.codigo_anual || s.id_solicitud} | Solicitante: ${s.solicitante_nombre || 'N/A'} | Barrio: ${barrioNombre} (${distritoNombre}) | Calle: ${s.calle || 'N/A'} | Estado: ${s.estado_tramite || 'En espera'} | Trabajos: ${arbolesTexto || 'Sin detalle'}`;
+    const codigo = getCodigoTramite(s);
+    return `${codigo} | Solicitante: ${s.solicitante_nombre || 'N/A'} | Barrio: ${barrioNombre} (${distritoNombre}) | Calle: ${s.calle || 'N/A'} | Estado: ${s.estado_tramite || 'En espera'} | Trabajos: ${arbolesTexto || 'Sin detalle'}`;
   });
 
   // Estadísticas globales de solicitudes para respuestas estadísticas completas
