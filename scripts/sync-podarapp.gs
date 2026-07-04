@@ -60,6 +60,11 @@ function syncPodarAppToFirestore() {
 
     Logger.log('Registros validos: ' + filasValidas.length + ' de ' + (datosBase.length - 1) + ' filas.');
 
+    // Descargar TODAS las solicitudes existentes en Firestore en una sola carga paginada
+    Logger.log('Descargando solicitudes existentes de Firestore...');
+    var solicitudesExistentes = cargarTodasLasSolicitudes(token);
+    Logger.log('Solicitudes descargadas en memoria: ' + Object.keys(solicitudesExistentes).length);
+
     filasValidas.forEach(function(fila, idx) {
       var comInt = getVal(fila, headersBase, 'Comunicacion interna');
       if (!comInt) {
@@ -67,11 +72,12 @@ function syncPodarAppToFirestore() {
         return;
       }
       try {
-        var resultado = procesarFila(fila, headersBase, arbolesAdicionales, catalogos, token);
-        if (resultado.exito) {
+        var docExistente = solicitudesExistentes[comInt.toString()];
+        var resultado = procesarFilaOptimizada(fila, headersBase, arbolesAdicionales, catalogos, token, docExistente);
+        if (resultado.exito && resultado.accion !== 'SIN_CAMBIOS') {
           log.sincronizados.push({ comInt: comInt, accion: resultado.accion });
           Logger.log('OK [' + comInt + '] ' + resultado.accion);
-        } else {
+        } else if (!resultado.exito) {
           log.advertencias.push({ comInt: comInt, motivo: resultado.motivo });
           Logger.log('AVISO [' + comInt + '] ' + resultado.motivo);
         }
@@ -104,19 +110,6 @@ function syncPodarAppToFirestore() {
 function procesarFila(fila, headers, arbolesAdicionales, catalogos, token) {
   var cfg = getConfig();
   var comInt = getVal(fila, headers, 'Comunicacion interna');
-
-  if (comInt === '2865/23') {
-    Logger.log('--- DEBUG 2865/23 ---');
-    var dTexto = getVal(fila, headers, 'Distrito');
-    var bTexto = getVal(fila, headers, 'Barrio');
-    Logger.log('Distrito Texto: ' + dTexto + ' | Barrio Texto: ' + bTexto);
-    Logger.log('Cantidad de Barrios en catalogo: ' + catalogos.barrios.length);
-    if (catalogos.barrios.length > 0) {
-      Logger.log('Primer Barrio en catalogo: ' + JSON.stringify(catalogos.barrios[0]));
-      var matchCarmen = catalogos.barrios.filter(function(b) { return b.nombre === 'El Carmen'; });
-      Logger.log('Coincidencias directas con El Carmen: ' + JSON.stringify(matchCarmen));
-    }
-  }
 
   // Mapeo de campos
   var estadoRaw = getVal(fila, headers, 'Estado');
@@ -202,6 +195,131 @@ function procesarFila(fila, headers, arbolesAdicionales, catalogos, token) {
   }
 }
 
+function procesarFilaOptimizada(fila, headers, arbolesAdicionales, catalogos, token, docExistente) {
+  var cfg = getConfig();
+  var comInt = getVal(fila, headers, 'Comunicacion interna');
+
+  // Mapeo de campos
+  var estadoRaw = getVal(fila, headers, 'Estado');
+  var estado = mapEstado(estadoRaw);
+  var distritoTexto = getVal(fila, headers, 'Distrito');
+  var barrioTexto = getVal(fila, headers, 'Barrio');
+  var barrioRes = resolverBarrio(distritoTexto, barrioTexto, catalogos.barrios);
+  var especieRes = resolverPorNombre(getVal(fila, headers, 'Especie de Arbol'), catalogos.especies, 'especie');
+  var accionRealizarRes = resolverPorNombre(getVal(fila, headers, 'Accion a Realizar'), catalogos.acciones, 'accion_realizar');
+  var accionSolicRes = resolverPorNombre(getVal(fila, headers, 'Lo Solicitado'), catalogos.acciones, 'accion_solicitada');
+  var tecVerifRes = resolverTecnico(getVal(fila, headers, 'Tecnico de Verificacion'), catalogos.tecnicos);
+  var tecEjecRes = resolverTecnico(getVal(fila, headers, 'Tecnico de Ejecucion'), catalogos.tecnicos);
+  var gps = parsearGPS(getVal(fila, headers, 'Ubicacion gps'));
+  var fechaIngreso = convertirFechaExcel(getVal(fila, headers, 'Fecha de Ingreso'));
+  var fechaEjecucion = convertirFechaExcel(getVal(fila, headers, 'Fecha de Ejecucion'));
+  var verificado = mapBoolean(getVal(fila, headers, 'Verificado'));
+  var requierePlataforma = mapBoolean(getVal(fila, headers, 'Requiere Plataforma'));
+  var requiereSetar = mapBoolean(getVal(fila, headers, 'Requiere Setar'));
+  var requiereFicha = mapBoolean(getVal(fila, headers, 'Requiere Ficha Tecnica'));
+  var procede = mapBoolean(getVal(fila, headers, 'Procede'));
+  var nivelUrgencia = mapUrgencia(getVal(fila, headers, 'Urgencia'));
+  var observacionVerif = getVal(fila, headers, 'Observacion de Verificacion') || '';
+  var observacionEjec = getVal(fila, headers, 'Observacion de Ejecucion') || '';
+
+  // Array de arboles
+  var arbolPrincipal = {
+    id_especie: especieRes.id,
+    id_accion_solicitada: accionSolicRes.id,
+    id_accion_realizar: accionRealizarRes.id,
+    observaciones_arbol: observacionVerif,
+    url_foto: null,
+    realizado: false
+  };
+
+  var arbolesExtra = (arbolesAdicionales[comInt.toString()] || []).map(function(arb) {
+    return {
+      id_especie: resolverPorNombre(arb.especie, catalogos.especies, 'especie').id,
+      id_accion_solicitada: null,
+      id_accion_realizar: resolverPorNombre(arb.accion, catalogos.acciones, 'accion').id,
+      observaciones_arbol: arb.observacion || '',
+      url_foto: null,
+      realizado: mapBoolean(arb.realizado),
+      podar_id_detalle: arb.id_detalle
+    };
+  });
+
+  var arboles = [arbolPrincipal].concat(arbolesExtra);
+
+  // Documento final
+  var doc = {
+    comunicacion_interna: comInt.toString(),
+    id_barrio: barrioRes.id,
+    barrio_texto_podar: barrioRes.id ? null : barrioTexto,
+    calle: getVal(fila, headers, 'Calles') || '',
+    numero_casa: (getVal(fila, headers, 'N de Casa') || getVal(fila, headers, 'N\u00b0 de Casa') || '').toString(),
+    referencia: getVal(fila, headers, 'Referencias') || '',
+    solicitante_nombre: getVal(fila, headers, 'Solicitante') || '',
+    solicitante_telefono: (getVal(fila, headers, 'Telefono') || '').toString(),
+    lat: gps.lat,
+    lng: gps.lng,
+    fecha_ingreso: fechaIngreso,
+    id_tecnico_verificacion: tecVerifRes.id,
+    verificado: verificado,
+    requiere_plataforma: requierePlataforma,
+    requiere_setar: requiereSetar,
+    requiere_ficha_tecnica: requiereFicha,
+    procede: procede,
+    nivel_urgencia: nivelUrgencia,
+    observacion_verificacion: observacionVerif,
+    id_tecnico_ejecucion: tecEjecRes.id,
+    fecha_ejecucion: fechaEjecucion,
+    observaciones_finales: observacionEjec,
+    estado_tramite: estado,
+    arboles: arboles,
+    usuario_podar: getVal(fila, headers, 'USUARIO') || '',
+    _fuente_sync: 'podarapp',
+    _ultima_sync: new Date(),
+    createdAt: new Date()
+  };
+
+  if (docExistente) {
+    // CASO A: Comparar si hay diferencias antes de llamar a Firestore
+    var fields = docExistente.fields || {};
+    var esDiferente = (
+      obtenerValorSimple(fields.estado_tramite) !== estado ||
+      obtenerValorSimple(fields.verificado) !== verificado ||
+      obtenerValorSimple(fields.id_barrio) !== barrioRes.id ||
+      obtenerValorSimple(fields.id_tecnico_verificacion) !== tecVerifRes.id ||
+      obtenerValorSimple(fields.id_tecnico_ejecucion) !== tecEjecRes.id ||
+      obtenerValorSimple(fields.observacion_verificacion) !== observacionVerif ||
+      obtenerValorSimple(fields.observaciones_finales) !== observacionEjec ||
+      obtenerValorSimple(fields.requiere_plataforma) !== requierePlataforma ||
+      obtenerValorSimple(fields.requiere_setar) !== requiereSetar ||
+      obtenerValorSimple(fields.requiere_ficha_tecnica) !== requiereFicha ||
+      obtenerValorSimple(fields.procede) !== procede ||
+      obtenerValorSimple(fields.nivel_urgencia) !== nivelUrgencia
+    );
+
+    if (!esDiferente) {
+      return { exito: true, accion: 'SIN_CAMBIOS' };
+    }
+
+    var docId = docExistente.name.split('/').pop();
+    actualizarEnFirestore(token, cfg.projectId, docId, doc);
+    return { exito: true, accion: 'ACTUALIZADO (Caso A)' };
+  } else {
+    // CASO B: Crear documento nuevo
+    var docIdNuevo = 'podar_' + comInt.toString().replace(/\//g, '-');
+    crearEnFirestore(token, cfg.projectId, docIdNuevo, doc);
+    return { exito: true, accion: 'CREADO (Caso B)' };
+  }
+}
+
+function obtenerValorSimple(field) {
+  if (!field) return null;
+  if (field.stringValue !== undefined) return field.stringValue;
+  if (field.integerValue !== undefined) return parseInt(field.integerValue);
+  if (field.doubleValue !== undefined) return parseFloat(field.doubleValue);
+  if (field.booleanValue !== undefined) return field.booleanValue;
+  return null;
+}
+
 // =============================================================================
 // FIRESTORE REST API
 // =============================================================================
@@ -249,6 +367,27 @@ function buscarEnFirestore(token, projectId, comInt) {
   var results = JSON.parse(response.getContentText());
   if (Array.isArray(results) && results[0] && results[0].document) return results[0].document;
   return null;
+}
+
+function cargarTodasLasSolicitudes(token) {
+  var cfg = getConfig();
+  var solicitudes = {};
+  var nextPageToken = '';
+  do {
+    var url = 'https://firestore.googleapis.com/v1/projects/' + cfg.projectId + '/databases/(default)/documents/solicitudes?pageSize=300' + (nextPageToken ? '&pageToken=' + nextPageToken : '');
+    var response = UrlFetchApp.fetch(url, { headers: { Authorization: 'Bearer ' + token }, muteHttpExceptions: true });
+    var data = JSON.parse(response.getContentText());
+    if (data.documents) {
+      data.documents.forEach(function(doc) {
+        var comInt = doc.fields && doc.fields.comunicacion_interna && doc.fields.comunicacion_interna.stringValue;
+        if (comInt) {
+          solicitudes[comInt.toString()] = doc;
+        }
+      });
+    }
+    nextPageToken = data.nextPageToken;
+  } while (nextPageToken);
+  return solicitudes;
 }
 
 function crearEnFirestore(token, projectId, docId, data) {
@@ -485,6 +624,10 @@ function guardarLog(log) {
     Logger.log('No se pudo guardar el log: ' + e.message);
   }
 }
+
+
+
+
 
 
 
