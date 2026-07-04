@@ -105,6 +105,19 @@ function procesarFila(fila, headers, arbolesAdicionales, catalogos, token) {
   var cfg = getConfig();
   var comInt = getVal(fila, headers, 'Comunicacion interna');
 
+  if (comInt === '2865/23') {
+    Logger.log('--- DEBUG 2865/23 ---');
+    var dTexto = getVal(fila, headers, 'Distrito');
+    var bTexto = getVal(fila, headers, 'Barrio');
+    Logger.log('Distrito Texto: ' + dTexto + ' | Barrio Texto: ' + bTexto);
+    Logger.log('Cantidad de Barrios en catalogo: ' + catalogos.barrios.length);
+    if (catalogos.barrios.length > 0) {
+      Logger.log('Primer Barrio en catalogo: ' + JSON.stringify(catalogos.barrios[0]));
+      var matchCarmen = catalogos.barrios.filter(function(b) { return b.nombre === 'El Carmen'; });
+      Logger.log('Coincidencias directas con El Carmen: ' + JSON.stringify(matchCarmen));
+    }
+  }
+
   // Mapeo de campos
   var estadoRaw = getVal(fila, headers, 'Estado');
   var estado = mapEstado(estadoRaw);
@@ -472,6 +485,7 @@ function guardarLog(log) {
     Logger.log('No se pudo guardar el log: ' + e.message);
   }
 }
+
 
 
 
