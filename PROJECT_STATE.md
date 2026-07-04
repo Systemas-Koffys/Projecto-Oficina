@@ -2,7 +2,7 @@
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**  
 > **Fecha de Actualización:** 3 de Julio de 2026  
-> **Versión Actual:** `v3.26.39` (Desarrollo en rama `feature-ai-assistant`)  
+> **Versión Actual:** `v3.26.40` (Desarrollo en rama `feature-podarapp-sync`)  
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)  
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura  
 
