@@ -196,11 +196,90 @@ const inputQuery = ref('')
 const loading = ref(false)
 const messages = ref([])
 const chatContainer = ref(null)
+const calendarioEventos = ref([])
 
 const stopSpeaking = () => {
   window.speechSynthesis.cancel()
   isSpeaking.value = false
 }
+
+// Helper para realizar búsqueda inteligente (RAG Local) en memoria de solicitudes
+const obtenerSolicitudesRelevantes = (queryText, todasLasSolicitudes) => {
+  if (!queryText) return todasLasSolicitudes.slice(0, 80);
+  
+  // Normalizar consulta (minúsculas, sin acentos)
+  const normQuery = queryText.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .trim();
+
+  // Si la consulta es muy corta, no filtrar por relevancia, solo usar las más recientes
+  if (normQuery.length < 3) return todasLasSolicitudes.slice(0, 80);
+
+  // Extraer palabras clave de búsqueda (filtrando artículos y conectores comunes)
+  const ignorarPalabras = new Set([
+    'poda', 'tala', 'arbol', 'arboles', 'rama', 'ramas', 'hoja', 'hojas',
+    'buscar', 'buscame', 'dame', 'muestra', 'muestrame', 'sobre', 'solicitud',
+    'solicitudes', 'quien', 'como', 'donde', 'cuando', 'para', 'esta', 'este',
+    'con', 'del', 'los', 'las', 'unos', 'unas', 'tarija', 'estado', 'estado_tramite'
+  ]);
+
+  const palabrasClave = normQuery.split(/\s+/)
+    .map(p => p.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ""))
+    .filter(p => p.length >= 3 && !ignorarPalabras.has(p));
+
+  // Si no quedan palabras clave útiles, devolver las últimas 80
+  if (palabrasClave.length === 0) return todasLasSolicitudes.slice(0, 80);
+
+  // Puntuación de coincidencia por cada solicitud
+  const solicitudesPuntuadas = todasLasSolicitudes.map(s => {
+    let puntos = 0;
+    
+    // Normalizar campos de la solicitud
+    const solicitante = (s.solicitante_nombre || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const codigoAnual = (s.codigo_anual || '').toLowerCase();
+    const idSol = String(s.id_solicitud || '').toLowerCase();
+    const comInterna = (s.comunicacion_interna || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const calle = (s.calle || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const estado = (s.estado_tramite || '').toLowerCase();
+
+    palabrasClave.forEach(palabra => {
+      // Coincidencia exacta con código (Puntaje muy alto)
+      if (codigoAnual.includes(palabra) || idSol.includes(palabra)) {
+        puntos += 12;
+      }
+      // Coincidencia en solicitante
+      if (solicitante.includes(palabra)) {
+        puntos += 6;
+      }
+      // Coincidencia en comunicación interna
+      if (comInterna.includes(palabra)) {
+        puntos += 4;
+      }
+      // Coincidencia en calle/barrio
+      if (calle.includes(palabra)) {
+        puntos += 3;
+      }
+      // Coincidencia en estado
+      if (estado.includes(palabra)) {
+        puntos += 1;
+      }
+    });
+
+    return { solicitud: s, puntos };
+  });
+
+  // Filtrar las que tengan coincidencia (> 0 puntos) y ordenar por puntaje decreciente
+  const coincidentes = solicitudesPuntuadas
+    .filter(sp => sp.puntos > 0)
+    .sort((a, b) => b.puntos - a.puntos)
+    .map(sp => sp.solicitud);
+
+  // Rellenar hasta completar 100 solicitudes con las más recientes
+  const coincidentesIds = new Set(coincidentes.map(s => s.id_solicitud));
+  const restantes = todasLasSolicitudes.filter(s => !coincidentesIds.has(s.id_solicitud));
+
+  return [...coincidentes, ...restantes].slice(0, 100);
+};
 
 // Sugerencias de preguntas dinámicas y contextualizadas
 const suggestions = [
@@ -245,8 +324,25 @@ if (SpeechRecognition) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   document.title = 'AI Arboricultura | ArborGest'
+
+  // Cargar calendario para el asistente
+  try {
+    const res = await mainStore.fetchCalendario()
+    calendarioEventos.value = res || []
+  } catch (e) {
+    console.error('Error precargando calendario en asistente:', e)
+  }
+
+  // Cargar auditoría si es un usuario administrador
+  if (mainStore.uiState.user?.role === 'ROOT' || mainStore.uiState.user?.role === 'ADMIN') {
+    try {
+      await mainStore.fetchAuditoria()
+    } catch (e) {
+      console.error('Error precargando auditoría en asistente:', e)
+    }
+  }
 })
 
 // Auto-scroll al final del chat ante nuevos mensajes
@@ -311,6 +407,12 @@ const handleSend = async () => {
   // Detener la reproducción de voz anterior
   stopSpeaking()
 
+  // Capturar el historial de los últimos 6 mensajes (formato array de objetos)
+  const historial = messages.value.slice(-6).map(m => ({
+    role: m.role,
+    content: m.content
+  }))
+
   // Agregar mensaje de usuario al chat
   messages.value.push({ role: 'user', content: query })
   inputQuery.value = ''
@@ -322,9 +424,14 @@ const handleSend = async () => {
   }
 
   try {
-    // Formatear el contexto del store de Pinia de forma estructurada para el modelo
+    // Buscar solicitudes relevantes en toda la lista usando el buscador local (Mini-RAG)
+    const todasSolicitudes = mainStore.store.solicitudes || []
+    const solicitudesRelevantes = obtenerSolicitudesRelevantes(query, todasSolicitudes)
+
+    // Formatear el contexto del store de Pinia y datos locales adicionales
     const contexto = {
-      solicitudes: mainStore.store.solicitudes || [],
+      solicitudes: todasSolicitudes,
+      solicitudesRelevantes: solicitudesRelevantes,
       tecnicos: mainStore.store.tecnicos || [],
       barrios: mainStore.store.barrios || [],
       distritos: mainStore.store.distritos || [],
@@ -333,11 +440,18 @@ const handleSend = async () => {
       inventarioItems: mainStore.store.inventarioItems || [],
       inventarioActivos: mainStore.store.inventarioActivos || [],
       inventarioConsumibles: mainStore.store.inventarioConsumibles || [],
-      inventarioMovimientos: mainStore.store.inventarioMovimientos || []
+      inventarioMovimientos: mainStore.store.inventarioMovimientos || [],
+      // Nuevos datos integrados para mayor funcionalidad:
+      usuarios: mainStore.store.usuarios || [],
+      impresiones: mainStore.store.impresiones || [],
+      calendario: calendarioEventos.value,
+      auditoria: (mainStore.uiState.user?.role === 'ROOT' || mainStore.uiState.user?.role === 'ADMIN')
+        ? (mainStore.store.auditoria || [])
+        : null
     }
 
-    // Consultar a Groq (LLaMA)
-    const answer = await askGemini(query, contexto)
+    // Consultar a Groq (LLaMA) enviando el historial
+    const answer = await askGemini(query, contexto, historial)
 
     // Agregar mensaje del bot
     messages.value.push({ role: 'assistant', content: answer })
