@@ -194,7 +194,7 @@ const isListening = ref(false)
 const isSpeaking = ref(false)
 const inputQuery = ref('')
 const loading = ref(false)
-const messages = ref([])
+const messages = ref(mainStore.store.aiMessages || [])
 const chatContainer = ref(null)
 const calendarioEventos = ref([])
 
@@ -225,7 +225,7 @@ const obtenerSolicitudesRelevantes = (queryText, todasLasSolicitudes) => {
   ]);
 
   const palabrasClave = normQuery.split(/\s+/)
-    .map(p => p.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ""))
+    .map(p => p.replace(/[.,#!$%\^&\*;:{}=_`~()?"']/g, ""))
     .filter(p => p.length >= 3 && !ignorarPalabras.has(p));
 
   // Si no quedan palabras clave útiles, devolver las últimas 80

@@ -52,7 +52,8 @@ export const useMainStore = defineStore('mainStore', () => {
     inventarioItems: [],
     inventarioActivos: [],
     inventarioConsumibles: [],
-    inventarioMovimientos: []
+    inventarioMovimientos: [],
+    aiMessages: []
   });
 
   const responsableArea = computed(() => {
