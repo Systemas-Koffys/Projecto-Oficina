@@ -7,7 +7,7 @@ on:
     branches:
       - main
       - feature-ai-assistant
-      - feature-graph-integration
+      - feature-podarapp-sync
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
