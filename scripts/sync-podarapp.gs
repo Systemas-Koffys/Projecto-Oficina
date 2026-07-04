@@ -633,3 +633,82 @@ function guardarLog(log) {
 
 
 
+
+// =============================================================================
+// FUNCIÓN DE DIAGNÓSTICO
+// =============================================================================
+function detectarDuplicadosYErrores() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var hojaBase = ss.getSheetByName('basededatos');
+  if (!hojaBase) {
+    Logger.log('Error: No se encontró la hoja "basededatos".');
+    return;
+  }
+  
+  var datos = hojaBase.getDataRange().getValues();
+  var headers = datos[0];
+  
+  var idxCom = -1;
+  var idxEstado = -1;
+  for (var i = 0; i < headers.length; i++) {
+    if (normalizar(headers[i]) === normalizar('Comunicacion interna')) idxCom = i;
+    if (normalizar(headers[i]) === normalizar('Estado')) idxEstado = i;
+  }
+  
+  if (idxCom === -1 || idxEstado === -1) {
+    Logger.log('Error: No se encontraron las columnas necesarias.');
+    return;
+  }
+  
+  var mapaCom = {};
+  var duplicados = [];
+  var inactivos = [];
+  var vacios = [];
+  
+  for (var r = 1; r < datos.length; r++) {
+    var fila = r + 1;
+    var comInt = datos[r][idxCom] ? datos[r][idxCom].toString().trim() : '';
+    var estado = datos[r][idxEstado] ? datos[r][idxEstado].toString().trim().toUpperCase() : '';
+    
+    if (!comInt) {
+      vacios.push({ fila: fila, motivo: 'Comunicación interna vacía' });
+      continue;
+    }
+    
+    // Verificar si el estado es válido
+    if (estado !== 'EN ESPERA' && estado !== 'TERMINADO') {
+      inactivos.push({ fila: fila, codigo: comInt, estado: estado });
+      continue;
+    }
+    
+    // Verificar duplicados
+    if (mapaCom[comInt]) {
+      duplicados.push({
+        codigo: comInt,
+        filaOriginal: mapaCom[comInt],
+        filaDuplicada: fila
+      });
+    } else {
+      mapaCom[comInt] = fila;
+    }
+  }
+  
+  Logger.log('\n=== ⚠️ DUPLICADOS ENCONTRADOS (Se sobreescriben en Firestore) ===');
+  Logger.log('Total duplicados: ' + duplicados.length);
+  duplicados.forEach(function(d) {
+    Logger.log('Código "' + d.codigo + '" repetido en Fila ' + d.filaDuplicada + ' (Original en Fila ' + d.filaOriginal + ')');
+  });
+  
+  Logger.log('\n=== 🚫 FILAS IGNORADAS POR ESTADO NO VÁLIDO (No se suben) ===');
+  Logger.log('Total ignorados: ' + inactivos.length);
+  inactivos.forEach(function(i) {
+    Logger.log('Fila ' + i.fila + ' | Código: "' + i.codigo + '" | Estado: "' + i.estado + '" (Debe ser EN ESPERA o TERMINADO)');
+  });
+  
+  Logger.log('\n=== 📭 FILAS VACÍAS (Saltadas) ===');
+  Logger.log('Total vacías: ' + vacios.length);
+  
+  Logger.log('\n📊 Conclusión:');
+  Logger.log('- Filas totales de datos: ' + (datos.length - 1));
+  Logger.log('- Filas con datos válidos para subir: ' + Object.keys(mapaCom).length);
+}
