@@ -282,6 +282,7 @@ function procesarFilaOptimizada(fila, headers, arbolesAdicionales, catalogos, to
     // CASO A: Comparar si hay diferencias antes de llamar a Firestore
     var fields = docExistente.fields || {};
     var esDiferente = (
+      !fields.createdAt ||
       obtenerValorSimple(fields.estado_tramite) !== estado ||
       obtenerValorSimple(fields.verificado) !== verificado ||
       obtenerValorSimple(fields.id_barrio) !== barrioRes.id ||
@@ -712,3 +713,4 @@ function detectarDuplicadosYErrores() {
   Logger.log('- Filas totales de datos: ' + (datos.length - 1));
   Logger.log('- Filas con datos válidos para subir: ' + Object.keys(mapaCom).length);
 }
+
