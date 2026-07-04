@@ -1,8 +1,8 @@
-# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.37)
+# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.38)
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**  
 > **Fecha de Actualización:** 3 de Julio de 2026  
-> **Versión Actual:** `v3.26.37` (Desarrollo en rama `feature-ai-assistant`)  
+> **Versión Actual:** `v3.26.38` (Desarrollo en rama `feature-ai-assistant`)  
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)  
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura  
 
@@ -81,9 +81,9 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 
 ---
 
-## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.37`)
+## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.38`)
 
-- ✅ **Memoria de Conversación y Buscador Local Inteligente (Mini-RAG) (`v3.26.37`):** Implementados los últimos 6 mensajes del chat actual como historial para consultas de seguimiento. Se integró un buscador local por relevancia para escanear todo el historial de solicitudes cargado en Pinia sin impactar el uso de tokens. Se amplió el contexto con calendarios, impresiones, usuarios y auditorías (según el rol).
+- ✅ **Memoria de Conversación y Buscador Local Inteligente (Mini-RAG) (`v3.26.38`):** Implementados los últimos 6 mensajes del chat actual como historial para consultas de seguimiento. Se integró un buscador local por relevancia para escanear todo el historial de solicitudes cargado en Pinia sin impactar el uso de tokens. Se amplió el contexto con calendarios, impresiones, usuarios y auditorías (según el rol).
 - ✅ **Alineación Simétrica de Barra de Búsqueda y Micrófono de IA (`v3.26.30`):** Sincronizada la altura de la barra del input de texto y el botón del micrófono a exactamente 48px (`h-12`), unificando sus bordes redondeados a `rounded-xl` para corregir desalineaciones horizontales y lograr una visualización completamente simétrica e impecable.
 - ✅ **Vectores Lucide en Reemplazo de Emojis de Sistema (`v3.26.29`):** Sustituidos todos los emojis de texto (como el robot del avatar, el usuario, la bombilla y el control de volumen) por iconos vectoriales SVG limpios de Lucide (`Bot`, `User`, `Lightbulb`, `Volume2`, `Square`, `Mic`, `Send`, `AlertTriangle`), corrigiendo fallas de renderizado del sistema operativo y puliendo el diseño final.
 - ✅ **Control de Voz y Rediseño Adaptativo del Asistente IA (`v3.26.28`):** Rediseñada la pantalla del Asistente IA utilizando clases semánticas de tema para perfecta adaptación en modo día, nocturno y colors. Removido el avatar de emoji/círculo en la tarjeta izquierda e implementado un botón de detención de reproducción de voz (`⏹ Detener Voz`) para silenciar locuciones en tiempo real.

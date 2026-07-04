@@ -34,10 +34,10 @@ export async function askGemini(pregunta, contexto = {}, historial = []) {
     throw new Error('API_KEY_MISSING');
   }
 
-  // Se priorizan las solicitudes relevantes filtradas por el buscador local (máximo 40 para conservar tokens)
+  // Se priorizan las solicitudes relevantes filtradas por el buscador local (máximo 20 para conservar tokens)
   const solicitudesOrigen = (contexto.solicitudesRelevantes || contexto.solicitudes || [])
     .filter(s => s != null)
-    .slice(0, 40);
+    .slice(0, 20);
 
   const solicitudesSimplificadas = solicitudesOrigen.map(s => {
     const barrioNombre = (contexto.barrios || []).find(b => b && String(b.id) === String(s.id_barrio))?.nombre || `Barrio ID: ${s.id_barrio}`;
@@ -65,30 +65,30 @@ export async function askGemini(pregunta, contexto = {}, historial = []) {
     .filter(t => t != null)
     .map(t => `${t.nombre} (${t.cargo || 'Técnico'}) | Estado: ${t.estado} | Cel: ${t.celular || 'N/A'} | En línea: ${t.online ? 'Sí' : 'No'}`);
 
-  // Catálogo de herramientas e inventario (Strings planos)
+  // Catálogo de herramientas e inventario (Strings planos, limitados a 15)
   const inventarioSimplificado = (contexto.inventarioItems || [])
     .filter(item => item != null)
-    .slice(0, 40)
+    .slice(0, 15)
     .map(item => {
       const stock = (contexto.inventarioConsumibles || []).find(c => c && c.id_item === item.id_item);
       const cant = stock?.cantidad_almacen ?? 0;
       return `${item.nombre} (${item.tipo}) | Categoría: ${item.categoria || 'Sin categoría'} | Stock: ${cant} ${item.unidad || ''}`;
     });
 
-  // Activos fijos (Strings planos)
+  // Activos fijos (Strings planos, limitados a 10)
   const activosSimplificados = (contexto.inventarioActivos || [])
     .filter(a => a != null)
-    .slice(0, 30)
+    .slice(0, 10)
     .map(a => {
       const nombre = (contexto.inventarioItems || []).find(i => i && i.id_item === a.id_item)?.nombre || `Item ${a.id_item}`;
       const custodio = (contexto.tecnicos || []).find(t => t && t.id_tecnico === a.id_custodio)?.nombre || 'Sin custodio';
       return `${a.codigo_activo} - ${nombre} (Estado: ${a.estado}) | Custodio: ${custodio}`;
     });
 
-  // Préstamos pendientes (Strings planos)
+  // Préstamos pendientes (Strings planos, limitados a 8)
   const movimientosPendientes = (contexto.inventarioMovimientos || [])
     .filter(m => m != null && m.estado_devolucion === 'Pendiente devolución')
-    .slice(0, 15)
+    .slice(0, 8)
     .map(m => {
       const item = (contexto.inventarioItems || []).find(i => i && i.id_item === m.id_item)?.nombre || `Item ${m.id_item}`;
       const responsable = (contexto.tecnicos || []).find(t => t && t.id_tecnico === m.id_tecnico_responsable)?.nombre || 'N/A';
@@ -96,26 +96,28 @@ export async function askGemini(pregunta, contexto = {}, historial = []) {
     });
 
   // --- NUEVAS FUENTES DE DATOS ---
-  // Usuarios del sistema (seguro: sin datos de autenticación sensibles)
+  // Usuarios del sistema (seguro: sin datos de autenticación sensibles, limitados a 10)
   const usuariosSimplificados = (contexto.usuarios || [])
     .filter(u => u != null)
+    .slice(0, 10)
     .map(u => `${u.nombre || u.username} (Rol: ${u.role || 'USER'}) | Estado: ${u.estado || 'Activo'}`);
 
-  // Historial de reportes impresos recientemente
+  // Historial de reportes impresos recientemente (limitado a 5)
   const impresionesSimplificadas = (contexto.impresiones || [])
     .filter(i => i != null)
-    .slice(0, 10)
+    .slice(0, 5)
     .map(i => `${i.tipo_reporte} por ${i.usuario_nombre} el ${i.fecha_impresion}`);
 
-  // Calendario festivo y aniversarios con contacto
+  // Calendario festivo y aniversarios con contacto (limitado a 10)
   const calendarioSimplificado = (contexto.calendario || [])
     .filter(c => c != null)
+    .slice(0, 10)
     .map(c => `${c.nombre_barrio} (Fecha: ${c.fecha_aniversario || c.fecha}) | Contacto: ${c.presidente_barrio || 'N/A'} (Tel: ${c.telefono_presidente || 'N/A'})`);
 
-  // Logs de auditoría reciente (usuario, acción, fecha)
+  // Logs de auditoría reciente (usuario, acción, fecha, limitado a 8)
   const auditoriaSimplificada = (contexto.auditoria || [])
     .filter(a => a != null)
-    .slice(0, 15)
+    .slice(0, 8)
     .map(a => `${a.usuario_nombre || 'Sistema'} realizó ${a.accion} (${a.detalles}) el ${a.fecha_hora_formateada || a.fecha_hora}`);
 
   try {
