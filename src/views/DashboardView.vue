@@ -56,10 +56,6 @@
             <div class="w-full bg-black/5 h-1.5 rounded-full overflow-hidden">
                 <div class="h-full transition-all duration-1000" :style="{ width: card.percent + '%', backgroundColor: card.color }"></div>
             </div>
-            <!-- Desglose Operativo Inline -->
-            <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 select-none tracking-wide">
-                {{ card.detailText }}
-            </div>
         </div>
     </div>
 
