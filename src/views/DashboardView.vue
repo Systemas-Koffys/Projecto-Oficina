@@ -686,9 +686,12 @@ const generarDatosGraficos = () => {
                 m = `${date.getDate()} ${meses[date.getMonth()].substring(0,3)}`;
                 data.evolucion[m] = (data.evolucion[m] || 0) + 1;
             } else {
-                m = meses[date.getMonth()];
-                if (data.evolucion[m] !== undefined) {
-                    data.evolucion[m]++;
+                // Para el gráfico de evolución mensual, solo contabilizar el año actual (2026)
+                if (date.getFullYear() === 2026) {
+                    m = meses[date.getMonth()];
+                    if (data.evolucion[m] !== undefined) {
+                        data.evolucion[m]++;
+                    }
                 }
             }
         }
