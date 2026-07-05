@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // ARBORGEST << PODARAPP SYNC SCRIPT
 // Sincronizacion unidireccional: Google Sheets (PodarApp) >> Firestore (ArborGest)
 // Version: 1.0.0 | Fase 1 - Solo lectura sobre Sheets
@@ -125,6 +125,8 @@ function procesarFila(fila, headers, arbolesAdicionales, catalogos, token) {
   var gps = parsearGPS(getVal(fila, headers, 'Ubicacion gps'));
   var fechaIngreso = convertirFechaExcel(getVal(fila, headers, 'Fecha de Ingreso'));
   var fechaEjecucion = convertirFechaExcel(getVal(fila, headers, 'Fecha de Ejecucion'));
+  var tipoInstRes = resolverPorNombre(getVal(fila, headers, 'Institucion'), catalogos.tipos_institucion, 'tipo_institucion');
+  var nombreInstRes = resolverPorNombre(getVal(fila, headers, 'Lista instituciones'), catalogos.instituciones, 'institucion');
 
   // Array de arboles
   var arbolPrincipal = {
@@ -177,6 +179,8 @@ function procesarFila(fila, headers, arbolesAdicionales, catalogos, token) {
     estado_tramite: estado,
     arboles: arboles,
     usuario_podar: getVal(fila, headers, 'USUARIO') || '',
+    id_tipo_institucion: tipoInstRes.id,
+    id_nombre_institucional: nombreInstRes.id,
     _fuente_sync: 'podarapp',
     _ultima_sync: new Date(),
     createdAt: new Date()
@@ -221,6 +225,8 @@ function procesarFilaOptimizada(fila, headers, arbolesAdicionales, catalogos, to
   var nivelUrgencia = mapUrgencia(getVal(fila, headers, 'Urgencia'));
   var observacionVerif = getVal(fila, headers, 'Observacion de Verificacion') || '';
   var observacionEjec = getVal(fila, headers, 'Observacion de Ejecucion') || '';
+  var tipoInstRes = resolverPorNombre(getVal(fila, headers, 'Institucion'), catalogos.tipos_institucion, 'tipo_institucion');
+  var nombreInstRes = resolverPorNombre(getVal(fila, headers, 'Lista instituciones'), catalogos.instituciones, 'institucion');
 
   // Array de arboles
   var arbolPrincipal = {
@@ -273,6 +279,8 @@ function procesarFilaOptimizada(fila, headers, arbolesAdicionales, catalogos, to
     estado_tramite: estado,
     arboles: arboles,
     usuario_podar: getVal(fila, headers, 'USUARIO') || '',
+    id_tipo_institucion: tipoInstRes.id,
+    id_nombre_institucional: nombreInstRes.id,
     _fuente_sync: 'podarapp',
     _ultima_sync: new Date(),
     createdAt: new Date()
@@ -294,7 +302,9 @@ function procesarFilaOptimizada(fila, headers, arbolesAdicionales, catalogos, to
       obtenerValorSimple(fields.requiere_setar) !== requiereSetar ||
       obtenerValorSimple(fields.requiere_ficha_tecnica) !== requiereFicha ||
       obtenerValorSimple(fields.procede) !== procede ||
-      obtenerValorSimple(fields.nivel_urgencia) !== nivelUrgencia
+      obtenerValorSimple(fields.nivel_urgencia) !== nivelUrgencia ||
+      obtenerValorSimple(fields.id_tipo_institucion) !== tipoInstRes.id ||
+      obtenerValorSimple(fields.id_nombre_institucional) !== nombreInstRes.id
     );
 
     if (!esDiferente) {
@@ -403,7 +413,7 @@ function crearEnFirestore(token, projectId, docId, data) {
 }
 
 function actualizarEnFirestore(token, projectId, docId, data) {
-  var campos = ['estado_tramite','verificado','requiere_plataforma','requiere_setar','requiere_ficha_tecnica','procede','nivel_urgencia','observacion_verificacion','observaciones_finales','id_tecnico_verificacion','id_tecnico_ejecucion','fecha_ejecucion','arboles','usuario_podar','_fuente_sync','_ultima_sync','lat','lng','barrio_texto_podar','createdAt','id_barrio'];
+  var campos = ['estado_tramite','verificado','requiere_plataforma','requiere_setar','requiere_ficha_tecnica','procede','nivel_urgencia','observacion_verificacion','observaciones_finales','id_tecnico_verificacion','id_tecnico_ejecucion','fecha_ejecucion','arboles','usuario_podar','_fuente_sync','_ultima_sync','lat','lng','barrio_texto_podar','createdAt','id_barrio','id_tipo_institucion','id_nombre_institucional'];
   var updateMask = campos.map(function(f) { return 'updateMask.fieldPaths=' + encodeURIComponent(f); }).join('&');
   var url = 'https://firestore.googleapis.com/v1/projects/' + projectId + '/databases/(default)/documents/solicitudes/' + docId + '?' + updateMask;
   UrlFetchApp.fetch(url, {
@@ -423,7 +433,9 @@ function cargarCatalogos(token) {
     barrios: cargarCatalogoDocumento(token, 'barrios'),
     especies: cargarCatalogoDocumento(token, 'especies'),
     acciones: cargarCatalogoDocumento(token, 'acciones'),
-    tecnicos: cargarColeccionPersonal(token)
+    tecnicos: cargarColeccionPersonal(token),
+    tipos_institucion: cargarCatalogoDocumento(token, 'tipos_institucion'),
+    instituciones: cargarCatalogoDocumento(token, 'instituciones')
   };
 }
 
