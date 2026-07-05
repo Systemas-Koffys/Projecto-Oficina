@@ -42,7 +42,7 @@
     <!-- Stats Cards Remodeladas -->
     <div class="dashboard-stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div v-for="(card, i) in statCards" :key="i" 
-            class="card p-6 flex flex-col gap-4 border-none shadow-xl transition-all hover:-translate-y-1 relative group cursor-help"
+            class="card p-6 flex flex-col gap-4 border-none shadow-xl transition-all hover:-translate-y-1 relative"
             :class="card.bg">
             <div class="flex justify-between items-start">
                 <div class="p-3 rounded-2xl" :class="card.iconBg">
@@ -56,139 +56,9 @@
             <div class="w-full bg-black/5 h-1.5 rounded-full overflow-hidden">
                 <div class="h-full transition-all duration-1000" :style="{ width: card.percent + '%', backgroundColor: card.color }"></div>
             </div>
-
-            <!-- Tooltip Flotante de Desglose Detallado (Ignorado en Impresión) -->
-            <div class="absolute z-30 bottom-[105%] left-1/2 -translate-x-1/2 w-64 p-4 bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-md text-white text-[11px] rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pointer-events-none shadow-2xl border border-slate-700/50 print:hidden">
-                <p class="font-black uppercase tracking-widest text-slate-400 mb-2.5 border-b border-slate-800 pb-1.5 text-[9px] flex justify-between">
-                    <span>Desglose de Datos</span>
-                    <span class="text-emerald-400 font-bold uppercase">Info</span>
-                </p>
-                
-                <!-- Tooltip para TOTAL SOLICITUDES -->
-                <div v-if="card.id === 'total'" class="space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Por Canal:</span>
-                    </div>
-                    <div class="pl-2 space-y-1">
-                        <div class="flex justify-between">
-                            <span>💻 ArborGest (Local)</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.total.origen.ag }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>📲 PodarApp (Sync)</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.total.origen.pa }}</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center pt-1 border-t border-slate-800/50">
-                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Por Solicitante:</span>
-                    </div>
-                    <div class="pl-2 space-y-1">
-                        <div class="flex justify-between">
-                            <span>👤 Particular</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.total.tipo.part }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>🏢 Institucional</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.total.tipo.inst }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tooltip para REALIZADAS -->
-                <div v-if="card.id === 'completadas'" class="space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Por Canal:</span>
-                    </div>
-                    <div class="pl-2 space-y-1">
-                        <div class="flex justify-between">
-                            <span>💻 ArborGest (Local)</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.completadas.origen.ag }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>📲 PodarApp (Sync)</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.completadas.origen.pa }}</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center pt-1 border-t border-slate-800/50">
-                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Por Solicitante:</span>
-                    </div>
-                    <div class="pl-2 space-y-1">
-                        <div class="flex justify-between">
-                            <span>👤 Particular</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.completadas.tipo.part }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>🏢 Institucional</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.completadas.tipo.inst }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tooltip para EN ESPERA -->
-                <div v-if="card.id === 'enProceso'" class="space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Por Prioridad:</span>
-                    </div>
-                    <div class="pl-2 space-y-1">
-                        <div class="flex justify-between">
-                            <span>🔴 Urgencia Alta</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.urgencia.alta }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>🟡 Urgencia Media</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.urgencia.media }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>🟢 Urgencia Baja / S.N.</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.urgencia.baja }}</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center pt-1 border-t border-slate-800/50">
-                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Apoyo Operativo:</span>
-                    </div>
-                    <div class="pl-2 space-y-1">
-                        <div class="flex justify-between">
-                            <span>⚡ Corte SETAR</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.logistica.setar }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>🏗️ Plataforma / Grúa</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.logistica.plataforma }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>📋 Ficha Evaluación</span>
-                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.logistica.ficha }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tooltip para CRÍTICAS -->
-                <div v-if="card.id === 'urgentes'" class="space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Criterios de Criticidad:</span>
-                    </div>
-                    <div class="pl-2 space-y-1">
-                        <div class="flex justify-between">
-                            <span>🚨 Emergencia Vial/Civil</span>
-                            <span class="font-black text-red-400">{{ statsDetail.urgentes.emergencia }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>⚠️ Urgencia en Campo</span>
-                            <span class="font-black text-amber-400">{{ statsDetail.urgentes.urgencia }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>📈 Prioridad Alta (Téc)</span>
-                            <span class="font-black text-rose-400">{{ statsDetail.urgentes.alta }}</span>
-                        </div>
-                        <div class="flex justify-between border-t border-slate-800/50 pt-1 mt-1">
-                            <span>📩 Segunda Nota (Reiterada)</span>
-                            <span class="font-black text-purple-400">{{ statsDetail.urgentes.segunda }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Triángulo del Tooltip -->
-                <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900/95 dark:border-t-slate-950/95"></div>
+            <!-- Desglose Operativo Inline -->
+            <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 select-none tracking-wide">
+                {{ card.detailText }}
             </div>
         </div>
     </div>
@@ -524,24 +394,50 @@ const solicitudesFiltradas = computed(() => {
 
 // --- CÁLCULO DE ESTADÍSTICAS ---
 const stats = computed(() => {
-    const data = solicitudesFiltradas.value;
-    const total = data.length;
-    const completadas = data.filter(s => s.estado_tramite === 'Terminado').length;
-    const enProceso = data.filter(s => s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente').length;
-    const urgentes = data.filter(s => (s.nivel_urgencia === 'Alta' || s.es_emergencia || s.es_urgencia || s.segunda_nota) && (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente')).length;
+    // 1. Datos filtrados por fecha (Demanda del periodo seleccionado)
+    const dataFiltrada = solicitudesFiltradas.value;
+    const total = dataFiltrada.length;
+    const completadas = dataFiltrada.filter(s => s.estado_tramite === 'Terminado').length;
+    
+    // Tipo de Solicitante (Dinámico por el periodo seleccionado)
+    const institucionales = dataFiltrada.filter(s => s.id_tipo_institucion && s.id_tipo_institucion !== '').length;
+    const particulares = total - institucionales;
+    
+    // 2. Datos globales (Backlog / Cola Activa acumulada de todo el sistema, ignora filtro de fecha)
+    const pendientesGlobales = store.solicitudes.filter(s => s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente');
+    const enProceso = pendientesGlobales.length;
+    
+    const urgentesGlobales = pendientesGlobales.filter(s => 
+        s.nivel_urgencia === 'Alta' || s.es_emergencia || s.es_urgencia || s.segunda_nota
+    );
+    const urgentes = urgentesGlobales.length;
+    
+    // Requerimientos y Alertas de Campo (de la cola de pendientes global)
+    const reqSetar = pendientesGlobales.filter(s => s.requiere_setar).length;
+    const reqPlataforma = pendientesGlobales.filter(s => s.requiere_plataforma).length;
+    const reqFicha = pendientesGlobales.filter(s => s.requiere_ficha_tecnica).length;
+    const arbolSeco = pendientesGlobales.filter(s => s.arbol_seco).length;
+    const segundaNota = pendientesGlobales.filter(s => s.segunda_nota).length;
+
     const efectividad = total > 0 ? Math.round((completadas / total) * 100) : 0;
     
-    // Alertas de Campo (Filtro por solicitudes pendientes)
-    const pendientes = data.filter(s => s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente');
-    const reqSetar = pendientes.filter(s => s.requiere_setar).length;
-    const reqPlataforma = pendientes.filter(s => s.requiere_plataforma).length;
-    const reqFicha = pendientes.filter(s => s.requiere_ficha_tecnica).length;
-    const arbolSeco = pendientes.filter(s => s.arbol_seco).length;
-    const segundaNota = pendientes.filter(s => s.segunda_nota).length;
+    // Desgloses de detalle para el pie de las tarjetas (Operativos, sin datos de sincronización)
+    const detailTotal = `Particulares: ${particulares} • Institucionales: ${institucionales}`;
+    
+    const realPeriodo = dataFiltrada.filter(s => s.estado_tramite === 'Terminado');
+    const instReal = realPeriodo.filter(s => s.id_tipo_institucion && s.id_tipo_institucion !== '').length;
+    const partReal = realPeriodo.length - instReal;
+    const detailReal = `Particulares: ${partReal} • Institucionales: ${instReal}`;
 
-    // Tipos de Solicitantes (Del total filtrado)
-    const institucionales = data.filter(s => s.id_tipo_institucion && s.id_tipo_institucion !== '').length;
-    const particulares = total - institucionales;
+    const espAlta = pendientesGlobales.filter(s => s.nivel_urgencia === 'Alta').length;
+    const espMedia = pendientesGlobales.filter(s => s.nivel_urgencia === 'Media' || s.nivel_urgencia === 'Intermedia').length;
+    const espBaja = pendientesGlobales.filter(s => s.nivel_urgencia === 'Baja' || !s.nivel_urgencia).length;
+    const detailEspera = `Alta: ${espAlta} • Media: ${espMedia} • Baja: ${espBaja}`;
+
+    const critEmergencia = pendientesGlobales.filter(s => s.es_emergencia).length;
+    const critUrgencia = pendientesGlobales.filter(s => s.es_urgencia).length;
+    const critSegunda = pendientesGlobales.filter(s => s.segunda_nota).length;
+    const detailCriticas = `Emerg: ${critEmergencia} • Urg: ${critUrgencia} • 2da Nota: ${critSegunda}`;
 
     return {
         total,
@@ -555,67 +451,12 @@ const stats = computed(() => {
         arbolSeco,
         segundaNota,
         institucionales,
-        particulares
-    }
-})
-
-// --- DESGLOSE DETALLADO PARA TOOLTIPS ---
-const statsDetail = computed(() => {
-    const data = solicitudesFiltradas.value;
-    const total = data.length;
-    
-    // 1. Total breakdown
-    const totalAg = data.filter(s => s._fuente_sync !== 'podarapp').length;
-    const totalPa = total - totalAg;
-    const totalPart = data.filter(s => !s.id_tipo_institucion || s.id_tipo_institucion === '').length;
-    const totalInst = total - totalPart;
-    const totalTerminado = data.filter(s => s.estado_tramite === 'Terminado').length;
-    const totalEspera = total - totalTerminado;
-
-    // 2. Realizadas breakdown
-    const realData = data.filter(s => s.estado_tramite === 'Terminado');
-    const realAg = realData.filter(s => s._fuente_sync !== 'podarapp').length;
-    const realPa = realData.length - realAg;
-    const realPart = realData.filter(s => !s.id_tipo_institucion || s.id_tipo_institucion === '').length;
-    const realInst = realData.length - realPart;
-
-    // 3. Espera breakdown
-    const espData = data.filter(s => s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente');
-    const espAlta = espData.filter(s => s.nivel_urgencia === 'Alta').length;
-    const espMedia = espData.filter(s => s.nivel_urgencia === 'Media' || s.nivel_urgencia === 'Intermedia').length;
-    const espBaja = espData.filter(s => s.nivel_urgencia === 'Baja' || !s.nivel_urgencia).length;
-    const espSetar = espData.filter(s => s.requiere_setar).length;
-    const espPlataforma = espData.filter(s => s.requiere_plataforma).length;
-    const espFicha = espData.filter(s => s.requiere_ficha_tecnica).length;
-    const espSeco = espData.filter(s => s.arbol_seco).length;
-    const espSegunda = espData.filter(s => s.segunda_nota).length;
-
-    // 4. Críticas breakdown
-    const critData = data.filter(s => (s.nivel_urgencia === 'Alta' || s.es_emergencia || s.es_urgencia || s.segunda_nota) && (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente'));
-    const critEmergencia = critData.filter(s => s.es_emergencia).length;
-    const critUrgencia = critData.filter(s => s.es_urgencia).length;
-    const critAlta = critData.filter(s => s.nivel_urgencia === 'Alta' && !s.es_emergencia && !s.es_urgencia).length;
-    const critSegunda = critData.filter(s => s.segunda_nota).length;
-
-    return {
-        total: {
-            origen: { ag: totalAg, pa: totalPa },
-            tipo: { part: totalPart, inst: totalInst },
-            estado: { terminado: totalTerminado, espera: totalEspera }
-        },
-        completadas: {
-            origen: { ag: realAg, pa: realPa },
-            tipo: { part: realPart, inst: realInst }
-        },
-        enProceso: {
-            urgencia: { alta: espAlta, media: espMedia, baja: espBaja },
-            logistica: { setar: espSetar, plataforma: espPlataforma, ficha: espFicha, seco: espSeco, segunda: espSegunda }
-        },
-        urgentes: {
-            emergencia: critEmergencia,
-            urgencia: critUrgencia,
-            alta: critAlta,
-            segunda: critSegunda
+        particulares,
+        detailText: {
+            total: detailTotal,
+            completadas: detailReal,
+            enProceso: detailEspera,
+            urgentes: detailCriticas
         }
     }
 })
@@ -709,10 +550,10 @@ const animarNumeros = () => {
 watch(() => stats.value.total, animarNumeros, { immediate: true })
 
 const statCards = computed(() => [
-    { id: 'total', label: 'Total Solicitudes', value: stats.value.total, icon: ClipboardList, color: 'var(--accent)', bg: '', iconBg: 'bg-accent-soft', iconColor: 'text-accent', percent: 100 },
-    { id: 'completadas', label: 'Solicitudes Realizadas', value: stats.value.completadas, icon: CheckCircle2, color: 'var(--accent)', bg: '', iconBg: 'bg-accent-soft', iconColor: 'text-accent', percent: stats.value.efectividad },
-    { id: 'enProceso', label: 'Solicitudes en Espera', value: stats.value.enProceso, icon: Clock3, color: '#f59e0b', bg: '', iconBg: 'bg-amber-500/10', iconColor: 'text-amber-500', percent: stats.value.total ? (stats.value.enProceso/stats.value.total)*100 : 0 },
-    { id: 'urgentes', label: 'Solicitudes Críticas', value: stats.value.urgentes, icon: AlertTriangle, color: '#ef4444', bg: '', iconBg: 'bg-red-500/10', iconColor: 'text-red-500', percent: stats.value.total ? (stats.value.urgentes/stats.value.total)*100 : 0 }
+    { id: 'total', label: 'Solicitudes Recibidas', value: stats.value.total, icon: ClipboardList, color: 'var(--accent)', bg: '', iconBg: 'bg-accent-soft', iconColor: 'text-accent', percent: 100, detailText: stats.value.detailText.total },
+    { id: 'completadas', label: 'Solicitudes Realizadas', value: stats.value.completadas, icon: CheckCircle2, color: 'var(--accent)', bg: '', iconBg: 'bg-accent-soft', iconColor: 'text-accent', percent: stats.value.efectividad, detailText: stats.value.detailText.completadas },
+    { id: 'enProceso', label: 'Solicitudes en Espera', value: stats.value.enProceso, icon: Clock3, color: '#f59e0b', bg: '', iconBg: 'bg-amber-500/10', iconColor: 'text-amber-500', percent: stats.value.total ? (stats.value.enProceso/stats.value.total)*100 : 0, detailText: stats.value.detailText.enProceso },
+    { id: 'urgentes', label: 'Solicitudes Críticas', value: stats.value.urgentes, icon: AlertTriangle, color: '#ef4444', bg: '', iconBg: 'bg-red-500/10', iconColor: 'text-red-500', percent: stats.value.total ? (stats.value.urgentes/stats.value.total)*100 : 0, detailText: stats.value.detailText.urgentes }
 ])
 
 const ultimasSolicitudes = computed(() => {
