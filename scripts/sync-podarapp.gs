@@ -521,8 +521,32 @@ function resolverPorNombre(texto, catalogo, tipo) {
 
 function resolverTecnico(nombre, tecnicos) {
   if (!nombre) return { id: null };
-  var norm = normalizar(nombre);
-  var encontrado = tecnicos.filter(function(t) { return t.nombre && (normalizar(t.nombre) === norm || normalizar(t.nombre).indexOf(norm) >= 0); });
+  
+  // Limpiar el nombre (quitar Ing, Tec, Dr, Lic, etc.)
+  var sheetClean = normalizar(nombre)
+    .replace(/^(ing\b\.?|tec\b\.?|dr\b\.?|lic\b\.?)\s*/g, '');
+
+  // 1. Intento exacto o substring con nombre limpio
+  var encontrado = tecnicos.filter(function(t) {
+    if (!t.nombre) return false;
+    var dbClean = normalizar(t.nombre);
+    return dbClean === sheetClean || dbClean.indexOf(sheetClean) >= 0 || sheetClean.indexOf(dbClean) >= 0;
+  });
+
+  // 2. Si no, por palabras individuales (al menos 2 palabras en común)
+  if (encontrado.length === 0) {
+    var sheetWords = sheetClean.split(/\s+/).filter(function(w) { return w.length > 2; });
+    encontrado = tecnicos.filter(function(t) {
+      if (!t.nombre) return false;
+      var dbClean = normalizar(t.nombre);
+      var matches = 0;
+      sheetWords.forEach(function(w) {
+        if (dbClean.indexOf(w) >= 0) matches++;
+      });
+      return matches >= 2;
+    });
+  }
+
   return { id: encontrado.length > 0 ? encontrado[0].id : null };
 }
 
