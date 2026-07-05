@@ -693,11 +693,22 @@ const generarDatosGraficos = () => {
         }
     });
 
-    // Técnicos: solo de solicitudes Terminadas (para productividad)
+    // Técnicos: solo de solicitudes Terminadas (para productividad), del 2026 en adelante
     solicitudesFiltradas.value.forEach(s => {
-        if (s.estado_tramite === 'Terminado' && s.id_tecnico_ejecucion) {
-            const tec = store.tecnicos.find(t => t.id == s.id_tecnico_ejecucion);
-            if (tec) data.tecnicos[tec.nombre] = (data.tecnicos[tec.nombre] || 0) + 1;
+        if (s.estado_tramite === 'Terminado') {
+            // Filtrar solo las ingresadas desde el 2026 en adelante
+            if (s.fecha_ingreso && s.fecha_ingreso >= '2026-01-01') {
+                if (s.id_tecnico_ejecucion) {
+                    const tec = store.tecnicos.find(t => t.id == s.id_tecnico_ejecucion);
+                    if (tec) {
+                        data.tecnicos[tec.nombre] = (data.tecnicos[tec.nombre] || 0) + 1;
+                    } else {
+                        data.tecnicos['Sin Asignar'] = (data.tecnicos['Sin Asignar'] || 0) + 1;
+                    }
+                } else {
+                    data.tecnicos['Sin Asignar'] = (data.tecnicos['Sin Asignar'] || 0) + 1;
+                }
+            }
         }
     });
 
