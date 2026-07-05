@@ -357,9 +357,9 @@ const saludo = computed(() => {
 
 // --- FILTROS TEMPORALES ---
 const filtros = [
-    { id: 'hoy', label: 'Hoy' },
     { id: 'semana', label: 'Semana' },
     { id: 'mes', label: 'Mes' },
+    { id: 'ano', label: 'Año' },
     { id: 'todo', label: 'Histórico' }
 ]
 const filtroActual = ref('todo')
@@ -376,15 +376,15 @@ const solicitudesFiltradas = computed(() => {
         const fecha = parsearFechaSegura(s.fecha_ingreso)
         if (!fecha) return false
         
-        if (filtroActual.value === 'hoy') {
-            return fecha >= hoy
-        } else if (filtroActual.value === 'semana') {
+        if (filtroActual.value === 'semana') {
             const haceUnaSemana = new Date(hoy)
             haceUnaSemana.setDate(haceUnaSemana.getDate() - 7)
             return fecha >= haceUnaSemana
         } else if (filtroActual.value === 'mes') {
             const hoyUTC = new Date(Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()))
             return fecha.getUTCMonth() === hoyUTC.getUTCMonth() && fecha.getUTCFullYear() === hoyUTC.getUTCFullYear()
+        } else if (filtroActual.value === 'ano') {
+            return fecha.getUTCFullYear() === hoy.getFullYear()
         }
         return true
     })
@@ -683,7 +683,7 @@ const generarDatosGraficos = () => {
     const mesActual = new Date().getMonth();
 
     // Pre-llenar meses para que el gráfico de evolución siempre muestre de Enero hasta el mes actual en orden
-    if (filtroActual.value === 'todo' || filtroActual.value === 'mes') {
+    if (filtroActual.value === 'todo' || filtroActual.value === 'mes' || filtroActual.value === 'ano') {
         for (let i = 0; i <= mesActual; i++) {
             data.evolucion[meses[i]] = 0;
         }
@@ -712,7 +712,7 @@ const generarDatosGraficos = () => {
             const date = parsearFechaSegura(s.fecha_ingreso);
             if (date) {
                 let m;
-                if (filtroActual.value === 'semana' || filtroActual.value === 'hoy') {
+                if (filtroActual.value === 'semana') {
                     m = `${date.getUTCDate()} ${meses[date.getUTCMonth()].substring(0,3)}`;
                     data.evolucion[m] = (data.evolucion[m] || 0) + 1;
                 } else {
