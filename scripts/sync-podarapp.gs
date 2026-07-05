@@ -930,6 +930,7 @@ function agregarEvaluadoresFirestore() {
     
     var payload = {
       fields: {
+        id: { stringValue: ev.id },
         nombre: { stringValue: ev.nombre },
         role: { stringValue: ev.role },
         cargo: { stringValue: ev.cargo },

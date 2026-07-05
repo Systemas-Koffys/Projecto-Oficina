@@ -460,7 +460,8 @@ export const useMainStore = defineStore('mainStore', () => {
     const unsubPersonal = onSnapshot(collection(db, 'personal'), (snapshot) => {
       const allPersonal = [];
       snapshot.forEach(doc => {
-        allPersonal.push(doc.data());
+        const data = doc.data();
+        allPersonal.push(Object.assign({ id: doc.id }, data));
       });
       allPersonal.sort((a, b) => a.nombre.localeCompare(b.nombre));
       store.tecnicos = allPersonal.map(p => ({
