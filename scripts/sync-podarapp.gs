@@ -750,3 +750,163 @@ function detectarDuplicadosYErrores() {
   Logger.log('- Filas con datos válidos para subir: ' + Object.keys(mapaCom).length);
 }
 
+// =============================================================================
+// RECEPTOR DE ACTUALIZACIONES (ARBORGEST -> GOOGLE SHEETS)
+// =============================================================================
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var comInt = data.comunicacion_interna;
+    if (!comInt) {
+      return ContentService.createTextOutput(JSON.stringify({ success: false, error: 'Falta comunicacion_interna' }))
+                           .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    var result = actualizarFilaEnHoja(comInt, data);
+    return ContentService.createTextOutput(JSON.stringify(result))
+                         .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.message }))
+                         .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function actualizarFilaEnHoja(comInt, data) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('basededatos');
+  if (!sheet) {
+    return { success: false, error: 'Hoja "basededatos" no encontrada' };
+  }
+  
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return { success: false, error: 'Hoja vacía' };
+  }
+  
+  // Buscar columna 'Comunicacion interna'
+  var rangeHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn());
+  var headers = rangeHeaders.getValues()[0];
+  var colComIntIdx = headers.indexOf('Comunicacion interna');
+  if (colComIntIdx === -1) {
+    return { success: false, error: 'Columna "Comunicacion interna" no encontrada' };
+  }
+  
+  var codes = sheet.getRange(2, colComIntIdx + 1, lastRow - 1, 1).getValues();
+  var rowIndex = -1;
+  for (var i = 0; i < codes.length; i++) {
+    if (codes[i][0].toString().trim() === comInt.toString().trim()) {
+      rowIndex = i + 2; // +2 porque el array es 0-indexed y empieza en la fila 2
+      break;
+    }
+  }
+  
+  if (rowIndex === -1) {
+    return { success: false, error: 'No se encontró la fila con Comunicación Interna: ' + comInt };
+  }
+  
+  // Mapear campos recibidos a columnas
+  var updatesCount = 0;
+  
+  function updateCell(colName, val) {
+    var colIdx = headers.indexOf(colName);
+    if (colIdx !== -1) {
+      sheet.getRange(rowIndex, colIdx + 1).setValue(val);
+      updatesCount++;
+    }
+  }
+  
+  // 1. Estado
+  if (data.estado_tramite !== undefined) {
+    var estVal = data.estado_tramite === 'Terminado' ? 'TERMINADO' : 'PENDIENTE';
+    updateCell('Estado', estVal);
+  }
+  
+  // 2. Toggles Booleans
+  if (data.verificado !== undefined) updateCell('Verificado', data.verificado ? 'SI' : 'NO');
+  if (data.requiere_plataforma !== undefined) updateCell('Requiere Plataforma', data.requiere_plataforma ? 'SI' : 'NO');
+  if (data.requiere_setar !== undefined) updateCell('Requiere Setar', data.requiere_setar ? 'SI' : 'NO');
+  if (data.requiere_ficha_tecnica !== undefined) updateCell('Requiere Ficha Tecnica', data.requiere_ficha_tecnica ? 'SI' : 'NO');
+  if (data.procede !== undefined) updateCell('Procede', data.procede ? 'SI' : 'NO');
+  
+  // 3. Prioridad
+  if (data.nivel_urgencia !== undefined) {
+    var urgVal = data.nivel_urgencia.toString().toUpperCase();
+    updateCell('Urgencia', urgVal);
+  }
+  
+  // 4. Fechas y Observaciones
+  if (data.fecha_ejecucion !== undefined) updateCell('Fecha de Ejecucion', data.fecha_ejecucion);
+  if (data.observaciones_finales !== undefined) updateCell('Observacion de Ejecucion', data.observaciones_finales);
+  if (data.observacion_verificacion !== undefined) updateCell('Observacion de Verificacion', data.observacion_verificacion);
+  
+  // 5. Nombres Técnicos
+  if (data.tecnico_ejecucion_nombre !== undefined) updateCell('Tecnico de Ejecucion', data.tecnico_ejecucion_nombre);
+  if (data.tecnico_verificacion_nombre !== undefined) updateCell('Tecnico de Verificacion', data.tecnico_verificacion_nombre);
+  
+  // 6. Árbol Principal
+  if (data.arbol_especie_nombre !== undefined && data.arbol_especie_nombre !== '') updateCell('Especie de Arbol', data.arbol_especie_nombre);
+  if (data.arbol_accion_realizar_nombre !== undefined && data.arbol_accion_realizar_nombre !== '') updateCell('Accion a Realizar', data.arbol_accion_realizar_nombre);
+  if (data.arbol_accion_solicitada_nombre !== undefined && data.arbol_accion_solicitada_nombre !== '') updateCell('Lo Solicitado', data.arbol_accion_solicitada_nombre);
+  if (data.arbol_observaciones !== undefined) updateCell('Observacion de Verificacion', data.arbol_observaciones);
+  
+  return { success: true, row: rowIndex, updates: updatesCount };
+}
+
+// =============================================================================
+// SISTEMA DE RESPALDO AUTOMÁTICO DE PLANILLA EN GOOGLE DRIVE
+// =============================================================================
+function respaldarPlanilla() {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var folderName = "Respaldos PodarApp";
+    
+    // Buscar o crear la carpeta de respaldos en Google Drive
+    var folders = DriveApp.getFoldersByName(folderName);
+    var folder;
+    if (folders.hasNext()) {
+      folder = folders.next();
+    } else {
+      folder = DriveApp.createFolder(folderName);
+    }
+    
+    // Generar el nombre del archivo de copia con marca temporal
+    var fechaStr = Utilities.formatDate(new Date(), ss.getSpreadsheetTimeZone(), "yyyy-MM-dd_HH-mm");
+    var backupName = ss.getName() + " - RESPALDO - " + fechaStr;
+    
+    // Crear la copia en la carpeta de respaldos
+    var file = DriveApp.getFileById(ss.getId());
+    file.makeCopy(backupName, folder);
+    Logger.log("✅ Respaldado con éxito: " + backupName + " en carpeta '" + folderName + "'");
+    
+    // Limpieza de respaldos viejos (mantener solo los últimos 10)
+    var files = folder.getFiles();
+    var fileList = [];
+    while (files.hasNext()) {
+      var f = files.next();
+      fileList.push({
+        id: f.getId(),
+        dateCreated: f.getDateCreated(),
+        name: f.getName()
+      });
+    }
+    
+    // Ordenar de más antiguos a más nuevos
+    fileList.sort(function(a, b) {
+      return a.dateCreated - b.dateCreated;
+    });
+    
+    // Si hay más de 10, borrar los más antiguos
+    var MAX_BACKUPS = 10;
+    if (fileList.length > MAX_BACKUPS) {
+      var filesToDelete = fileList.slice(0, fileList.length - MAX_BACKUPS);
+      for (var i = 0; i < filesToDelete.length; i++) {
+        DriveApp.getFileById(filesToDelete[i].id).setTrashed(true);
+        Logger.log("🗑️ Eliminado respaldo antiguo: " + filesToDelete[i].name);
+      }
+    }
+    
+  } catch (e) {
+    Logger.log("❌ Error al crear el respaldo: " + e.message);
+  }
+}
+

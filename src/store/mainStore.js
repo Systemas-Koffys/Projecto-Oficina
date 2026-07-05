@@ -1202,6 +1202,64 @@ export const useMainStore = defineStore('mainStore', () => {
     }
   }
 
+  async function syncRetornoPodarApp(updates) {
+    try {
+      const url = import.meta.env.VITE_APPS_SCRIPT_URL;
+      if (!url) {
+        console.warn('⚠️ [ArborGest Sync] No se encuentra configurada la URL VITE_APPS_SCRIPT_URL en el entorno.');
+        return;
+      }
+      
+      const payload = {
+        comunicacion_interna: updates.comunicacion_interna,
+        estado_tramite: updates.estado_tramite,
+        verificado: updates.esta_verificado === 'Sí' || updates.verificado === true,
+        requiere_plataforma: updates.requiere_plataforma,
+        requiere_setar: updates.requiere_setar,
+        requiere_ficha_tecnica: updates.requiere_ficha_tecnica,
+        procede: updates.procede,
+        nivel_urgencia: updates.nivel_urgencia,
+        fecha_ejecucion: updates.fecha_ejecucion,
+        observaciones_finales: updates.observaciones_finales,
+        observacion_verificacion: updates.observacion_verificacion,
+        tecnico_ejecucion_nombre: updates.id_tecnico_ejecucion
+          ? (store.tecnicos.find(t => t.id == updates.id_tecnico_ejecucion)?.nombre || '')
+          : '',
+        tecnico_verificacion_nombre: updates.id_tecnico_verificacion
+          ? (store.tecnicos.find(t => t.id == updates.id_tecnico_verificacion)?.nombre || '')
+          : '',
+        arbol_especie_nombre: (updates.arboles && updates.arboles.length > 0 && updates.arboles[0].id_especie)
+          ? (store.especies.find(e => e.id == updates.arboles[0].id_especie)?.nombre || '')
+          : '',
+        arbol_accion_realizar_nombre: (updates.arboles && updates.arboles.length > 0 && updates.arboles[0].id_accion_realizar)
+          ? (store.acciones.find(a => a.id == updates.arboles[0].id_accion_realizar)?.nombre || '')
+          : '',
+        arbol_accion_solicitada_nombre: (updates.arboles && updates.arboles.length > 0 && updates.arboles[0].id_accion_solicitada)
+          ? (store.acciones.find(a => a.id == updates.arboles[0].id_accion_solicitada)?.nombre || '')
+          : '',
+        arbol_observaciones: (updates.arboles && updates.arboles.length > 0)
+          ? (updates.arboles[0].observaciones_arbol || '')
+          : ''
+      };
+      
+      console.log('🔄 [ArborGest Sync] Enviando retorno a Google Sheets:', payload);
+      
+      fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }).catch(err => {
+        console.error('❌ [ArborGest Sync] Error en fetch de retorno:', err);
+      });
+      
+    } catch (err) {
+      console.error('❌ [ArborGest Sync] Error en syncRetornoPodarApp:', err);
+    }
+  }
+
   async function updateSolicitud(id, datos) {
     try {
       const docRef = doc(db, 'solicitudes', String(id));
@@ -1272,6 +1330,12 @@ export const useMainStore = defineStore('mainStore', () => {
       };
 
       await updateDoc(docRef, updates);
+
+      // Sincronización de retorno en segundo plano si proviene de PodarApp
+      const existing = store.solicitudes.find(s => s.comunicacion_interna === updates.comunicacion_interna);
+      if (existing && existing._fuente_sync === 'podarapp') {
+        syncRetornoPodarApp(updates);
+      }
 
       await registrarAuditoria({
         accion: 'MODIFICAR',
