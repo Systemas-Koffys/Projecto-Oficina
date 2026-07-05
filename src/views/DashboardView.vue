@@ -723,11 +723,33 @@ const renderCharts = () => {
 
     const colors = ['#064e3b', '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'];
 
-    // Pie (Distritos)
-    distritosResumen.value = Object.entries(raw.distritos).map(([label, value], i) => ({ label, value, color: colors[i % colors.length] }));
+    // Pie (Distritos) - Ordenar numéricamente por distrito (Distrito 1, 2, 3...)
+    const distritosOrdenados = Object.entries(raw.distritos).sort((a, b) => {
+        const numA = parseInt(a[0].replace(/\D/g, '')) || 0;
+        const numB = parseInt(b[0].replace(/\D/g, '')) || 0;
+        return numA - numB;
+    });
+
+    const labelsDistritos = distritosOrdenados.map(d => d[0]);
+    const valoresDistritos = distritosOrdenados.map(d => d[1]);
+
+    distritosResumen.value = distritosOrdenados.map(([label, value], i) => ({ 
+        label, 
+        value, 
+        color: colors[i % colors.length] 
+    }));
+
     charts.pie = new window.Chart(document.getElementById('chartPie'), {
         type: 'pie',
-        data: { labels: Object.keys(raw.distritos), datasets: [{ data: Object.values(raw.distritos), backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+        data: { 
+            labels: labelsDistritos, 
+            datasets: [{ 
+                data: valoresDistritos, 
+                backgroundColor: colors, 
+                borderWidth: 2, 
+                borderColor: '#fff' 
+            }] 
+        },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
