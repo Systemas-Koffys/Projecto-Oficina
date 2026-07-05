@@ -1,18 +1,30 @@
-# Instrucciones del Sistema de Arboricultura y Sincronización PodarApp
+# Instrucciones del Sistema de Arboricultura — ArborGest
 
-## 📋 Resumen del Estado de la Sincronización
-La sincronización unidireccional **PodarApp (Sheets) → ArborGest (Firestore)** está implementada y activa. 
-*   El script conector optimizado se encuentra en [`scripts/sync-podarapp.gs`](file:///c:/Users/Personal/Documents/Projecto-Oficina/scripts/sync-podarapp.gs) y se ejecuta mediante un disparador automático cada 5 minutos.
-*   Toda la documentación detallada del conector, mapeo de barrios, distritos y UI está en [`docs/podarapp_sync.md`](file:///c:/Users/Personal/Documents/Projecto-Oficina/docs/podarapp_sync.md).
+## 📖 LECTURA OBLIGATORIA AL INICIAR
+Antes de responder cualquier cosa, leer completamente el documento maestro del proyecto:
+📄 [`PROJECT_STATE.md`](file:///c:/Users/Personal/Documents/Projecto-Oficina/PROJECT_STATE.md)
 
-## ⚠️ Tareas Pendientes para el Siguiente Chat
+Este documento contiene:
+- Quiénes somos y para qué institución se trabaja.
+- Las Reglas de Oro del usuario (normas de trabajo que NO se pueden violar).
+- La arquitectura completa del sistema (Vue 3, Pinia, Firebase, Firestore, Cloudinary).
+- La estructura de la base de datos Firestore y sus colecciones.
+- El estado actual del sistema y todos los logros implementados.
+- La lista de vistas y componentes del sistema.
+- Las tareas pendientes para el siguiente chat.
 
-### 1. Modificaciones en el Dashboard (`src/views/DashboardView.vue`)
-*   **Filtro Temporal:** Cambiar el filtro computado `solicitudesFiltradas` para permitir visualizar el histórico de 2023, 2024 y 2025 (actualmente bloqueado por la constante `limitDate = 2026-01-01`).
-*   **Gráfico "Demanda por Acción":** Implementar la búsqueda recursiva dentro del arreglo de árboles (`s.arboles[0].id_accion_solicitada`) cuando la solicitud carezca de acción en la raíz (`s.id_accion_solicitada`), solucionando la falta de barras de datos para los registros sincronizados.
+## ⚠️ Tareas Pendientes Inmediatas
 
-### 2. Bidireccionalidad (Siguiente Fase)
-*   Desarrollar el flujo inverso (ArborGest → Google Sheets) para sincronizar las ediciones.
+### 1. Dashboard (`src/views/DashboardView.vue`)
+- **Filtro Temporal:** Cambiar `solicitudesFiltradas` para que el filtro "Histórico" muestre 2023, 2024 y 2025 (hoy bloqueados por `limitDate = '2026-01-01'`).
+- **Gráfico "Demanda por Acción":** En `generarDatosGraficos()`, añadir fallback a `s.arboles[0].id_accion_solicitada` cuando `s.id_accion_solicitada` esté vacío.
 
-### 3. Imágenes
-*   Integrar las fotos de campo en ArborGest a través del CDN Cloudinary.
+### 2. Sincronización Bidireccional (Siguiente Fase)
+Desarrollar el flujo inverso ArborGest → Google Sheets.
+
+### 3. Imágenes de Campo
+Integrar fotos de AppSheet en ArborGest vía Cloudinary CDN.
+
+## 📋 Documentación Adicional
+- Conector de sincronización: [`docs/podarapp_sync.md`](file:///c:/Users/Personal/Documents/Projecto-Oficina/docs/podarapp_sync.md)
+- Script Apps Script: [`scripts/sync-podarapp.gs`](file:///c:/Users/Personal/Documents/Projecto-Oficina/scripts/sync-podarapp.gs)

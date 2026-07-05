@@ -1,10 +1,10 @@
-# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.39)
+# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto
 
-> **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**  
-> **Fecha de Actualización:** 3 de Julio de 2026  
-> **Versión Actual:** `v3.26.40` (Desarrollo en rama `feature-podarapp-sync`)  
-> **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)  
-> **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura  
+> **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**
+> **Fecha de Actualización:** 4 de Julio de 2026
+> **Versión Actual:** `v3.27.x` (Desarrollo en rama `feature-podarapp-sync`)
+> **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)
+> **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura
 
 ---
 
@@ -12,120 +12,167 @@
 
 El usuario sigue una metodología rigurosa de desarrollo y control. **El asistente DEBE respetar estas reglas sin excepción:**
 
-1. ⚠️ **"NO TOCAR SIN AVISARME" (Consultar y explicar efectos colaterales antes de codificar):**
-   - Jamás modificar arquitectura, archivos de configuración (`firebase.json`, `vite.config.js`, `config.js`), lógica de autenticación ni estructuras de la base de datos sin explicar el plan técnico detallado en español sencillo.
-   - **Explicación Transparente de Efectos Colaterales:** Antes de realizar cualquier cambio, el asistente DEBE advertir explícitamente qué archivos se tocarán y TODOS los posibles efectos secundarios o colaterales que dicho cambio podría causar en otras partes del sistema, en la base de datos o en la nube de producción (ej: pantallas blancas por variables de entorno faltantes).
-   - Presentar el plan al usuario y **esperar su autorización explícita ("dale", "ok", "adelante")** antes de modificar código o crear artefactos modificatorios.
+1. ⚠️ **"NO TOCAR SIN AVISARME" (Consultar y explicar antes de codificar):**
+   - Jamás modificar arquitectura, archivos de configuración (`firebase.json`, `vite.config.js`), lógica de autenticación ni estructuras de la base de datos sin explicar el plan técnico detallado en español sencillo.
+   - **Explicar Efectos Colaterales:** Antes de cualquier cambio, advertir qué archivos se tocarán y todos los posibles efectos secundarios.
+   - Presentar el plan al usuario y **esperar su autorización explícita ("dale", "ok", "adelante")** antes de modificar código.
+
 2. 🚫 **PROHIBIDO INICIAR EL NAVEGADOR AUTOMATIZADO (`browser_subagent`):**
-   - El asistente tiene **estrictamente prohibido** invocar o lanzar la herramienta del subagente de navegador (`browser_subagent`) por iniciativa propia. El usuario realiza y verifica sus propias pruebas manualmente en su pantalla. Solo se usará si el usuario lo solicita explícitamente.
+   - Está **estrictamente prohibido** invocar `browser_subagent` por iniciativa propia. Solo se usará si el usuario lo solicita explícitamente.
+
 3. 🛑 **CONTROL DE GIT Y COMMITS RESPONSABLES:**
-   - No realizar commits o pushes de manera apresurada. Asegurarse de que el código esté 100% probado y verificado antes de confirmar los cambios en la rama principal.
+   - No realizar commits o pushes de manera apresurada. Asegurarse de que el código esté 100% verificado antes de confirmar.
+
 4. 🔢 **Sistema Dinámico de Control de Versión (`update-version.js`):**
-   - Cada proceso de `npm run build` o commit ejecuta automáticamente `node scripts/update-version.js` (`prebuild` hook).
-   - Este script calcula la versión `v3.minor.patch` leyendo el conteo total de commits de Git (`git rev-list --count HEAD`) y actualiza `package.json`.
-   - **Regla:** Al confirmar cambios al usuario, siempre mencionar la versión generada (ej: `v3.26.6`) y el commit hash.
+   - Cada `npm run build` o commit ejecuta `node scripts/update-version.js` (`prebuild` hook).
+   - Este script calcula la versión `v3.minor.patch` leyendo el conteo de commits de Git y actualiza `package.json`.
+   - Al confirmar cambios, siempre mencionar la versión generada.
+
 5. 💼 **Jerarquía de Cargos Institucionales Únicos:**
-   - `Responsable de Área`, `Jefe de Unidad` y `Técnico de sistemas` son cargos únicos e indivisibles en el municipio (máximo 1 persona activa por cargo en la base de datos).
-   - El sistema valida esta unicidad al crear o actualizar funcionarios en `mainStore.js` (`addCatalogo`, `updateCatalogo`).
-   - Las firmas de documentos e informes impresos (PDFs) se calculan dinámicamente en `mainStore.js` buscando a las personas asignadas a estos cargos (`responsableArea` y `jefeUnidad`). Nunca poner nombres estáticos (ej: jamás hardcodear "Ing. Cimar Farfan" o "Ing. Raul Arteaga").
+   - `Responsable de Área`, `Jefe de Unidad` y `Técnico de sistemas` son cargos únicos (máx 1 persona activa por cargo).
+   - Las firmas en PDFs se calculan dinámicamente desde `mainStore.js`. **Nunca hardcodear nombres de funcionarios.**
+
 6. 🛡️ **Estándar Firebase Modular SDK v9+:**
-   - Utilizar funciones modulares como `deleteApp(app)` de `'firebase/app'` (evitar `app.delete()` porque lanza runtime TypeError en SDK modular).
-   - En actualizaciones parciales de `updateCatalogo('tecnicos', id, datos)`, siempre hacer *merge* o fallback con `existingData` para evitar sobreescribir nombres o cargos con `undefined`.
+   - Usar funciones modulares como `deleteApp(app)` de `'firebase/app'` (evitar `app.delete()`).
+   - En `updateCatalogo`, siempre hacer *merge* con `existingData` para evitar sobreescribir campos con `undefined`.
 
 ---
 
 ## 🛠️ ARQUITECTURA TÉCNICA E INFRAESTRUCTURA COMPLETA
 
-- **Framework Frontend:** Vue 3 (Composition API `<script setup>`), Vue Router (`src/router/index.js`), Vite (`vite.config.js`).
+- **Framework Frontend:** Vue 3 (Composition API `<script setup>`), Vue Router (`src/router/index.js`), Vite.
 - **Estado Global:** Pinia Store (`src/store/mainStore.js`).
-- **Diseño & UI:** Vanilla CSS + Tailwind CSS utilities (`src/style.css`), Lucide Vue Icons (`lucide-vue-next`), Leaflet.js para mapas geográficos, Chart.js para gráficos analíticos.
+- **Diseño & UI:** Vanilla CSS + Tailwind CSS utilities (`src/style.css`), Lucide Vue Icons, Leaflet.js (mapas), Chart.js (gráficos analíticos).
 - **Nube e Infraestructura:**
-  - **Firebase Hosting & GitHub Actions:** Despliegue automático a la nube al hacer push a la rama `main` en GitHub (`Sistema-Arboricultura-Tarija`).
-  - **Firebase Firestore:** Base de datos NoSQL en tiempo real con persistencia offline en IndexedDB (`persistentLocalCache` y `persistentMultipleTabManager`).
-  - **Firebase Auth:** Autenticación con email/password y Google Sign-In con verificación previa contra el directorio municipal en `personal`.
-  - **Cloudinary CDN (Almacenamiento de Imágenes):** Las imágenes y fotos de árboles/perfiles se procesan y comprimen en el cliente vía Canvas (máx 1200x1200px al 82% quality JPEG, reduciendo tamaño 30x). Luego se suben a Cloudinary vía API REST RESTful Unsigned Preset (`sistema-gamt-uploads`). Si la red o Cloudinary fallan, el sistema tiene un fallback automático para guardar Base64 comprimido directamente en Firestore.
-  - **Manejo de Transparencias en Canvas:** La función `compressImage` en `mainStore.js` rellen al canvas con blanco `#FFFFFF` antes de procesar logos o imágenes PNG transparentes para evitar fondos negros.
-  - **Firestore Security Rules:** Archivo [firestore.rules](file:///c:/Users/Personal/Documents/Projecto-Oficina/firestore.rules) desplegado oficialmente en los servidores de Google Firebase.
-
----
-
-## 📋 NORMAS DE IMPRESIÓN Y DISEÑO DE INFORMES OFICIALES
-
-1. **Membrete Oficial Estandarizado (4 Líneas):**
-   Todas las impresiones (Solicitudes, Reportes, Historial, Ficha Técnica de Activos, Mapa) deben llevar la cabecera institucional exacta:
-   - *Gobierno Autónomo Municipal de Tarija*
-   - *Dirección de Obras Públicas Municipales de Tarija*
-   - *Unidad de Mantenimiento de Ornato Público*
-   - *Área de Arboricultura*
-2. **Firmas Dinámicas de Autoridades:**
-   Los bloques de firma en la parte inferior de los PDFs siempre leen dinámicamente `responsableArea` y `jefeUnidad` desde el store de funcionarios activos.
-3. **Limpieza de Elementos Flotantes en Impresión:**
-   Notificaciones Toast, modales y botones flotantes tienen configuradas las clases `.toast-container { display: none !important; }` y `print:hidden no-print` en `@media print` en `src/style.css` para garantizar PDFs limpios sin distorsión.
+  - **Firebase Hosting & GitHub Actions:** Despliegue automático al hacer push a la rama `main` en GitHub (`Systemas-Koffys/Projecto-Oficina`).
+  - **Firebase Firestore:** Base de datos NoSQL en tiempo real con persistencia offline en IndexedDB.
+  - **Firebase Auth:** Autenticación con email/password con verificación previa contra el directorio en `personal`.
+  - **Cloudinary CDN:** Imágenes de árboles y perfiles, comprimidas vía Canvas (máx 1200x1200px, 82% JPEG) antes de subir vía API REST. Hay fallback a Base64 en Firestore si Cloudinary falla.
+  - **Google Apps Script:** Script conector para sincronizar PodarApp → ArborGest (ver sección siguiente).
+  - **Firestore Security Rules:** Archivo `firestore.rules` desplegado en la nube.
 
 ---
 
 ## 📊 ESTRUCTURA DE LA BASE DE DATOS FIRESTORE (COLECCIONES)
 
 1. `personal`: Directorio de funcionarios municipales (roles: `ROOT`, `ADMIN`, `TECNICO`, `USER`).
-2. `solicitudes`: Expedientes de trámites de poda/tala/emergencias enviados por la oficina o el portal ciudadano (estados: `En espera`, `Pendiente`, `En proceso`, `Terminado`).
-3. `catalogos`: Documentos maestros (`barrios`, `distritos`, `especies`, `acciones`, `tipos_institucion`, `instituciones`).
+2. `solicitudes`: Expedientes de trámites de poda/tala/emergencias (estados: `En espera`, `Terminado`).
+3. `catalogos`: Documentos maestros (`barrios`, `distritos`, `especies`, `acciones`, `tipos_institucion`, `instituciones`). **No son colecciones propias, sino documentos dentro de la colección `catalogos`** con un campo `items[]`.
 4. `config`: Metadata global del sistema (`docId: 'sistema'` con logos institucionales).
-5. `auditoria`: **Caja Negra inmutable** que registra todas las acciones (`CREAR`, `MODIFICAR`, `ELIMINAR`).
-6. `impresiones`: Historial de reportes y hojas de ruta impresos con snapshot de filtros (`filtros_snapshot`).
+5. `auditoria`: Caja Negra inmutable de todas las acciones (`CREAR`, `MODIFICAR`, `ELIMINAR`).
+6. `impresiones`: Historial de reportes impresos con snapshot de filtros.
 7. `calendario`: Programación e hitos de trabajos en barrios.
-8. `inventario_items`: Catálogo maestro de herramientas y repuestos.
-9. `inventario_activos`: Activos codificados con número de chasis/serie y responsable legal.
-10. `inventario_consumibles`: Stock físico de insumos por almacén/oficina.
-11. `inventario_movimientos`: Entradas, salidas y transferencias de herramientas.
-12. `inventario_mantenimientos`: Fichas de servicio técnico de equipos.
+8. `inventario_items`, `inventario_activos`, `inventario_consumibles`, `inventario_movimientos`, `inventario_mantenimientos`: Módulo completo de Inventario y Equipos.
 
 ---
 
-## 📋 ESTADO ACTUAL Y LOGROS RECIENTES (`v3.26.39`)
+## 🔑 DATOS CLAVE SOBRE `solicitudes` (Trámites)
 
-- ✅ **Memoria de Conversación y Buscador Local Inteligente (Mini-RAG) (`v3.26.39`):** Implementados los últimos 6 mensajes del chat actual como historial para consultas de seguimiento. Se integró un buscador local por relevancia para escanear todo el historial de solicitudes cargado en Pinia sin impactar el uso de tokens. Se amplió el contexto con calendarios, impresiones, usuarios y auditorías (según el rol).
-- ✅ **Alineación Simétrica de Barra de Búsqueda y Micrófono de IA (`v3.26.30`):** Sincronizada la altura de la barra del input de texto y el botón del micrófono a exactamente 48px (`h-12`), unificando sus bordes redondeados a `rounded-xl` para corregir desalineaciones horizontales y lograr una visualización completamente simétrica e impecable.
-- ✅ **Vectores Lucide en Reemplazo de Emojis de Sistema (`v3.26.29`):** Sustituidos todos los emojis de texto (como el robot del avatar, el usuario, la bombilla y el control de volumen) por iconos vectoriales SVG limpios de Lucide (`Bot`, `User`, `Lightbulb`, `Volume2`, `Square`, `Mic`, `Send`, `AlertTriangle`), corrigiendo fallas de renderizado del sistema operativo y puliendo el diseño final.
-- ✅ **Control de Voz y Rediseño Adaptativo del Asistente IA (`v3.26.28`):** Rediseñada la pantalla del Asistente IA utilizando clases semánticas de tema para perfecta adaptación en modo día, nocturno y colors. Removido el avatar de emoji/círculo en la tarjeta izquierda e implementado un botón de detención de reproducción de voz (`⏹ Detener Voz`) para silenciar locuciones en tiempo real.
-- ✅ **Widget de Lenguajes, Módulo IA y Ajustes de Base de Datos (`v3.26.27`):** Agregada tarjeta de lenguajes estilo GitHub en **Acerca de** junto con el módulo **Asistente IA** en la cuadrícula oficial. Clarificada la terminología de base de datos en **Configuraciones** (especificando respaldo NoSQL/JSON). Estandarizados textos de la API key de "Gemini" a "Groq".
-- ✅ **Exclusión de Activos Fijos del Stock e Inventario (`v3.26.26`):** Filtrados y excluidos globalmente todos los ítems de tipo `"Activo"` (como Motosierras y Podadoras de altura) de la subpestaña **Stock General y Catálogo**, centralizando su control de forma exclusiva bajo **Fichas Técnicas Activos**.
-- ✅ **Reimpresión de Reportes Individuales y Corrección de Estados (`v3.26.25`):** Solucionado el bug en el historial del Centro de Reportes que impedía visualizar/reimprimir reportes individuales (redirigiendo dinámicamente a la vista de origen para abrir la ficha e imprimir). Estandarizada la etiqueta del mapa de `"Solo Ejecutados"` a `"Solo Terminados"`.
-- ✅ **Iconos Vectoriales Lucide en Mapa (`v3.26.24`):** Se rediseñaron los marcadores del mapa utilizando pines de geolocalización de alta nitidez que integran en su interior el icono vectorial oficial `tree-deciduous` de Lucide, centrado y escalado de forma matemática.
-- ✅ **Unificación de Estados y Rediseño de Mapa (`v3.26.23`):** Se normalizó el campo `estado_tramite` a `'En espera'` al cargar solicitudes de Firestore. Se actualizó el filtro predeterminado en `MapaView.vue` a `'En espera'`.
-- ✅ **Optimización de Visualización de Tablas (`v3.26.22`):** Se compactaron las tablas en `SolicitudesView.vue` y `HistorialView.vue` mediante una cuadrícula de 2x2 para las acciones (botones cuadrados), truncado inteligente a 140px en columnas largas con tooltip en hover, reducción de paddings en celdas a la mitad, y barra de desplazamiento horizontal pegada al contenedor visible de la tabla.
-- ✅ **Selector Tradicional Restaurado:** Habilitada la lectura pública de la colección `personal` en Firestore para cargar de inmediato los nombres, cargos y fotos de los técnicos activos al abrir la pantalla de login sin errores de consola.
-- ✅ **Membrete Oficial Estandarizado:** Implementado en todas las vistas de impresión.
-- ✅ **Módulo de Equipos Operativos (`EquiposView.vue`):** Drag & drop reparado para UIDs alfanuméricos de Firebase. Incorporada barra de resumen con insignias dinámicas por cargo (`1 Técnico`, `2 Choferes`, `3 Trepadores`, etc.) y pluralización gramatical automática.
-- ✅ **Portal Ciudadano (`PublicPortalView.vue`):** Conectado en tiempo real con `solicitudes` (estados `En espera` / `Pendiente`). Generación de código de ticket público `SOL-017/26`, soporte para visualización de códigos públicos en tablas/mapas y ordenamiento cronológico exacto por `createdAt` en primera página.
-- ✅ **Blindaje de Seguridad Nube (`firestore.rules`):** Desplegado en la nube de Google Firebase. Inmutabilidad estricta de auditoría (`allow update, delete: if false;`), restricción de escritura de catálogos y personal a `ADMIN`/`ROOT`, y aislamiento de privacidad para el portal ciudadano.
-- ✅ **Configuración de Conexión:** Restaurados valores de respaldo en [src/firebase/config.js](file:///c:/Users/Personal/Documents/Projecto-Oficina/src/firebase/config.js) para evitar pantallas blancas en el bundle web de producción de Firebase Hosting.
+- **Llave Primaria:** El campo `comunicacion_interna` es el ID único inamovible. El `docId` en Firestore se deriva como `podar_{codigo/año}` → `podar_1285-25`.
+- **Estados válidos:** `"En espera"` (pendiente), `"Terminado"` (ejecutado).
+- **Campo `createdAt`:** Debe ser un `Timestamp` real de Firestore para que el listener en tiempo real de `mainStore.js` (que ordena por `createdAt DESC`) muestre el documento.
+- **Campo `_fuente_sync`:** `"podarapp"` para los registros sincronizados desde Google Sheets. Los creados localmente en ArborGest no tienen este campo.
+- **Árboles múltiples:** Se almacenan en un array `arboles[]` dentro de cada solicitud. Cada árbol tiene `id_especie`, `id_accion_solicitada`, `id_accion_realizar`, `observaciones_arbol`, `url_foto`, `realizado` (bool).
+- **GPS:** Los campos `lat` y `lng` son números de doble precisión.
 
 ---
 
-## 🎯 PRÓXIMA FASE Y TAREAS PENDIENTES (HOJA DE RUTA)
+## 🔄 SINCRONIZACIÓN PODARAPP → ARBORGEST (IMPLEMENTADA Y ACTIVA)
 
-### 📌 Fase Inmediata: Conexión con Podarapp (AppSheet + Google Sheets)
-El usuario tiene una aplicación móvil de campo llamada **Podarapp** construida en AppSheet y respaldada por una base de datos en Google Sheets en su Google Drive.
+La integración entre **PodarApp (Google Sheets / AppSheet)** y **ArborGest (Firebase Firestore)** está completada y en producción.
 
-**Objetivo de la siguiente sesión:**
-1. Diseñar e implementar el flujo de integración/sincronización entre **ArborGest** (sistema web de oficina en Firebase) y **Podarapp** (app de campo en AppSheet / Google Sheets).
-2. Permitir que los trabajos ejecutados por los técnicos en la calle usando Podarapp se reflejen automáticamente en las solicitudes e inventario de ArborGest.
+### Estado Actual
+- **861 solicitudes** sincronizadas desde Google Sheets a Firestore.
+- El activador automático en Apps Script corre **cada 5 minutos**.
+- El script detecta diferencias en memoria (batch) y solo escribe cuando hay cambios reales, corriendo en <5 segundos cuando no hay novedades.
 
-### 📌 Fase Siguiente: Módulo de Documentación e Informes
-Desarrollar la vista de "Documentación / Informes" para plantillas oficiales antes de pasar al despliegue total de herramientas de campo.
+### Cómo Funciona
+1. Lee las hojas `basededatos` y `DetalleDeÁrboles` del Google Sheet de PodarApp.
+2. Resuelve barrios, distritos, especies, acciones y técnicos contra los catálogos de Firestore.
+3. Descarga todos los documentos de `solicitudes` en memoria al inicio.
+4. Compara campo a campo. Si hay diferencia → `PATCH` a Firestore. Si no → `SIN_CAMBIOS`.
+5. Fuerza actualización si el documento en Firestore carece de `createdAt`.
+
+### Configuración (Variables Secretas en Apps Script)
+En la consola de Apps Script → Configuración del Proyecto → Propiedades del Script:
+- `SA_CLIENT_EMAIL`: Email de la cuenta de servicio de Firebase.
+- `SA_PRIVATE_KEY`: Clave privada PEM completa.
+- `FIRESTORE_PROJECT`: `sistema-arboricultura-tarija`
+
+### Llave Primaria en el Excel
+La columna **`Comunicacion interna`** es la llave primaria. No es editable. Si dos filas tienen el mismo código, se sobreescriben en Firestore (se detectan con la función `detectarDuplicadosYErrores()`).
+
+### Mapeo de Barrios (Por Capas)
+El script resuelve barrios con 3 capas:
+1. **Exacta** (nombre + distrito coinciden).
+2. **Solo nombre** (emite advertencia si el distrito difiere).
+3. **Parcial** (subcadena). Si no hay match → `id_barrio: null` y escribe `barrio_texto_podar` con el texto original.
+
+### Ramas de Git
+- `feature-podarapp-sync` → rama de desarrollo activa.
+- `main` → producción (no modificar sin build y prueba previa).
+- `feature-ai-assistant` → módulo IA congelado (Groq/LLaMA).
+
+### Documentación Técnica Detallada
+Ver: [`docs/podarapp_sync.md`](file:///c:/Users/Personal/Documents/Projecto-Oficina/docs/podarapp_sync.md)
 
 ---
 
-## 💡 NOTAS DE CONTINUIDAD E INTEGRACIÓN DE IA
+## 🖥️ VISTAS Y COMPONENTES DEL SISTEMA
 
-### 🌳 Módulo AI Arboricultura (`v3.26.14`)
-* Se desarrolló en la rama `feature-ai-assistant` una vista de Asistente IA Conversacional por Voz y Texto (`AIAssistantView.vue`).
-* El servicio de IA (`src/services/gemini.js`) está implementado con `fetch` nativo para máxima compatibilidad.
-* **Proveedor de IA:** Se migró de Google Gemini a **Groq** (proveedor de LLaMA 3.1) por restricciones organizacionales de Google Cloud que impiden crear claves de API directas para Gemini en el proyecto de la Alcaldía.
-* La clave de API de Groq debe configurarse en `.env` bajo la variable `VITE_GEMINI_API_KEY` (puede renombrarse a `VITE_GROQ_API_KEY` en una futura limpieza).
+| Archivo | Descripción |
+|---|---|
+| `src/views/LoginView.vue` | Pantalla de inicio de sesión con Firebase Auth |
+| `src/views/DashboardView.vue` | Panel de control con stats, gráficos Chart.js y filtros temporales |
+| `src/views/SolicitudesView.vue` | Lista de solicitudes pendientes (En espera) con filtros y mapa |
+| `src/views/HistorialView.vue` | Historial de solicitudes terminadas con filtros avanzados y exportación Excel |
+| `src/views/MapaView.vue` | Mapa Leaflet.js de solicitudes con marcadores de pines vectoriales |
+| `src/views/ReportesView.vue` | Centro de reportes: hojas de ruta e impresiones por grupo/técnico |
+| `src/views/CalendarioView.vue` | Agenda de trabajos programados |
+| `src/views/PersonalView.vue` | Directorio de funcionarios, cargos y fichas técnicas |
+| `src/views/EquiposView.vue` | Equipos operativos con drag & drop |
+| `src/views/InventarioView.vue` | Inventario completo (activos, consumibles, movimientos, mantenimientos) |
+| `src/views/ConfiguracionesView.vue` | Catálogos, logos, configuración del sistema |
+| `src/views/AuditoriaView.vue` | Caja negra de actividad (solo ROOT) |
+| `src/views/PublicPortalView.vue` | Portal ciudadano público para seguimiento de trámites |
+| `src/views/AcercaDeView.vue` | Acerca de, versión y créditos del sistema |
+| `src/components/SolicitudModal.vue` | Modal principal de creación/edición de solicitudes (campos: `verificado` toggle, `realizado` toggle por árbol) |
+| `src/components/Sidebar.vue` | Barra lateral de navegación con roles y permisos |
+| `src/store/mainStore.js` | Store Pinia central: auth, listeners Firestore, catálogos, CRUD |
+
+---
+
+## ⚠️ TAREAS PENDIENTES (SIGUIENTE CHAT)
+
+### 1. Ajustes en el Dashboard (`src/views/DashboardView.vue`)
+- **Filtro de Fecha Histórico:** La computada `solicitudesFiltradas` tiene hardcodeado `limitDate = '2026-01-01'`. Esto impide que el filtro "Histórico" muestre datos de 2023, 2024 y 2025. Debe quitarse el límite cuando el filtro sea `'todo'`.
+- **Gráfico "Demanda por Acción":** En `generarDatosGraficos()`, el gráfico busca `s.id_accion_solicitada` en la raíz. Los registros de PodarApp guardan la acción en `s.arboles[0].id_accion_solicitada`. Añadir el mismo fallback que ya tiene la lista lateral `accionesPendientes`.
+
+### 2. Sincronización Bidireccional (Siguiente Fase)
+Desarrollar el flujo inverso (ArborGest → Google Sheets) para que las ediciones hechas en ArborGest se reflejen de vuelta en PodarApp.
+
+### 3. Integración de Imágenes de Campo
+Las fotos de AppSheet se guardan como rutas relativas en Google Drive (ej: `basededatos_Images/foto.jpg`). Explorar cómo publicarlas o migrarlas a Cloudinary para visualizarlas en ArborGest.
+
+---
+
+## 📋 NORMAS DE IMPRESIÓN Y DISEÑO
+
+1. **Membrete Oficial Estandarizado (4 líneas):**
+   - *Gobierno Autónomo Municipal de Tarija*
+   - *Dirección de Obras Públicas Municipales de Tarija*
+   - *Unidad de Mantenimiento de Ornato Público*
+   - *Área de Arboricultura*
+2. **Firmas Dinámicas:** Leen `responsableArea` y `jefeUnidad` del store. Nunca hardcodear nombres.
+3. **Limpieza en PDFs:** `.toast-container`, modales y botones tienen `print:hidden` para impresiones limpias.
 
 ---
 
 ## 💡 NOTA FINAL PARA EL SIGUIENTE AGENTE IA
 
-Al iniciar el nuevo chat, saluda cordialmente al usuario, confirma que has leído este manual maestro de traspaso (`PROJECT_STATE.md`), menciona que el sistema está estable en la versión `v3.26.14` en su rama `feature-ai-assistant` con el asistente de IA en proceso de configuración con Groq, y pregunta si desea comenzar directamente con el análisis y diseño de la **integración con Podarapp (AppSheet + Google Sheets)**.
+Al iniciar el nuevo chat:
+1. Confirma que has leído este `PROJECT_STATE.md`.
+2. Informa que el sistema está en versión `v3.27.x` en la rama `feature-podarapp-sync` con la sincronización PodarApp → ArborGest **completada y activa con 861 registros**.
+3. La próxima tarea prioritaria es **ajustar el Dashboard** (filtro de fecha y gráfico "Demanda por Acción").
+4. Luego se pasa a la **bidireccionalidad** y posteriormente a las **imágenes de campo**.
+5. Siempre espera la autorización del usuario antes de modificar cualquier archivo.
