@@ -494,6 +494,7 @@ export const useMainStore = defineStore('mainStore', () => {
         if (data.estado_tramite === 'Pendiente' || !data.estado_tramite) {
           data.estado_tramite = 'En espera';
         }
+        data.id_solicitud = doc.id; // Vincular la clave del documento de Firestore
         allSolicitudes.push(data);
       });
       store.solicitudes = allSolicitudes;
