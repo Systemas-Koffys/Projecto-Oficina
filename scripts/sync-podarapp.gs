@@ -416,7 +416,7 @@ function crearEnFirestore(token, projectId, docId, data) {
 }
 
 function actualizarEnFirestore(token, projectId, docId, data) {
-  var campos = ['estado_tramite','verificado','requiere_plataforma','requiere_setar','requiere_ficha_tecnica','procede','nivel_urgencia','observacion_verificacion','observaciones_finales','id_tecnico_verificacion','id_tecnico_ejecucion','fecha_ejecucion','arboles','usuario_podar','_fuente_sync','_ultima_sync','lat','lng','barrio_texto_podar','createdAt','id_barrio','id_tipo_institucion','id_nombre_institucional'];
+  var campos = ['estado_tramite','verificado','fecha_verificacion','requiere_plataforma','requiere_setar','requiere_ficha_tecnica','procede','nivel_urgencia','observacion_verificacion','observaciones_finales','id_tecnico_verificacion','id_tecnico_ejecucion','fecha_ejecucion','arboles','usuario_podar','_fuente_sync','_ultima_sync','lat','lng','barrio_texto_podar','createdAt','id_barrio','id_tipo_institucion','id_nombre_institucional'];
   var updateMask = campos.map(function(f) { return 'updateMask.fieldPaths=' + encodeURIComponent(f); }).join('&');
   var url = 'https://firestore.googleapis.com/v1/projects/' + projectId + '/databases/(default)/documents/solicitudes/' + docId + '?' + updateMask;
   UrlFetchApp.fetch(url, {
