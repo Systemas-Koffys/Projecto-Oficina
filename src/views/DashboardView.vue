@@ -151,10 +151,10 @@
                 <!-- Barra comparativa bicolor -->
                 <div class="w-full h-4 bg-card-sec rounded-full overflow-hidden flex shadow-inner">
                     <div class="h-full bg-emerald-600 transition-all duration-1000" 
-                         :style="{ width: stats.total ? (stats.particulares / stats.total) * 100 + '%' : '50%' }"
+                         :style="{ width: stats.totalTipo ? (stats.particulares / stats.totalTipo) * 100 + '%' : '50%' }"
                          title="Particulares"></div>
                     <div class="h-full bg-blue-600 transition-all duration-1000" 
-                         :style="{ width: stats.total ? (stats.institucionales / stats.total) * 100 + '%' : '50%' }"
+                         :style="{ width: stats.totalTipo ? (stats.institucionales / stats.totalTipo) * 100 + '%' : '50%' }"
                          title="Institucionales"></div>
                 </div>
 
@@ -167,7 +167,7 @@
                             <span class="text-[9px] font-black text-muted uppercase tracking-wider">Particulares</span>
                         </div>
                         <p class="text-2xl font-black text-main tabular-nums">{{ stats.particulares }}</p>
-                        <p class="text-[10px] font-bold text-emerald-600">{{ stats.total ? Math.round((stats.particulares / stats.total) * 100) : 0 }}%</p>
+                        <p class="text-[10px] font-bold text-emerald-600">{{ stats.totalTipo ? Math.round((stats.particulares / stats.totalTipo) * 100) : 0 }}%</p>
                     </div>
 
                     <!-- Institucional -->
@@ -177,7 +177,7 @@
                             <span class="text-[9px] font-black text-muted uppercase tracking-wider">Institucionales</span>
                         </div>
                         <p class="text-2xl font-black text-main tabular-nums">{{ stats.institucionales }}</p>
-                        <p class="text-[10px] font-bold text-blue-600">{{ stats.total ? Math.round((stats.institucionales / stats.total) * 100) : 0 }}%</p>
+                        <p class="text-[10px] font-bold text-blue-600">{{ stats.totalTipo ? Math.round((stats.institucionales / stats.totalTipo) * 100) : 0 }}%</p>
                     </div>
                 </div>
             </div>
@@ -401,9 +401,15 @@ const stats = computed(() => {
     const total = dataFiltrada.length;
     const completadas = dataFiltrada.filter(s => s.estado_tramite === 'Terminado').length;
     
-    // Tipo de Solicitante (Dinámico por el periodo seleccionado)
-    const institucionales = dataFiltrada.filter(s => s.id_tipo_institucion && s.id_tipo_institucion !== '').length;
-    const particulares = total - institucionales;
+    // Tipo de Solicitante (Dinámico por el periodo seleccionado, pero filtrado estrictamente al año 2026 en adelante)
+    const dataTipoSolicitante = dataFiltrada.filter(s => {
+        if (!s.fecha_ingreso) return false;
+        const date = parsearFechaSegura(s.fecha_ingreso);
+        return date && date.getUTCFullYear() === 2026;
+    });
+    const totalTipo = dataTipoSolicitante.length;
+    const institucionales = dataTipoSolicitante.filter(s => s.id_tipo_institucion && s.id_tipo_institucion !== '').length;
+    const particulares = totalTipo - institucionales;
     
     // 2. Datos globales (Backlog / Cola Activa acumulada de todo el sistema, ignora filtro de fecha)
     const pendientesGlobales = store.solicitudes.filter(s => s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente');
@@ -443,6 +449,7 @@ const stats = computed(() => {
 
     return {
         total,
+        totalTipo,
         completadas,
         enProceso,
         urgentes,
