@@ -951,3 +951,11 @@ function agregarEvaluadoresFirestore() {
   });
 }
 
+function verDocumento43() {
+  var token = getFirestoreToken();
+  var cfg = getConfig();
+  var url = 'https://firestore.googleapis.com/v1/projects/' + cfg.projectId + '/databases/(default)/documents/solicitudes/podar_43-25';
+  var response = UrlFetchApp.fetch(url, { headers: { Authorization: 'Bearer ' + token }, muteHttpExceptions: true });
+  Logger.log(response.getContentText());
+}
+
