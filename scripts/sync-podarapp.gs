@@ -165,6 +165,7 @@ function procesarFila(fila, headers, arbolesAdicionales, catalogos, token) {
     lat: gps.lat,
     lng: gps.lng,
     fecha_ingreso: fechaIngreso,
+    fecha_verificacion: mapBoolean(getVal(fila, headers, 'Verificado')) ? fechaIngreso : null,
     id_tecnico_verificacion: tecVerifRes.id,
     verificado: mapBoolean(getVal(fila, headers, 'Verificado')),
     requiere_plataforma: mapBoolean(getVal(fila, headers, 'Requiere Plataforma')),
@@ -265,6 +266,7 @@ function procesarFilaOptimizada(fila, headers, arbolesAdicionales, catalogos, to
     lat: gps.lat,
     lng: gps.lng,
     fecha_ingreso: fechaIngreso,
+    fecha_verificacion: verificado ? fechaIngreso : null,
     id_tecnico_verificacion: tecVerifRes.id,
     verificado: verificado,
     requiere_plataforma: requierePlataforma,
@@ -293,6 +295,7 @@ function procesarFilaOptimizada(fila, headers, arbolesAdicionales, catalogos, to
       !fields.createdAt ||
       obtenerValorSimple(fields.estado_tramite) !== estado ||
       obtenerValorSimple(fields.verificado) !== verificado ||
+      obtenerValorSimple(fields.fecha_verificacion) !== (verificado ? fechaIngreso : null) ||
       obtenerValorSimple(fields.id_barrio) !== barrioRes.id ||
       obtenerValorSimple(fields.id_tecnico_verificacion) !== tecVerifRes.id ||
       obtenerValorSimple(fields.id_tecnico_ejecucion) !== tecEjecRes.id ||
@@ -908,5 +911,43 @@ function respaldarPlanilla() {
   } catch (e) {
     Logger.log("❌ Error al crear el respaldo: " + e.message);
   }
+}
+
+// =============================================================================
+// FUNCIÓN TEMPORAL PARA REGISTRAR EVALUADORES EN FIRESTORE
+// =============================================================================
+function agregarEvaluadoresFirestore() {
+  var token = getFirestoreToken();
+  var cfg = getConfig();
+  
+  var evaluadores = [
+    { id: "30", nombre: "Karina Castro", role: "TECNICO", cargo: "Técnico Evaluador", estado: "Activo", username: null },
+    { id: "31", nombre: "Cimar Farfan", role: "TECNICO", cargo: "Técnico Evaluador", estado: "Activo", username: null }
+  ];
+  
+  evaluadores.forEach(function(ev) {
+    var url = 'https://firestore.googleapis.com/v1/projects/' + cfg.projectId + '/databases/(default)/documents/personal/' + ev.id;
+    
+    var payload = {
+      fields: {
+        nombre: { stringValue: ev.nombre },
+        role: { stringValue: ev.role },
+        cargo: { stringValue: ev.cargo },
+        estado: { stringValue: ev.estado },
+        username: { nullValue: null }
+      }
+    };
+    
+    var options = {
+      method: 'patch',
+      contentType: 'application/json',
+      headers: { Authorization: 'Bearer ' + token },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+    
+    var response = UrlFetchApp.fetch(url, options);
+    Logger.log("Resultado para " + ev.nombre + ": " + response.getContentText());
+  });
 }
 

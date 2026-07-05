@@ -18,7 +18,7 @@ try {
   const querySnap = await getDocs(collection(db, 'personal'));
   querySnap.forEach(doc => {
     const data = doc.data();
-    console.log(`${data.nombre} (${data.username})`);
+    console.log(`[${doc.id}] ${data.nombre} (${data.username})`);
   });
   console.log("✅ Lectura pública exitosa!");
 } catch (error) {
