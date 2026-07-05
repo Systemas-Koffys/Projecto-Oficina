@@ -119,18 +119,6 @@
               </div>
             </div>
 
-            <!-- Módulo 7: Asistente IA Arboricultura -->
-            <div class="bg-card-main p-5 rounded-2xl border border-main flex gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-accent/40 group">
-              <div class="w-12 h-12 bg-accent-soft text-accent rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                <Sparkles size="22" />
-              </div>
-              <div>
-                <h4 class="text-xs font-black text-main uppercase tracking-wider mb-1">Asistente IA Arboricultura</h4>
-                <p class="text-[11px] text-muted leading-relaxed font-semibold">
-                  Módulo de inteligencia artificial (Groq LLM) para soporte en diagnósticos de poda y tala, y consultas especializadas en arboricultura.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
 
