@@ -26,7 +26,9 @@ import {
   orderBy, 
   onSnapshot, 
   runTransaction,
-  serverTimestamp 
+  serverTimestamp,
+  getDocFromCache,
+  getDocsFromCache
 } from 'firebase/firestore';
 // Firebase Storage ya no se usa - las imágenes se suben a Cloudinary
 import { initializeApp, deleteApp } from 'firebase/app';
@@ -745,8 +747,19 @@ export const useMainStore = defineStore('mainStore', () => {
       const docIds = ['barrios', 'distritos', 'acciones', 'especies', 'instituciones', 'tipos_institucion'];
       for (const docId of docIds) {
         const docRef = doc(db, 'catalogos', docId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
+        let docSnap;
+        try {
+          docSnap = await getDoc(docRef);
+        } catch (err) {
+          console.warn(`⚠️ Error de red/cuota al cargar catálogo '${docId}', intentando desde caché local:`, err.message);
+          try {
+            docSnap = await getDocFromCache(docRef);
+          } catch (cacheErr) {
+            console.error(`❌ Error crítico: no se pudo obtener '${docId}' de Firestore ni de la caché:`, cacheErr.message);
+          }
+        }
+        
+        if (docSnap && docSnap.exists()) {
           const data = docSnap.data();
           if (docId === 'barrios') store.barrios = data.items || [];
           else if (docId === 'distritos') store.distritos = data.items || [];
@@ -760,7 +773,7 @@ export const useMainStore = defineStore('mainStore', () => {
       if (auth.currentUser) {
         initFirebaseSync();
       }
-      console.log("Catálogos base cargados desde Firestore.");
+      console.log("Catálogos base cargados desde Firestore o caché local.");
     } catch (error) {
       console.error("Error al cargar los catálogos:", error);
     } finally {
