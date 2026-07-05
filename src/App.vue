@@ -130,6 +130,7 @@ const actualizarReloj = () => {
 }
 
 onMounted(async () => {
+    window.mainStore = mainStore
     const savedTheme = localStorage.getItem('theme') || 'white'
     uiState.theme = savedTheme
     

@@ -494,6 +494,27 @@ export const useMainStore = defineStore('mainStore', () => {
         allSolicitudes.push(data);
       });
       store.solicitudes = allSolicitudes;
+
+      // Diagnóstico para consola
+      const pendientes = allSolicitudes.filter(s => s.estado_tramite === 'En espera');
+      const sinBarrio = pendientes.filter(s => !s.id_barrio);
+      console.log(`📊 [ArborGest] Pendientes Totales: ${pendientes.length} | Sin id_barrio: ${sinBarrio.length}`);
+      if (sinBarrio.length > 0) {
+        const textosBarrio = {};
+        sinBarrio.forEach(s => {
+          const txt = s.barrio_texto_podar || 'N/A (sin texto)';
+          textosBarrio[txt] = (textosBarrio[txt] || 0) + 1;
+        });
+        console.log("📍 Textos de barrios no emparejados en base de datos:", textosBarrio);
+      }
+      const sinAccion = pendientes.filter(s => {
+        let accId = s.id_accion_solicitada;
+        if (!accId && s.arboles && s.arboles.length > 0) {
+          accId = s.arboles[0].id_accion_solicitada;
+        }
+        return !accId;
+      });
+      console.log(`📊 [ArborGest] Pendientes sin acción/trabajo asignado: ${sinAccion.length}`);
     }, (error) => {
       console.error("Error sync solicitudes:", error);
     });
