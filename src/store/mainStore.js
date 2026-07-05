@@ -1337,6 +1337,7 @@ export const useMainStore = defineStore('mainStore', () => {
 
       // Sincronización de retorno en segundo plano si proviene de PodarApp
       const existing = store.solicitudes.find(s => s.comunicacion_interna === updates.comunicacion_interna);
+      console.log('🔍 [ArborGest Sync] Modificación guardada localmente. Solicitud vinculada:', existing);
       if (existing && existing._fuente_sync === 'podarapp') {
         syncRetornoPodarApp(updates);
       }
