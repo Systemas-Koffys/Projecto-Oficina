@@ -121,18 +121,61 @@ const imprimirDirecto = (sol) => {
 }
 
 const filtroBusqueda = ref('')
+const mostrarFiltros = ref(false)
+const filtroDistrito = ref('')
 const filtroBarrio = ref('')
 const filtroAccion = ref('')
 const filtroFechaDesde = ref('')
 const filtroFechaHasta = ref('')
-const ordenAsc = ref(false) // false: Últimos ejecutados arriba (predeterminado), true: Primeros ejecutados arriba
+const filtroSetar = ref('')
+const filtroPrioridad = ref('')
+const ordenAsc = ref(false) // false: Últimos ingresados arriba (predeterminado), true: Primeros ingresados arriba
+
+// Helper para parsear fechas de forma segura en UTC
+const parsearFechaSegura = (str) => {
+    if (!str) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        const parts = str.split('-');
+        return new Date(Date.UTC(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])));
+    }
+    const parts = str.split(/[\/-]/);
+    if (parts.length === 3) {
+        let d = parseInt(parts[0]);
+        let m = parseInt(parts[1]) - 1;
+        let y = parseInt(parts[2]);
+        if (y < 100) y += 2000;
+        if (parts[0].length === 4) {
+            y = parseInt(parts[0]);
+            m = parseInt(parts[1]) - 1;
+            d = parseInt(parts[2]);
+        }
+        const date = new Date(Date.UTC(y, m, d));
+        if (!isNaN(date.getTime())) return date;
+    }
+    const parsed = new Date(str);
+    return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+watch(filtroDistrito, (newDist) => {
+    if (newDist && filtroBarrio.value) {
+        const barrioActual = store.barrios.find(b => b.id == filtroBarrio.value);
+        if (barrioActual && barrioActual.id_distrito != newDist) {
+            filtroBarrio.value = '';
+        }
+    } else if (!newDist) {
+        filtroBarrio.value = '';
+    }
+})
 
 const limpiarFiltros = () => {
     filtroBusqueda.value = ''
+    filtroDistrito.value = ''
     filtroBarrio.value = ''
     filtroAccion.value = ''
     filtroFechaDesde.value = ''
     filtroFechaHasta.value = ''
+    filtroSetar.value = ''
+    filtroPrioridad.value = ''
 }
 
 const exportarExcel = () => {
@@ -200,10 +243,13 @@ const solicitudesFiltradas = computed(() => {
                 (sol.referencia && sol.referencia.toLowerCase().includes(term));
         }
 
-        // 2. Filtro por Barrio
+        // 2. Filtro por Distrito y Barrio
         let coincideBarrio = true;
         if (filtroBarrio.value) {
             coincideBarrio = sol.id_barrio == filtroBarrio.value;
+        } else if (filtroDistrito.value) {
+            const b = store.barrios.find(x => x.id == sol.id_barrio);
+            coincideBarrio = b && b.id_distrito == filtroDistrito.value;
         }
 
         // 3. Filtro por Acción
@@ -216,17 +262,51 @@ const solicitudesFiltradas = computed(() => {
 
         // 4. Rango de fechas
         let coincideFecha = true;
-        const fechaSol = sol.fecha_ingreso ? new Date(sol.fecha_ingreso) : null;
-        if (filtroFechaDesde.value && fechaSol) {
-            coincideFecha = coincideFecha && fechaSol >= new Date(filtroFechaDesde.value);
-        }
-        if (filtroFechaHasta.value && fechaSol) {
-            const hasta = new Date(filtroFechaHasta.value);
-            hasta.setDate(hasta.getDate() + 1);
-            coincideFecha = coincideFecha && fechaSol < hasta;
+        const fechaSol = parsearFechaSegura(sol.fecha_ingreso);
+        if (fechaSol) {
+            if (filtroFechaDesde.value) {
+                const desde = parsearFechaSegura(filtroFechaDesde.value);
+                if (desde) coincideFecha = coincideFecha && fechaSol >= desde;
+            }
+            if (filtroFechaHasta.value) {
+                const hasta = parsearFechaSegura(filtroFechaHasta.value);
+                if (hasta) {
+                    const hastaSiguiente = new Date(hasta.getTime() + 86400000);
+                    coincideFecha = coincideFecha && fechaSol < hastaSiguiente;
+                }
+            }
+        } else if (filtroFechaDesde.value || filtroFechaHasta.value) {
+            coincideFecha = false;
         }
 
-        return coincideBusqueda && coincideBarrio && coincideAccion && coincideFecha;
+        // 5. Filtro de Condición Especial
+        let coincideSetar = true;
+        if (filtroSetar.value) {
+            if (filtroSetar.value === 'setar' && !sol.requiere_setar) coincideSetar = false;
+            if (filtroSetar.value === 'plataforma' && !sol.requiere_plataforma) coincideSetar = false;
+            if (filtroSetar.value === 'ficha_tecnica' && !sol.requiere_ficha_tecnica) coincideSetar = false;
+            if (filtroSetar.value === 'arbol_seco' && !sol.arbol_seco) coincideSetar = false;
+            if (filtroSetar.value === 'segunda_nota' && !sol.segunda_nota) coincideSetar = false;
+            if (filtroSetar.value === 'procede' && !sol.procede) coincideSetar = false;
+        }
+
+        // 6. Filtro por Prioridad
+        let coincidePrioridad = true;
+        if (filtroPrioridad.value) {
+            let nivel = sol.nivel_urgencia || 'Baja';
+            if (nivel === 'Intermedia') nivel = 'Media';
+            
+            const filtro = filtroPrioridad.value;
+            if (filtro === 'Alta') {
+                coincidePrioridad = nivel === 'Alta' || sol.es_emergencia || sol.es_urgencia;
+            } else if (filtro === 'Intermedia') {
+                coincidePrioridad = nivel === 'Media' || nivel === 'Intermedia';
+            } else if (filtro === 'Baja') {
+                coincidePrioridad = nivel === 'Baja';
+            }
+        }
+
+        return coincideBusqueda && coincideBarrio && coincideAccion && coincideFecha && coincideSetar && coincidePrioridad;
     }).sort((a, b) => {
         const dateA = new Date(a.fecha_ejecucion || a.fecha_ingreso || 0)
         const dateB = new Date(b.fecha_ejecucion || b.fecha_ingreso || 0)
@@ -383,35 +463,78 @@ const formatLoDeterminado = (sol) => {
                         <!-- Botón Limpiar Filtros Premium -->
                         <button @click="limpiarFiltros" class="px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-600 border border-red-500/20 hover:border-red-500/40 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 hover:-translate-y-0.5">
                             <Trash2 class="w-3.5 h-3.5" />
-                            Limpiar Filtros
+                            Limpiar
+                        </button>
+                        <!-- Botón de expandir Filtros -->
+                        <button @click="mostrarFiltros = !mostrarFiltros" class="px-4 py-2.5 bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] border border-accent/20 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-95 hover:-translate-y-0.5 ml-1">
+                            <Filter class="w-3.5 h-3.5" />
+                            Filtros
                         </button>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="lg:col-span-2">
-                        <label class="block text-xs font-black text-muted mb-1.5 uppercase tracking-wide">Búsqueda general</label>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="block text-[9px] font-black text-muted mb-1.5 uppercase tracking-wider ml-1">Búsqueda general</label>
                         <input type="text" v-model="filtroBusqueda" class="search-input w-full" placeholder="Cod interno, solicitante, referencia..." />
                     </div>
-                    <div>
-                        <label class="block text-xs font-black text-muted mb-1.5 uppercase tracking-wide">Barrio</label>
-                        <select v-model="filtroBarrio" class="search-input w-full">
-                            <option value="">Todos los barrios</option>
-                            <option v-for="b in store.barrios" :key="b.id" :value="b.id">{{ b.nombre }}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-black text-muted mb-1.5 uppercase tracking-wide">Tipo de Acción</label>
-                        <select v-model="filtroAccion" class="search-input w-full">
-                            <option value="">Todas las acciones</option>
-                            <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
-                        </select>
-                    </div>
-                    <div class="lg:col-span-2">
-                        <label class="block text-xs font-black text-muted mb-1.5 uppercase tracking-wide">Rango de Fechas de Ingreso</label>
-                        <div class="flex items-center gap-2">
-                            <input type="date" v-model="filtroFechaDesde" class="search-input flex-1" title="Desde" />
-                            <span class="text-muted font-medium text-sm">hasta</span>
-                            <input type="date" v-model="filtroFechaHasta" class="search-input flex-1" title="Hasta" />
+                    
+                    <!-- Fila Inferior: Filtros Avanzados (Ocultable) -->
+                    <div v-if="mostrarFiltros" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 pt-4 border-t border-main animate-prime-in">
+                        <!-- Select: Distrito -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Distrito</label>
+                            <select v-model="filtroDistrito" class="bg-card-sec border border-main rounded-xl px-3 py-2 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+                                <option value="">Todos los Distritos</option>
+                                <option v-for="d in store.distritos" :key="d.id" :value="d.id">{{ d.nombre }}</option>
+                            </select>
+                        </div>
+                        <!-- Select: Barrio -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Barrio / Zona</label>
+                            <select v-model="filtroBarrio" class="bg-card-sec border border-main rounded-xl px-3 py-2 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+                                <option value="">Todos los Barrios</option>
+                                <option v-for="b in store.barrios.filter(b => !filtroDistrito || b.id_distrito == filtroDistrito)" :key="b.id" :value="b.id">{{ b.nombre }}</option>
+                            </select>
+                        </div>
+                        <!-- Select: Acción Técnica -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Acción Técnica</label>
+                            <select v-model="filtroAccion" class="bg-card-sec border border-main rounded-xl px-3 py-2 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+                                <option value="">Cualquier Acción</option>
+                                <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
+                            </select>
+                        </div>
+                        <!-- Select: Condición Especial -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Condición Especial</label>
+                            <select v-model="filtroSetar" class="bg-card-sec border border-main rounded-xl px-3 py-2 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+                                <option value="">Sin Filtro Especial</option>
+                                <option value="setar">⚡ Requiere Corte SETAR</option>
+                                <option value="plataforma">🏗️ Requiere Grúa/Plataforma</option>
+                                <option value="ficha_tecnica">📋 Requiere Ficha Técnica</option>
+                                <option value="arbol_seco">🌵 Es Árbol Seco</option>
+                                <option value="segunda_nota">✉️ Tiene Segunda Nota</option>
+                                <option value="procede">✅ Trabajo Procedente</option>
+                            </select>
+                        </div>
+                        <!-- Select: Prioridad -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Nivel de Urgencia</label>
+                            <select v-model="filtroPrioridad" class="bg-card-sec border border-main rounded-xl px-3 py-2 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
+                                <option value="">Todas las Prioridades</option>
+                                <option value="Alta">🔴 Prioridad Alta / Emergencia</option>
+                                <option value="Intermedia">🟡 Prioridad Intermedia</option>
+                                <option value="Baja">🟢 Prioridad Baja (Normal)</option>
+                            </select>
+                        </div>
+                        <!-- Select: Fechas (Rango) -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Rango Fechas (Ingreso)</label>
+                            <div class="flex items-center gap-1.5">
+                                <input type="date" v-model="filtroFechaDesde" class="bg-card-sec border border-main rounded-xl px-1.5 py-1 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer w-full" title="Desde" />
+                                <span class="text-muted font-bold text-[9px]">a</span>
+                                <input type="date" v-model="filtroFechaHasta" class="bg-card-sec border border-main rounded-xl px-1.5 py-1 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer w-full" title="Hasta" />
+                            </div>
                         </div>
                     </div>
                 </div>

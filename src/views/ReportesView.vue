@@ -44,8 +44,6 @@ const filtroUrgencia = ref('')
 const filtroEspecie = ref('')
 
 // Rango de fechas
-const filtroFechaIngresoDesde = ref('')
-const filtroFechaIngresoHasta = ref('')
 const filtroFechaVerifDesde = ref('')
 const filtroFechaVerifHasta = ref('')
 
@@ -98,15 +96,7 @@ const solicitudesFiltradas = computed(() => {
         if (filtroEspecie.value && sol.id_especie != filtroEspecie.value) match = false
         if (filtroTipoInstitucion.value && sol.id_tipo_institucion != filtroTipoInstitucion.value) match = false
 
-        // Fechas Ingreso
-        if (filtroFechaIngresoDesde.value && sol.fecha_ingreso) {
-            if (new Date(sol.fecha_ingreso) < new Date(filtroFechaIngresoDesde.value)) match = false
-        }
-        if (filtroFechaIngresoHasta.value && sol.fecha_ingreso) {
-            const hasta = new Date(filtroFechaIngresoHasta.value)
-            hasta.setDate(hasta.getDate() + 1)
-            if (new Date(sol.fecha_ingreso) >= hasta) match = false
-        }
+
 
         // Fechas Verificación
         if (filtroFechaVerifDesde.value && sol.fecha_verificacion) {
@@ -245,8 +235,6 @@ const imprimirHojaRuta = () => {
         filtroAccion: filtroAccion.value,
         filtroUrgencia: filtroUrgencia.value,
         filtroEspecie: filtroEspecie.value,
-        filtroFechaIngresoDesde: filtroFechaIngresoDesde.value,
-        filtroFechaIngresoHasta: filtroFechaIngresoHasta.value,
         filtroFechaVerifDesde: filtroFechaVerifDesde.value,
         filtroFechaVerifHasta: filtroFechaVerifHasta.value,
         filtroSetar: filtroSetar.value,
@@ -353,8 +341,6 @@ const handleReimprimir = (imp) => {
             filtroAccion.value = snap.filtroAccion ?? ''
             filtroUrgencia.value = snap.filtroUrgencia ?? ''
             filtroEspecie.value = snap.filtroEspecie ?? ''
-            filtroFechaIngresoDesde.value = snap.filtroFechaIngresoDesde ?? ''
-            filtroFechaIngresoHasta.value = snap.filtroFechaIngresoHasta ?? ''
             filtroFechaVerifDesde.value = snap.filtroFechaVerifDesde ?? ''
             filtroFechaVerifHasta.value = snap.filtroFechaVerifHasta ?? ''
             filtroSetar.value = snap.filtroSetar ?? ''
@@ -430,8 +416,6 @@ const limpiarFiltros = () => {
     filtroEspecie.value = ''
     filtroDistrito.value = ''
     filtroTipoInstitucion.value = ''
-    filtroFechaIngresoDesde.value = ''
-    filtroFechaIngresoHasta.value = ''
     filtroFechaVerifDesde.value = ''
     filtroFechaVerifHasta.value = ''
     filtroArbolSeco.value = ''
@@ -527,14 +511,6 @@ const limpiarFiltros = () => {
                             <!-- SECCIÓN: RANGOS DE FECHAS -->
                             <div class="space-y-4">
                                 <span class="text-[9px] font-black text-muted uppercase tracking-wider block border-b border-main pb-1.5">Rango de Fechas</span>
-                                <div>
-                                    <label class="label-mini">F. Ingreso Desde</label>
-                                    <input type="date" v-model="filtroFechaIngresoDesde" class="input-modern" />
-                                </div>
-                                <div>
-                                    <label class="label-mini">F. Ingreso Hasta</label>
-                                    <input type="date" v-model="filtroFechaIngresoHasta" class="input-modern" />
-                                </div>
                                 <div>
                                     <label class="label-mini">F. Verificación Desde</label>
                                     <input type="date" v-model="filtroFechaVerifDesde" class="input-modern" />
