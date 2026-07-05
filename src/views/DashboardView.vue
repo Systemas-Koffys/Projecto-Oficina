@@ -42,7 +42,7 @@
     <!-- Stats Cards Remodeladas -->
     <div class="dashboard-stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div v-for="(card, i) in statCards" :key="i" 
-            class="card p-6 flex flex-col gap-4 border-none shadow-xl transition-all hover:-translate-y-1"
+            class="card p-6 flex flex-col gap-4 border-none shadow-xl transition-all hover:-translate-y-1 relative group cursor-help"
             :class="card.bg">
             <div class="flex justify-between items-start">
                 <div class="p-3 rounded-2xl" :class="card.iconBg">
@@ -55,6 +55,140 @@
             </div>
             <div class="w-full bg-black/5 h-1.5 rounded-full overflow-hidden">
                 <div class="h-full transition-all duration-1000" :style="{ width: card.percent + '%', backgroundColor: card.color }"></div>
+            </div>
+
+            <!-- Tooltip Flotante de Desglose Detallado (Ignorado en Impresión) -->
+            <div class="absolute z-30 bottom-[105%] left-1/2 -translate-x-1/2 w-64 p-4 bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-md text-white text-[11px] rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pointer-events-none shadow-2xl border border-slate-700/50 print:hidden">
+                <p class="font-black uppercase tracking-widest text-slate-400 mb-2.5 border-b border-slate-800 pb-1.5 text-[9px] flex justify-between">
+                    <span>Desglose de Datos</span>
+                    <span class="text-emerald-400 font-bold uppercase">Info</span>
+                </p>
+                
+                <!-- Tooltip para TOTAL SOLICITUDES -->
+                <div v-if="card.id === 'total'" class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Por Canal:</span>
+                    </div>
+                    <div class="pl-2 space-y-1">
+                        <div class="flex justify-between">
+                            <span>💻 ArborGest (Local)</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.total.origen.ag }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>📲 PodarApp (Sync)</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.total.origen.pa }}</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-slate-800/50">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Por Solicitante:</span>
+                    </div>
+                    <div class="pl-2 space-y-1">
+                        <div class="flex justify-between">
+                            <span>👤 Particular</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.total.tipo.part }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🏢 Institucional</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.total.tipo.inst }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tooltip para REALIZADAS -->
+                <div v-if="card.id === 'completadas'" class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Por Canal:</span>
+                    </div>
+                    <div class="pl-2 space-y-1">
+                        <div class="flex justify-between">
+                            <span>💻 ArborGest (Local)</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.completadas.origen.ag }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>📲 PodarApp (Sync)</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.completadas.origen.pa }}</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-slate-800/50">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Por Solicitante:</span>
+                    </div>
+                    <div class="pl-2 space-y-1">
+                        <div class="flex justify-between">
+                            <span>👤 Particular</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.completadas.tipo.part }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🏢 Institucional</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.completadas.tipo.inst }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tooltip para EN ESPERA -->
+                <div v-if="card.id === 'enProceso'" class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Por Prioridad:</span>
+                    </div>
+                    <div class="pl-2 space-y-1">
+                        <div class="flex justify-between">
+                            <span>🔴 Urgencia Alta</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.urgencia.alta }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🟡 Urgencia Media</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.urgencia.media }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🟢 Urgencia Baja / S.N.</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.urgencia.baja }}</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-slate-800/50">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Apoyo Operativo:</span>
+                    </div>
+                    <div class="pl-2 space-y-1">
+                        <div class="flex justify-between">
+                            <span>⚡ Corte SETAR</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.logistica.setar }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🏗️ Plataforma / Grúa</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.logistica.plataforma }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>📋 Ficha Evaluación</span>
+                            <span class="font-black text-slate-200">{{ statsDetail.enProceso.logistica.ficha }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tooltip para CRÍTICAS -->
+                <div v-if="card.id === 'urgentes'" class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Criterios de Criticidad:</span>
+                    </div>
+                    <div class="pl-2 space-y-1">
+                        <div class="flex justify-between">
+                            <span>🚨 Emergencia Vial/Civil</span>
+                            <span class="font-black text-red-400">{{ statsDetail.urgentes.emergencia }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>⚠️ Urgencia en Campo</span>
+                            <span class="font-black text-amber-400">{{ statsDetail.urgentes.urgencia }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>📈 Prioridad Alta (Téc)</span>
+                            <span class="font-black text-rose-400">{{ statsDetail.urgentes.alta }}</span>
+                        </div>
+                        <div class="flex justify-between border-t border-slate-800/50 pt-1 mt-1">
+                            <span>📩 Segunda Nota (Reiterada)</span>
+                            <span class="font-black text-purple-400">{{ statsDetail.urgentes.segunda }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Triángulo del Tooltip -->
+                <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900/95 dark:border-t-slate-950/95"></div>
             </div>
         </div>
     </div>
@@ -365,12 +499,7 @@ const filtros = [
 const filtroActual = ref('todo')
 
 const solicitudesFiltradas = computed(() => {
-    const limitDate = new Date('2026-01-01T00:00:00')
-    const baseData = store.solicitudes.filter(s => {
-        if (!s.fecha_ingreso) return false
-        const fecha = new Date(s.fecha_ingreso)
-        return fecha >= limitDate
-    })
+    const baseData = store.solicitudes.filter(s => !!s.fecha_ingreso)
 
     if (filtroActual.value === 'todo') return baseData
     
@@ -399,7 +528,7 @@ const stats = computed(() => {
     const total = data.length;
     const completadas = data.filter(s => s.estado_tramite === 'Terminado').length;
     const enProceso = data.filter(s => s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente').length;
-    const urgentes = data.filter(s => s.nivel_urgencia === 'Alta' && (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente')).length;
+    const urgentes = data.filter(s => (s.nivel_urgencia === 'Alta' || s.es_emergencia || s.es_urgencia || s.segunda_nota) && (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente')).length;
     const efectividad = total > 0 ? Math.round((completadas / total) * 100) : 0;
     
     // Alertas de Campo (Filtro por solicitudes pendientes)
@@ -427,6 +556,67 @@ const stats = computed(() => {
         segundaNota,
         institucionales,
         particulares
+    }
+})
+
+// --- DESGLOSE DETALLADO PARA TOOLTIPS ---
+const statsDetail = computed(() => {
+    const data = solicitudesFiltradas.value;
+    const total = data.length;
+    
+    // 1. Total breakdown
+    const totalAg = data.filter(s => s._fuente_sync !== 'podarapp').length;
+    const totalPa = total - totalAg;
+    const totalPart = data.filter(s => !s.id_tipo_institucion || s.id_tipo_institucion === '').length;
+    const totalInst = total - totalPart;
+    const totalTerminado = data.filter(s => s.estado_tramite === 'Terminado').length;
+    const totalEspera = total - totalTerminado;
+
+    // 2. Realizadas breakdown
+    const realData = data.filter(s => s.estado_tramite === 'Terminado');
+    const realAg = realData.filter(s => s._fuente_sync !== 'podarapp').length;
+    const realPa = realData.length - realAg;
+    const realPart = realData.filter(s => !s.id_tipo_institucion || s.id_tipo_institucion === '').length;
+    const realInst = realData.length - realPart;
+
+    // 3. Espera breakdown
+    const espData = data.filter(s => s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente');
+    const espAlta = espData.filter(s => s.nivel_urgencia === 'Alta').length;
+    const espMedia = espData.filter(s => s.nivel_urgencia === 'Media' || s.nivel_urgencia === 'Intermedia').length;
+    const espBaja = espData.filter(s => s.nivel_urgencia === 'Baja' || !s.nivel_urgencia).length;
+    const espSetar = espData.filter(s => s.requiere_setar).length;
+    const espPlataforma = espData.filter(s => s.requiere_plataforma).length;
+    const espFicha = espData.filter(s => s.requiere_ficha_tecnica).length;
+    const espSeco = espData.filter(s => s.arbol_seco).length;
+    const espSegunda = espData.filter(s => s.segunda_nota).length;
+
+    // 4. Críticas breakdown
+    const critData = data.filter(s => (s.nivel_urgencia === 'Alta' || s.es_emergencia || s.es_urgencia || s.segunda_nota) && (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente'));
+    const critEmergencia = critData.filter(s => s.es_emergencia).length;
+    const critUrgencia = critData.filter(s => s.es_urgencia).length;
+    const critAlta = critData.filter(s => s.nivel_urgencia === 'Alta' && !s.es_emergencia && !s.es_urgencia).length;
+    const critSegunda = critData.filter(s => s.segunda_nota).length;
+
+    return {
+        total: {
+            origen: { ag: totalAg, pa: totalPa },
+            tipo: { part: totalPart, inst: totalInst },
+            estado: { terminado: totalTerminado, espera: totalEspera }
+        },
+        completadas: {
+            origen: { ag: realAg, pa: realPa },
+            tipo: { part: realPart, inst: realInst }
+        },
+        enProceso: {
+            urgencia: { alta: espAlta, media: espMedia, baja: espBaja },
+            logistica: { setar: espSetar, plataforma: espPlataforma, ficha: espFicha, seco: espSeco, segunda: espSegunda }
+        },
+        urgentes: {
+            emergencia: critEmergencia,
+            urgencia: critUrgencia,
+            alta: critAlta,
+            segunda: critSegunda
+        }
     }
 })
 
@@ -564,7 +754,11 @@ const generarDatosGraficos = () => {
             data.distritos[d] = (data.distritos[d] || 0) + 1;
         }
         // Acciones
-        const acc = store.acciones.find(a => a.id === (s.id_accion_solicitada || s.id_accion));
+        let accId = s.id_accion_solicitada || s.id_accion;
+        if (!accId && s.arboles && s.arboles.length > 0) {
+            accId = s.arboles[0].id_accion_solicitada;
+        }
+        const acc = store.acciones.find(a => a.id === accId);
         if (acc) {
             const n = acc.nombre.split('–')[0].trim();
             data.acciones[n] = (data.acciones[n] || 0) + 1;
