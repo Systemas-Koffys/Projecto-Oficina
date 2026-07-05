@@ -461,12 +461,88 @@ const stats = computed(() => {
     }
 })
 
+// --- FUNCIONES AUXILIARES PARA MAPEO INTELIGENTE EN EL FRONTEND ---
+const normalizarTexto = (str) => {
+    if (!str) return '';
+    return str.toString().trim().toLowerCase()
+        .replace(/[áàäâ]/g,'a')
+        .replace(/[éèëê]/g,'e')
+        .replace(/[íìïî]/g,'i')
+        .replace(/[óòöô]/g,'o')
+        .replace(/[úùüû]/g,'u')
+        .replace(/[ñ]/g,'n')
+        .replace(/\s+/g, ' ');
+}
+
+const resolverBarrioFrontend = (s) => {
+    if (!s) return null;
+    if (s.id_barrio) {
+        const b = store.barrios.find(x => x.id == s.id_barrio);
+        if (b) return b;
+    }
+    if (s.barrio_texto_podar) {
+        const textNorm = normalizarTexto(s.barrio_texto_podar);
+        let cleanText = textNorm
+            .replace(/\b1\b/g, 'i')
+            .replace(/\b2\b/g, 'ii')
+            .replace(/\b3\b/g, 'iii')
+            .replace(/\bsud\b/g, 'sur');
+        let match = store.barrios.find(b => normalizarTexto(b.nombre) === cleanText);
+        if (match) return match;
+        match = store.barrios.find(b => {
+            const bNorm = normalizarTexto(b.nombre);
+            return bNorm.includes(cleanText) || cleanText.includes(bNorm);
+        });
+        if (match) return match;
+    }
+    return null;
+}
+
+const resolverAccionFrontend = (s) => {
+    if (!s) return null;
+    let accId = s.id_accion_solicitada || s.id_accion;
+    if (!accId && s.arboles && s.arboles.length > 0) {
+        accId = s.arboles[0].id_accion_solicitada || s.arboles[0].id_accion_realizar;
+    }
+    if (accId) {
+        const a = store.acciones.find(x => x.id == accId);
+        if (a) return a;
+    }
+    let obs = '';
+    if (s.observacion_verificacion) obs += ' ' + s.observacion_verificacion;
+    if (s.observaciones_finales) obs += ' ' + s.observaciones_finales;
+    if (s.arboles && s.arboles.length > 0) {
+        s.arboles.forEach(arb => {
+            if (arb.observaciones_arbol) obs += ' ' + arb.observaciones_arbol;
+        });
+    }
+    if (obs.trim() !== '') {
+        const obsNorm = normalizarTexto(obs);
+        if (obsNorm.includes('raiz') || obsNorm.includes('raices')) {
+            return store.acciones.find(a => a.id == 4) || null;
+        }
+        if (obsNorm.includes('derribe') || obsNorm.includes('tala') || obsNorm.includes('caer') || obsNorm.includes('chocar') || obsNorm.includes('derribar')) {
+            return store.acciones.find(a => a.id == 3) || null;
+        }
+        if (obsNorm.includes('despunte') || obsNorm.includes('despuntado')) {
+            return store.acciones.find(a => a.id == 2) || null;
+        }
+        if (obsNorm.includes('formacion') || obsNorm.includes('joven')) {
+            return store.acciones.find(a => a.id == 1) || null;
+        }
+        if (obsNorm.includes('poda') || obsNorm.includes('cortar') || obsNorm.includes('corte') || obsNorm.includes('ramas')) {
+            return store.acciones.find(a => a.id == 7) || null;
+        }
+    }
+    return store.acciones.find(a => a.id == 8) || null;
+}
+
 // --- DISTRITOS CON TRÁMITES PENDIENTES ---
 const distritosPendientes = computed(() => {
     const counts = {}
     store.solicitudes.forEach(s => {
         if (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente') {
-            const barrio = store.barrios.find(b => b.id == s.id_barrio)
+            const barrio = resolverBarrioFrontend(s)
             if (barrio) {
                 const distId = barrio.id_distrito
                 const d = store.distritos.find(x => x.id == distId)
@@ -485,7 +561,7 @@ const barriosPendientes = computed(() => {
     const counts = {}
     store.solicitudes.forEach(s => {
         if (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente') {
-            const barrio = store.barrios.find(b => b.id == s.id_barrio)
+            const barrio = resolverBarrioFrontend(s)
             const nombre = barrio ? barrio.nombre : 'Sin Barrio'
             counts[nombre] = (counts[nombre] || 0) + 1
         }
@@ -501,11 +577,7 @@ const accionesPendientes = computed(() => {
     const counts = {}
     store.solicitudes.forEach(s => {
         if (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente') {
-            let accId = s.id_accion_solicitada;
-            if (!accId && s.arboles && s.arboles.length > 0) {
-                accId = s.arboles[0].id_accion_solicitada;
-            }
-            const acc = store.acciones.find(a => a.id == accId)
+            const acc = resolverAccionFrontend(s)
             const nombre = acc ? acc.nombre.split('–')[0].trim() : 'Sin Acción'
             counts[nombre] = (counts[nombre] || 0) + 1
         }
@@ -589,17 +661,13 @@ const generarDatosGraficos = () => {
 
     solicitudesFiltradas.value.forEach(s => {
         // Distritos
-        const barrio = store.barrios.find(b => b.id == s.id_barrio);
+        const barrio = resolverBarrioFrontend(s);
         if (barrio) {
             const d = `Distrito ${barrio.id_distrito}`;
             data.distritos[d] = (data.distritos[d] || 0) + 1;
         }
         // Acciones
-        let accId = s.id_accion_solicitada || s.id_accion;
-        if (!accId && s.arboles && s.arboles.length > 0) {
-            accId = s.arboles[0].id_accion_solicitada;
-        }
-        const acc = store.acciones.find(a => a.id == accId);
+        const acc = resolverAccionFrontend(s);
         if (acc) {
             const n = acc.nombre.split('–')[0].trim();
             data.acciones[n] = (data.acciones[n] || 0) + 1;
