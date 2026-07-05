@@ -377,7 +377,8 @@ const solicitudesFiltradas = computed(() => {
     hoy.setHours(0,0,0,0)
     
     return baseData.filter(s => {
-        const fecha = new Date(s.fecha_ingreso)
+        const fecha = parsearFechaSegura(s.fecha_ingreso)
+        if (!fecha) return false
         
         if (filtroActual.value === 'hoy') {
             return fecha >= hoy
@@ -386,7 +387,8 @@ const solicitudesFiltradas = computed(() => {
             haceUnaSemana.setDate(haceUnaSemana.getDate() - 7)
             return fecha >= haceUnaSemana
         } else if (filtroActual.value === 'mes') {
-            return fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear()
+            const hoyUTC = new Date(Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()))
+            return fecha.getUTCMonth() === hoyUTC.getUTCMonth() && fecha.getUTCFullYear() === hoyUTC.getUTCFullYear()
         }
         return true
     })
@@ -462,6 +464,30 @@ const stats = computed(() => {
 })
 
 // --- FUNCIONES AUXILIARES PARA MAPEO INTELIGENTE EN EL FRONTEND ---
+const parsearFechaSegura = (str) => {
+    if (!str) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        const parts = str.split('-');
+        return new Date(Date.UTC(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])));
+    }
+    const parts = str.split(/[\/-]/);
+    if (parts.length === 3) {
+        let d = parseInt(parts[0]);
+        let m = parseInt(parts[1]) - 1;
+        let y = parseInt(parts[2]);
+        if (y < 100) y += 2000;
+        if (parts[0].length === 4) {
+            y = parseInt(parts[0]);
+            m = parseInt(parts[1]) - 1;
+            d = parseInt(parts[2]);
+        }
+        const date = new Date(Date.UTC(y, m, d));
+        if (!isNaN(date.getTime())) return date;
+    }
+    const parsed = new Date(str);
+    return isNaN(parsed.getTime()) ? null : parsed;
+}
+
 const normalizarTexto = (str) => {
     if (!str) return '';
     return str.toString().trim().toLowerCase()
@@ -680,17 +706,19 @@ const generarDatosGraficos = () => {
         }
         // Evolución (solicitudes ingresadas en el periodo, independiente del estado)
         if (s.fecha_ingreso) {
-            const date = new Date(s.fecha_ingreso);
-            let m;
-            if (filtroActual.value === 'semana' || filtroActual.value === 'hoy') {
-                m = `${date.getDate()} ${meses[date.getMonth()].substring(0,3)}`;
-                data.evolucion[m] = (data.evolucion[m] || 0) + 1;
-            } else {
-                // Para el gráfico de evolución mensual, solo contabilizar el año actual (2026)
-                if (date.getFullYear() === 2026) {
-                    m = meses[date.getMonth()];
-                    if (data.evolucion[m] !== undefined) {
-                        data.evolucion[m]++;
+            const date = parsearFechaSegura(s.fecha_ingreso);
+            if (date) {
+                let m;
+                if (filtroActual.value === 'semana' || filtroActual.value === 'hoy') {
+                    m = `${date.getUTCDate()} ${meses[date.getUTCMonth()].substring(0,3)}`;
+                    data.evolucion[m] = (data.evolucion[m] || 0) + 1;
+                } else {
+                    // Para el gráfico de evolución mensual, solo contabilizar el año actual (2026)
+                    if (date.getUTCFullYear() === 2026) {
+                        m = meses[date.getUTCMonth()];
+                        if (data.evolucion[m] !== undefined) {
+                            data.evolucion[m]++;
+                        }
                     }
                 }
             }
