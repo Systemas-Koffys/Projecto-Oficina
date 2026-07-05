@@ -659,7 +659,12 @@ const generarDatosGraficos = () => {
         }
     }
 
-    solicitudesFiltradas.value.forEach(s => {
+    // Solo "En espera" para el gráfico de Demanda por Acción y Distritos
+    const pendientesParaGrafico = solicitudesFiltradas.value.filter(s =>
+        s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente'
+    );
+
+    pendientesParaGrafico.forEach(s => {
         // Distritos
         const barrio = resolverBarrioFrontend(s);
         if (barrio) {
@@ -672,12 +677,7 @@ const generarDatosGraficos = () => {
             const n = acc.nombre.split('–')[0].trim();
             data.acciones[n] = (data.acciones[n] || 0) + 1;
         }
-        // Técnicos (Solo completados)
-        if (s.estado_tramite === 'Terminado' && s.id_tecnico_ejecucion) {
-            const tec = store.tecnicos.find(t => t.id == s.id_tecnico_ejecucion);
-            if (tec) data.tecnicos[tec.nombre] = (data.tecnicos[tec.nombre] || 0) + 1;
-        }
-        // Evolución
+        // Evolución (solicitudes ingresadas en el periodo, independiente del estado)
         if (s.fecha_ingreso) {
             const date = new Date(s.fecha_ingreso);
             let m;
@@ -686,11 +686,18 @@ const generarDatosGraficos = () => {
                 data.evolucion[m] = (data.evolucion[m] || 0) + 1;
             } else {
                 m = meses[date.getMonth()];
-                // Solo contabilizar si el mes es hasta el mes actual (ignorar fechas futuras erróneas)
                 if (data.evolucion[m] !== undefined) {
                     data.evolucion[m]++;
                 }
             }
+        }
+    });
+
+    // Técnicos: solo de solicitudes Terminadas (para productividad)
+    solicitudesFiltradas.value.forEach(s => {
+        if (s.estado_tramite === 'Terminado' && s.id_tecnico_ejecucion) {
+            const tec = store.tecnicos.find(t => t.id == s.id_tecnico_ejecucion);
+            if (tec) data.tecnicos[tec.nombre] = (data.tecnicos[tec.nombre] || 0) + 1;
         }
     });
 
