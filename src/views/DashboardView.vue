@@ -465,11 +465,11 @@ const stats = computed(() => {
 const distritosPendientes = computed(() => {
     const counts = {}
     store.solicitudes.forEach(s => {
-        if (s.estado_tramite === 'En espera') {
-            const barrio = store.barrios.find(b => b.id === s.id_barrio)
+        if (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente') {
+            const barrio = store.barrios.find(b => b.id == s.id_barrio)
             if (barrio) {
                 const distId = barrio.id_distrito
-                const d = store.distritos.find(x => x.id === distId)
+                const d = store.distritos.find(x => x.id == distId)
                 const nombre = d ? d.nombre : `Distrito ${distId}`
                 counts[nombre] = (counts[nombre] || 0) + 1
             }
@@ -484,8 +484,8 @@ const distritosPendientes = computed(() => {
 const barriosPendientes = computed(() => {
     const counts = {}
     store.solicitudes.forEach(s => {
-        if (s.estado_tramite === 'En espera') {
-            const barrio = store.barrios.find(b => b.id === s.id_barrio)
+        if (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente') {
+            const barrio = store.barrios.find(b => b.id == s.id_barrio)
             const nombre = barrio ? barrio.nombre : 'Sin Barrio'
             counts[nombre] = (counts[nombre] || 0) + 1
         }
@@ -500,12 +500,12 @@ const barriosPendientes = computed(() => {
 const accionesPendientes = computed(() => {
     const counts = {}
     store.solicitudes.forEach(s => {
-        if (s.estado_tramite === 'En espera') {
+        if (s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente') {
             let accId = s.id_accion_solicitada;
             if (!accId && s.arboles && s.arboles.length > 0) {
                 accId = s.arboles[0].id_accion_solicitada;
             }
-            const acc = store.acciones.find(a => a.id === accId)
+            const acc = store.acciones.find(a => a.id == accId)
             const nombre = acc ? acc.nombre.split('–')[0].trim() : 'Sin Acción'
             counts[nombre] = (counts[nombre] || 0) + 1
         }
@@ -589,7 +589,7 @@ const generarDatosGraficos = () => {
 
     solicitudesFiltradas.value.forEach(s => {
         // Distritos
-        const barrio = store.barrios.find(b => b.id === s.id_barrio);
+        const barrio = store.barrios.find(b => b.id == s.id_barrio);
         if (barrio) {
             const d = `Distrito ${barrio.id_distrito}`;
             data.distritos[d] = (data.distritos[d] || 0) + 1;
@@ -599,14 +599,14 @@ const generarDatosGraficos = () => {
         if (!accId && s.arboles && s.arboles.length > 0) {
             accId = s.arboles[0].id_accion_solicitada;
         }
-        const acc = store.acciones.find(a => a.id === accId);
+        const acc = store.acciones.find(a => a.id == accId);
         if (acc) {
             const n = acc.nombre.split('–')[0].trim();
             data.acciones[n] = (data.acciones[n] || 0) + 1;
         }
         // Técnicos (Solo completados)
         if (s.estado_tramite === 'Terminado' && s.id_tecnico_ejecucion) {
-            const tec = store.tecnicos.find(t => t.id === s.id_tecnico_ejecucion);
+            const tec = store.tecnicos.find(t => t.id == s.id_tecnico_ejecucion);
             if (tec) data.tecnicos[tec.nombre] = (data.tecnicos[tec.nombre] || 0) + 1;
         }
         // Evolución
