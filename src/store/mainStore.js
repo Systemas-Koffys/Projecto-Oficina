@@ -1208,7 +1208,7 @@ export const useMainStore = defineStore('mainStore', () => {
 
   async function syncRetornoPodarApp(updates) {
     try {
-      const url = import.meta.env.VITE_APPS_SCRIPT_URL;
+      const url = import.meta.env.VITE_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbwQPa7appdNI41AFYOZQGJRWrVvEEVQ0zqHJVAWmpVmIweWzZ59CsiVqpTPs_ITGd4Mdg/exec";
       if (!url) {
         console.warn('⚠️ [ArborGest Sync] No se encuentra configurada la URL VITE_APPS_SCRIPT_URL en el entorno.');
         return;
