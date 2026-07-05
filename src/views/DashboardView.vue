@@ -500,9 +500,10 @@ const resolverBarrioFrontend = (s) => {
 
 const resolverAccionFrontend = (s) => {
     if (!s) return null;
-    let accId = s.id_accion_solicitada || s.id_accion;
+    // Priorizar la decisión del técnico (id_accion / id_accion_realizar) sobre lo solicitado por el vecino
+    let accId = s.id_accion || s.id_accion_solicitada;
     if (!accId && s.arboles && s.arboles.length > 0) {
-        accId = s.arboles[0].id_accion_solicitada || s.arboles[0].id_accion_realizar;
+        accId = s.arboles[0].id_accion_realizar || s.arboles[0].id_accion_solicitada;
     }
     if (accId) {
         const a = store.acciones.find(x => x.id == accId);
