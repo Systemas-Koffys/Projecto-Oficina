@@ -468,6 +468,8 @@ export const useMainStore = defineStore('mainStore', () => {
         celular: p.celular || '',
         tipo_contrato: p.tipo_contrato || ''
       }));
+      console.log("👥 [ArborGest] Técnicos cargados en memoria:", store.tecnicos.map(t => `${t.id}: ${t.nombre} (${t.cargo})`));
+    }, (error) => {
       store.usuarios = allPersonal.filter(p => p.username && p.username.trim() !== '');
 
       // Cerrar sesión en tiempo real si el administrador desactiva su cuenta, le quita el acceso o se elimina su perfil
