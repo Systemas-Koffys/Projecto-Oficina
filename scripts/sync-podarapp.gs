@@ -584,7 +584,20 @@ function getVal(fila, headers, nombre) {
 
 function normalizar(str) {
   if (!str) return '';
-  return str.toString().trim().toLowerCase().replace(/[áàäâ]/g,'a').replace(/[éèëê]/g,'e').replace(/[íìïî]/g,'i').replace(/[óòöô]/g,'o').replace(/[úùüû]/g,'u').replace(/[ñ]/g,'n');
+  var res = str.toString().trim().toLowerCase()
+    .replace(/[áàäâ]/g,'a')
+    .replace(/[éèëê]/g,'e')
+    .replace(/[íìïî]/g,'i')
+    .replace(/[óòöô]/g,'o')
+    .replace(/[úùüû]/g,'u')
+    .replace(/[ñ]/g,'n');
+  
+  // Normalizar números romanos comunes al final de los nombres
+  res = res.replace(/\biv\b/g, '4')
+           .replace(/\biii\b/g, '3')
+           .replace(/\bii\b/g, '2')
+           .replace(/\bi\b/g, '1');
+  return res;
 }
 
 function mapBoolean(val) {
