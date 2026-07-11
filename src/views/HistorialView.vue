@@ -12,6 +12,7 @@ import {
     ArrowUp, ArrowDown
 } from 'lucide-vue-next'
 import EmptyState from '../components/EmptyState.vue'
+import MultiSelect from '../components/MultiSelect.vue'
 
 const solicitudSeleccionada = ref(null)
 
@@ -123,13 +124,28 @@ const imprimirDirecto = (sol) => {
 
 const filtroBusqueda = ref('')
 const mostrarFiltros = ref(false)
-const filtroDistrito = ref('')
-const filtroBarrio = ref('')
-const filtroAccion = ref('')
+const filtroDistrito = ref([])
+const filtroBarrio = ref([])
+const filtroAccion = ref([])
 const filtroFechaDesde = ref('')
 const filtroFechaHasta = ref('')
-const filtroSetar = ref('')
-const filtroPrioridad = ref('')
+const filtroSetar = ref([])
+const filtroPrioridad = ref([])
+
+const opcionesCondicionEspecial = [
+    { id: 'setar', nombre: '⚡ Requiere Corte SETAR' },
+    { id: 'plataforma', nombre: '🏗️ Requiere Grúa/Plataforma' },
+    { id: 'ficha_tecnica', nombre: '📋 Requiere Ficha Técnica' },
+    { id: 'arbol_seco', nombre: '🌵 Es Árbol Seco' },
+    { id: 'segunda_nota', nombre: '✉️ Tiene Segunda Nota' },
+    { id: 'procede', nombre: '✅ Trabajo Procedente' }
+]
+
+const opcionesPrioridad = [
+    { id: 'Alta', nombre: '🔴 Prioridad Alta / Emergencia' },
+    { id: 'Intermedia', nombre: '🟡 Prioridad Intermedia' },
+    { id: 'Baja', nombre: '🟢 Prioridad Baja (Normal)' }
+]
 const ordenAsc = ref(false) // false: Últimos ingresados arriba (predeterminado), true: Primeros ingresados arriba
 const sortBy = ref('') // Columna seleccionada para ordenar, vacía = por fecha por defecto
 const sortOrder = ref('desc') // 'asc' o 'desc'
@@ -169,26 +185,26 @@ const parsearFechaSegura = (str) => {
     return isNaN(parsed.getTime()) ? null : parsed;
 }
 
-watch(filtroDistrito, (newDist) => {
-    if (newDist && filtroBarrio.value) {
-        const barrioActual = store.barrios.find(b => b.id == filtroBarrio.value);
-        if (barrioActual && barrioActual.id_distrito != newDist) {
-            filtroBarrio.value = '';
-        }
-    } else if (!newDist) {
-        filtroBarrio.value = '';
+watch(filtroDistrito, (newDists) => {
+    if (newDists && newDists.length > 0) {
+        filtroBarrio.value = filtroBarrio.value.filter(barrioId => {
+            const b = store.barrios.find(item => item.id == barrioId);
+            return b && newDists.includes(b.id_distrito);
+        });
+    } else {
+        filtroBarrio.value = [];
     }
 })
 
 const limpiarFiltros = () => {
     filtroBusqueda.value = ''
-    filtroDistrito.value = ''
-    filtroBarrio.value = ''
-    filtroAccion.value = ''
+    filtroDistrito.value = []
+    filtroBarrio.value = []
+    filtroAccion.value = []
     filtroFechaDesde.value = ''
     filtroFechaHasta.value = ''
-    filtroSetar.value = ''
-    filtroPrioridad.value = ''
+    filtroSetar.value = []
+    filtroPrioridad.value = []
 }
 
 const exportarExcel = () => {
@@ -258,19 +274,20 @@ const solicitudesFiltradas = computed(() => {
 
         // 2. Filtro por Distrito y Barrio
         let coincideBarrio = true;
-        if (filtroBarrio.value) {
-            coincideBarrio = sol.id_barrio == filtroBarrio.value;
-        } else if (filtroDistrito.value) {
+        if (filtroBarrio.value && filtroBarrio.value.length > 0) {
+            coincideBarrio = filtroBarrio.value.includes(sol.id_barrio);
+        } else if (filtroDistrito.value && filtroDistrito.value.length > 0) {
             const b = store.barrios.find(x => x.id == sol.id_barrio);
-            coincideBarrio = b && b.id_distrito == filtroDistrito.value;
+            coincideBarrio = b && filtroDistrito.value.includes(b.id_distrito);
         }
 
         // 3. Filtro por Acción
         let coincideAccion = true;
-        if (filtroAccion.value) {
+        if (filtroAccion.value && filtroAccion.value.length > 0) {
             coincideAccion =
-                sol.id_accion_solicitada == filtroAccion.value ||
-                sol.id_accion == filtroAccion.value;
+                filtroAccion.value.includes(sol.id_accion_solicitada) ||
+                filtroAccion.value.includes(sol.id_accion) ||
+                (sol.arboles && sol.arboles.some(a => filtroAccion.value.includes(a.id_accion_realizar) || filtroAccion.value.includes(a.id_accion_solicitada)));
         }
 
         // 4. Rango de fechas
@@ -294,29 +311,28 @@ const solicitudesFiltradas = computed(() => {
 
         // 5. Filtro de Condición Especial
         let coincideSetar = true;
-        if (filtroSetar.value) {
-            if (filtroSetar.value === 'setar' && !sol.requiere_setar) coincideSetar = false;
-            if (filtroSetar.value === 'plataforma' && !sol.requiere_plataforma) coincideSetar = false;
-            if (filtroSetar.value === 'ficha_tecnica' && !sol.requiere_ficha_tecnica) coincideSetar = false;
-            if (filtroSetar.value === 'arbol_seco' && !sol.arbol_seco) coincideSetar = false;
-            if (filtroSetar.value === 'segunda_nota' && !sol.segunda_nota) coincideSetar = false;
-            if (filtroSetar.value === 'procede' && !sol.procede) coincideSetar = false;
+        if (filtroSetar.value && filtroSetar.value.length > 0) {
+            coincideSetar = false;
+            if (filtroSetar.value.includes('setar') && sol.requiere_setar) coincideSetar = true;
+            if (filtroSetar.value.includes('plataforma') && sol.requiere_plataforma) coincideSetar = true;
+            if (filtroSetar.value.includes('ficha_tecnica') && sol.requiere_ficha_tecnica) coincideSetar = true;
+            if (filtroSetar.value.includes('arbol_seco') && sol.arbol_seco) coincideSetar = true;
+            if (filtroSetar.value.includes('segunda_nota') && sol.segunda_nota) coincideSetar = true;
+            if (filtroSetar.value.includes('procede') && sol.procede) coincideSetar = true;
         }
 
         // 6. Filtro por Prioridad
         let coincidePrioridad = true;
-        if (filtroPrioridad.value) {
+        if (filtroPrioridad.value && filtroPrioridad.value.length > 0) {
             let nivel = sol.nivel_urgencia || 'Baja';
             if (nivel === 'Intermedia') nivel = 'Media';
             
-            const filtro = filtroPrioridad.value;
-            if (filtro === 'Alta') {
-                coincidePrioridad = nivel === 'Alta' || sol.es_emergencia || sol.es_urgencia;
-            } else if (filtro === 'Intermedia') {
-                coincidePrioridad = nivel === 'Media' || nivel === 'Intermedia';
-            } else if (filtro === 'Baja') {
-                coincidePrioridad = nivel === 'Baja';
-            }
+            coincidePrioridad = filtroPrioridad.value.some(f => {
+                if (f === 'Alta') return nivel === 'Alta' || sol.es_emergencia || sol.es_urgencia;
+                if (f === 'Intermedia') return nivel === 'Media' || nivel === 'Intermedia';
+                if (f === 'Baja') return nivel === 'Baja';
+                return false;
+            });
         }
 
         return coincideBusqueda && coincideBarrio && coincideAccion && coincideFecha && coincideSetar && coincidePrioridad;
@@ -549,49 +565,50 @@ const formatLoDeterminado = (sol) => {
                         <!-- Select: Distrito -->
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Distrito</label>
-                            <select v-model="filtroDistrito" class="bg-card-sec border border-main rounded-xl px-3 py-2 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
-                                <option value="">Todos los Distritos</option>
-                                <option v-for="d in store.distritos" :key="d.id" :value="d.id">{{ d.nombre }}</option>
-                            </select>
+                            <MultiSelect
+                                v-model="filtroDistrito"
+                                :options="store.distritos"
+                                placeholder="Todos los Distritos"
+                                searchable
+                            />
                         </div>
                         <!-- Select: Barrio -->
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Barrio / Zona</label>
-                            <select v-model="filtroBarrio" class="bg-card-sec border border-main rounded-xl px-3 py-2 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
-                                <option value="">Todos los Barrios</option>
-                                <option v-for="b in store.barrios.filter(b => !filtroDistrito || b.id_distrito == filtroDistrito)" :key="b.id" :value="b.id">{{ b.nombre }}</option>
-                            </select>
+                            <MultiSelect
+                                v-model="filtroBarrio"
+                                :options="store.barrios.filter(b => filtroDistrito.length === 0 || filtroDistrito.includes(b.id_distrito))"
+                                placeholder="Todos los Barrios"
+                                searchable
+                            />
                         </div>
                         <!-- Select: Acción Técnica -->
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Acción Técnica</label>
-                            <select v-model="filtroAccion" class="bg-card-sec border border-main rounded-xl px-3 py-2 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
-                                <option value="">Cualquier Acción</option>
-                                <option v-for="a in store.acciones" :key="a.id" :value="a.id">{{ a.nombre }}</option>
-                            </select>
+                            <MultiSelect
+                                v-model="filtroAccion"
+                                :options="store.acciones"
+                                placeholder="Cualquier Acción"
+                                searchable
+                            />
                         </div>
                         <!-- Select: Condición Especial -->
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Condición Especial</label>
-                            <select v-model="filtroSetar" class="bg-card-sec border border-main rounded-xl px-3 py-2 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
-                                <option value="">Sin Filtro Especial</option>
-                                <option value="setar">⚡ Requiere Corte SETAR</option>
-                                <option value="plataforma">🏗️ Requiere Grúa/Plataforma</option>
-                                <option value="ficha_tecnica">📋 Requiere Ficha Técnica</option>
-                                <option value="arbol_seco">🌵 Es Árbol Seco</option>
-                                <option value="segunda_nota">✉️ Tiene Segunda Nota</option>
-                                <option value="procede">✅ Trabajo Procedente</option>
-                            </select>
+                            <MultiSelect
+                                v-model="filtroSetar"
+                                :options="opcionesCondicionEspecial"
+                                placeholder="Sin Filtro Especial"
+                            />
                         </div>
                         <!-- Select: Prioridad -->
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-black uppercase tracking-widest text-muted ml-1">Nivel de Urgencia</label>
-                            <select v-model="filtroPrioridad" class="bg-card-sec border border-main rounded-xl px-3 py-2 text-xs font-bold focus:border-accent outline-none text-main shadow-sm transition-all cursor-pointer">
-                                <option value="">Todas las Prioridades</option>
-                                <option value="Alta">🔴 Prioridad Alta / Emergencia</option>
-                                <option value="Intermedia">🟡 Prioridad Intermedia</option>
-                                <option value="Baja">🟢 Prioridad Baja (Normal)</option>
-                            </select>
+                            <MultiSelect
+                                v-model="filtroPrioridad"
+                                :options="opcionesPrioridad"
+                                placeholder="Todas las Prioridades"
+                            />
                         </div>
                         <!-- Select: Fechas (Rango) -->
                         <div class="flex flex-col gap-1.5">
