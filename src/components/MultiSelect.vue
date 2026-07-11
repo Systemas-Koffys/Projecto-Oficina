@@ -15,7 +15,7 @@
     <Transition name="fade-scale">
       <div
         v-if="open"
-        class="absolute z-50 mt-1.5 w-full bg-card border border-main rounded-2xl shadow-xl p-3 flex flex-col gap-2 max-h-[300px] overflow-hidden animate-prime-in"
+        class="absolute z-50 mt-1.5 w-full dropdown-popover border border-main rounded-2xl shadow-xl p-3 flex flex-col gap-2 max-h-[300px] overflow-hidden animate-prime-in"
       >
         <!-- Search and Quick Actions Header -->
         <div class="flex flex-col gap-2 shrink-0">
@@ -150,6 +150,13 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.dropdown-popover {
+  background-color: var(--bg-card);
+  background-color: color-mix(in srgb, var(--bg-card) 97%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -157,11 +164,11 @@ onUnmounted(() => {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border);
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #8dd417;
+  background: var(--accent);
 }
 
 .fade-scale-enter-active,
