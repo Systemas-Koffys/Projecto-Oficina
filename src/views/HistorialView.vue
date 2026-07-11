@@ -8,7 +8,8 @@ const { store, uiState, deleteSolicitud, showToast, registrarImpresion, responsa
 import { 
     Trash2, Plus, Eye, Printer, Pencil, X, 
     Zap, Leaf, MailOpen, Wrench, AlertTriangle, 
-    CheckCircle2, ClipboardList, Filter, ArrowUpDown, Download
+    CheckCircle2, ClipboardList, Filter, ArrowUpDown, Download,
+    ArrowUp, ArrowDown
 } from 'lucide-vue-next'
 import EmptyState from '../components/EmptyState.vue'
 
@@ -130,6 +131,18 @@ const filtroFechaHasta = ref('')
 const filtroSetar = ref('')
 const filtroPrioridad = ref('')
 const ordenAsc = ref(false) // false: Últimos ingresados arriba (predeterminado), true: Primeros ingresados arriba
+const sortBy = ref('') // Columna seleccionada para ordenar, vacía = por fecha por defecto
+const sortOrder = ref('desc') // 'asc' o 'desc'
+
+const toggleSort = (field) => {
+    if (sortBy.value === field) {
+        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+    } else {
+        sortBy.value = field
+        sortOrder.value = 'asc'
+    }
+    paginaActual.value = 1
+}
 
 // Helper para parsear fechas de forma segura en UTC
 const parsearFechaSegura = (str) => {
@@ -308,9 +321,62 @@ const solicitudesFiltradas = computed(() => {
 
         return coincideBusqueda && coincideBarrio && coincideAccion && coincideFecha && coincideSetar && coincidePrioridad;
     }).sort((a, b) => {
-        const dateA = new Date(a.fecha_ejecucion || a.fecha_ingreso || 0)
-        const dateB = new Date(b.fecha_ejecucion || b.fecha_ingreso || 0)
-        return ordenAsc.value ? dateA - dateB : dateB - dateA
+        if (!sortBy.value) {
+            const dateA = new Date(a.fecha_ejecucion || a.fecha_ingreso || 0)
+            const dateB = new Date(b.fecha_ejecucion || b.fecha_ingreso || 0)
+            return ordenAsc.value ? dateA - dateB : dateB - dateA;
+        }
+
+        let valA, valB;
+        switch (sortBy.value) {
+            case 'codigo':
+                valA = a.comunicacion_interna || '';
+                valB = b.comunicacion_interna || '';
+                break;
+            case 'fecha':
+                valA = a.fecha_ingreso || '';
+                valB = b.fecha_ingreso || '';
+                break;
+            case 'solicitante':
+                valA = a.solicitante_nombre || '';
+                valB = b.solicitante_nombre || '';
+                break;
+            case 'distrito':
+                valA = getDistritoByBarrio(a.id_barrio) || '';
+                valB = getDistritoByBarrio(b.id_barrio) || '';
+                break;
+            case 'barrio':
+                valA = getBarrio(a.id_barrio) || '';
+                valB = getBarrio(b.id_barrio) || '';
+                break;
+            case 'arboles':
+                valA = formatLoSolicitado(a) || '';
+                valB = formatLoSolicitado(b) || '';
+                break;
+            case 'determinado':
+                valA = formatLoDeterminado(a) || '';
+                valB = formatLoDeterminado(b) || '';
+                break;
+            case 'estado':
+                valA = a.estado_tramite || '';
+                valB = b.estado_tramite || '';
+                break;
+            case 'urgencia':
+                valA = a.es_emergencia ? 4 : (a.nivel_urgencia === 'Alta' ? 3 : (a.nivel_urgencia === 'Intermedia' || a.nivel_urgencia === 'Media' ? 2 : 1));
+                valB = b.es_emergencia ? 4 : (b.nivel_urgencia === 'Alta' ? 3 : (b.nivel_urgencia === 'Intermedia' || b.nivel_urgencia === 'Media' ? 2 : 1));
+                break;
+            default:
+                valA = '';
+                valB = '';
+        }
+
+        if (typeof valA === 'string' && typeof valB === 'string') {
+            return sortOrder.value === 'asc'
+                ? valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' })
+                : valB.localeCompare(valA, undefined, { numeric: true, sensitivity: 'base' });
+        } else {
+            return sortOrder.value === 'asc' ? valA - valB : valB - valA;
+        }
     })
 })
 
@@ -550,15 +616,78 @@ const formatLoDeterminado = (sol) => {
                         <thead>
                             <tr>
                                 <th class="w-12 text-center">#</th>
-                                <th>Cód. Interno</th>
-                                <th>Fecha Ingreso</th>
-                                <th>Solicitante</th>
-                                <th>Distrito</th>
-                                <th>Barrio</th>
-                                <th>Árboles Registrados</th>
-                                <th>Lo Determinado</th>
-                                <th>Estado</th>
-                                <th>Urgencia</th>
+                                <th @click="toggleSort('codigo')" class="cursor-pointer hover:bg-card-sec/55 select-none transition-all">
+                                    <div class="flex items-center gap-1.5 justify-start">
+                                        <span>Cód. Interno</span>
+                                        <ArrowUp v-if="sortBy === 'codigo' && sortOrder === 'asc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowDown v-else-if="sortBy === 'codigo' && sortOrder === 'desc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowUpDown v-else class="w-3 h-3 text-muted/50" />
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('fecha')" class="cursor-pointer hover:bg-card-sec/55 select-none transition-all">
+                                    <div class="flex items-center gap-1.5 justify-start">
+                                        <span>Fecha Ingreso</span>
+                                        <ArrowUp v-if="sortBy === 'fecha' && sortOrder === 'asc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowDown v-else-if="sortBy === 'fecha' && sortOrder === 'desc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowUpDown v-else class="w-3 h-3 text-muted/50" />
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('solicitante')" class="cursor-pointer hover:bg-card-sec/55 select-none transition-all">
+                                    <div class="flex items-center gap-1.5 justify-start">
+                                        <span>Solicitante</span>
+                                        <ArrowUp v-if="sortBy === 'solicitante' && sortOrder === 'asc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowDown v-else-if="sortBy === 'solicitante' && sortOrder === 'desc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowUpDown v-else class="w-3 h-3 text-muted/50" />
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('distrito')" class="cursor-pointer hover:bg-card-sec/55 select-none transition-all">
+                                    <div class="flex items-center gap-1.5 justify-start">
+                                        <span>Distrito</span>
+                                        <ArrowUp v-if="sortBy === 'distrito' && sortOrder === 'asc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowDown v-else-if="sortBy === 'distrito' && sortOrder === 'desc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowUpDown v-else class="w-3 h-3 text-muted/50" />
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('barrio')" class="cursor-pointer hover:bg-card-sec/55 select-none transition-all">
+                                    <div class="flex items-center gap-1.5 justify-start">
+                                        <span>Barrio</span>
+                                        <ArrowUp v-if="sortBy === 'barrio' && sortOrder === 'asc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowDown v-else-if="sortBy === 'barrio' && sortOrder === 'desc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowUpDown v-else class="w-3 h-3 text-muted/50" />
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('arboles')" class="cursor-pointer hover:bg-card-sec/55 select-none transition-all">
+                                    <div class="flex items-center gap-1.5 justify-start">
+                                        <span>Árboles Registrados</span>
+                                        <ArrowUp v-if="sortBy === 'arboles' && sortOrder === 'asc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowDown v-else-if="sortBy === 'arboles' && sortOrder === 'desc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowUpDown v-else class="w-3 h-3 text-muted/50" />
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('determinado')" class="cursor-pointer hover:bg-card-sec/55 select-none transition-all">
+                                    <div class="flex items-center gap-1.5 justify-start">
+                                        <span>Lo Determinado</span>
+                                        <ArrowUp v-if="sortBy === 'determinado' && sortOrder === 'asc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowDown v-else-if="sortBy === 'determinado' && sortOrder === 'desc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowUpDown v-else class="w-3 h-3 text-muted/50" />
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('estado')" class="cursor-pointer hover:bg-card-sec/55 select-none transition-all">
+                                    <div class="flex items-center gap-1.5 justify-start">
+                                        <span>Estado</span>
+                                        <ArrowUp v-if="sortBy === 'estado' && sortOrder === 'asc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowDown v-else-if="sortBy === 'estado' && sortOrder === 'desc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowUpDown v-else class="w-3 h-3 text-muted/50" />
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('urgencia')" class="cursor-pointer hover:bg-card-sec/55 select-none transition-all">
+                                    <div class="flex items-center gap-1.5 justify-start">
+                                        <span>Urgencia</span>
+                                        <ArrowUp v-if="sortBy === 'urgencia' && sortOrder === 'asc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowDown v-else-if="sortBy === 'urgencia' && sortOrder === 'desc'" class="w-3.5 h-3.5 text-accent" />
+                                        <ArrowUpDown v-else class="w-3 h-3 text-muted/50" />
+                                    </div>
+                                </th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
