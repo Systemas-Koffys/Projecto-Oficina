@@ -820,7 +820,7 @@ function actualizarFilaEnHoja(comInt, data) {
   
   // 1. Estado
   if (data.estado_tramite !== undefined) {
-    var estVal = data.estado_tramite === 'Terminado' ? 'TERMINADO' : 'PENDIENTE';
+    var estVal = (data.estado_tramite && data.estado_tramite.toString().trim().toUpperCase() === 'TERMINADO') ? 'TERMINADO' : 'EN ESPERA';
     updateCell('Estado', estVal);
   }
   
