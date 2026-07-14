@@ -23,7 +23,7 @@
             <input
               type="text"
               v-model="searchQuery"
-              class="w-full bg-card-sec border border-main rounded-xl pl-8 pr-3 py-1.5 text-xs focus:border-accent outline-none text-main shadow-inner"
+              class="multiselect-search-input w-full"
               placeholder="Buscar..."
             />
             <Search class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted" />
@@ -151,10 +151,29 @@ onUnmounted(() => {
 
 <style scoped>
 .dropdown-popover {
-  background-color: var(--bg-card);
-  background-color: color-mix(in srgb, var(--bg-card) 97%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-sec) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.multiselect-search-input {
+  background-color: var(--bg-card-sec) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.75rem !important;
+  padding-top: 0.375rem !important;
+  padding-bottom: 0.375rem !important;
+  padding-left: 2rem !important;
+  padding-right: 0.75rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  height: auto !important;
+  line-height: normal !important;
+  color: var(--text-main) !important;
+}
+
+.multiselect-search-input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft) !important;
 }
 
 .custom-scrollbar::-webkit-scrollbar {

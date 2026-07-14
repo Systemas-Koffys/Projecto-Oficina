@@ -1,5 +1,8 @@
 # Instrucciones del Sistema de Arboricultura — ArborGest
 
+## 🌐 REGLA GENERAL DE COMUNICACIÓN
+- **¡¡¡CONTESTAR SIEMPRE EN ESPAÑOL!!!**
+
 ## 📖 LECTURA OBLIGATORIA AL INICIAR
 Antes de responder cualquier cosa, leer completamente el documento maestro del proyecto:
 📄 [`PROJECT_STATE.md`](file:///c:/Users/Personal/Documents/Projecto-Oficina/PROJECT_STATE.md)
