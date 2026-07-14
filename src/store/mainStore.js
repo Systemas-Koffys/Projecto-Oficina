@@ -1217,7 +1217,7 @@ export const useMainStore = defineStore('mainStore', () => {
 
   async function syncEliminarPodarApp(comInt) {
     try {
-      const url = import.meta.env.VITE_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbwQPa7appdNI41AFYOZQGJRWrVvEEVQ0zqHJVAWmpVmIweWzZ59CsiVqpTPs_ITGd4Mdg/exec";
+      const url = import.meta.env.VITE_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbzc9CSB8kI3poZ5qD0HBOA1q3WdNw9345PHJAnagDkKVT7Vh7ktBQbRaPIgFEjwDlJjqw/exec";
       if (!url) {
         console.warn('⚠️ [ArborGest Sync] No se encuentra configurada la URL VITE_APPS_SCRIPT_URL en el entorno.');
         return;
@@ -1248,7 +1248,7 @@ export const useMainStore = defineStore('mainStore', () => {
 
   async function syncRetornoPodarApp(updates) {
     try {
-      const url = import.meta.env.VITE_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbwQPa7appdNI41AFYOZQGJRWrVvEEVQ0zqHJVAWmpVmIweWzZ59CsiVqpTPs_ITGd4Mdg/exec";
+      const url = import.meta.env.VITE_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbzc9CSB8kI3poZ5qD0HBOA1q3WdNw9345PHJAnagDkKVT7Vh7ktBQbRaPIgFEjwDlJjqw/exec";
       if (!url) {
         console.warn('⚠️ [ArborGest Sync] No se encuentra configurada la URL VITE_APPS_SCRIPT_URL en el entorno.');
         return;
