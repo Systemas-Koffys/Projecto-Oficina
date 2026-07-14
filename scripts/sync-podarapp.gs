@@ -87,6 +87,35 @@ function syncPodarAppToFirestore() {
       }
     });
 
+    // Crear conjunto (set) de todas las Comunicaciones Internas que existen en el Excel
+    var codigosEnExcel = {};
+    filasValidas.forEach(function(fila) {
+      var comInt = getVal(fila, headersBase, 'Comunicacion interna');
+      if (comInt) {
+        codigosEnExcel[comInt.toString().trim()] = true;
+      }
+    });
+
+    // Comparar y eliminar de Firestore las que ya no existen en Excel
+    var cfg = getConfig();
+    Object.keys(solicitudesExistentes).forEach(function(comInt) {
+      if (!codigosEnExcel[comInt.trim()]) {
+        var doc = solicitudesExistentes[comInt];
+        var fuente = doc.fields && doc.fields._fuente_sync && doc.fields._fuente_sync.stringValue;
+        if (fuente === 'podarapp') {
+          try {
+            var docId = doc.name.split('/').pop();
+            eliminarDeFirestore(token, cfg.projectId, docId);
+            log.sincronizados.push({ comInt: comInt, accion: 'ELIMINADO_POR_FALTA_EN_EXCEL' });
+            Logger.log('OK [' + comInt + '] ELIMINADO de Firestore porque no existe en la planilla de Google Sheets.');
+          } catch(e) {
+            log.errores.push({ comInt: comInt, error: 'Error al eliminar de Firestore: ' + e.message });
+            Logger.log('ERROR al eliminar de Firestore [' + comInt + ']: ' + e.message);
+          }
+        }
+      }
+    });
+
   } catch(e) {
     log.errores.push({ error: 'ERROR GLOBAL: ' + e.message });
     Logger.log('ERROR GLOBAL: ' + e.message);
@@ -424,6 +453,15 @@ function actualizarEnFirestore(token, projectId, docId, data) {
     contentType: 'application/json',
     headers: { Authorization: 'Bearer ' + token },
     payload: JSON.stringify({ fields: toFirestoreFields(data) }),
+    muteHttpExceptions: true
+  });
+}
+
+function eliminarDeFirestore(token, projectId, docId) {
+  var url = 'https://firestore.googleapis.com/v1/projects/' + projectId + '/databases/(default)/documents/solicitudes/' + docId;
+  UrlFetchApp.fetch(url, {
+    method: 'delete',
+    headers: { Authorization: 'Bearer ' + token },
     muteHttpExceptions: true
   });
 }
@@ -778,13 +816,80 @@ function doPost(e) {
                            .setMimeType(ContentService.MimeType.JSON);
     }
     
-    var result = actualizarFilaEnHoja(comInt, data);
+    var result;
+    if (data.action === 'delete') {
+      result = eliminarFilaEnHoja(comInt);
+    } else {
+      result = actualizarFilaEnHoja(comInt, data);
+    }
     return ContentService.createTextOutput(JSON.stringify(result))
                          .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.message }))
                          .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+function eliminarFilaEnHoja(comInt) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('basededatos');
+  if (!sheet) {
+    return { success: false, error: 'Hoja "basededatos" no encontrada' };
+  }
+  
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return { success: false, error: 'Hoja vacía' };
+  }
+  
+  // Buscar columna 'Comunicacion interna'
+  var rangeHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn());
+  var headers = rangeHeaders.getValues()[0];
+  var colComIntIdx = headers.indexOf('Comunicacion interna');
+  if (colComIntIdx === -1) {
+    return { success: false, error: 'Columna "Comunicacion interna" no encontrada' };
+  }
+  
+  var codes = sheet.getRange(2, colComIntIdx + 1, lastRow - 1, 1).getValues();
+  var rowIndex = -1;
+  for (var i = 0; i < codes.length; i++) {
+    if (codes[i][0].toString().trim() === comInt.toString().trim()) {
+      rowIndex = i + 2; // +2 porque el array es 0-indexed y empieza en la fila 2
+      break;
+    }
+  }
+  
+  if (rowIndex === -1) {
+    return { success: false, error: 'No se encontró la fila con Comunicación Interna: ' + comInt };
+  }
+  
+  // Eliminar la fila en basededatos
+  sheet.deleteRow(rowIndex);
+  
+  // También eliminar árboles correspondientes en la hoja de detalle
+  var sheetDetalle = ss.getSheetByName('DetalleDeArboles');
+  if (!sheetDetalle) sheetDetalle = ss.getSheetByName('DetalleDeÁrboles');
+  var deletedTreesCount = 0;
+  if (sheetDetalle) {
+    var lastRowDet = sheetDetalle.getLastRow();
+    if (lastRowDet >= 2) {
+      var rangeHeadersDet = sheetDetalle.getRange(1, 1, 1, sheetDetalle.getLastColumn());
+      var headersDet = rangeHeadersDet.getValues()[0];
+      var colComIntIdxDet = headersDet.indexOf('Comunicacion interna');
+      if (colComIntIdxDet !== -1) {
+        var codesDet = sheetDetalle.getRange(2, colComIntIdxDet + 1, lastRowDet - 1, 1).getValues();
+        // Borrar de abajo hacia arriba para evitar problemas con los índices de fila que cambian al borrar
+        for (var j = codesDet.length - 1; j >= 0; j--) {
+          if (codesDet[j][0].toString().trim() === comInt.toString().trim()) {
+            sheetDetalle.deleteRow(j + 2);
+            deletedTreesCount++;
+          }
+        }
+      }
+    }
+  }
+  
+  return { success: true, row: rowIndex, message: 'Fila eliminada con éxito de basededatos y ' + deletedTreesCount + ' árboles eliminados de la hoja de detalles.' };
 }
 
 function actualizarFilaEnHoja(comInt, data) {

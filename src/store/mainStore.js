@@ -1191,7 +1191,16 @@ export const useMainStore = defineStore('mainStore', () => {
   async function deleteSolicitud(id) {
     try {
       const docRef = doc(db, 'solicitudes', String(id));
+      
+      const existing = store.solicitudes.find(s => s.id === String(id));
+      const isPodar = existing && existing._fuente_sync === 'podarapp';
+      const comInt = existing ? existing.comunicacion_interna : null;
+
       await deleteDoc(docRef);
+      
+      if (isPodar && comInt) {
+        syncEliminarPodarApp(comInt);
+      }
       
       await registrarAuditoria({
         accion: 'ELIMINAR',
@@ -1203,6 +1212,37 @@ export const useMainStore = defineStore('mainStore', () => {
     } catch (error) {
       console.error('Error al eliminar solicitud:', error);
       return false;
+    }
+  }
+
+  async function syncEliminarPodarApp(comInt) {
+    try {
+      const url = import.meta.env.VITE_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbwQPa7appdNI41AFYOZQGJRWrVvEEVQ0zqHJVAWmpVmIweWzZ59CsiVqpTPs_ITGd4Mdg/exec";
+      if (!url) {
+        console.warn('⚠️ [ArborGest Sync] No se encuentra configurada la URL VITE_APPS_SCRIPT_URL en el entorno.');
+        return;
+      }
+      
+      const payload = {
+        comunicacion_interna: comInt,
+        action: 'delete'
+      };
+      
+      console.log('🔄 [ArborGest Sync] Enviando petición de eliminación a Google Sheets:', payload);
+      
+      fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }).catch(err => {
+        console.error('❌ [ArborGest Sync] Error en fetch de eliminación:', err);
+      });
+      
+    } catch (err) {
+      console.error('❌ [ArborGest Sync] Error en syncEliminarPodarApp:', err);
     }
   }
 
