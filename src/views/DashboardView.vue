@@ -137,9 +137,9 @@
         <div class="lg:col-span-4 card p-8 border-none shadow-2xl flex flex-col justify-between">
             <div>
                 <h3 class="font-black text-xl tracking-tighter mb-2 flex items-center gap-2">
-                    <Users class="w-5 h-5 text-emerald-600" /> Tipo de Solicitante
+                    <Users class="w-5 h-5 text-emerald-600" /> Tipo de Solicitante <span class="text-xs text-muted font-bold">(En Espera)</span>
                 </h3>
-                <p class="text-xs text-muted font-bold uppercase tracking-widest mb-6">Perfil de la demanda actual</p>
+                <p class="text-xs text-muted font-bold uppercase tracking-widest mb-6">Perfil de la demanda en espera</p>
             </div>
 
             <!-- Ratios y Proporción -->
@@ -397,12 +397,8 @@ const stats = computed(() => {
     const total = dataFiltrada.length;
     const completadas = dataFiltrada.filter(s => s.estado_tramite === 'Terminado').length;
     
-    // Tipo de Solicitante (Dinámico por el periodo seleccionado, pero filtrado estrictamente al año 2026 en adelante)
-    const dataTipoSolicitante = dataFiltrada.filter(s => {
-        if (!s.fecha_ingreso) return false;
-        const date = parsearFechaSegura(s.fecha_ingreso);
-        return date && date.getUTCFullYear() === 2026;
-    });
+    // Tipo de Solicitante (Dinámico por el periodo seleccionado, filtrado a solicitudes en espera)
+    const dataTipoSolicitante = dataFiltrada.filter(s => s.estado_tramite === 'En espera' || s.estado_tramite === 'Pendiente');
     const totalTipo = dataTipoSolicitante.length;
     const institucionales = dataTipoSolicitante.filter(s => s.id_tipo_institucion && s.id_tipo_institucion !== '').length;
     const particulares = totalTipo - institucionales;
@@ -716,33 +712,28 @@ const generarDatosGraficos = () => {
                     m = `${date.getUTCDate()} ${meses[date.getUTCMonth()].substring(0,3)}`;
                     data.evolucion[m] = (data.evolucion[m] || 0) + 1;
                 } else {
-                    // Para el gráfico de evolución mensual, solo contabilizar el año actual (2026)
-                    if (date.getUTCFullYear() === 2026) {
-                        m = meses[date.getUTCMonth()];
-                        if (data.evolucion[m] !== undefined) {
-                            data.evolucion[m]++;
-                        }
+                    // Para el gráfico de evolución mensual, contabilizar dinámicamente según el periodo seleccionado
+                    m = meses[date.getUTCMonth()];
+                    if (data.evolucion[m] !== undefined) {
+                        data.evolucion[m]++;
                     }
                 }
             }
         }
     });
 
-    // Técnicos: solo de solicitudes Terminadas (para productividad), del 2026 en adelante
+    // Técnicos: solo de solicitudes Terminadas (para productividad) en el periodo seleccionado
     solicitudesFiltradas.value.forEach(s => {
         if (s.estado_tramite === 'Terminado') {
-            // Filtrar solo las ingresadas desde el 2026 en adelante
-            if (s.fecha_ingreso && s.fecha_ingreso >= '2026-01-01') {
-                if (s.id_tecnico_ejecucion) {
-                    const tec = store.tecnicos.find(t => t.id == s.id_tecnico_ejecucion);
-                    if (tec) {
-                        data.tecnicos[tec.nombre] = (data.tecnicos[tec.nombre] || 0) + 1;
-                    } else {
-                        data.tecnicos['Sin Asignar'] = (data.tecnicos['Sin Asignar'] || 0) + 1;
-                    }
+            if (s.id_tecnico_ejecucion) {
+                const tec = store.tecnicos.find(t => t.id == s.id_tecnico_ejecucion);
+                if (tec) {
+                    data.tecnicos[tec.nombre] = (data.tecnicos[tec.nombre] || 0) + 1;
                 } else {
                     data.tecnicos['Sin Asignar'] = (data.tecnicos['Sin Asignar'] || 0) + 1;
                 }
+            } else {
+                data.tecnicos['Sin Asignar'] = (data.tecnicos['Sin Asignar'] || 0) + 1;
             }
         }
     });
