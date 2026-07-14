@@ -1090,8 +1090,10 @@ export const useMainStore = defineStore('mainStore', () => {
       const docRef = doc(collRef);
       const id_solicitud = docRef.id;
 
+      let cleanedComInt = null;
       if (solicitud.comunicacion_interna && solicitud.comunicacion_interna.trim() !== '') {
-        const q = query(collection(db, 'solicitudes'), where('comunicacion_interna', '==', solicitud.comunicacion_interna.trim()));
+        cleanedComInt = normalizarComunicacionInterna(solicitud.comunicacion_interna);
+        const q = query(collection(db, 'solicitudes'), where('comunicacion_interna', '==', cleanedComInt));
         const querySnap = await getDocs(q);
         if (!querySnap.empty) {
           return { success: false, error: `El código de comunicación interna ya existe.` };
@@ -1136,7 +1138,7 @@ export const useMainStore = defineStore('mainStore', () => {
         id_solicitud: id_solicitud,
         codigo_anual: codigo_anual,
         fecha_ingreso: solicitud.fecha_ingreso || new Date().toISOString().split('T')[0],
-        comunicacion_interna: solicitud.comunicacion_interna || null,
+        comunicacion_interna: cleanedComInt,
         id_tipo_institucion: solicitud.id_tipo_institucion || null,
         id_nombre_institucional: solicitud.id_nombre_institucional || null,
         solicitante_nombre: solicitud.solicitante_nombre || '',
@@ -1167,10 +1169,15 @@ export const useMainStore = defineStore('mainStore', () => {
         observaciones_finales: solicitud.observaciones_finales || null,
         trabajos_extra: solicitud.trabajos_extra || 'Ninguno',
         arboles: arbolesList,
+        _fuente_sync: cleanedComInt ? 'podarapp' : null,
         createdAt: serverTimestamp()
       };
 
       await setDoc(docRef, docData);
+
+      if (cleanedComInt) {
+        syncCrearPodarApp(docData);
+      }
 
       if (auth.currentUser) {
         await registrarAuditoria({
@@ -1304,14 +1311,89 @@ export const useMainStore = defineStore('mainStore', () => {
     }
   }
 
+  async function syncCrearPodarApp(data) {
+    try {
+      const url = import.meta.env.VITE_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbzc9CSB8kI3poZ5qD0HBOA1q3WdNw9345PHJAnagDkKVT7Vh7ktBQbRaPIgFEjwDlJjqw/exec";
+      if (!url) {
+        console.warn('⚠️ [ArborGest Sync] No se encuentra configurada la URL VITE_APPS_SCRIPT_URL en el entorno.');
+        return;
+      }
+      
+      const payload = {
+        action: 'create',
+        comunicacion_interna: data.comunicacion_interna,
+        estado_tramite: data.estado_tramite,
+        verificado: data.verificado === true || data.esta_verificado === 'Sí',
+        requiere_plataforma: data.requiere_plataforma,
+        requiere_setar: data.requiere_setar,
+        requiere_ficha_tecnica: data.requiere_ficha_tecnica,
+        procede: data.procede,
+        nivel_urgencia: data.nivel_urgencia,
+        fecha_ingreso: data.fecha_ingreso,
+        fecha_ejecucion: data.fecha_ejecucion,
+        observaciones_finales: data.observaciones_finales,
+        observacion_verificacion: data.observacion_verificacion,
+        calle: data.calle,
+        numero_casa: data.numero_casa,
+        referencia: data.referencia,
+        solicitante_nombre: data.solicitante_nombre,
+        solicitante_telefono: data.solicitante_telefono,
+        barrio_nombre: data.id_barrio
+          ? (store.barrios.find(b => b.id == data.id_barrio)?.nombre || '')
+          : '',
+        distrito_nombre: data.id_barrio
+          ? String(store.barrios.find(b => b.id == data.id_barrio)?.id_distrito || '')
+          : '',
+        tecnico_verificacion_nombre: data.id_tecnico_verificacion
+          ? (store.tecnicos.find(t => t.id == data.id_tecnico_verificacion)?.nombre || '')
+          : '',
+        tecnico_ejecucion_nombre: data.id_tecnico_ejecucion
+          ? (store.tecnicos.find(t => t.id == data.id_tecnico_ejecucion)?.nombre || '')
+          : '',
+        tipo_institucion_nombre: data.id_tipo_institucion
+          ? (store.tipos_institucion.find(t => t.id == data.id_tipo_institucion)?.nombre || '')
+          : '',
+        institucion_nombre: data.id_nombre_institucional
+          ? (store.instituciones.find(i => i.id == data.id_nombre_institucional)?.nombre || '')
+          : '',
+        arboles: data.arboles ? data.arboles.map(a => {
+          return {
+            especie: a.id_especie ? (store.especies.find(e => e.id == a.id_especie)?.nombre || '') : '',
+            accion: a.id_accion_realizar ? (store.acciones.find(ac => ac.id == a.id_accion_realizar)?.nombre || '') : '',
+            observacion: a.observaciones_arbol || '',
+            realizado: a.realizado === true
+          };
+        }) : []
+      };
+      
+      console.log('🔄 [ArborGest Sync] Enviando petición de creación a Google Sheets:', payload);
+      
+      fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }).catch(err => {
+        console.error('❌ [ArborGest Sync] Error en fetch de creación:', err);
+      });
+      
+    } catch (err) {
+      console.error('❌ [ArborGest Sync] Error en syncCrearPodarApp:', err);
+    }
+  }
+
   async function updateSolicitud(id, datos) {
     try {
       const docRef = doc(db, 'solicitudes', String(id));
 
+      let cleanedComInt = null;
       if (datos.comunicacion_interna && datos.comunicacion_interna.trim() !== '') {
+        cleanedComInt = normalizarComunicacionInterna(datos.comunicacion_interna);
         const q = query(
           collection(db, 'solicitudes'), 
-          where('comunicacion_interna', '==', datos.comunicacion_interna.trim())
+          where('comunicacion_interna', '==', cleanedComInt)
         );
         const querySnap = await getDocs(q);
         const dup = querySnap.docs.find(d => d.id !== String(id));
@@ -1340,9 +1422,10 @@ export const useMainStore = defineStore('mainStore', () => {
 
       const updates = {
         fecha_ingreso: datos.fecha_ingreso || null,
-        comunicacion_interna: datos.comunicacion_interna || null,
+        comunicacion_interna: cleanedComInt,
         id_tipo_institucion: datos.id_tipo_institucion || null,
         id_nombre_institucional: datos.id_nombre_institucional || null,
+        _fuente_sync: cleanedComInt ? 'podarapp' : null,
         solicitante_nombre: datos.solicitante_nombre || '',
         solicitante_telefono: datos.solicitante_telefono || null,
         solicitante_descripcion: datos.solicitante_descripcion || null,
@@ -2275,3 +2358,9 @@ export const useMainStore = defineStore('mainStore', () => {
     jefeUnidad
   };
 });
+
+function normalizarComunicacionInterna(str) {
+  if (!str) return '';
+  return str.toString().trim()
+    .replace(/^(cod|COD)\.?\s*/i, ''); // Quita "Cod ", "COD ", "Cod. ", "COD. ", etc.
+}

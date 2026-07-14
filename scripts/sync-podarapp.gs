@@ -96,13 +96,25 @@ function syncPodarAppToFirestore() {
       }
     });
 
-    // Comparar y eliminar de Firestore las que ya no existen en Excel
+    // Comparar y eliminar de Firestore las que ya no existen en Excel (con periodo de gracia de 30 minutos)
     var cfg = getConfig();
+    var now = new Date();
     Object.keys(solicitudesExistentes).forEach(function(comInt) {
       if (!codigosEnExcel[comInt.trim()]) {
         var doc = solicitudesExistentes[comInt];
         var fuente = doc.fields && doc.fields._fuente_sync && doc.fields._fuente_sync.stringValue;
         if (fuente === 'podarapp') {
+          // Periodo de gracia de 30 minutos para evitar borrar registros recién creados en ArborGest
+          var createdAtVal = doc.fields && doc.fields.createdAt && (doc.fields.createdAt.timestampValue || doc.fields.createdAt.stringValue);
+          if (createdAtVal) {
+            var createdDate = new Date(createdAtVal);
+            var diffMs = now.getTime() - createdDate.getTime();
+            var diffMin = diffMs / (1000 * 60);
+            if (diffMin < 30) {
+              Logger.log('AVISO [' + comInt + '] Omitiendo eliminación porque fue creado hace ' + Math.round(diffMin) + ' minutos (periodo de gracia).');
+              return;
+            }
+          }
           try {
             var docId = doc.name.split('/').pop();
             eliminarDeFirestore(token, cfg.projectId, docId);
@@ -819,6 +831,8 @@ function doPost(e) {
     var result;
     if (data.action === 'delete') {
       result = eliminarFilaEnHoja(comInt);
+    } else if (data.action === 'create') {
+      result = crearFilaEnHoja(comInt, data);
     } else {
       result = actualizarFilaEnHoja(comInt, data);
     }
@@ -890,6 +904,105 @@ function eliminarFilaEnHoja(comInt) {
   }
   
   return { success: true, row: rowIndex, message: 'Fila eliminada con éxito de basededatos y ' + deletedTreesCount + ' árboles eliminados de la hoja de detalles.' };
+}
+
+function crearFilaEnHoja(comInt, data) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('basededatos');
+  if (!sheet) {
+    return { success: false, error: 'Hoja "basededatos" no encontrada' };
+  }
+  
+  var rangeHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn());
+  var headers = rangeHeaders.getValues()[0];
+  
+  // Agregar una fila vacía al final
+  sheet.appendRow([]);
+  var rowIndex = sheet.getLastRow();
+  
+  function setCell(colName, val) {
+    var colIdx = headers.indexOf(colName);
+    if (colIdx !== -1 && val !== undefined && val !== null) {
+      sheet.getRange(rowIndex, colIdx + 1).setValue(val);
+    }
+  }
+  
+  // Rellenar campos de la nueva fila
+  setCell('Comunicacion interna', comInt);
+  setCell('Estado', (data.estado_tramite && data.estado_tramite.toString().trim().toUpperCase() === 'TERMINADO') ? 'TERMINADO' : 'EN ESPERA');
+  setCell('Distrito', data.distrito_nombre || '');
+  setCell('Barrio', data.barrio_nombre || '');
+  setCell('Calles', data.calle || '');
+  setCell('N de Casa', data.numero_casa || '');
+  setCell('N° de Casa', data.numero_casa || '');
+  setCell('Referencias', data.referencia || '');
+  setCell('Solicitante', data.solicitante_nombre || '');
+  setCell('Telefono', data.solicitante_telefono || '');
+  
+  var gpsVal = '';
+  if (data.lat && data.lng) {
+    gpsVal = data.lat + ', ' + data.lng;
+  }
+  setCell('Ubicacion gps', gpsVal);
+  
+  setCell('Fecha de Ingreso', data.fecha_ingreso || '');
+  setCell('Fecha de Ejecucion', data.fecha_ejecucion || '');
+  setCell('Verificado', data.verificado ? 'SI' : 'NO');
+  setCell('Requiere Plataforma', data.requiere_plataforma ? 'SI' : 'NO');
+  setCell('Requiere Setar', data.requiere_setar ? 'SI' : 'NO');
+  setCell('Requiere Ficha Tecnica', data.requiere_ficha_tecnica ? 'SI' : 'NO');
+  setCell('Procede', data.procede ? 'SI' : 'NO');
+  setCell('Urgencia', data.nivel_urgencia ? data.nivel_urgencia.toString().toUpperCase() : 'BAJA');
+  setCell('Observacion de Verificacion', data.observacion_verificacion || '');
+  setCell('Observacion de Ejecucion', data.observaciones_finales || '');
+  setCell('Tecnico de Verificacion', data.tecnico_verificacion_nombre || '');
+  setCell('Tecnico de Ejecucion', data.tecnico_ejecucion_nombre || '');
+  setCell('Institucion', data.tipo_institucion_nombre || '');
+  setCell('Lista instituciones', data.institucion_nombre || '');
+  setCell('USUARIO', data.usuario_podar || 'ArborGest');
+  
+  // Árbol Principal (en basededatos)
+  if (data.arboles && data.arboles.length > 0) {
+    var a = data.arboles[0];
+    setCell('Especie de Arbol', a.especie || '');
+    setCell('Accion a Realizar', a.accion || '');
+    setCell('Lo Solicitado', a.especie ? 'Poda' : ''); 
+    setCell('Observacion de Verificacion', a.observacion || data.observacion_verificacion || '');
+  }
+  
+  // Árboles Adicionales (en DetalleDeArboles)
+  var sheetDetalle = ss.getSheetByName('DetalleDeArboles');
+  if (!sheetDetalle) sheetDetalle = ss.getSheetByName('DetalleDeÁrboles');
+  var addedTreesCount = 0;
+  if (sheetDetalle && data.arboles && data.arboles.length > 1) {
+    var rangeHeadersDet = sheetDetalle.getRange(1, 1, 1, sheetDetalle.getLastColumn());
+    var headersDet = rangeHeadersDet.getValues()[0];
+    
+    for (var i = 1; i < data.arboles.length; i++) {
+      var arb = data.arboles[i];
+      sheetDetalle.appendRow([]);
+      var rowDetIdx = sheetDetalle.getLastRow();
+      
+      function setCellDet(colName, val) {
+        var colIdx = headersDet.indexOf(colName);
+        if (colIdx !== -1 && val !== undefined && val !== null) {
+          sheetDetalle.getRange(rowDetIdx, colIdx + 1).setValue(val);
+        }
+      }
+      
+      var idDetalle = 'det_' + comInt.replace(/\//g, '-') + '_' + i;
+      
+      setCellDet('ID_Detalle', idDetalle);
+      setCellDet('Comunicacion interna', comInt);
+      setCellDet('especie del arbol', arb.especie || '');
+      setCellDet('accion a realizar', arb.accion || '');
+      setCellDet('Observacion del tecnico', arb.observacion || '');
+      setCellDet('realizado', arb.realizado ? 'SI' : 'NO');
+      addedTreesCount++;
+    }
+  }
+  
+  return { success: true, row: rowIndex, message: 'Fila creada con éxito en basededatos y ' + addedTreesCount + ' árboles registrados en la hoja de detalles.' };
 }
 
 function actualizarFilaEnHoja(comInt, data) {
