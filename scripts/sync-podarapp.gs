@@ -426,22 +426,44 @@ function buscarEnFirestore(token, projectId, comInt) {
 
 function cargarTodasLasSolicitudes(token) {
   var cfg = getConfig();
+  var url = 'https://firestore.googleapis.com/v1/projects/' + cfg.projectId + '/databases/(default)/documents:runQuery';
+  
+  var query = {
+    structuredQuery: {
+      from: [{ collectionId: 'solicitudes' }],
+      where: {
+        fieldFilter: {
+          field: { fieldPath: '_fuente_sync' },
+          op: 'EQUAL',
+          value: { stringValue: 'podarapp' }
+        }
+      }
+    }
+  };
+  
+  var response = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { Authorization: 'Bearer ' + token },
+    payload: JSON.stringify(query),
+    muteHttpExceptions: true
+  });
+  
+  var results = JSON.parse(response.getContentText());
   var solicitudes = {};
-  var nextPageToken = '';
-  do {
-    var url = 'https://firestore.googleapis.com/v1/projects/' + cfg.projectId + '/databases/(default)/documents/solicitudes?pageSize=300' + (nextPageToken ? '&pageToken=' + nextPageToken : '');
-    var response = UrlFetchApp.fetch(url, { headers: { Authorization: 'Bearer ' + token }, muteHttpExceptions: true });
-    var data = JSON.parse(response.getContentText());
-    if (data.documents) {
-      data.documents.forEach(function(doc) {
+  
+  if (Array.isArray(results)) {
+    results.forEach(function(res) {
+      if (res.document) {
+        var doc = res.document;
         var comInt = doc.fields && doc.fields.comunicacion_interna && doc.fields.comunicacion_interna.stringValue;
         if (comInt) {
           solicitudes[comInt.toString()] = doc;
         }
-      });
-    }
-    nextPageToken = data.nextPageToken;
-  } while (nextPageToken);
+      }
+    });
+  }
+  
   return solicitudes;
 }
 

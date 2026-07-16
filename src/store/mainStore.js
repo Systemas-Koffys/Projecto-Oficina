@@ -1459,10 +1459,16 @@ export const useMainStore = defineStore('mainStore', () => {
       await updateDoc(docRef, updates);
 
       // Sincronización de retorno en segundo plano si proviene de PodarApp
-      const existing = store.solicitudes.find(s => s.comunicacion_interna === updates.comunicacion_interna);
+      const existing = store.solicitudes.find(s => s.id === String(id));
       console.log('🔍 [ArborGest Sync] Modificación guardada localmente. Solicitud vinculada:', existing);
-      if (existing && existing._fuente_sync === 'podarapp') {
-        syncRetornoPodarApp(updates);
+      const isPodar = (existing && existing._fuente_sync === 'podarapp') || (updates.comunicacion_interna ? true : false);
+      if (isPodar) {
+        const mergedData = {
+          ...existing,
+          ...updates,
+          arboles: updates.arboles || existing.arboles || []
+        };
+        syncRetornoPodarApp(mergedData);
       }
 
       await registrarAuditoria({
