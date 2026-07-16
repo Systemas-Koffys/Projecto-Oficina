@@ -1,8 +1,8 @@
 # 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**
-> **Fecha de Actualización:** 4 de Julio de 2026
-> **Versión Actual:** `v3.27.x` (Desarrollo en rama `feature-podarapp-sync`)
+> **Fecha de Actualización:** 16 de Julio de 2026
+> **Versión Actual:** `v3.27.47` (Desarrollo en rama `feature-podarapp-sync`)
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura
 
@@ -25,7 +25,7 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 
 4. 🔢 **Sistema Dinámico de Control de Versión (`update-version.js`):**
    - Cada `npm run build` o commit ejecuta `node scripts/update-version.js` (`prebuild` hook).
-   - Este script calcula la versión `v3.minor.patch` leyendo el conteo de commits de Git y actualiza `package.json`.
+   - This script calcula la versión `v3.minor.patch` leyendo el conteo de commits de Git y actualiza `package.json`.
    - Al confirmar cambios, siempre mencionar la versión generada.
 
 5. 💼 **Jerarquía de Cargos Institucionales Únicos:**
@@ -48,8 +48,8 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
   - **Firebase Firestore:** Base de datos NoSQL en tiempo real con persistencia offline en IndexedDB.
   - **Firebase Auth:** Autenticación con email/password con verificación previa contra el directorio en `personal`.
   - **Cloudinary CDN:** Imágenes de árboles y perfiles, comprimidas vía Canvas (máx 1200x1200px, 82% JPEG) antes de subir vía API REST. Hay fallback a Base64 en Firestore si Cloudinary falla.
-  - **Google Apps Script:** Script conector para sincronizar PodarApp → ArborGest (ver sección siguiente).
-  - **Firestore Security Rules:** Archivo `firestore.rules` desplegado en la nube.
+  - **Google Apps Script:** Script conector para la sincronización bidireccional (ver sección siguiente).
+  - **Web App URL configurada:** `https://script.google.com/macros/s/AKfycbxKIwaAbJjGRMTpng7166ObNvivYamXAe0dUk-ubSx2KJmWOZNu_Q5GhnwCUIajqv32/exec` (definida en `.env` y fallback en store).
 
 ---
 
@@ -62,59 +62,38 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 5. `auditoria`: Caja Negra inmutable de todas las acciones (`CREAR`, `MODIFICAR`, `ELIMINAR`).
 6. `impresiones`: Historial de reportes impresos con snapshot de filtros.
 7. `calendario`: Programación e hitos de trabajos en barrios.
-8. `inventario_items`, `inventario_activos`, `inventario_consumibles`, `inventario_movimientos`, `inventario_mantenimientos`: Módulo completo de Inventario y Equipos.
 
 ---
 
 ## 🔑 DATOS CLAVE SOBRE `solicitudes` (Trámites)
 
-- **Llave Primaria:** El campo `comunicacion_interna` es el ID único inamovible. El `docId` en Firestore se deriva como `podar_{codigo/año}` → `podar_1285-25`.
+- **Llave Primaria:** El campo `comunicacion_interna` es el ID único inamovible. El `docId` en Firestore se deriva como `podar_{codigo/año}` (remplazando barras por guiones) ➡️ `podar_1285-25`.
 - **Estados válidos:** `"En espera"` (pendiente), `"Terminado"` (ejecutado).
 - **Campo `createdAt`:** Debe ser un `Timestamp` real de Firestore para que el listener en tiempo real de `mainStore.js` (que ordena por `createdAt DESC`) muestre el documento.
-- **Campo `_fuente_sync`:** `"podarapp"` para los registros sincronizados desde Google Sheets. Los creados localmente en ArborGest no tienen este campo.
+- **Campo `_fuente_sync`:** `"podarapp"` para los registros sincronizados desde Google Sheets. Los creados localmente en ArborGest no tienen este campo, a menos que se les asigne un código de comunicación interna válido.
 - **Árboles múltiples:** Se almacenan en un array `arboles[]` dentro de cada solicitud. Cada árbol tiene `id_especie`, `id_accion_solicitada`, `id_accion_realizar`, `observaciones_arbol`, `url_foto`, `realizado` (bool).
 - **GPS:** Los campos `lat` y `lng` son números de doble precisión.
 
 ---
 
-## 🔄 SINCRONIZACIÓN PODARAPP → ARBORGEST (IMPLEMENTADA Y ACTIVA)
+## 🔄 SINCRONIZACIÓN BIDIRECCIONAL (ESTADO Y LOGROS)
 
-La integración entre **PodarApp (Google Sheets / AppSheet)** y **ArborGest (Firebase Firestore)** está completada y en producción.
+La integración entre **PodarApp (Google Sheets / AppSheet)** y **ArborGest (Firebase Firestore)** cuenta con los siguientes logros implementados en desarrollo:
 
-### Estado Actual
-- **861 solicitudes** sincronizadas desde Google Sheets a Firestore.
-- El activador automático en Apps Script corre **cada 5 minutos**.
-- El script detecta diferencias en memoria (batch) y solo escribe cuando hay cambios reales, corriendo en <5 segundos cuando no hay novedades.
+### 1. Eliminación Bidireccional:
+*   Si se borra en ArborGest, se envía un `POST` al Web App para eliminar la fila en `basededatos` y sus respectivos registros en `DetalleDeArboles`.
+*   Si se borra una fila en Google Sheets, el temporizador Apps Script detecta que la solicitud ya no existe en el Excel y la elimina de Firestore.
+*   **Periodo de Gracia:** Para evitar borrados por lentitud de red, el Apps Script no eliminará de Firestore ningún documento que tenga menos de **30 minutos** de haber sido creado.
 
-### Cómo Funciona
-1. Lee las hojas `basededatos` y `DetalleDeÁrboles` del Google Sheet de PodarApp.
-2. Resuelve barrios, distritos, especies, acciones y técnicos contra los catálogos de Firestore.
-3. Descarga todos los documentos de `solicitudes` en memoria al inicio.
-4. Compara campo a campo. Si hay diferencia → `PATCH` a Firestore. Si no → `SIN_CAMBIOS`.
-5. Fuerza actualización si el documento en Firestore carece de `createdAt`.
+### 2. Creación Bidireccional:
+*   Si se crea un trámite en ArborGest con comunicación interna, se normaliza el código (removiendo prefijos como `"Cod "`), se marca como `_fuente_sync = 'podarapp'` y se envía un `POST` al Web App para insertar la fila en `basededatos` y sus detalles en `DetalleDeArboles`.
 
-### Configuración (Variables Secretas en Apps Script)
-En la consola de Apps Script → Configuración del Proyecto → Propiedades del Script:
-- `SA_CLIENT_EMAIL`: Email de la cuenta de servicio de Firebase.
-- `SA_PRIVATE_KEY`: Clave privada PEM completa.
-- `FIRESTORE_PROJECT`: `sistema-arboricultura-tarija`
+### 3. Estandarización de Códigos:
+*   Los códigos ingresados se limpian a través de `normalizarComunicacionInterna(str)`, dejando estructuras puras (ej: `"954/26"`) útiles para sincronización libre de duplicados tipográficos.
 
-### Llave Primaria en el Excel
-La columna **`Comunicacion interna`** es la llave primaria. No es editable. Si dos filas tienen el mismo código, se sobreescriben en Firestore (se detectan con la función `detectarDuplicadosYErrores()`).
-
-### Mapeo de Barrios (Por Capas)
-El script resuelve barrios con 3 capas:
-1. **Exacta** (nombre + distrito coinciden).
-2. **Solo nombre** (emite advertencia si el distrito difiere).
-3. **Parcial** (subcadena). Si no hay match → `id_barrio: null` y escribe `barrio_texto_podar` con el texto original.
-
-### Ramas de Git
-- `feature-podarapp-sync` → rama de desarrollo activa.
-- `main` → producción (no modificar sin build y prueba previa).
-- `feature-ai-assistant` → módulo IA congelado (Groq/LLaMA).
-
-### Documentación Técnica Detallada
-Ver: [`docs/podarapp_sync.md`](file:///c:/Users/Personal/Documents/Projecto-Oficina/docs/podarapp_sync.md)
+### 4. ⚡ Optimización del Consumo de Lecturas (Structured Query):
+*   El script periódico de Apps Script se modificó en `cargarTodasLasSolicitudes(token)` para consultar a Firestore mediante **`runQuery` (POST)** en lugar de listar toda la colección.
+*   Filtra únicamente los registros donde `_fuente_sync == 'podarapp'`, reduciendo las lecturas diarias de **~247,000 lecturas** (con triggers cada 30 min) a **~7,100 lecturas diarias** (ahorro del 83%).
 
 ---
 
@@ -136,23 +115,28 @@ Ver: [`docs/podarapp_sync.md`](file:///c:/Users/Personal/Documents/Projecto-Ofic
 | `src/views/AuditoriaView.vue` | Caja negra de actividad (solo ROOT) |
 | `src/views/PublicPortalView.vue` | Portal ciudadano público para seguimiento de trámites |
 | `src/views/AcercaDeView.vue` | Acerca de, versión y créditos del sistema |
-| `src/components/SolicitudModal.vue` | Modal principal de creación/edición de solicitudes (campos: `verificado` toggle, `realizado` toggle por árbol) |
-| `src/components/Sidebar.vue` | Barra lateral de navegación con roles y permisos |
+| `src/components/SolicitudModal.vue` | Modal principal de creación/edición de solicitudes |
 | `src/store/mainStore.js` | Store Pinia central: auth, listeners Firestore, catálogos, CRUD |
 
 ---
 
 ## ⚠️ TAREAS PENDIENTES (SIGUIENTE CHAT)
 
-### 1. Ajustes en el Dashboard (`src/views/DashboardView.vue`)
-- **Filtro de Fecha Histórico:** La computada `solicitudesFiltradas` tiene hardcodeado `limitDate = '2026-01-01'`. Esto impide que el filtro "Histórico" muestre datos de 2023, 2024 y 2025. Debe quitarse el límite cuando el filtro sea `'todo'`.
-- **Gráfico "Demanda por Acción":** En `generarDatosGraficos()`, el gráfico busca `s.id_accion_solicitada` en la raíz. Los registros de PodarApp guardan la acción en `s.arboles[0].id_accion_solicitada`. Añadir el mismo fallback que ya tiene la lista lateral `accionesPendientes`.
+### 1. 🔍 Depuración de la Sincronización de Edición (ArborGest ➡️ Google Sheets)
+*   **Síntoma:** Al editar una solicitud en ArborGest (ej. modificar el nombre del solicitante), el cambio no se actualiza en la planilla de Google Sheets.
+*   **Análisis Técnico Realizado:**
+    *   Corregimos `updateSolicitud` en [`mainStore.js`](file:///c:/Users/Personal/Documents/Projecto-Oficina/src/store/mainStore.js) para que busque la solicitud previa usando su `id` de documento (que es inmutable) en lugar del código de comunicación interna.
+    *   Se implementó la fusión de datos (`const mergedData = { ...existing, ...updates }`) antes de llamar al webhook para que viajen todos los campos y no solo los editados.
+    *   Mapeamos en el payload de `syncRetornoPodarApp` y en la función `actualizarFilaEnHoja` en [`sync-podarapp.gs`](file:///c:/Users/Personal/Documents/Projecto-Oficina/scripts/sync-podarapp.gs) todos los campos restantes (Solicitante, Teléfono, Barrio, Distrito, Calles, N° de Casa, Referencias, GPS y datos institucionales).
+    *   **Punto a Investigar:** A pesar de tener el código mapeado, el cambio no está impactando el Excel. El siguiente asistente debe depurar la llamada `fetch(url, ...)` en `syncRetornoPodarApp` para ver si la petición está siendo bloqueada por políticas de CORS en el navegador, si la URL no está respondiendo correctamente, o si el Web App del Apps Script arroja algún fallo interno al ejecutar `actualizarFilaEnHoja(comInt, data)`.
+    *   *Nota:* Al ejecutar manualmente el script Apps Script `syncPodarAppToFirestore`, el cambio en Firestore es sobreescrito por el valor viejo del Excel, por lo que es vital corregir el retorno antes de ejecutar pruebas manuales repetidas.
 
-### 2. Sincronización Bidireccional (Siguiente Fase)
-Desarrollar el flujo inverso (ArborGest → Google Sheets) para que las ediciones hechas en ArborGest se reflejen de vuelta en PodarApp.
+### 2. Ajustes en el Dashboard (`src/views/DashboardView.vue`)
+*   **Filtro de Fecha Histórico:** La computada `solicitudesFiltradas` tiene hardcodeado `limitDate = '2026-01-01'`. Esto impide que el filtro "Histórico" muestre datos de 2023, 2024 y 2025. Debe quitarse el límite cuando el filtro sea `'todo'`.
+*   **Gráfico "Demanda por Acción":** En `generarDatosGraficos()`, el gráfico busca `s.id_accion_solicitada` en la raíz. Los registros de PodarApp guardan la acción en `s.arboles[0].id_accion_solicitada`. Añadir el mismo fallback que ya tiene la lista lateral `accionesPendientes`.
 
 ### 3. Integración de Imágenes de Campo
-Las fotos de AppSheet se guardan como rutas relativas en Google Drive (ej: `basededatos_Images/foto.jpg`). Explorar cómo publicarlas o migrarlas a Cloudinary para visualizarlas en ArborGest.
+*   Las fotos de AppSheet se guardan como rutas relativas en Google Drive (ej: `basededatos_Images/foto.jpg`). Desarrollar la lógica para publicarlas o migrarlas a Cloudinary para visualizarlas en ArborGest.
 
 ---
 
@@ -165,14 +149,3 @@ Las fotos de AppSheet se guardan como rutas relativas en Google Drive (ej: `base
    - *Área de Arboricultura*
 2. **Firmas Dinámicas:** Leen `responsableArea` y `jefeUnidad` del store. Nunca hardcodear nombres.
 3. **Limpieza en PDFs:** `.toast-container`, modales y botones tienen `print:hidden` para impresiones limpias.
-
----
-
-## 💡 NOTA FINAL PARA EL SIGUIENTE AGENTE IA
-
-Al iniciar el nuevo chat:
-1. Confirma que has leído este `PROJECT_STATE.md`.
-2. Informa que el sistema está en versión `v3.27.x` en la rama `feature-podarapp-sync` con la sincronización PodarApp → ArborGest **completada y activa con 861 registros**.
-3. La próxima tarea prioritaria es **ajustar el Dashboard** (filtro de fecha y gráfico "Demanda por Acción").
-4. Luego se pasa a la **bidireccionalidad** y posteriormente a las **imágenes de campo**.
-5. Siempre espera la autorización del usuario antes de modificar cualquier archivo.
