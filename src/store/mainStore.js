@@ -1260,7 +1260,6 @@ export const useMainStore = defineStore('mainStore', () => {
         console.warn('⚠️ [ArborGest Sync] No se encuentra configurada la URL VITE_APPS_SCRIPT_URL en el entorno.');
         return;
       }
-      
       const payload = {
         comunicacion_interna: updates.comunicacion_interna,
         estado_tramite: updates.estado_tramite,
@@ -1273,6 +1272,25 @@ export const useMainStore = defineStore('mainStore', () => {
         fecha_ejecucion: updates.fecha_ejecucion,
         observaciones_finales: updates.observaciones_finales,
         observacion_verificacion: updates.observacion_verificacion,
+        solicitante_nombre: updates.solicitante_nombre || '',
+        solicitante_telefono: updates.solicitante_telefono || '',
+        calle: updates.calle || '',
+        numero_casa: updates.numero_casa || '',
+        referencia: updates.referencia || '',
+        lat: updates.lat || null,
+        lng: updates.lng || null,
+        barrio_nombre: updates.id_barrio
+          ? (store.barrios.find(b => b.id == updates.id_barrio)?.nombre || '')
+          : '',
+        distrito_nombre: updates.id_barrio
+          ? String(store.barrios.find(b => b.id == updates.id_barrio)?.id_distrito || '')
+          : '',
+        tipo_institucion_nombre: updates.id_tipo_institucion
+          ? (store.tipos_institucion.find(t => t.id == updates.id_tipo_institucion)?.nombre || '')
+          : '',
+        institucion_nombre: updates.id_nombre_institucional
+          ? (store.instituciones.find(i => i.id == updates.id_nombre_institucional)?.nombre || '')
+          : '',
         tecnico_ejecucion_nombre: updates.id_tecnico_ejecucion
           ? (store.tecnicos.find(t => t.id == updates.id_tecnico_ejecucion)?.nombre || '')
           : '',
@@ -1292,7 +1310,6 @@ export const useMainStore = defineStore('mainStore', () => {
           ? (updates.arboles[0].observaciones_arbol || '')
           : ''
       };
-      
       console.log('🔄 [ArborGest Sync] Enviando retorno a Google Sheets:', payload);
       
       fetch(url, {

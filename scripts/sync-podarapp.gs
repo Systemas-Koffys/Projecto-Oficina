@@ -1104,6 +1104,28 @@ function actualizarFilaEnHoja(comInt, data) {
   if (data.arbol_accion_realizar_nombre !== undefined && data.arbol_accion_realizar_nombre !== '') updateCell('Accion a Realizar', data.arbol_accion_realizar_nombre);
   if (data.arbol_accion_solicitada_nombre !== undefined && data.arbol_accion_solicitada_nombre !== '') updateCell('Lo Solicitado', data.arbol_accion_solicitada_nombre);
   if (data.arbol_observaciones !== undefined) updateCell('Observacion de Verificacion', data.arbol_observaciones);
+
+  // 7. Datos de Dirección y Solicitante
+  if (data.solicitante_nombre !== undefined) updateCell('Solicitante', data.solicitante_nombre);
+  if (data.solicitante_telefono !== undefined) updateCell('Telefono', data.solicitante_telefono);
+  if (data.distrito_nombre !== undefined) updateCell('Distrito', data.distrito_nombre);
+  if (data.barrio_nombre !== undefined) updateCell('Barrio', data.barrio_nombre);
+  if (data.calle !== undefined) updateCell('Calles', data.calle);
+  if (data.numero_casa !== undefined) {
+    updateCell('N de Casa', data.numero_casa);
+    updateCell('N° de Casa', data.numero_casa);
+  }
+  if (data.referencia !== undefined) updateCell('Referencias', data.referencia);
+  
+  // 8. GPS
+  if (data.lat !== undefined && data.lng !== undefined) {
+    var gpsVal = (data.lat && data.lng) ? (data.lat + ', ' + data.lng) : '';
+    updateCell('Ubicacion gps', gpsVal);
+  }
+  
+  // 9. Instituciones
+  if (data.tipo_institucion_nombre !== undefined) updateCell('Institucion', data.tipo_institucion_nombre);
+  if (data.institucion_nombre !== undefined) updateCell('Lista instituciones', data.institucion_nombre);
   
   return { success: true, row: rowIndex, updates: updatesCount };
 }
