@@ -421,10 +421,17 @@ const paginasVisibles = computed(() => {
     return range.filter(p => p !== '...') // Simplificar para esta vista
 })
 
-const getBarrio = (id) => {
-    if (!id) return 'N/A';
-    const b = store.barrios.find(x => x.id == id)
-    return b ? b.nombre : 'N/A'
+const getBarrio = (solOrId) => {
+    if (!solOrId) return 'N/A';
+    if (typeof solOrId === 'object') {
+        if (solOrId.id_barrio) {
+            const b = store.barrios.find(x => x.id == solOrId.id_barrio);
+            if (b) return b.nombre;
+        }
+        return solOrId.barrio_texto_podar || 'N/A';
+    }
+    const b = store.barrios.find(x => x.id == solOrId);
+    return b ? b.nombre : 'N/A';
 }
 
 const getAccion = (id) => {
@@ -463,12 +470,37 @@ const formatFecha = (str) => {
     return `${diaSemana} ${d}/${m}/${a}`;
 }
 
-const getDistritoByBarrio = (idBarrio) => {
-    if (!idBarrio) return '—'
-    const b = store.barrios.find(x => x.id == idBarrio)
-    if (!b) return '—'
-    const d = store.distritos.find(x => x.id == b.id_distrito)
-    return d ? d.nombre : '—'
+const getDistritoByBarrio = (solOrIdBarrio) => {
+    if (!solOrIdBarrio) return '—';
+    if (typeof solOrIdBarrio === 'object') {
+        const explicitDist = solOrIdBarrio.id_distrito || solOrIdBarrio.distrito_texto_podar;
+        if (explicitDist) {
+            const d = store.distritos.find(x => x.id == explicitDist || x.nombre == explicitDist || x.nombre == `Distrito ${explicitDist}`);
+            if (d) return d.nombre;
+            if (String(explicitDist).toLowerCase().includes('distrito')) return explicitDist;
+            return `Distrito ${explicitDist}`;
+        }
+        if (solOrIdBarrio.id_barrio) {
+            const b = store.barrios.find(x => x.id == solOrIdBarrio.id_barrio);
+            if (b) {
+                const d = store.distritos.find(x => x.id == b.id_distrito);
+                if (d) return d.nombre;
+            }
+        }
+        if (solOrIdBarrio.barrio_texto_podar) {
+            const norm = solOrIdBarrio.barrio_texto_podar.trim().toLowerCase();
+            const bMatched = store.barrios.find(b => b.nombre.trim().toLowerCase() === norm || norm.includes(b.nombre.trim().toLowerCase()));
+            if (bMatched) {
+                const d = store.distritos.find(x => x.id == bMatched.id_distrito);
+                if (d) return d.nombre;
+            }
+        }
+        return '—';
+    }
+    const b = store.barrios.find(x => x.id == solOrIdBarrio);
+    if (!b) return '—';
+    const d = store.distritos.find(x => x.id == b.id_distrito);
+    return d ? d.nombre : '—';
 }
 
 const getTipoInstitucion = (idTipo) => {
@@ -743,8 +775,8 @@ const formatLoDeterminado = (sol) => {
                                 <td class="font-bold text-accent">{{ getCodigoTramite(sol) }}</td>
                                 <td>{{ formatFecha(sol.fecha_ingreso) }}</td>
                                 <td>{{ sol.solicitante_nombre }}</td>
-                                <td class="font-bold text-xs">{{ getDistritoByBarrio(sol.id_barrio) }}</td>
-                                <td>{{ getBarrio(sol.id_barrio) }}</td>
+                                <td class="font-bold text-xs">{{ getDistritoByBarrio(sol) }}</td>
+                                <td>{{ getBarrio(sol) }}</td>
                                 <td class="col-truncate-custom" :title="formatLoSolicitado(sol)">{{ formatLoSolicitado(sol) }}</td>
                                 <td class="col-truncate-custom" :title="formatLoDeterminado(sol)">{{ formatLoDeterminado(sol) }}</td>
                                 <td>
@@ -955,11 +987,11 @@ const formatLoDeterminado = (sol) => {
                         <div class="space-y-4 text-sm">
                             <div class="flex justify-between items-center pb-2 border-b border-sec">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Distrito Municipal</span>
-                                <span class="font-bold text-main">{{ getDistritoByBarrio(solicitudSeleccionada.id_barrio) }}</span>
+                                <span class="font-bold text-main">{{ getDistritoByBarrio(solicitudSeleccionada) }}</span>
                             </div>
                             <div class="flex justify-between items-center pb-2 border-b border-sec">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Barrio / Zona</span>
-                                <span class="font-bold text-main text-right">{{ getBarrio(solicitudSeleccionada.id_barrio) }}</span>
+                                <span class="font-bold text-main text-right">{{ getBarrio(solicitudSeleccionada) }}</span>
                             </div>
                             <div class="flex justify-between items-center pb-2 border-b border-sec">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Calle / Avenida</span>

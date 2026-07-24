@@ -200,6 +200,36 @@ const guardar = async () => {
     }
 }
 
+// --- ASISTENTE DE BARRIOS PENDIENTES ---
+const barriosPendientesEnSolicitudes = computed(() => {
+    if (categoriaActiva.value.id !== 'barrios') return []
+    const conteo = {}
+    const mapaDistritos = {}
+    store.solicitudes.forEach(s => {
+        if (!s.id_barrio && s.barrio_texto_podar && s.barrio_texto_podar.trim() !== '') {
+            const txt = s.barrio_texto_podar.trim()
+            conteo[txt] = (conteo[txt] || 0) + 1
+            if (s.id_distrito && !mapaDistritos[txt]) {
+                mapaDistritos[txt] = s.id_distrito
+            }
+        }
+    })
+    return Object.keys(conteo).map(txt => ({
+        nombre: txt,
+        total: conteo[txt],
+        id_distrito: mapaDistritos[txt] || ''
+    })).sort((a, b) => b.total - a.total)
+})
+
+const agregarBarrioDesdePendiente = (b) => {
+    editData.value = null
+    formData.value = {
+        nombre: b.nombre,
+        id_distrito: b.id_distrito || ''
+    }
+    showModal.value = true
+}
+
 const eliminar = (id) => {
     mostrarConfirmacion(
         'Confirmar Eliminación',
@@ -576,6 +606,30 @@ const getOptions = (optionKey) => store[optionKey] || []
                         <button @click="abrirNuevo" class="bg-accent hover:bg-accent-hover text-[color:var(--text-on-accent)] px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-all shadow-xl shadow-accent/20 active:scale-95">
                             <Plus class="w-4 h-4" /> Nuevo Registro
                         </button>
+                    </div>
+
+                    <!-- Banner Asistente de Barrios Faltantes -->
+                    <div v-if="categoriaActiva.id === 'barrios' && barriosPendientesEnSolicitudes.length > 0" 
+                        class="mx-8 mt-6 p-6 bg-amber-500/10 border-2 border-amber-500/30 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-black text-amber-600 dark:text-amber-400 text-xs uppercase tracking-wider flex items-center gap-2">
+                                    <AlertTriangle class="w-4 h-4 text-amber-500" />
+                                    Barrios detectados en trámites que faltan en el catálogo ({{ barriosPendientesEnSolicitudes.length }})
+                                </h4>
+                                <p class="text-xs text-muted font-bold mt-1">Haz clic en "+ Agregar al Catálogo" para registrar el barrio oficialmente en el catálogo maestro.</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <div v-for="b in barriosPendientesEnSolicitudes" :key="b.nombre" 
+                                class="px-4 py-2 bg-card-main border border-amber-500/30 rounded-xl flex items-center gap-3 shadow-sm">
+                                <span class="font-black text-xs text-main">{{ b.nombre }}</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-md">{{ b.total }} {{ b.total === 1 ? 'solicitud' : 'solicitudes' }}</span>
+                                <button @click="agregarBarrioDesdePendiente(b)" class="px-3 py-1 bg-accent text-[color:var(--text-on-accent)] rounded-lg font-black text-[10px] uppercase tracking-wider hover:opacity-90 transition-all flex items-center gap-1 cursor-pointer">
+                                    <Plus class="w-3 h-3" /> Agregar al Catálogo
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
