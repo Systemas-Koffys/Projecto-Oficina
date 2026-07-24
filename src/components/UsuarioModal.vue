@@ -254,9 +254,14 @@ const form = reactive({
     estado: 'Activo',
 })
 
-// Solo personal que NO tiene usuario activo (para modo "nuevo")
+// Solo personal que NO tiene usuario activo Y es Técnico, Jefe o Responsable
 const personalSinAcceso = computed(() =>
-    store.tecnicos.filter(t => !t.username)
+    store.tecnicos.filter(t => {
+        if (t.username) return false
+        const cargo = t.cargo || ''
+        const c = cargo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        return c.includes('tecnico') || c.includes('jefe') || c.includes('responsable')
+    })
 )
 
 // Cuando se selecciona un funcionario en modo nuevo
