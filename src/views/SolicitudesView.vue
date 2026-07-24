@@ -963,7 +963,11 @@ const formatLoDeterminado = (sol) => {
                             </div>
                             <div class="flex justify-between items-center pb-2 border-b border-sec">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Calle / Avenida</span>
-                                <span class="font-bold text-main text-right">{{ solicitudSeleccionada.calle }} {{ solicitudSeleccionada.numero_casa ? 'Nº '+solicitudSeleccionada.numero_casa : '' }}</span>
+                                <span class="font-bold text-main text-right">{{ solicitudSeleccionada.calle || '—' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-sec">
+                                <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Nº de Casa</span>
+                                <span class="font-bold text-main text-right">{{ solicitudSeleccionada.numero_casa || 'S/N' }}</span>
                             </div>
                             <div class="flex justify-between items-center pb-2 border-b border-sec">
                                 <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Coordenadas GPS</span>

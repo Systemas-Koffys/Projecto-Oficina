@@ -685,7 +685,7 @@ const limpiarFiltros = () => {
                                         <td class="px-8 py-5 border-b border-main">
                                             <p class="text-xs text-muted font-black uppercase tracking-tighter mb-0.5">{{ sol.solicitante_nombre }}</p>
                                             <p class="text-[10px] text-muted mb-1">📞 Telf: {{ sol.solicitante_telefono || '—' }}</p>
-                                            <p class="text-sm font-bold text-main mb-0.5">{{ sol.calle }} {{ sol.numero_casa }}</p>
+                                            <p class="text-sm font-bold text-main mb-0.5">{{ sol.calle || '—' }} <span v-if="sol.numero_casa" class="text-muted text-xs font-normal">(Nº {{ sol.numero_casa }})</span></p>
                                             <p class="text-[10px] text-accent font-black uppercase tracking-widest">{{ getBarrio(sol.id_barrio) }} (Distrito {{ getDistritoByBarrio(sol.id_barrio) }})</p>
                                         </td>
                                         <td class="px-6 py-5 border-b border-main">
@@ -819,7 +819,7 @@ const limpiarFiltros = () => {
                         <td class="border-2 border-black p-2">
                             <p class="font-black uppercase text-emerald-900 mb-0.5">{{ sol.solicitante_nombre }}</p>
                             <p class="text-[9px] text-gray-500 mb-1 font-bold">📞 Telf: {{ sol.solicitante_telefono || '—' }}</p>
-                            <p class="font-bold mb-0.5">{{ sol.calle }} {{ sol.numero_casa }}</p>
+                            <p class="font-bold mb-0.5">{{ sol.calle || '—' }} <span v-if="sol.numero_casa" class="text-gray-600 font-normal">(Nº {{ sol.numero_casa }})</span></p>
                             <p class="text-[9px] italic">{{ getBarrio(sol.id_barrio) }} (Distrito {{ getDistritoByBarrio(sol.id_barrio) }})</p>
                         </td>
                         <td class="border-2 border-black p-2">
