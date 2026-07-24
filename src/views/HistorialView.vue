@@ -261,15 +261,27 @@ const solicitudesFiltradas = computed(() => {
         // Solo mostrar solicitudes TERMINADAS
         if (sol.estado_tramite !== 'Terminado') return false;
 
-        // 1. Búsqueda de texto global
+        // 1. Búsqueda de texto global (Ampliada a todos los campos)
         let coincideBusqueda = true;
-        if (filtroBusqueda.value) {
-            const term = filtroBusqueda.value.toLowerCase();
+        if (filtroBusqueda.value && filtroBusqueda.value.trim() !== '') {
+            const term = normalizarTexto(filtroBusqueda.value);
+            const barrioNom = getBarrio(sol);
+            const distNom = getDistritoByBarrio(sol);
+            const arbolesTxt = (sol.arboles || []).map(a => `${getEspecie(a.id_especie)} ${getAccion(a.id_accion_solicitada)} ${getAccion(a.id_accion_realizar)}`).join(' ');
+
             coincideBusqueda =
-                (sol.solicitante_nombre && sol.solicitante_nombre.toLowerCase().includes(term)) ||
-                (sol.comunicacion_interna && sol.comunicacion_interna.toLowerCase().includes(term)) ||
-                (sol.calle && sol.calle.toLowerCase().includes(term)) ||
-                (sol.referencia && sol.referencia.toLowerCase().includes(term));
+                normalizarTexto(sol.solicitante_nombre).includes(term) ||
+                normalizarTexto(sol.comunicacion_interna).includes(term) ||
+                normalizarTexto(sol.codigo_anual).includes(term) ||
+                normalizarTexto(sol.solicitante_telefono).includes(term) ||
+                normalizarTexto(barrioNom).includes(term) ||
+                normalizarTexto(sol.barrio_texto_podar).includes(term) ||
+                normalizarTexto(distNom).includes(term) ||
+                normalizarTexto(sol.calle).includes(term) ||
+                normalizarTexto(sol.numero_casa).includes(term) ||
+                normalizarTexto(sol.referencia).includes(term) ||
+                normalizarTexto(sol.solicitante_descripcion).includes(term) ||
+                normalizarTexto(arbolesTxt).includes(term);
         }
 
         // 2. Filtro por Distrito y Barrio
@@ -631,7 +643,7 @@ const formatLoDeterminado = (sol) => {
                 <div class="flex flex-col gap-4">
                     <div>
                         <label class="block text-[9px] font-black text-muted mb-1.5 uppercase tracking-wider ml-1">Búsqueda general</label>
-                        <input type="text" v-model="filtroBusqueda" class="search-input w-full" placeholder="Cod interno, solicitante, referencia..." />
+                        <input type="text" v-model="filtroBusqueda" class="search-input w-full" placeholder="Buscar por código, barrio, distrito, solicitante, calle, referencia..." />
                     </div>
                     
                     <!-- Fila Inferior: Filtros Avanzados (Ocultable) -->
