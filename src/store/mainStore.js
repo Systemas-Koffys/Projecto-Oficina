@@ -471,12 +471,18 @@ export const useMainStore = defineStore('mainStore', () => {
       }));
       console.log("👥 [ArborGest] Técnicos cargados en memoria:", store.tecnicos.map(t => `${t.id}: ${t.nombre} (${t.cargo})`));
 
-      store.usuarios = allPersonal.filter(p => p.username && p.username.trim() !== '');
+      store.usuarios = allPersonal
+        .filter(p => (p.username && p.username.trim() !== '') || (p.role && ['ROOT', 'ADMIN', 'USER'].includes(p.role)) || (p.email && p.email.trim() !== ''))
+        .map(p => ({
+          ...p,
+          username: p.username || p.nombre
+        }));
 
       // Cerrar sesión en tiempo real si el administrador desactiva su cuenta, le quita el acceso o se elimina su perfil
       if (uiState.user) {
         const matchingProfile = allPersonal.find(p => p.id === uiState.user.id);
-        if (!matchingProfile || matchingProfile.estado !== 'Activo' || !matchingProfile.username) {
+        const hasAccess = matchingProfile && matchingProfile.estado === 'Activo' && (matchingProfile.username || ['ROOT', 'ADMIN', 'USER'].includes(matchingProfile.role));
+        if (!hasAccess) {
           logout();
           showToast("Su acceso ha sido revocado por el administrador.", "error");
         }
@@ -905,11 +911,12 @@ export const useMainStore = defineStore('mainStore', () => {
       const list = [];
       querySnap.forEach(docSnap => {
         const p = docSnap.data();
-        if (p.estado === 'Activo' && p.username && p.username.trim() !== '') {
+        const isUser = (p.username && p.username.trim() !== '') || (p.role && ['ROOT', 'ADMIN', 'USER'].includes(p.role)) || (p.email && p.email.trim() !== '');
+        if (p.estado === 'Activo' && isUser) {
           list.push({
             nombre: p.nombre,
-            username: p.username || '',
-            role: p.role,
+            username: p.username || p.nombre,
+            role: p.role || 'USER',
             cargo: p.cargo,
             foto: p.foto
           });
