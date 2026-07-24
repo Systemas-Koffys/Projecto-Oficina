@@ -1,8 +1,8 @@
 # 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**
-> **Fecha de Actualización:** 16 de Julio de 2026
-> **Versión Actual:** `v3.27.47` (Desarrollo en rama `feature-podarapp-sync`)
+> **Fecha de Actualización:** 24 de Julio de 2026
+> **Versión Actual:** `v3.28.6` (Desarrollo en rama `feature-podarapp-sync`)
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura
 
@@ -94,6 +94,13 @@ La integración entre **PodarApp (Google Sheets / AppSheet)** y **ArborGest (Fir
 ### 4. ⚡ Optimización del Consumo de Lecturas (Structured Query):
 *   El script periódico de Apps Script se modificó en `cargarTodasLasSolicitudes(token)` para consultar a Firestore mediante **`runQuery` (POST)** en lugar de listar toda la colección.
 *   Filtra únicamente los registros donde `_fuente_sync == 'podarapp'`, reduciendo las lecturas diarias de **~247,000 lecturas** (con triggers cada 30 min) a **~7,100 lecturas diarias** (ahorro del 83%).
+
+### 5. 🏷️ Gestión de Usuarios, Barrios y Búsqueda Universal (v3.28.6):
+*   **Directorio de Usuarios:** Refinado `store.usuarios` en `mainStore.js` para listar exclusivamente las 2 cuentas de sistema (`ROOT`/`ADMIN`) en `UsuariosView.vue`, separadas de los 27 funcionarios de campo en `PersonalView.vue`.
+*   **Visualización de Dirección:** Separadas las filas de `Calle / Avenida` y `Nº de Casa` en los modales de detalle (`SolicitudesView.vue`, `HistorialView.vue`, `MapaView.vue`) y reportes impresos.
+*   **Búsqueda e Interpretación Inteligente de Barrios:** Implementada normalización de texto insensible a mayúsculas, minúsculas, tildes y espacios (`normalizarTexto`) en `getBarrio` y `getDistritoByBarrio`.
+*   **Asistente de Catálogos y Auto-Vinculación Masiva:** Añadida la caja detectora de barrios no registrados en `ConfiguracionesView.vue` y la función `vincularBarriosMasivosEnFirestore()` en `mainStore.js` con el botón **`[🔗 Vincular Trámites en Base de Datos]`**.
+*   **Búsqueda General Ampliada:** Actualizado `filtroBusqueda` en `SolicitudesView.vue` e `HistorialView.vue` para buscar en **TODOS** los campos del expediente (Barrio, Distrito, Especie, Teléfono, Descripción y Códigos).
 
 ---
 
