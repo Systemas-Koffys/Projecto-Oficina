@@ -471,12 +471,11 @@ export const useMainStore = defineStore('mainStore', () => {
       }));
       console.log("👥 [ArborGest] Técnicos cargados en memoria:", store.tecnicos.map(t => `${t.id}: ${t.nombre} (${t.cargo})`));
 
-      store.usuarios = allPersonal
-        .filter(p => (p.username && p.username.trim() !== '') || (p.role && ['ROOT', 'ADMIN', 'USER'].includes(p.role)) || (p.email && p.email.trim() !== ''))
-        .map(p => ({
-          ...p,
-          username: p.username || p.nombre
-        }));
+      store.usuarios = allPersonal.filter(p => {
+        const hasRole = p.role && ['ROOT', 'ADMIN', 'USER'].includes(p.role);
+        const hasUser = p.username && String(p.username).trim() !== '';
+        return hasRole || hasUser;
+      });
 
       // Cerrar sesión en tiempo real si el administrador desactiva su cuenta, le quita el acceso o se elimina su perfil
       if (uiState.user) {
@@ -911,8 +910,8 @@ export const useMainStore = defineStore('mainStore', () => {
       const list = [];
       querySnap.forEach(docSnap => {
         const p = docSnap.data();
-        const isUser = (p.username && p.username.trim() !== '') || (p.role && ['ROOT', 'ADMIN', 'USER'].includes(p.role)) || (p.email && p.email.trim() !== '');
-        if (p.estado === 'Activo' && isUser) {
+        const hasAccess = (p.username && String(p.username).trim() !== '') || (p.role && ['ROOT', 'ADMIN', 'USER'].includes(p.role));
+        if (p.estado === 'Activo' && hasAccess) {
           list.push({
             nombre: p.nombre,
             username: p.username || p.nombre,
