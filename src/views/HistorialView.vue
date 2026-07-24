@@ -420,17 +420,50 @@ const paginasVisibles = computed(() => {
     return [...new Set(range)].sort((a,b) => a-b)
 })
 
+const normalizarTexto = (txt) => {
+    if (!txt) return '';
+    return String(txt).toLowerCase().trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, ' ');
+}
+
+const buscarBarrioEnCatalogo = (texto) => {
+    if (!texto) return null;
+    const norm = normalizarTexto(texto);
+    if (!norm) return null;
+    let encontrado = store.barrios.find(b => normalizarTexto(b.nombre) === norm);
+    if (encontrado) return encontrado;
+    encontrado = store.barrios.find(b => {
+        const nb = normalizarTexto(b.nombre);
+        return nb.length >= 4 && (norm.includes(nb) || nb.includes(norm));
+    });
+    return encontrado || null;
+}
+
 const getBarrio = (solOrId) => {
-    if (!solOrId) return 'N/A';
+    if (!solOrId) return 'Sin barrio especificado';
     if (typeof solOrId === 'object') {
         if (solOrId.id_barrio) {
             const b = store.barrios.find(x => x.id == solOrId.id_barrio);
             if (b) return b.nombre;
         }
-        return solOrId.barrio_texto_podar || 'N/A';
+        if (solOrId.barrio_texto_podar) {
+            const bMatched = buscarBarrioEnCatalogo(solOrId.barrio_texto_podar);
+            if (bMatched) return bMatched.nombre;
+            return solOrId.barrio_texto_podar;
+        }
+        const textoDir = `${solOrId.calle || ''} ${solOrId.referencia || ''} ${solOrId.solicitante_descripcion || ''}`;
+        if (textoDir.trim() !== '') {
+            const bInText = buscarBarrioEnCatalogo(textoDir);
+            if (bInText) return bInText.nombre;
+        }
+        return 'Sin barrio especificado';
     }
     const b = store.barrios.find(x => x.id == solOrId);
-    return b ? b.nombre : 'N/A';
+    if (b) return b.nombre;
+    const bByText = buscarBarrioEnCatalogo(solOrId);
+    return bByText ? bByText.nombre : (solOrId || 'Sin barrio especificado');
 }
 
 const getAccion = (id) => {
@@ -487,19 +520,28 @@ const getDistritoByBarrio = (solOrIdBarrio) => {
             }
         }
         if (solOrIdBarrio.barrio_texto_podar) {
-            const norm = solOrIdBarrio.barrio_texto_podar.trim().toLowerCase();
-            const bMatched = store.barrios.find(b => b.nombre.trim().toLowerCase() === norm || norm.includes(b.nombre.trim().toLowerCase()));
+            const bMatched = buscarBarrioEnCatalogo(solOrIdBarrio.barrio_texto_podar);
             if (bMatched) {
                 const d = store.distritos.find(x => x.id == bMatched.id_distrito);
+                if (d) return d.nombre;
+            }
+        }
+        const textoDir = `${solOrIdBarrio.calle || ''} ${solOrIdBarrio.referencia || ''}`;
+        if (textoDir.trim() !== '') {
+            const bInText = buscarBarrioEnCatalogo(textoDir);
+            if (bInText) {
+                const d = store.distritos.find(x => x.id == bInText.id_distrito);
                 if (d) return d.nombre;
             }
         }
         return '—';
     }
     const b = store.barrios.find(x => x.id == solOrIdBarrio);
-    if (!b) return '—';
-    const d = store.distritos.find(x => x.id == b.id_distrito);
-    return d ? d.nombre : '—';
+    if (b) {
+        const d = store.distritos.find(x => x.id == b.id_distrito);
+        if (d) return d.nombre;
+    }
+    return '—';
 }
 
 const getTipoInstitucion = (idTipo) => {

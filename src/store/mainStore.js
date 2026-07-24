@@ -1521,6 +1521,44 @@ export const useMainStore = defineStore('mainStore', () => {
     return map[tabla] || tabla;
   }
 
+  async function vincularBarriosMasivosEnFirestore() {
+    try {
+      if (!store.barrios || store.barrios.length === 0) await fetchCatalogos();
+      const solicitudesSinBarrio = store.solicitudes.filter(s => !s.id_barrio);
+      if (solicitudesSinBarrio.length === 0) return { success: true, updated: 0, message: "Todas las solicitudes ya están vinculadas a un barrio oficial." };
+
+      const normalizar = (txt) => txt ? String(txt).toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, ' ') : '';
+
+      let count = 0;
+      for (const sol of solicitudesSinBarrio) {
+        const txt = sol.barrio_texto_podar || `${sol.calle || ''} ${sol.referencia || ''}`;
+        if (!txt || txt.trim() === '') continue;
+        const norm = normalizar(txt);
+
+        const bMatched = store.barrios.find(b => {
+          const nb = normalizar(b.nombre);
+          return nb === norm || (nb.length >= 4 && (norm.includes(nb) || nb.includes(norm)));
+        });
+
+        if (bMatched) {
+          const docRef = doc(db, 'solicitudes', String(sol.id_solicitud));
+          await updateDoc(docRef, {
+            id_barrio: bMatched.id,
+            id_distrito: sol.id_distrito || bMatched.id_distrito || null,
+            updatedAt: serverTimestamp()
+          });
+          sol.id_barrio = bMatched.id;
+          if (!sol.id_distrito && bMatched.id_distrito) sol.id_distrito = bMatched.id_distrito;
+          count++;
+        }
+      }
+      return { success: true, updated: count, message: `Se vincularon exitosamente ${count} solicitudes a sus barrios en Firestore.` };
+    } catch (err) {
+      console.error("Error en vincularBarriosMasivosEnFirestore:", err);
+      return { success: false, updated: 0, error: err.message };
+    }
+  }
+
   async function addCatalogo(tabla, datos) {
     try {
       if (tabla === 'personal' || tabla === 'tecnicos') {
@@ -1599,6 +1637,9 @@ export const useMainStore = defineStore('mainStore', () => {
       await setDoc(docRef, { items, lastUpdated: serverTimestamp() });
       
       await fetchCatalogos();
+      if (tabla === 'barrios') {
+        setTimeout(() => vincularBarriosMasivosEnFirestore(), 500);
+      }
       return true;
     } catch (error) {
       console.error(`Error al agregar en catalogo ${tabla}:`, error);
@@ -2364,6 +2405,7 @@ export const useMainStore = defineStore('mainStore', () => {
     addCatalogo,
     updateCatalogo,
     deleteCatalogo,
+    vincularBarriosMasivosEnFirestore,
     fetchCalendario,
     addCalendarioEvento,
     updateCalendarioEvento,

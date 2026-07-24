@@ -145,7 +145,8 @@ const removeLogo = async (type) => {
 const { 
     store, uiState, 
     addCatalogo, updateCatalogo, deleteCatalogo, showToast, updateConfig, compressImage,
-    fetchCalendario, addCalendarioEvento, updateCalendarioEvento, deleteCalendarioEvento
+    fetchCalendario, addCalendarioEvento, updateCalendarioEvento, deleteCalendarioEvento,
+    vincularBarriosMasivosEnFirestore
 } = mainStore
 
 const localCalendarioData = ref([])
@@ -201,16 +202,29 @@ const guardar = async () => {
 }
 
 // --- ASISTENTE DE BARRIOS PENDIENTES ---
+const normalizar = (txt) => txt ? String(txt).toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, ' ') : ''
+
 const barriosPendientesEnSolicitudes = computed(() => {
     if (categoriaActiva.value.id !== 'barrios') return []
     const conteo = {}
     const mapaDistritos = {}
+    
     store.solicitudes.forEach(s => {
         if (!s.id_barrio && s.barrio_texto_podar && s.barrio_texto_podar.trim() !== '') {
             const txt = s.barrio_texto_podar.trim()
-            conteo[txt] = (conteo[txt] || 0) + 1
-            if (s.id_distrito && !mapaDistritos[txt]) {
-                mapaDistritos[txt] = s.id_distrito
+            const norm = normalizar(txt)
+
+            // Filtrar si el barrio YA EXISTE en el catálogo (insensible a mayúsculas/tildes)
+            const yaExiste = store.barrios.some(b => {
+                const nb = normalizar(b.nombre)
+                return nb === norm || (nb.length >= 4 && (norm.includes(nb) || nb.includes(norm)))
+            })
+
+            if (!yaExiste) {
+                conteo[txt] = (conteo[txt] || 0) + 1
+                if (s.id_distrito && !mapaDistritos[txt]) {
+                    mapaDistritos[txt] = s.id_distrito
+                }
             }
         }
     })
@@ -220,6 +234,19 @@ const barriosPendientesEnSolicitudes = computed(() => {
         id_distrito: mapaDistritos[txt] || ''
     })).sort((a, b) => b.total - a.total)
 })
+
+const ejecuntandoVincular = ref(false)
+
+const ejecutarVincularBarrios = async () => {
+    ejecuntandoVincular.value = true
+    const res = await vincularBarriosMasivosEnFirestore()
+    ejecuntandoVincular.value = false
+    if (res.success) {
+        showToast(res.message, 'success', 6000)
+    } else {
+        showToast(`❌ Error: ${res.error}`, 'error', 6000)
+    }
+}
 
 const agregarBarrioDesdePendiente = (b) => {
     editData.value = null
@@ -609,25 +636,32 @@ const getOptions = (optionKey) => store[optionKey] || []
                     </div>
 
                     <!-- Banner Asistente de Barrios Faltantes -->
-                    <div v-if="categoriaActiva.id === 'barrios' && barriosPendientesEnSolicitudes.length > 0" 
-                        class="mx-8 mt-6 p-6 bg-amber-500/10 border-2 border-amber-500/30 rounded-2xl space-y-4">
+                    <div v-if="categoriaActiva.id === 'barrios'" class="mx-8 mt-6 p-6 bg-amber-500/10 border-2 border-amber-500/30 rounded-2xl space-y-4">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h4 class="font-black text-amber-600 dark:text-amber-400 text-xs uppercase tracking-wider flex items-center gap-2">
                                     <AlertTriangle class="w-4 h-4 text-amber-500" />
-                                    Barrios detectados en trámites que faltan en el catálogo ({{ barriosPendientesEnSolicitudes.length }})
+                                    Vincular Solicitudes a Barrios del Catálogo
                                 </h4>
-                                <p class="text-xs text-muted font-bold mt-1">Haz clic en "+ Agregar al Catálogo" para registrar el barrio oficialmente en el catálogo maestro.</p>
+                                <p class="text-xs text-muted font-bold mt-1">Sincroniza las solicitudes históricas con los barrios agregados al catálogo oficial.</p>
                             </div>
+                            <button @click="ejecutarVincularBarrios" :disabled="ejecuntandoVincular" class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50">
+                                <span v-if="ejecuntandoVincular" class="animate-spin">⏳</span>
+                                🔗 Vincular Trámites en Base de Datos
+                            </button>
                         </div>
-                        <div class="flex flex-wrap gap-3">
-                            <div v-for="b in barriosPendientesEnSolicitudes" :key="b.nombre" 
-                                class="px-4 py-2 bg-card-main border border-amber-500/30 rounded-xl flex items-center gap-3 shadow-sm">
-                                <span class="font-black text-xs text-main">{{ b.nombre }}</span>
-                                <span class="text-[10px] font-bold px-2 py-0.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-md">{{ b.total }} {{ b.total === 1 ? 'solicitud' : 'solicitudes' }}</span>
-                                <button @click="agregarBarrioDesdePendiente(b)" class="px-3 py-1 bg-accent text-[color:var(--text-on-accent)] rounded-lg font-black text-[10px] uppercase tracking-wider hover:opacity-90 transition-all flex items-center gap-1 cursor-pointer">
-                                    <Plus class="w-3 h-3" /> Agregar al Catálogo
-                                </button>
+
+                        <div v-if="barriosPendientesEnSolicitudes.length > 0" class="pt-2 border-t border-amber-500/20">
+                            <p class="text-xs font-black text-main uppercase tracking-widest mb-3">Barrios no registrados en el catálogo ({{ barriosPendientesEnSolicitudes.length }} detectados):</p>
+                            <div class="flex flex-wrap gap-3">
+                                <div v-for="b in barriosPendientesEnSolicitudes" :key="b.nombre" 
+                                    class="px-4 py-2 bg-card-main border border-amber-500/30 rounded-xl flex items-center gap-3 shadow-sm">
+                                    <span class="font-black text-xs text-main">{{ b.nombre }}</span>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-md">{{ b.total }} {{ b.total === 1 ? 'solicitud' : 'solicitudes' }}</span>
+                                    <button @click="agregarBarrioDesdePendiente(b)" class="px-3 py-1 bg-accent text-[color:var(--text-on-accent)] rounded-lg font-black text-[10px] uppercase tracking-wider hover:opacity-90 transition-all flex items-center gap-1 cursor-pointer">
+                                        <Plus class="w-3 h-3" /> Agregar al Catálogo
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
