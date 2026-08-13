@@ -1,8 +1,8 @@
 # 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**
-> **Fecha de Actualización:** 24 de Julio de 2026
-> **Versión Actual:** `v3.28.6` (Desarrollo en rama `feature-podarapp-sync`)
+> **Fecha de Actualización:** 13 de Agosto de 2026
+> **Versión Actual:** `v3.28.8` (Desarrollo en rama `feature-podarapp-sync`)
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura
 
