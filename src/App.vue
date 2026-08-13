@@ -22,7 +22,7 @@
           
           <div class="flex items-center gap-3 self-end md:self-auto">
             <!-- Reloj y Calendario Digital Premium -->
-            <div class="flex items-center h-[52px] bg-card px-4 rounded-2xl border border-border/80 shadow-sm hover:border-accent/40 hover:shadow-md transition-all duration-300 select-none group/clock">
+            <div class="flex items-center h-[52px] bg-card px-4 rounded-2xl border border-border/80 shadow-sm hover:border-accent/60 hover:shadow-[0_0_15px_rgba(16,185,129,0.25)] transition-all duration-300 select-none group/clock">
               <!-- Fecha -->
               <div class="flex items-center gap-2 pr-3 border-r border-border/80">
                 <Calendar size="16" class="text-accent transition-all duration-300 group-hover/clock:scale-110 group-hover/clock:rotate-6" />
