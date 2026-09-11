@@ -352,7 +352,7 @@ const saludo = computed(() => {
     else if (hora >= 12 && hora < 19) mensaje = 'Buenas tardes'
     
     const nombreUsuario = uiState.user?.nombre?.split(' ')[0] || 'Administrador'
-    return `${mensaje}, ${nombreUsuario}`
+    return `${mensaje} Capo, ${nombreUsuario}`
 })
 
 // --- FILTROS TEMPORALES ---
