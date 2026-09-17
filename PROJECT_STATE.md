@@ -38,8 +38,8 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 
 7. 🔄 **PROTOCOLO OBLIGATORIO DE RELEVO MULTI-ENTORNO (CASA ↔ OFICINA):**
    - El proyecto se desarrolla desde dos PCs: **Oficina (turno día)** y **Casa (turno noche)** con Antigravity IDE.
-   - **Inicio de sesión (Paso 0):** Ejecutar siempre `git fetch origin` y verificar con `git status` para incorporar novedades de la otra PC con `git pull` antes de codificar.
-   - **Rama activa oficial:** Ambas PCs deben operar sobre la misma rama activa (`feature-podarapp-sync`).
+   - **Inicio de sesión o Clonación (Paso 0 Automático):** Si la PC acaba de clonar el repositorio, estará por defecto en `main`. El asistente DEBE ejecutar inmediatamente `git checkout feature-podarapp-sync` y `git pull origin feature-podarapp-sync`.
+   - **Rama activa oficial:** Ambas PCs deben operar sobre la misma rama activa (`feature-podarapp-sync`). No hacerle recordar comandos a Kevin: el asistente se encarga de posicionarse en la rama correcta y sincronizar automáticamente.
    - **Cierre de sesión:** Recalcular versión con `update-version.js`, registrar avances en este archivo, y realizar `git commit` + `git push` para que la otra PC reciba el relevo limpio.
 
 ---

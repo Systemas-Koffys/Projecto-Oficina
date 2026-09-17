@@ -21,11 +21,11 @@ Este documento contiene:
 El desarrollador trabaja en dos entornos con Antigravity IDE: **Oficina (turno día)** y **Casa (turno noche)**.
 Para evitar desincronizaciones, ramas divergentes y sobreescrituras en Firebase:
 
-1. 🌅 **AL INICIAR SESIÓN (Paso 0 Obligatorio):**
-   - ANTES de sugerir o tocar código, el asistente DEBE comprobar el estado remoto:
-     `git fetch origin` y verificar con `git status`.
-   - Si la otra máquina subió cambios, avisar al usuario e incorporar con `git pull` para estar 100% alineados.
-   - Verificar siempre que se esté en la rama oficial activa designada en `PROJECT_STATE.md` (actualmente `feature-podarapp-sync`).
+1. 🌅 **AL INICIAR SESIÓN O CLONAR (Paso 0 Automático):**
+   - **¡ATENCIÓN SI SE ACABA DE CLONAR!:** Git clona por defecto la rama `main`. El asistente DEBE comprobar la rama con `git branch --show-current`. Si está en `main`, DEBE cambiar automáticamente a la rama activa oficial:
+     `git checkout feature-podarapp-sync`
+   - Luego comprobar el estado remoto: `git fetch origin` y `git pull origin feature-podarapp-sync`.
+   - Saludar a Kevin confirmando que ya está montado en `feature-podarapp-sync` en la versión actual sin que él tenga que recordar ningún comando técnico.
 
 2. 🌿 **REGLA DE RAMA ÚNICA:**
    - Ambas máquinas (casa y oficina) DEBEN trabajar sobre la misma rama activa documentada. Jamás commitear cambios en `main` sin haber integrado la rama de desarrollo activa.
