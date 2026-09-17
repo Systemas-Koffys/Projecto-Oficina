@@ -1,8 +1,8 @@
-# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.6)
+# 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto (v3.26.15)
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**  
-> **Fecha de Actualización:** 29 de Junio de 2026  
-> **Versión Actual:** `v3.26.6` (Commit `ec8d496` en repositorio GitHub `origin/main`)  
+> **Fecha de Actualización:** 17 de Septiembre de 2026  
+> **Versión Actual:** `v3.26.15` (en rama `main`)  
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)  
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura  
 
@@ -88,6 +88,7 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 - ✅ **Portal Ciudadano (`PublicPortalView.vue`):** Conectado en tiempo real con `solicitudes` (estados `En espera` / `Pendiente`). Generación de código de ticket público `SOL-017/26`, soporte para visualización de códigos públicos en tablas/mapas y ordenamiento cronológico exacto por `createdAt` en primera página.
 - ✅ **Blindaje de Seguridad Nube (`firestore.rules`):** Desplegado en la nube de Google Firebase. Inmutabilidad estricta de auditoría (`allow update, delete: if false;`), restricción de escritura de catálogos y personal a `ADMIN`/`ROOT`, y aislamiento de privacidad para el portal ciudadano.
 - ✅ **Configuración de Conexión:** Restaurados valores de respaldo en [src/firebase/config.js](file:///c:/Users/Personal/Documents/Projecto-Oficina/src/firebase/config.js) para evitar pantallas blancas en el bundle web de producción de Firebase Hosting.
+- ✅ **Saludo Dinámico en Dashboard (`DashboardView.vue`):** Restaurado saludo dinámico institucional limpio (`${mensaje}, ${nombreUsuario}`) removiendo la palabra de prueba "Capo", actualizado a `v3.26.15`.
 
 ---
 
@@ -107,4 +108,4 @@ Desarrollar la vista de "Documentación / Informes" para plantillas oficiales an
 
 ## 💡 NOTA FINAL PARA EL SIGUIENTE AGENTE IA
 
-Al iniciar el nuevo chat, saluda cordialmente al usuario, confirma que has leído este manual maestro de traspaso (`PROJECT_STATE.md`), menciona que el sistema está estable en la versión `v3.26.6` con su blindaje de seguridad activo y reglas de trabajo comprendidas al 100%, y pregunta si desea comenzar directamente con el análisis y diseño de la **integración con Podarapp (AppSheet + Google Sheets)**.
+Al iniciar el nuevo chat, saluda cordialmente al usuario, confirma que has leído este manual maestro de traspaso (`PROJECT_STATE.md`), menciona que el sistema está estable en la versión `v3.26.15` con su blindaje de seguridad activo y reglas de trabajo comprendidas al 100%, y pregunta si desea comenzar directamente con el análisis y diseño de la **integración con Podarapp (AppSheet + Google Sheets)**.
