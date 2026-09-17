@@ -1,7 +1,7 @@
 {
   "name": "my-project",
   "private": true,
-  "version": "3.28.8",
+  "version": "3.28.10",
   "type": "module",
   "scripts": {
     "predev": "node scripts/update-version.js",

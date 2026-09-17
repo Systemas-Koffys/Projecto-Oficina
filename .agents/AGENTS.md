@@ -10,11 +10,31 @@ Antes de responder cualquier cosa, leer completamente el documento maestro del p
 Este documento contiene:
 - Quiénes somos y para qué institución se trabaja.
 - Las Reglas de Oro del usuario (normas de trabajo que NO se pueden violar).
+- El protocolo obligatorio de relevo: Casa (Noche) ↔ Oficina (Día).
 - La arquitectura completa del sistema (Vue 3, Pinia, Firebase, Firestore, Cloudinary).
 - La estructura de la base de datos Firestore y sus colecciones.
 - El estado actual del sistema y todos los logros implementados.
 - La lista de vistas y componentes del sistema.
 - Las tareas pendientes para el siguiente chat.
+
+## 🔄 PROTOCOLO OBLIGATORIO DE RELEVO: CASA (NOCHE) ↔ OFICINA (DÍA)
+El desarrollador trabaja en dos entornos con Antigravity IDE: **Oficina (turno día)** y **Casa (turno noche)**.
+Para evitar desincronizaciones, ramas divergentes y sobreescrituras en Firebase:
+
+1. 🌅 **AL INICIAR SESIÓN (Paso 0 Obligatorio):**
+   - ANTES de sugerir o tocar código, el asistente DEBE comprobar el estado remoto:
+     `git fetch origin` y verificar con `git status`.
+   - Si la otra máquina subió cambios, avisar al usuario e incorporar con `git pull` para estar 100% alineados.
+   - Verificar siempre que se esté en la rama oficial activa designada en `PROJECT_STATE.md` (actualmente `feature-podarapp-sync`).
+
+2. 🌿 **REGLA DE RAMA ÚNICA:**
+   - Ambas máquinas (casa y oficina) DEBEN trabajar sobre la misma rama activa documentada. Jamás commitear cambios en `main` sin haber integrado la rama de desarrollo activa.
+
+3. 🌙 **AL FINALIZAR CUALQUIER CAMBIO:**
+   - Actualizar siempre la versión (`node scripts/update-version.js`).
+   - Actualizar `PROJECT_STATE.md` indicando qué se hizo, fecha y qué queda pendiente exacto para la siguiente máquina.
+   - Pedir confirmación al usuario para hacer `git commit` y `git push`.
+   - Recordar que en producción web (PWA), para ver cambios frescos sin caché vieja de Service Worker, se requiere `Ctrl + Shift + R` o desregistrar el Service Worker en DevTools.
 
 ## ⚠️ Tareas Pendientes Inmediatas
 

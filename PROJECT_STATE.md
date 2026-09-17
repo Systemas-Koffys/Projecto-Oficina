@@ -1,8 +1,8 @@
 # 🌳 ArborGest — Manual Maestro de Traspaso & Estado del Proyecto
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**
-> **Fecha de Actualización:** 13 de Agosto de 2026
-> **Versión Actual:** `v3.28.8` (Desarrollo en rama `feature-podarapp-sync`)
+> **Fecha de Actualización:** 17 de Septiembre de 2026
+> **Versión Actual:** `v3.28.10` (Desarrollo en rama `feature-podarapp-sync`)
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura
 
@@ -35,6 +35,12 @@ El usuario sigue una metodología rigurosa de desarrollo y control. **El asisten
 6. 🛡️ **Estándar Firebase Modular SDK v9+:**
    - Usar funciones modulares como `deleteApp(app)` de `'firebase/app'` (evitar `app.delete()`).
    - En `updateCatalogo`, siempre hacer *merge* con `existingData` para evitar sobreescribir campos con `undefined`.
+
+7. 🔄 **PROTOCOLO OBLIGATORIO DE RELEVO MULTI-ENTORNO (CASA ↔ OFICINA):**
+   - El proyecto se desarrolla desde dos PCs: **Oficina (turno día)** y **Casa (turno noche)** con Antigravity IDE.
+   - **Inicio de sesión (Paso 0):** Ejecutar siempre `git fetch origin` y verificar con `git status` para incorporar novedades de la otra PC con `git pull` antes de codificar.
+   - **Rama activa oficial:** Ambas PCs deben operar sobre la misma rama activa (`feature-podarapp-sync`).
+   - **Cierre de sesión:** Recalcular versión con `update-version.js`, registrar avances en este archivo, y realizar `git commit` + `git push` para que la otra PC reciba el relevo limpio.
 
 ---
 
