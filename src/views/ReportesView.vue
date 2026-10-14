@@ -36,7 +36,8 @@ const ejecutarConfirmacion = async () => {
 const nombreHojaRuta = ref('')
 const filtroEstado = ref('En espera') 
 const filtroDistrito = ref('')
-const filtroBarrio = ref('')
+const filtroBarrio = ref([]) // Array para multiselección
+const barrioDropdownOpen = ref(false)
 const filtroTecnico = ref('')
 const filtroTipoInstitucion = ref('')
 const filtroAccion = ref('')
@@ -56,17 +57,50 @@ const filtroSegundaNota = ref('')
 const filtroFichaTecnica = ref('')
 const filtroProcede = ref('')
 
-// 1. DISTRITO -> BARRIOS (Si cambio distrito, limpio barrio si no pertenece o si se deselecciona)
+// 1. DISTRITO -> BARRIOS: Si cambio distrito, limpio los barrios que no pertenezcan
 watch(filtroDistrito, (newDist) => {
-    if (newDist && filtroBarrio.value) {
-        const barrioActual = store.barrios.find(b => b.id == filtroBarrio.value);
-        if (barrioActual && barrioActual.id_distrito != newDist) {
-            filtroBarrio.value = '';
-        }
-    } else if (!newDist) {
-        filtroBarrio.value = '';
+    if (newDist) {
+        // Filtrar del array solo los barrios que pertenecen al nuevo distrito
+        filtroBarrio.value = filtroBarrio.value.filter(id => {
+            const b = store.barrios.find(x => x.id == id)
+            return b && b.id_distrito == newDist
+        })
+    } else {
+        filtroBarrio.value = []
     }
 })
+
+// Toggle barrio en el array de seleccionados
+const toggleBarrio = (id) => {
+    const idx = filtroBarrio.value.indexOf(id)
+    if (idx === -1) {
+        filtroBarrio.value = [...filtroBarrio.value, id]
+    } else {
+        filtroBarrio.value = filtroBarrio.value.filter(x => x !== id)
+    }
+}
+
+// Nombre legible de los barrios seleccionados para el dropdown
+const barriosSeleccionadosTexto = computed(() => {
+    if (filtroBarrio.value.length === 0) return 'Todos los sectores'
+    return filtroBarrio.value
+        .map(id => {
+            const b = store.barrios.find(x => x.id == id)
+            return b ? b.nombre : '?'
+        })
+        .join(', ')
+})
+
+// Lista de barrios disponibles según distrito seleccionado
+const barriosDisponibles = computed(() => {
+    if (filtroDistrito.value) {
+        return store.barrios.filter(x => x.id_distrito == filtroDistrito.value)
+    }
+    return store.barrios
+})
+
+// Cerrar dropdown al hacer click fuera
+const cerrarBarrioDropdown = () => { barrioDropdownOpen.value = false }
 
 onMounted(() => {
     // Los datos ya vienen cargados desde el App.vue
@@ -75,7 +109,7 @@ onMounted(() => {
 const solicitudesFiltradas = computed(() => {
     return store.solicitudes.filter(sol => {
         let match = true
-        if (filtroBarrio.value && sol.id_barrio != filtroBarrio.value) match = false
+        if (filtroBarrio.value.length > 0 && !filtroBarrio.value.includes(sol.id_barrio)) match = false
         
         // Distrito filter
         if (filtroDistrito.value) {
@@ -220,7 +254,7 @@ const imprimirHojaRuta = () => {
     
     // Preparar metadatos del reporte
     const filtrosTxt = [
-        filtroBarrio.value ? `Barrio: ${getBarrio(filtroBarrio.value)}` : null,
+        filtroBarrio.value.length > 0 ? `Barrios: ${filtroBarrio.value.map(id => getBarrio(id)).join(', ')}` : null,
         filtroAccion.value ? `Acción: ${getAccion(filtroAccion.value)}` : null,
         filtroEstado.value ? `Estado: ${filtroEstado.value}` : null
     ].filter(Boolean).join(' | ')
@@ -246,7 +280,10 @@ const imprimirHojaRuta = () => {
         filtroProcede: filtroProcede.value,
     })
 
-    const nombreFinal = nombreHojaRuta.value || `Hoja de Ruta - ${getBarrio(filtroBarrio.value)} (${new Date().toLocaleDateString()})`
+    const barriosNombre = filtroBarrio.value.length > 0
+        ? filtroBarrio.value.map(id => getBarrio(id)).join(', ')
+        : 'Todos los sectores'
+    const nombreFinal = nombreHojaRuta.value || `Hoja de Ruta - ${barriosNombre} (${new Date().toLocaleDateString()})`
 
     // Disparar la impresión con un pequeño delay para asegurar la reactividad
     setTimeout(() => {
@@ -303,9 +340,12 @@ const exportarExcel = () => {
     worksheet['!cols'] = Object.keys(maxLens).map(key => ({ wch: maxLens[key] + 3 }))
 
     // Determinar nombre del archivo
+    const barriosNombreExcel = filtroBarrio.value.length > 0
+        ? filtroBarrio.value.map(id => getBarrio(id)).join('_')
+        : 'Todos'
     const nombreFinal = nombreHojaRuta.value 
         ? nombreHojaRuta.value 
-        : `Hoja_de_Ruta_${getBarrio(filtroBarrio.value)}_${new Date().toISOString().split('T')[0]}`
+        : `Hoja_de_Ruta_${barriosNombreExcel}_${new Date().toISOString().split('T')[0]}`
 
     // Guardar
     XLSX.writeFile(workbook, `${nombreFinal}.xlsx`)
@@ -335,7 +375,9 @@ const handleReimprimir = (imp) => {
             const snap = JSON.parse(imp.filtros_snapshot)
             filtroEstado.value = snap.filtroEstado ?? 'En espera'
             filtroDistrito.value = snap.filtroDistrito ?? ''
-            filtroBarrio.value = snap.filtroBarrio ?? ''
+            // Retrocompatible: el snapshot antiguo puede tener string, el nuevo un array
+            const snapBarrio = snap.filtroBarrio ?? []
+            filtroBarrio.value = Array.isArray(snapBarrio) ? snapBarrio : (snapBarrio ? [snapBarrio] : [])
             filtroTecnico.value = snap.filtroTecnico ?? ''
             filtroTipoInstitucion.value = snap.filtroTipoInstitucion ?? ''
             filtroAccion.value = snap.filtroAccion ?? ''
@@ -406,7 +448,7 @@ const formatFecha = (val) => {
 
 const limpiarFiltros = () => {
     nombreHojaRuta.value = ''
-    filtroBarrio.value = ''
+    filtroBarrio.value = []
     filtroTecnico.value = ''
     filtroSetar.value = ''
     filtroPlataforma.value = ''
@@ -499,12 +541,59 @@ const limpiarFiltros = () => {
                                         <option v-for="d in store.distritos" :key="d.id" :value="d.id">{{ d.nombre }}</option>
                                     </select>
                                 </div>
-                                <div>
+                                <div class="relative" @click.outside="cerrarBarrioDropdown">
                                     <label class="label-mini">Barrio Objetivo</label>
-                                    <select v-model="filtroBarrio" class="input-modern">
-                                        <option value="">Todos los sectores</option>
-                                        <option v-for="b in (filtroDistrito ? store.barrios.filter(x => x.id_distrito == filtroDistrito) : store.barrios)" :key="b.id" :value="b.id">{{ b.nombre }}</option>
-                                    </select>
+                                    <!-- Trigger del dropdown -->
+                                    <button
+                                        type="button"
+                                        @click="barrioDropdownOpen = !barrioDropdownOpen"
+                                        class="input-modern w-full text-left flex items-center justify-between gap-2 cursor-pointer"
+                                        :class="filtroBarrio.length > 0 ? 'border-accent/60 ring-1 ring-accent/30' : ''"
+                                    >
+                                        <span class="truncate text-xs" :class="filtroBarrio.length === 0 ? 'text-muted' : 'text-main font-semibold'">
+                                            {{ barriosSeleccionadosTexto }}
+                                        </span>
+                                        <svg class="w-3.5 h-3.5 text-muted flex-shrink-0 transition-transform" :class="barrioDropdownOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                                    </button>
+
+                                    <!-- Chips de barrios seleccionados -->
+                                    <div v-if="filtroBarrio.length > 0" class="flex flex-wrap gap-1 mt-2">
+                                        <span
+                                            v-for="id in filtroBarrio"
+                                            :key="id"
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-accent/15 text-accent border border-accent/30"
+                                        >
+                                            {{ store.barrios.find(x => x.id == id)?.nombre ?? '?' }}
+                                            <button type="button" @click.stop="toggleBarrio(id)" class="hover:text-red-400 transition-colors cursor-pointer leading-none">&times;</button>
+                                        </span>
+                                    </div>
+
+                                    <!-- Panel desplegable con checkboxes -->
+                                    <div
+                                        v-if="barrioDropdownOpen"
+                                        class="absolute z-50 mt-1 w-full bg-card-main border border-main rounded-xl shadow-2xl overflow-hidden"
+                                    >
+                                        <div class="max-h-48 overflow-y-auto custom-scrollbar p-1">
+                                            <label
+                                                v-for="b in barriosDisponibles"
+                                                :key="b.id"
+                                                class="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer hover:bg-accent/10 transition-colors"
+                                                :class="filtroBarrio.includes(b.id) ? 'bg-accent/10' : ''"
+                                                @click.prevent="toggleBarrio(b.id)"
+                                            >
+                                                <div class="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                                                    :class="filtroBarrio.includes(b.id) ? 'bg-accent border-accent' : 'border-muted'">
+                                                    <svg v-if="filtroBarrio.includes(b.id)" class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                                </div>
+                                                <span class="text-xs font-medium text-main">{{ b.nombre }}</span>
+                                            </label>
+                                            <p v-if="barriosDisponibles.length === 0" class="text-xs text-muted text-center py-3">Sin barrios disponibles</p>
+                                        </div>
+                                        <div class="border-t border-main px-3 py-2 flex justify-between items-center">
+                                            <span class="text-[10px] text-muted">{{ filtroBarrio.length }} seleccionado(s)</span>
+                                            <button type="button" @click="filtroBarrio = []; barrioDropdownOpen = false" class="text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors cursor-pointer">Limpiar</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
