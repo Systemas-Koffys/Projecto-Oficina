@@ -2,7 +2,7 @@
 
 > **DOCUMENTO MAESTRO DE CONTINUIDAD PARA EL SIGUIENTE ASISTENTE IA DE CÓDIGO**
 > **Fecha de Actualización:** 13 de Octubre de 2026
-> **Versión Actual:** `v3.28.12` (Desarrollo en rama `feature-podarapp-sync`)
+> **Versión Actual:** `v3.28.14` (Desarrollo en rama `feature-podarapp-sync`)
 > **Institución:** Gobierno Autónomo Municipal de Tarija (G.A.M.T.)
 > **Dependencia Oficial:** Dirección de Obras Públicas Municipales de Tarija • Unidad de Mantenimiento de Ornato Público • Área de Arboricultura
 
@@ -108,9 +108,9 @@ La integración entre **PodarApp (Google Sheets / AppSheet)** y **ArborGest (Fir
 *   **Asistente de Catálogos y Auto-Vinculación Masiva:** Añadida la caja detectora de barrios no registrados en `ConfiguracionesView.vue` y la función `vincularBarriosMasivosEnFirestore()` en `mainStore.js` con el botón **`[🔗 Vincular Trámites en Base de Datos]`**.
 *   **Búsqueda General Ampliada:** Actualizado `filtroBusqueda` en `SolicitudesView.vue` e `HistorialView.vue` para buscar en **TODOS** los campos del expediente (Barrio, Distrito, Especie, Teléfono, Descripción y Códigos).
 
-### 6. 📑 Multiselección de Barrios en Centro de Reportes (v3.28.12):
-* **Filtro Multi-Barrio:** Se reemplazó el selector simple por un dropdown personalizado con checkboxes y chips/tags visuales para seleccionar múltiples barrios en la generación de hojas de ruta (`ReportesView.vue`).
-* **Sincronización con Distritos:** El listado y selección se depuran dinámicamente al cambiar de distrito.
+### 6. 📑 Multiselección de Barrios en Centro de Reportes (v3.28.14):
+* **Componente MultiSelect Oficial:** Se integró el componente oficial `MultiSelect.vue` (con buscador de texto integrado, selección rápida "Todos"/"Ninguno" y cierre inteligente al hacer clic fuera) en el selector de Barrio Objetivo en `ReportesView.vue`.
+* **Sincronización con Distritos:** El listado y selección de barrios se depuran dinámicamente al cambiar de distrito.
 * **Compatibilidad Total:** El snapshot de auditoría, la exportación a Excel y la reimpresión desde historial son 100% retrocompatibles con reportes antiguos.
 
 ---
